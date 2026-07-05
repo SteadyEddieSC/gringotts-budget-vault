@@ -1,7 +1,7 @@
 {
   "name": "Gringotts Budget Vault",
   "short_name": "Gringotts",
-  "description": "Private local-first household budget PWA.",
+  "description": "Private local-first household budget PWA with differential pull review.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
