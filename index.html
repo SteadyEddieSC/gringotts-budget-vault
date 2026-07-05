@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gringotts Budget Vault v59</title>
+  <meta name="description" content="Private, local-first household budget vault and PWA.">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gringotts">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="crest" aria-hidden="true">₲</div>
+        <div>
+          <h1>Gringotts Budget Vault</h1>
+          <p id="subtitle">v59 modular Cloudflare release</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="backupNowBtn" class="btn secondary" type="button">Download backup</button>
+        <button id="installBtn" class="btn primary" type="button" hidden>Install PWA</button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Gringotts sections">
+      <button class="tab active" data-section="dashboard" type="button">Dashboard</button>
+      <button class="tab" data-section="import" type="button">Import</button>
+      <button class="tab" data-section="review" type="button">Review</button>
+      <button class="tab" data-section="transactions" type="button">Ledger</button>
+      <button class="tab" data-section="rules" type="button">Rules</button>
+      <button class="tab" data-section="cloudflare" type="button">Cloudflare</button>
+      <button class="tab" data-section="roadmap" type="button">Roadmap</button>
+    </nav>
+
+    <main id="main" class="content">
+      <section id="section-dashboard" class="section active" aria-labelledby="dashboardHeading">
+        <div class="section-title-row">
+          <div>
+            <h2 id="dashboardHeading">Vault Dashboard</h2>
+            <p>Local-first snapshot of your imported budget history. Nothing syncs to GitHub or Cloudflare.</p>
+          </div>
+          <span id="dataStatus" class="pill">No data imported</span>
+        </div>
+        <div id="kpiGrid" class="kpi-grid"></div>
+        <div class="grid two">
+          <article class="card"><h3>Top categories</h3><div id="categoryBars" class="bars"></div></article>
+          <article class="card"><h3>Top merchants</h3><div id="merchantList" class="list"></div></article>
+        </div>
+        <article class="card"><h3>Budget assistant notes</h3><div id="advisorNotes" class="notes"></div></article>
+      </section>
+
+      <section id="section-import" class="section" aria-labelledby="importHeading">
+        <h2 id="importHeading">Import transaction pack</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>Import Gringotts/Plaid JSON</h3>
+            <p>Use the Navy Federal full-history JSON pack or a Gringotts backup. The file is parsed in this browser only.</p>
+            <label class="file-drop" for="jsonFile">
+              <span>Tap to choose JSON</span>
+              <input id="jsonFile" type="file" accept=".json,application/json">
+            </label>
+            <div class="button-row">
+              <button id="sampleBtn" class="btn secondary" type="button">Load demo data</button>
+              <button id="clearDataBtn" class="btn danger" type="button">Clear local vault</button>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Import summary</h3>
+            <div id="importSummary" class="summary-box">No import yet.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="section-review" class="section" aria-labelledby="reviewHeading">
+        <div class="section-title-row">
+          <div>
+            <h2 id="reviewHeading">Mobile Review Wizard</h2>
+            <p>Review one transaction at a time and create merchant rules as you go.</p>
+          </div>
+          <span id="reviewProgress" class="pill">0 reviewed</span>
+        </div>
+        <article id="reviewCard" class="review-card"></article>
+      </section>
+
+      <section id="section-transactions" class="section" aria-labelledby="ledgerHeading">
+        <div class="section-title-row">
+          <div>
+            <h2 id="ledgerHeading">Ledger</h2>
+            <p>Search and filter imported transactions.</p>
+          </div>
+          <input id="ledgerSearch" class="search" type="search" placeholder="Search merchant, category, account...">
+        </div>
+        <div id="ledgerTable" class="table-wrap"></div>
+      </section>
+
+      <section id="section-rules" class="section" aria-labelledby="rulesHeading">
+        <h2 id="rulesHeading">Budget Rules</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>Create rule</h3>
+            <label>Merchant contains <input id="ruleMatch" type="text" placeholder="Walmart, Venmo, Food Lion"></label>
+            <label>Category <input id="ruleCategory" type="text" placeholder="Groceries, Transfers, Dining"></label>
+            <label>Owner <input id="ruleOwner" type="text" placeholder="Household, Eddie, Alexia"></label>
+            <button id="addRuleBtn" class="btn primary" type="button">Add rule</button>
+          </article>
+          <article class="card">
+            <h3>Active rules</h3>
+            <div id="rulesList" class="list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="section-cloudflare" class="section" aria-labelledby="cloudflareHeading">
+        <h2 id="cloudflareHeading">Cloudflare Pages Launch Checklist</h2>
+        <article class="card">
+          <ol class="checklist">
+            <li>Use <strong>Workers & Pages → Create application → Pages → Connect to Git</strong>.</li>
+            <li>Choose <strong>SteadyEddieSC/gringotts-budget-vault</strong>.</li>
+            <li>Framework preset: <strong>None / Static</strong>.</li>
+            <li>Production branch: <strong>main</strong>.</li>
+            <li>Build command: <strong>blank</strong>.</li>
+            <li>Output directory: <strong>/</strong>.</li>
+            <li>Leave Worker deploy command / <code>npx wrangler deploy</code> unused for this static PWA.</li>
+          </ol>
+          <div class="button-row">
+            <button id="copyCloudflareBtn" class="btn secondary" type="button">Copy checklist</button>
+            <button id="checkUpdateBtn" class="btn secondary" type="button">Check app update</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="section-roadmap" class="section" aria-labelledby="roadmapHeading">
+        <h2 id="roadmapHeading">Roadmap v59 → v69</h2>
+        <div id="roadmapList" class="roadmap"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script defer src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script defer src="src/state.js"></script>
+  <script defer src="src/storage.js"></script>
+  <script defer src="src/importer.js"></script>
+  <script defer src="src/rules.js"></script>
+  <script defer src="src/reports.js"></script>
+  <script defer src="src/ui.js"></script>
+  <script defer src="src/pwa.js"></script>
+  <script defer src="src/app.js"></script>
+</body>
+</html>
