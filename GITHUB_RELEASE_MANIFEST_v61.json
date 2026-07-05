@@ -1,0 +1,10 @@
+{
+  "app": "Gringotts Budget Vault",
+  "version": "v61",
+  "releaseType": "rules-engine-ii",
+  "entrypoint": "index.html",
+  "serviceWorker": "service-worker.js",
+  "storageKey": "gringottsBudgetVault.v61",
+  "newFiles": ["src/app-v61.js", "RELEASE_NOTES_v61.md"],
+  "changedAreas": ["rules", "rules-ui", "service-worker", "state"]
+}
