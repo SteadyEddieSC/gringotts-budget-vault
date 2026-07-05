@@ -1,0 +1,11 @@
+{
+  "app": "Gringotts Budget Vault",
+  "version": "v60",
+  "releaseType": "differential-pull-studio",
+  "entrypoint": "index.html",
+  "serviceWorker": "service-worker.js",
+  "storageKey": "gringottsBudgetVault.v60",
+  "previousStorageKeys": ["gringottsBudgetVault.v59", "gringottsBudgetVault.latest"],
+  "newFiles": ["src/differential.js", "RELEASE_NOTES_v60.md"],
+  "privacyBoundary": "app code only; household data remains local to each device"
+}
