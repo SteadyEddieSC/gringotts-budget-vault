@@ -1,0 +1,10 @@
+{
+  "app": "Gringotts Budget Vault",
+  "version": "v62",
+  "releaseType": "post-refactor-health-check",
+  "entrypoint": "index.html",
+  "serviceWorker": "service-worker.js",
+  "storageKey": "gringottsBudgetVault.v62",
+  "newFiles": ["src/health.js", "RELEASE_NOTES_v62.md"],
+  "purpose": "verify modular capabilities and document paused refactor-era features"
+}
