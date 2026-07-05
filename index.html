@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Gringotts Budget Vault v60</title>
+  <title>Gringotts Budget Vault v61</title>
   <meta name="description" content="Private, local-first household budget vault and PWA.">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
@@ -22,7 +22,7 @@
         <div class="crest" aria-hidden="true">₲</div>
         <div>
           <h1>Gringotts Budget Vault</h1>
-          <p id="subtitle">v60 Differential Pull Studio</p>
+          <p id="subtitle">v61 Rules Engine II</p>
         </div>
       </div>
       <div class="topbar-actions">
@@ -44,134 +44,45 @@
 
     <main id="main" class="content">
       <section id="section-dashboard" class="section active" aria-labelledby="dashboardHeading">
-        <div class="section-title-row">
-          <div>
-            <h2 id="dashboardHeading">Vault Dashboard</h2>
-            <p>Local-first snapshot of your imported budget history. Nothing syncs to GitHub or Cloudflare.</p>
-          </div>
-          <span id="dataStatus" class="pill">No data imported</span>
-        </div>
+        <div class="section-title-row"><div><h2 id="dashboardHeading">Vault Dashboard</h2><p>Local-first snapshot of your imported budget history. Nothing syncs to GitHub or Cloudflare.</p></div><span id="dataStatus" class="pill">No data imported</span></div>
         <div id="kpiGrid" class="kpi-grid"></div>
-        <div class="grid two">
-          <article class="card"><h3>Top categories</h3><div id="categoryBars" class="bars"></div></article>
-          <article class="card"><h3>Top merchants</h3><div id="merchantList" class="list"></div></article>
-        </div>
+        <div class="grid two"><article class="card"><h3>Top categories</h3><div id="categoryBars" class="bars"></div></article><article class="card"><h3>Top merchants</h3><div id="merchantList" class="list"></div></article></div>
         <article class="card"><h3>Budget assistant notes</h3><div id="advisorNotes" class="notes"></div></article>
       </section>
 
       <section id="section-import" class="section" aria-labelledby="importHeading">
         <h2 id="importHeading">Import transaction pack</h2>
-        <div class="grid two">
-          <article class="card">
-            <h3>Import Gringotts/Plaid JSON</h3>
-            <p>Use the direct import for the first load. For later full-history pulls, use Diff Pull first.</p>
-            <label class="file-drop" for="jsonFile">
-              <span>Tap to choose JSON</span>
-              <input id="jsonFile" type="file" accept=".json,application/json">
-            </label>
-            <div class="button-row">
-              <button id="sampleBtn" class="btn secondary" type="button">Load demo data</button>
-              <button id="clearDataBtn" class="btn danger" type="button">Clear local vault</button>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Import summary</h3>
-            <div id="importSummary" class="summary-box">No import yet.</div>
-          </article>
-        </div>
+        <div class="grid two"><article class="card"><h3>Import Gringotts/Plaid JSON</h3><p>Use the direct import for the first load. For later full-history pulls, use Diff Pull first.</p><label class="file-drop" for="jsonFile"><span>Tap to choose JSON</span><input id="jsonFile" type="file" accept=".json,application/json"></label><div class="button-row"><button id="sampleBtn" class="btn secondary" type="button">Load demo data</button><button id="clearDataBtn" class="btn danger" type="button">Clear local vault</button></div></article><article class="card"><h3>Import summary</h3><div id="importSummary" class="summary-box">No import yet.</div></article></div>
       </section>
 
       <section id="section-diff" class="section" aria-labelledby="diffHeading">
-        <div class="section-title-row">
-          <div>
-            <h2 id="diffHeading">Differential Pull Studio</h2>
-            <p>Preview a new full-history JSON pull before merging it into this device.</p>
-          </div>
-          <span class="pill">v60</span>
-        </div>
-        <div class="grid two">
-          <article class="card">
-            <h3>Analyze incoming pull</h3>
-            <p>Compares incoming rows against your current local vault and separates new, duplicate, changed, possible duplicate, and missing rows.</p>
-            <label class="file-drop" for="diffFile">
-              <span>Tap to choose JSON for preview</span>
-              <input id="diffFile" type="file" accept=".json,application/json">
-            </label>
-            <div class="button-row">
-              <button id="importNewRowsBtn" class="btn primary" type="button" disabled>Import new rows only</button>
-              <button id="mergeAllRowsBtn" class="btn secondary" type="button" disabled>Merge all incoming rows</button>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Diff summary</h3>
-            <div id="diffSummary" class="summary-box">No file analyzed yet.</div>
-          </article>
-        </div>
+        <div class="section-title-row"><div><h2 id="diffHeading">Differential Pull Studio</h2><p>Preview a new full-history JSON pull before merging it into this device.</p></div><span class="pill">v60+</span></div>
+        <div class="grid two"><article class="card"><h3>Analyze incoming pull</h3><p>Compares incoming rows against your current local vault and separates new, duplicate, changed, possible duplicate, and missing rows.</p><label class="file-drop" for="diffFile"><span>Tap to choose JSON for preview</span><input id="diffFile" type="file" accept=".json,application/json"></label><div class="button-row"><button id="importNewRowsBtn" class="btn primary" type="button" disabled>Import new rows only</button><button id="mergeAllRowsBtn" class="btn secondary" type="button" disabled>Merge all incoming rows</button></div></article><article class="card"><h3>Diff summary</h3><div id="diffSummary" class="summary-box">No file analyzed yet.</div></article></div>
         <div id="diffBuckets" style="margin-top:1rem"></div>
       </section>
 
       <section id="section-review" class="section" aria-labelledby="reviewHeading">
-        <div class="section-title-row">
-          <div>
-            <h2 id="reviewHeading">Mobile Review Wizard</h2>
-            <p>Review one transaction at a time and create merchant rules as you go.</p>
-          </div>
-          <span id="reviewProgress" class="pill">0 reviewed</span>
-        </div>
+        <div class="section-title-row"><div><h2 id="reviewHeading">Mobile Review Wizard</h2><p>Review one transaction at a time and create merchant rules as you go.</p></div><span id="reviewProgress" class="pill">0 reviewed</span></div>
         <article id="reviewCard" class="review-card"></article>
       </section>
 
       <section id="section-transactions" class="section" aria-labelledby="ledgerHeading">
-        <div class="section-title-row">
-          <div>
-            <h2 id="ledgerHeading">Ledger</h2>
-            <p>Search and filter imported transactions.</p>
-          </div>
-          <input id="ledgerSearch" class="search" type="search" placeholder="Search merchant, category, account...">
-        </div>
+        <div class="section-title-row"><div><h2 id="ledgerHeading">Ledger</h2><p>Search and filter imported transactions.</p></div><input id="ledgerSearch" class="search" type="search" placeholder="Search merchant, category, account..."></div>
         <div id="ledgerTable" class="table-wrap"></div>
       </section>
 
       <section id="section-rules" class="section" aria-labelledby="rulesHeading">
-        <h2 id="rulesHeading">Budget Rules</h2>
+        <div class="section-title-row"><div><h2 id="rulesHeading">Budget Rules II</h2><p>Use priorities and aliases to handle repeat merchants cleanly. Lower priority numbers run first.</p></div><button id="applyRulesBtn" class="btn secondary" type="button">Apply rules now</button></div>
         <div class="grid two">
-          <article class="card">
-            <h3>Create rule</h3>
-            <label>Merchant contains <input id="ruleMatch" type="text" placeholder="Walmart, Venmo, Food Lion"></label>
-            <label>Category <input id="ruleCategory" type="text" placeholder="Groceries, Transfers, Dining"></label>
-            <label>Owner <input id="ruleOwner" type="text" placeholder="Household, Eddie, Alexia"></label>
-            <button id="addRuleBtn" class="btn primary" type="button">Add rule</button>
-          </article>
-          <article class="card">
-            <h3>Active rules</h3>
-            <div id="rulesList" class="list"></div>
-          </article>
+          <article class="card"><h3>Create rule</h3><label>Merchant contains <input id="ruleMatch" type="text" placeholder="Walmart, Venmo, Food Lion"></label><label>Aliases <input id="ruleAliases" type="text" placeholder="WAL-MART, WM SUPERCENTER, Walmart.com"></label><label>Category <input id="ruleCategory" type="text" placeholder="Groceries, Transfers, Dining"></label><label>Owner <input id="ruleOwner" type="text" placeholder="Household, Eddie, Alexia"></label><label>Priority <input id="rulePriority" type="number" value="50" min="1" max="999"></label><button id="addRuleBtn" class="btn primary" type="button">Add rule</button></article>
+          <article class="card"><h3>Rule conflicts</h3><p>Transactions that match more than one rule appear here so you can adjust priorities or aliases.</p><div id="ruleConflictList" class="list"></div></article>
         </div>
+        <article class="card" style="margin-top:1rem"><h3>Active rules</h3><div id="rulesList" class="list"></div></article>
       </section>
 
-      <section id="section-cloudflare" class="section" aria-labelledby="cloudflareHeading">
-        <h2 id="cloudflareHeading">Cloudflare Pages Launch Checklist</h2>
-        <article class="card">
-          <ol class="checklist">
-            <li>Use <strong>Workers & Pages → Create application → Pages → Connect to Git</strong>.</li>
-            <li>Choose <strong>SteadyEddieSC/gringotts-budget-vault</strong>.</li>
-            <li>Framework preset: <strong>None / Static</strong>.</li>
-            <li>Production branch: <strong>main</strong>.</li>
-            <li>Build command: <strong>blank</strong>.</li>
-            <li>Output directory: <strong>/</strong>.</li>
-            <li>Leave Worker deploy command / <code>npx wrangler deploy</code> unused for this static PWA.</li>
-          </ol>
-          <div class="button-row">
-            <button id="copyCloudflareBtn" class="btn secondary" type="button">Copy checklist</button>
-            <button id="checkUpdateBtn" class="btn secondary" type="button">Check app update</button>
-          </div>
-        </article>
-      </section>
+      <section id="section-cloudflare" class="section" aria-labelledby="cloudflareHeading"><h2 id="cloudflareHeading">Cloudflare Pages Launch Checklist</h2><article class="card"><ol class="checklist"><li>Use <strong>Workers & Pages → Create application → Pages → Connect to Git</strong>.</li><li>Choose <strong>SteadyEddieSC/gringotts-budget-vault</strong>.</li><li>Framework preset: <strong>None / Static</strong>.</li><li>Production branch: <strong>main</strong>.</li><li>Build command: <strong>blank</strong>.</li><li>Output directory: <strong>/</strong>.</li><li>Leave Worker deploy command / <code>npx wrangler deploy</code> unused for this static PWA.</li></ol><div class="button-row"><button id="copyCloudflareBtn" class="btn secondary" type="button">Copy checklist</button><button id="checkUpdateBtn" class="btn secondary" type="button">Check app update</button></div></article></section>
 
-      <section id="section-roadmap" class="section" aria-labelledby="roadmapHeading">
-        <h2 id="roadmapHeading">Roadmap v60 → v70</h2>
-        <div id="roadmapList" class="roadmap"></div>
-      </section>
+      <section id="section-roadmap" class="section" aria-labelledby="roadmapHeading"><h2 id="roadmapHeading">Roadmap v61 → v71</h2><div id="roadmapList" class="roadmap"></div></section>
     </main>
   </div>
 
@@ -187,5 +98,6 @@
   <script defer src="src/differential.js"></script>
   <script defer src="src/pwa.js"></script>
   <script defer src="src/app.js"></script>
+  <script defer src="src/app-v61.js"></script>
 </body>
 </html>
