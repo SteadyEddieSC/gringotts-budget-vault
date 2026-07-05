@@ -1,0 +1,11 @@
+{
+  "app": "Gringotts Budget Vault",
+  "version": "v63",
+  "releaseType": "update-repair-data-preservation",
+  "entrypoint": "index.html",
+  "serviceWorker": "service-worker.js",
+  "storageKey": "gringottsBudgetVault.v63",
+  "newFiles": ["src/update-repair.js", "RELEASE_NOTES_v63.md"],
+  "changedAreas": ["pwa-update", "service-worker", "storage-migration", "roadmap"],
+  "dataSafety": "clears service-worker/cache storage only; preserves localStorage vault data"
+}
