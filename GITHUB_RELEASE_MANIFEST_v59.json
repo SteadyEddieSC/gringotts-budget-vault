@@ -1,0 +1,9 @@
+{
+  "app": "Gringotts Budget Vault",
+  "version": "v59",
+  "releaseType": "modular-cloudflare-pages-seed",
+  "privacyBoundary": "app code only; no personal exports or backups",
+  "entrypoint": "index.html",
+  "serviceWorker": "service-worker.js",
+  "storageKey": "gringottsBudgetVault.v59"
+}
