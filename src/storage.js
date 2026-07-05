@@ -11,7 +11,7 @@
   function save(show=true){GBV.state.lastSavedAt=new Date().toISOString(); localStorage.setItem(GBV.STORAGE_KEY,JSON.stringify(GBV.state)); localStorage.setItem('gringottsBudgetVault.latest',JSON.stringify({...GBV.state,latestSavedAt:GBV.state.lastSavedAt})); if(show) toast('Vault saved locally');}
   function clear(){localStorage.removeItem(GBV.STORAGE_KEY); localStorage.removeItem('gringottsBudgetVault.latest'); GBV.state=GBV.defaultState(); save(false); toast('Local vault cleared');}
   function download(name,content,type='application/json'){const blob=new Blob([content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0);}
-  function backup(){const stamp=new Date().toISOString().replace(/[:.]/g,'-'); download(`Gringotts_Budget_Vault_v59_backup_${stamp}.json`,JSON.stringify(GBV.state,null,2)); toast('Backup downloaded');}
+  function backup(){const stamp=new Date().toISOString().replace(/[:.]/g,'-'); download(`Gringotts_Budget_Vault_${GBV.VERSION}_backup_${stamp}.json`,JSON.stringify(GBV.state,null,2)); toast('Backup downloaded');}
   function importBackup(obj){GBV.state=migrate(obj); save();}
   GBV.store={clone,load,save,clear,backup,download,importBackup,toast};
 })();
