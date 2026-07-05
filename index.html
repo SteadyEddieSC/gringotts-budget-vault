@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Gringotts Budget Vault v59</title>
+  <title>Gringotts Budget Vault v60</title>
   <meta name="description" content="Private, local-first household budget vault and PWA.">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
@@ -22,7 +22,7 @@
         <div class="crest" aria-hidden="true">₲</div>
         <div>
           <h1>Gringotts Budget Vault</h1>
-          <p id="subtitle">v59 modular Cloudflare release</p>
+          <p id="subtitle">v60 Differential Pull Studio</p>
         </div>
       </div>
       <div class="topbar-actions">
@@ -34,6 +34,7 @@
     <nav class="tabs" aria-label="Gringotts sections">
       <button class="tab active" data-section="dashboard" type="button">Dashboard</button>
       <button class="tab" data-section="import" type="button">Import</button>
+      <button class="tab" data-section="diff" type="button">Diff Pull</button>
       <button class="tab" data-section="review" type="button">Review</button>
       <button class="tab" data-section="transactions" type="button">Ledger</button>
       <button class="tab" data-section="rules" type="button">Rules</button>
@@ -63,7 +64,7 @@
         <div class="grid two">
           <article class="card">
             <h3>Import Gringotts/Plaid JSON</h3>
-            <p>Use the Navy Federal full-history JSON pack or a Gringotts backup. The file is parsed in this browser only.</p>
+            <p>Use the direct import for the first load. For later full-history pulls, use Diff Pull first.</p>
             <label class="file-drop" for="jsonFile">
               <span>Tap to choose JSON</span>
               <input id="jsonFile" type="file" accept=".json,application/json">
@@ -78,6 +79,35 @@
             <div id="importSummary" class="summary-box">No import yet.</div>
           </article>
         </div>
+      </section>
+
+      <section id="section-diff" class="section" aria-labelledby="diffHeading">
+        <div class="section-title-row">
+          <div>
+            <h2 id="diffHeading">Differential Pull Studio</h2>
+            <p>Preview a new full-history JSON pull before merging it into this device.</p>
+          </div>
+          <span class="pill">v60</span>
+        </div>
+        <div class="grid two">
+          <article class="card">
+            <h3>Analyze incoming pull</h3>
+            <p>Compares incoming rows against your current local vault and separates new, duplicate, changed, possible duplicate, and missing rows.</p>
+            <label class="file-drop" for="diffFile">
+              <span>Tap to choose JSON for preview</span>
+              <input id="diffFile" type="file" accept=".json,application/json">
+            </label>
+            <div class="button-row">
+              <button id="importNewRowsBtn" class="btn primary" type="button" disabled>Import new rows only</button>
+              <button id="mergeAllRowsBtn" class="btn secondary" type="button" disabled>Merge all incoming rows</button>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Diff summary</h3>
+            <div id="diffSummary" class="summary-box">No file analyzed yet.</div>
+          </article>
+        </div>
+        <div id="diffBuckets" style="margin-top:1rem"></div>
       </section>
 
       <section id="section-review" class="section" aria-labelledby="reviewHeading">
@@ -139,7 +169,7 @@
       </section>
 
       <section id="section-roadmap" class="section" aria-labelledby="roadmapHeading">
-        <h2 id="roadmapHeading">Roadmap v59 → v69</h2>
+        <h2 id="roadmapHeading">Roadmap v60 → v70</h2>
         <div id="roadmapList" class="roadmap"></div>
       </section>
     </main>
@@ -154,6 +184,7 @@
   <script defer src="src/rules.js"></script>
   <script defer src="src/reports.js"></script>
   <script defer src="src/ui.js"></script>
+  <script defer src="src/differential.js"></script>
   <script defer src="src/pwa.js"></script>
   <script defer src="src/app.js"></script>
 </body>
