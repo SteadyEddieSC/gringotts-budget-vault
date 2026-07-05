@@ -1,0 +1,34 @@
+# Gringotts Budget Vault — keep private financial data out of GitHub
+
+# Bank / transaction exports
+Gringotts_NavyFederal_*.json
+*_history_pack_*.json
+*_transaction_pack_*.json
+*_active_window_*.json
+*_sync_watch_*.json
+*transactions*.csv
+*ledger*.csv
+*.qfx
+*.ofx
+*.qbo
+
+# Local app backups and scratch exports
+*backup*.json
+*Backup*.json
+Gringotts_*_backup_*.json
+Gringotts_Budget_Vault_export_*.json
+local-data/
+private-data/
+scratch/
+
+# Office files that may contain private data
+*.xlsx
+*.xls
+*.docx
+*.pdf
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
