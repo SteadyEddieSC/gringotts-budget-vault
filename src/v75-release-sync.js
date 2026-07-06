@@ -1,5 +1,5 @@
 (function(){
-  function releaseInfo(){return {version:'v76',name:'Core Version Sync + Health Cleanup',storageKey:'gringottsBudgetVault.v76',modules:['core-state-v76','health-cleanup','v64-data-guard','v65-vault-safety','v66-cashflow','v67-debt','v68-promo-briefing','v69-executive-dashboard','v70-monthly-executive','v71-executive-polish','v73-executive-drilldown','v74-executive-actions','v76-release-sync']};}
+  function releaseInfo(){return {version:'v77',name:'Quota-Safe Storage + Version Authority',storageKey:'gringottsBudgetVault.v77',modules:['core-state-v77','quota-safe-storage','health-metadata-only','repair-metadata-only','data-guard-no-version-override','executive-drilldown','executive-actions']};}
   async function cacheStatus(){
     const names='caches' in window?await caches.keys():[];
     const gringotts=names.filter(n=>n.toLowerCase().includes('gringotts'));
@@ -7,23 +7,25 @@
     return {cacheNames:gringotts,serviceWorkers:regs.length,controller:!!navigator.serviceWorker?.controller};
   }
   function releaseBlock(info,status){
-    return `Release: ${info.version} ${info.name}\nCore storage key: ${info.storageKey}\nCached Gringotts shells: ${status?.cacheNames?.join(', ')||'none visible yet'}\nService workers: ${status?.serviceWorkers??'unknown'}\nController active: ${status?.controller?'yes':'no'}\nLoaded modules tracked: ${info.modules.length}`;
+    return `Release: ${info.version} ${info.name}\nCore storage key: ${info.storageKey}\nActive storage key: ${window.GBV?.store?.loadedKey?.()||'unknown'}\nCached Gringotts shells: ${status?.cacheNames?.join(', ')||'none visible yet'}\nService workers: ${status?.serviceWorkers??'unknown'}\nController active: ${status?.controller?'yes':'no'}\nLoaded modules tracked: ${info.modules.length}`;
   }
   async function renderStatus(){
     const GBV=window.GBV; const info=releaseInfo();
     if(GBV){GBV.VERSION=info.version; GBV.STORAGE_KEY=info.storageKey;}
-    const subtitle=document.getElementById('subtitle'); if(subtitle) subtitle.textContent='v76 Core Version Sync + Health Cleanup';
-    const title=document.querySelector('title'); if(title) title.textContent='Gringotts Budget Vault v76';
+    const subtitle=document.getElementById('subtitle'); if(subtitle) subtitle.textContent='v77 Quota-Safe Storage';
+    const title=document.querySelector('title'); if(title) title.textContent='Gringotts Budget Vault v77';
     const health=document.getElementById('healthSummary');
     if(health){
       let status=null; try{status=await cacheStatus();}catch(e){}
-      const base=(health.dataset.healthBase==='1'||health.textContent.includes('Version:'))?health.textContent.split('\n\nHealth details:\n').pop().replace(/^Release:[\s\S]*?Checked:/,'Checked:'):health.textContent;
-      const healthBase=(health.textContent.includes('Version:')?health.textContent.replace(/^Release:[\s\S]*?\n\n/,''):base)||'';
-      health.textContent=`${releaseBlock(info,status)}\n\n${healthBase}`.trim();
+      let base=health.textContent||'';
+      if(base.startsWith('Release:')){const idx=base.lastIndexOf('\n\nVersion:'); base=idx>=0?base.slice(idx+2):'';}
+      health.textContent=`${releaseBlock(info,status)}\n\n${base}`.trim();
     }
+    if(window.GringottsDataGuard?.draw) window.GringottsDataGuard.draw();
+    if(window.GBV?.repair?.render) window.GBV.repair.render();
     const safety=document.getElementById('safetySummary');
-    if(safety&&!safety.dataset.v76Stamped){safety.dataset.v76Stamped='1'; safety.textContent=`Release sync active: ${info.version}. Download best vault backup before clearing app cache.\n\n${safety.textContent||''}`;}
+    if(safety&&!safety.dataset.v77Stamped){safety.dataset.v77Stamped='1'; safety.textContent=`Release sync active: ${info.version}. Quota-safe mode writes metadata separately and avoids creating another full version copy.\n\n${safety.textContent||''}`;}
   }
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(renderStatus,300); setTimeout(renderStatus,1300);});
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(renderStatus,300); setTimeout(renderStatus,1300); setTimeout(renderStatus,2400);});
   window.GringottsReleaseSync={releaseInfo,cacheStatus,renderStatus};
 })();
