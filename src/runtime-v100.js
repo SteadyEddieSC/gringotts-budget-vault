@@ -1,1 +1,1 @@
-console.log('v100 placeholder');
+(function(){const BUILD={version:'v100',name:'Rules III Preview Gate',runtime:'src/runtime-v100.js'};document.addEventListener('DOMContentLoaded',()=>{document.body.innerHTML='<main class=app-shell><section class=card><h1>Gringotts Budget Vault v100</h1><h2>Rules III Preview Gate</h2><p>Preview gate is staged. No changes are made here.</p></section></main>';window.GringottsCleanRuntime={BUILD}})})();
