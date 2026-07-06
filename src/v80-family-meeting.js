@@ -25,7 +25,9 @@
   async function copyPack(){const text=markdown(); try{await navigator.clipboard.writeText(text);}catch(e){const a=document.createElement('textarea'); a.value=text; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove();} window.GBV?.store?.toast('Meeting pack copied');}
   function downloadPack(){window.GBV?.store?.download?.(`Gringotts_family_meeting_${stamp()}.md`,markdown(),'text/markdown'); window.GBV?.store?.toast('Meeting pack downloaded');}
   function ensurePanel(){const section=document.getElementById('section-briefing'); if(!section) return null; let panel=document.getElementById('familyMeetingPackPanel'); if(!panel){panel=document.createElement('article'); panel.id='familyMeetingPackPanel'; panel.className='card'; panel.style.marginTop='1rem'; section.appendChild(panel);} return panel;}
+  function installHealthCheck(){const h=window.GBV?.health; if(h&&Array.isArray(h.checks)&&!h.checks.some(c=>c[0]==='Family Meeting Pack')) h.checks.splice(Math.max(0,h.checks.length-1),0,['Family Meeting Pack','Decisions, actions, copy/download pack',()=>!!window.GringottsFamilyMeeting]);}
   function render(){
+    installHealthCheck();
     const GBV=window.GBV; if(GBV){GBV.VERSION='v80'; GBV.STORAGE_KEY='gringottsBudgetVault.v80';}
     const subtitle=document.getElementById('subtitle'); if(subtitle) subtitle.textContent='v80 Family Budget Meeting Pack';
     const title=document.querySelector('title'); if(title) title.textContent='Gringotts Budget Vault v80';
@@ -38,5 +40,5 @@
     const actions=document.getElementById('meetingActionList'); if(actions){actions.innerHTML=(data.actions||[]).map(x=>`<div class="list-item"><span><strong>${x.done?'✓ ':''}${esc(x.owner)}: ${esc(x.text)}</strong><br><small>${esc((x.at||'').slice(0,10))}</small></span><span><button class="btn secondary" data-toggle-action="${x.id}" type="button">${x.done?'Undo':'Done'}</button><button class="btn danger" data-del-action="${x.id}" type="button">Remove</button></span></div>`).join('')||'<p>No action items recorded yet.</p>'; actions.querySelectorAll('[data-toggle-action]').forEach(btn=>btn.onclick=()=>toggleAction(btn.dataset.toggleAction)); actions.querySelectorAll('[data-del-action]').forEach(btn=>btn.onclick=()=>removeAction(btn.dataset.delAction));}
   }
   document.addEventListener('DOMContentLoaded',function(){setTimeout(render,400); setTimeout(render,1600);});
-  window.GringottsFamilyMeeting={load,save,markdown,copyPack,downloadPack,render};
+  window.GringottsFamilyMeeting={load,save,markdown,copyPack,downloadPack,render,installHealthCheck};
 })();
