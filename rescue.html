@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gringotts Budget Vault Rescue</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#111827">
+  <style>
+    :root{color-scheme:dark;--bg:#07111f;--panel:#101827;--panel2:#0b1220;--text:#f8fafc;--muted:#cbd5e1;--line:#334155;--gold:#f7c948;--green:#7dd3a8;--red:#fda4af;--blue:#93c5fd}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top left,#172554 0,#07111f 45%,#020617 100%);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}main{width:min(1100px,calc(100% - 24px));margin:0 auto;padding:22px 0 44px}.hero,.card{background:rgba(16,24,39,.92);border:1px solid var(--line);border-radius:24px;box-shadow:0 16px 55px rgba(0,0,0,.35);padding:18px;margin:14px 0}.hero{display:grid;gap:8px}.brand{display:flex;align-items:center;gap:12px}.crest{display:grid;place-items:center;width:44px;height:44px;border-radius:15px;background:#1f2937;border:1px solid #8b6f18;color:var(--gold);font-weight:900;font-size:26px}h1,h2,h3,p{margin-top:0}h1{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:4px}h2{font-size:1.25rem}.muted{color:var(--muted)}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;color:var(--muted);font-size:.92rem}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.stat{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:14px}.stat b{display:block;font-size:1.35rem;color:var(--gold)}button,select{border:1px solid var(--line);border-radius:14px;background:#1e293b;color:var(--text);padding:12px 14px;font:inherit}button{cursor:pointer;font-weight:750}button.primary{background:#2563eb;border-color:#60a5fa}button.good{background:#14532d;border-color:#22c55e}button.warn{background:#713f12;border-color:#f59e0b}button:focus,select:focus{outline:3px solid rgba(147,197,253,.45);outline-offset:2px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);background:#0f172a;position:sticky;top:0}tr.best{background:rgba(125,211,168,.1)}code,pre{white-space:pre-wrap;word-break:break-word;color:#d9f99d}pre{background:#020617;border:1px solid var(--line);border-radius:18px;padding:12px;max-height:360px;overflow:auto}.ok{color:var(--green)}.bad{color:var(--red)}.note{border-left:4px solid var(--gold);padding:10px 12px;background:#111827;border-radius:14px}.small{font-size:.9rem}@media(max-width:640px){main{width:min(100% - 16px,1100px);padding-top:10px}.hero,.card{border-radius:18px;padding:14px}button,select{width:100%}.row{align-items:stretch}.pill{width:100%;justify-content:center}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="brand"><div class="crest" aria-hidden="true">₲</div><div><h1>Gringotts Budget Vault Rescue</h1><p class="muted">Standalone recovery page. It does not load the main app runtime and does not clear localStorage.</p></div></div>
+    <div class="row">
+      <span class="pill" id="runtimePill">Rescue shell only</span>
+      <span class="pill" id="storagePill">Scanning local vaults…</span>
+      <span class="pill" id="swPill">Checking service workers…</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1. Protect the vault first</h2>
+    <p class="note"><strong>Privacy rule:</strong> this page reads only this browser's localStorage. It does not upload, push, import, or embed transaction data anywhere. Download a backup before attempting any repair elsewhere.</p>
+    <div class="grid" id="stats"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="downloadBest" type="button">Download best vault JSON</button>
+      <select id="vaultSelect" aria-label="Select vault key"></select>
+      <button id="downloadSelected" type="button">Download selected vault</button>
+      <button id="copyReport" type="button">Copy rescue report</button>
+      <button id="refresh" type="button">Refresh scan</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Local vault inventory</h2>
+    <div class="table-wrap"><table><thead><tr><th>Key</th><th>Transactions</th><th>Rules</th><th>Bytes</th><th>Version</th><th>Last saved / created</th><th>Status</th></tr></thead><tbody id="vaultRows"><tr><td colspan="7">Scanning…</td></tr></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>3. Service worker and cache status</h2>
+    <p class="muted">This rescue page can unregister old service workers. It will not clear transaction vault localStorage. Cache deletion is limited to cache names containing “gringotts.”</p>
+    <div class="row">
+      <button class="warn" id="unregisterSW" type="button">Unregister service workers</button>
+      <button class="warn" id="deleteCaches" type="button">Delete Gringotts caches only</button>
+      <button id="checkSW" type="button">Recheck status</button>
+    </div>
+    <pre id="swStatus">Checking…</pre>
+  </section>
+
+  <section class="card">
+    <h2>4. Rescue report</h2>
+    <pre id="report">Preparing report…</pre>
+  </section>
+</main>
+<script>
+(function(){
+  'use strict';
+  var vaults=[];
+  var swInfo={checkedAt:null,supported:false,registrations:[],controller:false,caches:[],errors:[]};
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function bytes(n){n=Number(n)||0;if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(2)+' MB';}
+  function dateText(v){if(!v)return '';var d=Date.parse(v);return Number.isFinite(d)?new Date(d).toLocaleString():String(v);}
+  function txCount(obj){return Array.isArray(obj&&obj.transactions)?obj.transactions.length:0;}
+  function ruleCount(obj){return Array.isArray(obj&&obj.rules)?obj.rules.length:0;}
+  function lastValue(obj){return (obj&&(obj.lastSavedAt||obj.updatedAt||obj.createdAt||obj.importedAt))||'';}
+  function scanVaults(){
+    var found=[];
+    for(var i=0;i<localStorage.length;i++){
+      var key=localStorage.key(i);
+      if(!key || key.indexOf('gringottsBudgetVault.')!==0 || key==='gringottsBudgetVault.meta')continue;
+      var raw='';
+      try{
+        raw=localStorage.getItem(key)||'';
+        var obj=JSON.parse(raw);
+        found.push({key:key,bytes:raw.length,transactions:txCount(obj),rules:ruleCount(obj),version:(obj&&obj.version)||'',last:lastValue(obj),lastMs:Date.parse(lastValue(obj))||0,status:'readable',obj:obj});
+      }catch(e){
+        found.push({key:key,bytes:raw.length,transactions:0,rules:0,version:'',last:'',lastMs:0,status:'error: '+(e&&e.message?e.message:e),obj:null});
+      }
+    }
+    found.sort(function(a,b){return (b.transactions-a.transactions)||(b.lastMs-a.lastMs)||a.key.localeCompare(b.key);});
+    vaults=found;
+    renderVaults();
+  }
+  function bestVault(){return vaults.length?vaults[0]:null;}
+  function reportObject(){return {rescuePage:'rescue.html',checkedAt:new Date().toISOString(),url:location.href,localStorageVaults:vaults.map(function(v){return {key:v.key,transactions:v.transactions,rules:v.rules,bytes:v.bytes,version:v.version,last:v.last,status:v.status};}),bestVault:bestVault()?{key:bestVault().key,transactions:bestVault().transactions,bytes:bestVault().bytes,version:bestVault().version,last:bestVault().last}:null,serviceWorker:swInfo,privacy:'localStorage only; no upload; no localStorage clearing'};}
+  function renderVaults(){
+    var best=bestVault();
+    $('storagePill').textContent=vaults.length+' vault key'+(vaults.length===1?'':'s')+' found';
+    $('stats').innerHTML=[
+      ['Best vault',best?best.key:'none'],
+      ['Transactions',best?String(best.transactions):'0'],
+      ['Best vault size',best?bytes(best.bytes):'0 B'],
+      ['Readable vaults',String(vaults.filter(function(v){return v.status==='readable';}).length)]
+    ].map(function(x){return '<div class="stat"><span class="muted">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>';}).join('');
+    $('vaultSelect').innerHTML=vaults.map(function(v,i){return '<option value="'+i+'">'+esc(v.key)+' — '+v.transactions+' tx</option>';}).join('')||'<option value="">No vaults found</option>';
+    $('vaultRows').innerHTML=vaults.length?vaults.map(function(v,i){return '<tr class="'+(i===0?'best':'')+'"><td><code>'+esc(v.key)+'</code>'+(i===0?' <span class="ok">best</span>':'')+'</td><td>'+v.transactions+'</td><td>'+v.rules+'</td><td>'+esc(bytes(v.bytes))+'</td><td>'+esc(v.version||'')+'</td><td>'+esc(dateText(v.last)||'')+'</td><td class="'+(v.status==='readable'?'ok':'bad')+'">'+esc(v.status)+'</td></tr>';}).join(''):'<tr><td colspan="7">No gringottsBudgetVault.* keys found in this browser.</td></tr>';
+    renderReport();
+  }
+  function download(name,text,type){
+    var blob=new Blob([text],{type:type||'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},0);
+  }
+  function safeName(s){return String(s||'vault').replace(/[^a-z0-9_.-]+/gi,'_').slice(0,90);}
+  function downloadVault(v){
+    if(!v||!v.obj){alert('No readable vault selected.');return;}
+    var stamp=new Date().toISOString().replace(/[:.]/g,'-');
+    download('Gringotts_rescue_'+safeName(v.key)+'_'+v.transactions+'_transactions_'+stamp+'.json',JSON.stringify(v.obj,null,2),'application/json');
+  }
+  async function inspectSW(){
+    swInfo={checkedAt:new Date().toISOString(),supported:'serviceWorker' in navigator,registrations:[],controller:false,caches:[],errors:[]};
+    try{
+      swInfo.controller=!!(navigator.serviceWorker&&navigator.serviceWorker.controller);
+      if(swInfo.supported){
+        var regs=await navigator.serviceWorker.getRegistrations();
+        swInfo.registrations=regs.map(function(r){return {scope:r.scope,active:!!r.active,installing:!!r.installing,waiting:!!r.waiting};});
+      }
+    }catch(e){swInfo.errors.push('serviceWorker: '+(e&&e.message?e.message:e));}
+    try{
+      if(window.caches&&caches.keys){swInfo.caches=await caches.keys();}
+    }catch(e){swInfo.errors.push('caches: '+(e&&e.message?e.message:e));}
+    renderSW();renderReport();
+  }
+  async function unregisterSW(){
+    try{
+      if('serviceWorker' in navigator){
+        var regs=await navigator.serviceWorker.getRegistrations();
+        for(var i=0;i<regs.length;i++){try{await regs[i].unregister();}catch(e){swInfo.errors.push('unregister '+regs[i].scope+': '+(e&&e.message?e.message:e));}}
+      }
+    }catch(e){swInfo.errors.push('unregister: '+(e&&e.message?e.message:e));}
+    await inspectSW();
+  }
+  async function deleteGringottsCaches(){
+    try{
+      if(window.caches&&caches.keys){
+        var names=await caches.keys();
+        for(var i=0;i<names.length;i++){
+          if(String(names[i]).toLowerCase().indexOf('gringotts')!==-1){try{await caches.delete(names[i]);}catch(e){swInfo.errors.push('delete cache '+names[i]+': '+(e&&e.message?e.message:e));}}
+        }
+      }
+    }catch(e){swInfo.errors.push('delete caches: '+(e&&e.message?e.message:e));}
+    await inspectSW();
+  }
+  function renderSW(){
+    $('swPill').textContent=(swInfo.registrations.length||0)+' service worker registration'+(swInfo.registrations.length===1?'':'s');
+    $('swStatus').textContent=JSON.stringify(swInfo,null,2);
+  }
+  function renderReport(){$('report').textContent=JSON.stringify(reportObject(),null,2);}
+  async function copyReport(){
+    var text=JSON.stringify(reportObject(),null,2);
+    try{await navigator.clipboard.writeText(text);alert('Rescue report copied.');}
+    catch(e){download('Gringotts_rescue_report_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json',text,'application/json');}
+  }
+  $('downloadBest').addEventListener('click',function(){downloadVault(bestVault());});
+  $('downloadSelected').addEventListener('click',function(){var i=Number($('vaultSelect').value);downloadVault(vaults[i]);});
+  $('copyReport').addEventListener('click',copyReport);
+  $('refresh').addEventListener('click',function(){scanVaults();inspectSW();});
+  $('unregisterSW').addEventListener('click',unregisterSW);
+  $('deleteCaches').addEventListener('click',deleteGringottsCaches);
+  $('checkSW').addEventListener('click',inspectSW);
+  scanVaults();
+  inspectSW();
+})();
+</script>
+</body>
+</html>
