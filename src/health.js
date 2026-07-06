@@ -3,6 +3,7 @@
   const checks=[
     ['Core state','GBV.defaultState',()=>typeof GBV.defaultState==='function'],
     ['Local storage','GBV.store.load/save/backup',()=>!!(GBV.store&&GBV.store.load&&GBV.store.save&&GBV.store.backup)],
+    ['Quota-safe storage','GBV.store.loadedKey/saveMeta',()=>!!(GBV.store&&GBV.store.loadedKey&&GBV.store.saveMeta)],
     ['Importer','GBV.importer.importPack/normalizePack',()=>!!(GBV.importer&&GBV.importer.importPack&&GBV.importer.normalizePack)],
     ['Reports','GBV.reports.metrics',()=>!!(GBV.reports&&GBV.reports.metrics)],
     ['Rules Engine II','GBV.rules.applyAll/conflictReport',()=>!!(GBV.rules&&GBV.rules.applyAll&&GBV.rules.conflictReport)],
@@ -24,14 +25,14 @@
     const missing=rows.filter(r=>!r.ok);
     const txCount=(GBV.state.transactions||[]).length;
     const bestTx=bestVaultCount();
-    const summary={version:GBV.VERSION,storageKey:GBV.STORAGE_KEY,transactions:txCount,bestVaultTransactions:bestTx,rules:(GBV.state.rules||[]).length,missing:missing.length,checkedAt:new Date().toISOString()};
+    const summary={version:GBV.VERSION,storageKey:GBV.STORAGE_KEY,activeStorageKey:GBV.store?.loadedKey?.()||'unknown',transactions:txCount,bestVaultTransactions:bestTx,rules:(GBV.state.rules||[]).length,missing:missing.length,checkedAt:new Date().toISOString()};
     GBV.state.meta=GBV.state.meta||{}; GBV.state.meta.health=summary;
-    if(GBV.store&&GBV.store.save) GBV.store.save(false);
+    if(GBV.store&&GBV.store.saveMeta) GBV.store.saveMeta(false);
     return {rows,summary,removed};
   }
   function summaryText(out){
     const s=out.summary;
-    return `Version: ${s.version}\nStorage key: ${s.storageKey}\nActive transactions: ${s.transactions}\nBest local vault transactions: ${s.bestVaultTransactions??'unknown'}\nRules: ${s.rules}\nMissing required capabilities: ${s.missing}\nChecked: ${s.checkedAt}`;
+    return `Version: ${s.version}\nStorage key: ${s.storageKey}\nActive storage key: ${s.activeStorageKey}\nActive transactions: ${s.transactions}\nBest local vault transactions: ${s.bestVaultTransactions??'unknown'}\nRules: ${s.rules}\nMissing required capabilities: ${s.missing}\nChecked: ${s.checkedAt}`;
   }
   function render(){
     const out=run();
