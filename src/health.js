@@ -11,6 +11,8 @@
     ['PWA updater','GBV.pwa.register/checkUpdate',()=>!!(GBV.pwa&&GBV.pwa.register&&GBV.pwa.checkUpdate)],
     ['UI renderer','GBV.ui.renderAll/setSection',()=>!!(GBV.ui&&GBV.ui.renderAll&&GBV.ui.setSection)],
     ['Executive summary','Month picker/drilldown/action links',()=>!!(window.GringottsExecutiveDrilldown&&window.GringottsExecutiveActions)],
+    ['Debt Planner II','Promo APR payoff focus',()=>!!(window.GringottsDebt&&window.GringottsDebt.promoSummary)],
+    ['Cash Flow II','Manual bills and payday markers',()=>!!window.GringottsCashflowII],
     ['Release sync','Core version and service-worker status',()=>!!window.GringottsReleaseSync]
   ];
   const removed=[
