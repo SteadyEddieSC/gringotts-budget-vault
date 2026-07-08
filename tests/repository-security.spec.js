@@ -61,17 +61,32 @@ test('Cloudflare headers preserve the local-first browser boundary', () => {
   for (const value of required) expect(headers).toContain(value);
 });
 
-test('public repository security control files remain present', () => {
+test('quality automation stays local and avoids temporary public Lighthouse storage', () => {
+  const workflow = read('.github/workflows/quality.yml');
+  const lighthouse = read('lighthouserc.cjs');
+  expect(workflow).toContain('temporaryPublicStorage: false');
+  expect(workflow).not.toContain('temporaryPublicStorage: true');
+  expect(workflow).toMatch(/treosh\/lighthouse-ci-action@[0-9a-f]{40}/i);
+  expect(lighthouse).toContain("target: 'filesystem'");
+  expect(lighthouse).toContain("outputDir: './lighthouse-reports'");
+});
+
+test('public repository security and quality control files remain present', () => {
   const required = [
     'SECURITY.md',
     '.github/dependabot.yml',
     '.github/workflows/codeql.yml',
     '.github/workflows/playwright.yml',
+    '.github/workflows/quality.yml',
     '.github/workflows/security.yml',
     '.github/workflows/supply-chain.yml',
     '.github/workflows/scorecard.yml',
+    'playwright.quality.config.js',
+    'lighthouserc.cjs',
+    'quality-tests/accessibility.spec.js',
+    'quality-tests/visual-regression.spec.js',
     'scripts/privacy-history-scan.mjs'
   ];
   const missing = required.filter((relativePath) => !fs.existsSync(path.join(root, relativePath)));
-  expect(missing, 'Missing repository security controls').toEqual([]);
+  expect(missing, 'Missing repository security or quality controls').toEqual([]);
 });
