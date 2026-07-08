@@ -20,6 +20,21 @@ test('imports all-new rows, warns about missing periods, verifies storage, and r
   onlyChromium(testInfo);
   const { page } = app;
   await openImport(page);
+  await page.evaluate(() => localStorage.setItem('gringottsImportHistory.v1', JSON.stringify({
+    imports: [{
+      importId: 'synthetic-prior-import',
+      timestamp: '2026-07-01T12:00:00.000Z',
+      sourceFilename: 'fictional-prior.json',
+      earliestDate: '2026-06-01',
+      latestDate: '2026-06-30',
+      insertedCount: 2,
+      skippedCount: 0,
+      selectedDestinationVault: 'gringottsBudgetVault.latest',
+      destinationBeforeCount: 8,
+      destinationAfterCount: 10,
+      verificationResult: 'verified'
+    }]
+  })));
   const writeRequests = [];
   page.on('request', (request) => { if (request.method() !== 'GET' && !request.url().startsWith('blob:')) writeRequests.push(request.url()); });
 
@@ -34,6 +49,7 @@ test('imports all-new rows, warns about missing periods, verifies storage, and r
   await page.locator('#importFile').setInputFiles(jsonFile('fictional-all-new.json', incoming));
   await expect(page.getByText(/2 new/).first()).toBeVisible();
   await expect(page.getByText(/no rows for 2026-09/i)).toBeVisible();
+  await expect(page.getByText(/Prior import history ended 2026-06-30.*2026-07/i)).toBeVisible();
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),
