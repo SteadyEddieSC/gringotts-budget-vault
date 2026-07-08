@@ -14,9 +14,16 @@
 .restore-workflow select,
 .import-workflow input,
 .restore-workflow input { min-width: 0; max-width: 100%; }
-.import-workflow select { text-overflow: ellipsis; }
+.import-workflow .grid.two > label:not(.file-drop) { overflow: hidden; }
+#importDestination { width: 1px; min-width: 100%; max-width: 100%; text-overflow: ellipsis; }
 .import-workflow .file-drop span,
-.restore-workflow .file-drop span { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.restore-workflow .file-drop span,
+.import-workflow .summary-box,
+.restore-workflow .summary-box,
+.import-workflow .section-meta,
+.restore-workflow .section-meta,
+.import-workflow button,
+.restore-workflow button { min-width: 0; max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
 .import-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; min-width: 0; }
 .import-summary-grid .kpi { min-width: 0; }
 .import-table td { min-width: 11rem; vertical-align: top; }
