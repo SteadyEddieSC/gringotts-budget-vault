@@ -9,6 +9,7 @@ function escapeHtml(value) {
 function renderFailure(error) {
   const message = error?.stack || error?.message || String(error || 'Unknown module-loading error');
   if (!boot) return;
+  if (!boot.isConnected) document.body.replaceChildren(boot);
   boot.innerHTML = `<section class="boot-card" role="alert"><h1>Stable rescue could not start</h1><p>No browser data was cleared or overwritten.</p><button id="bootRetry" type="button">Retry</button><details open><summary>Technical detail</summary><pre>${escapeHtml(message)}</pre></details></section>`;
   document.getElementById('bootRetry')?.addEventListener('click', () => location.reload());
 }
