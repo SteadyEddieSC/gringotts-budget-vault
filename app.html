@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Gringotts Budget Vault v106</title>
+  <title>Gringotts Budget Vault v106.1</title>
   <meta name="description" content="Local-first household budgeting with consolidated navigation, calendar cash flow, reports, and guarded restore.">
   <meta name="theme-color" content="#0f172a">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -12,6 +12,9 @@
 </head>
 <body>
   <noscript>Gringotts Budget Vault requires JavaScript and stores data locally in this browser only.</noscript>
-  <script type="module" src="src/runtime-v106-calendar-ui.js?v=106calendarui1"></script>
+  <main id="bootStatus" class="boot-status" aria-live="polite">
+    <section class="boot-card"><h1>Opening Gringotts Budget Vault…</h1><p>Loading the local-first v106.1 interface.</p></section>
+  </main>
+  <script type="module" src="src/boot-v106-1.js?v=1061boot1"></script>
 </body>
 </html>
