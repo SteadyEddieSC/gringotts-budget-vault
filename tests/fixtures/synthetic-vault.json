@@ -16,7 +16,7 @@
       "type": "Expense",
       "category": "Other",
       "account": "Test Checking",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": false,
       "pending": false
     },
@@ -29,7 +29,7 @@
       "type": "Expense",
       "category": "Groceries",
       "account": "Test Checking",
-      "owner": "Alexia",
+      "owner": "Test Owner B",
       "reviewed": true,
       "pending": true
     },
@@ -42,7 +42,7 @@
       "type": "Expense",
       "category": "Subscriptions",
       "account": "Test Credit Card",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     },
@@ -55,7 +55,7 @@
       "type": "Expense",
       "category": "Utilities",
       "account": "Test Checking",
-      "owner": "Alexia",
+      "owner": "Test Owner B",
       "reviewed": true,
       "pending": false
     },
@@ -67,7 +67,7 @@
       "type": "Transfer",
       "category": "Transfer",
       "account": "Test Checking",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     },
@@ -79,7 +79,7 @@
       "type": "Income",
       "category": "Income",
       "account": "Test Checking",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     },
@@ -91,7 +91,7 @@
       "type": "Expense",
       "category": "Household",
       "account": "Test Credit Card",
-      "owner": "Alexia",
+      "owner": "Test Owner B",
       "reviewed": false,
       "review_required": true,
       "pending": false
@@ -105,7 +105,7 @@
       "type": "Expense",
       "category": "Subscriptions",
       "account": "Test Credit Card",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     },
@@ -117,7 +117,7 @@
       "type": "Expense",
       "category": "Groceries",
       "account": "Test Checking",
-      "owner": "Alexia",
+      "owner": "Test Owner B",
       "reviewed": true,
       "pending": false
     },
@@ -129,7 +129,7 @@
       "type": "Income",
       "category": "Income",
       "account": "Test Checking",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     },
@@ -142,7 +142,7 @@
       "type": "Expense",
       "category": "Subscriptions",
       "account": "Test Credit Card",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     },
@@ -154,7 +154,7 @@
       "type": "Income",
       "category": "Income",
       "account": "Test Checking",
-      "owner": "Edwin",
+      "owner": "Test Owner A",
       "reviewed": true,
       "pending": false
     }
