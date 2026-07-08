@@ -2,6 +2,17 @@
 
 ## Shipped
 
+### v108.2 — Public Repository Hardening
+
+- Updated the repository documentation for public visibility and clarified the local-first data boundary.
+- Added a security policy that forbids public disclosure of household financial data.
+- Added a full-history privacy scanner for sensitive filenames and high-confidence financial identifiers.
+- Added Gitleaks full-history secret scanning.
+- Added CodeQL JavaScript security analysis.
+- Added Dependabot for npm and GitHub Actions.
+- Modernized GitHub Actions to Node 24-compatible action versions.
+- Expanded future release gates to include Playwright, privacy-history, Gitleaks, CodeQL, and Cloudflare deployment smoke results.
+
 ### v108.1 — Playwright Testing Infrastructure
 
 - Added locked Playwright dependencies and browser configuration.
@@ -85,7 +96,14 @@ Every release includes navigation, content-value, action-placement, responsive-l
 
 ## Testing governance
 
-Future releases should pass the local Playwright browser suite before merge and the Cloudflare smoke test after production deployment. Any remaining manual checks must be listed explicitly.
+Future releases should pass:
+
+- local Playwright desktop and responsive jobs before merge;
+- full-history privacy and Gitleaks checks before merge;
+- CodeQL without an unresolved release-blocking finding;
+- the Cloudflare smoke test after production deployment.
+
+Any intentionally unautomated manual checks must be listed explicitly.
 
 ## Architecture guardrails
 - Local-first transaction storage and processing.
