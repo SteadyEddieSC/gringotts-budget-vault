@@ -9,6 +9,7 @@ function escapeHtml(value) {
 function renderFailure(error) {
   const message = error?.stack || error?.message || String(error || 'Unknown module-loading error');
   if (!boot) return;
+  if (!boot.isConnected) document.body.replaceChildren(boot);
   boot.innerHTML = `
     <section class="boot-card" role="alert">
       <h1>Gringotts could not start</h1>
