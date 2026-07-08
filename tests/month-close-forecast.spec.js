@@ -45,6 +45,8 @@ test('blocks close for pending and unreviewed rows', async ({ app }) => {
 test('reconciles, closes, and reopens without changing transactions', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One desktop browser is sufficient for verified close writes.');
   const { page } = app;
+  const writes = [];
+  page.on('request', (request) => { if (request.method() !== 'GET' && !request.url().startsWith('blob:')) writes.push(request.url()); });
   await cleanSelectedMonth(page);
   await openCloseForecast(page);
 
@@ -81,6 +83,7 @@ test('reconciles, closes, and reopens without changing transactions', async ({ a
   expect(reopened.vaultCount).toBe(12);
   expect(reopened.events.map((event) => event.type)).toEqual(['close', 'reopen']);
   expect(reopened.events[0].snapshot).toBeTruthy();
+  expect(writes).toEqual([]);
 });
 
 test('projects recurring bills and paydays and stores forecast settings locally', async ({ app }, testInfo) => {
@@ -123,6 +126,8 @@ test('projects recurring bills and paydays and stores forecast settings locally'
 test('adds a promotional APR debt and records a payment without touching the vault', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One desktop browser is sufficient for debt-plan storage coverage.');
   const { page } = app;
+  const writes = [];
+  page.on('request', (request) => { if (request.method() !== 'GET' && !request.url().startsWith('blob:')) writes.push(request.url()); });
   await openCloseForecast(page);
   await page.locator('#forecastAsOf').fill('2026-07-01');
   await page.locator('#saveForecastSettings').click();
@@ -148,6 +153,7 @@ test('adds a promotional APR debt and records a payment without touching the vau
   expect(result.vaultCount).toBe(12);
   expect(result.debt.balance).toBe(1100);
   expect(result.debt.totalPaymentsRecorded).toBe(100);
+  expect(writes).toEqual([]);
 });
 
 test('keeps close, forecast, and debt surfaces inside every configured viewport', async ({ app }) => {
