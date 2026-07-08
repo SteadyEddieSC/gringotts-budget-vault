@@ -59,7 +59,7 @@ export function reviewView(position = 0) {
   const options = reviewOptions();
   const safePosition = queue.length ? Math.min(Math.max(Number(position) || 0, 0), queue.length - 1) : 0;
   const item = queue[safePosition];
-  const categorizedBatch = queue.filter((entry) => !/^(other|uncategorized)$/i.test(String(entry.category || '').trim())).length;
+  const categorizedBatch = queue.filter((entry) => { const value = String(entry.category || '').trim(); return value && !/^(other|uncategorized)$/i.test(value); }).length;
 
   if (!item) {
     return `<section class="section active review-page">
