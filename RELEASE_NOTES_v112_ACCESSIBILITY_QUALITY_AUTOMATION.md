@@ -2,62 +2,71 @@
 
 ## Release purpose
 
-v112 adds automated accessibility, performance, best-practice, SEO, and visual-layout release gates around the existing v111 Household Reporting III application.
+v112 adds automated accessibility, performance, best-practice, SEO, keyboard, and responsive-layout release gates around the existing v111 Household Reporting III application.
 
-This is intentionally a quality-infrastructure release. It does not create another application runtime, top-level destination, browser-storage key, service worker, or compatibility layer.
+This is intentionally a quality-infrastructure release. It does not create another application runtime, top-level destination, browser-storage key, service worker, compatibility layer, or transaction-upload path.
 
-## Axe accessibility scanning
+## Accessibility automation
 
-A dedicated Playwright quality suite installs axe-core 4.10.3 at an exact version and scans eight synthetic household workflows:
+The lockfile-pinned Playwright quality suite uses `@axe-core/playwright` 4.12.1 and scans synthetic versions of Dashboard, every Money subsection, Calendar, Reports, every Activity subsection, and every Tools subsection.
 
-1. Dashboard;
-2. Money — Budget & Recurring;
-3. Money — Goals & Health;
-4. Money — Close & Forecast;
-5. Calendar;
-6. Reports — Household Reporting III;
-7. Activity — Review Queue;
-8. Tools — Import / Restore.
+The pull-request gate fails on serious or critical violations associated with WCAG 2.0 A/AA, WCAG 2.1 A/AA, and axe best-practice tags.
 
-The pull-request gate fails on serious or critical violations associated with WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA tags.
+Each audited surface receives a JSON result attachment retained for 14 days as a private workflow artifact. The data is entirely fictional.
 
-The suite also verifies keyboard entry through the skip link and accessible names for all six primary destinations.
+## Accessibility improvements
 
-A complete JSON result is retained for 14 days as a workflow artifact. It contains only fictional Playwright data.
+v112 also fixes application behavior rather than merely adding scanners:
+
+- `#main` is explicitly focusable for Skip to content;
+- secondary navigators expose valid `tablist` and `tab` semantics;
+- exactly one secondary tab exposes `aria-selected="true"` and `tabindex="0"`;
+- inactive tabs use roving `tabindex="-1"`;
+- Arrow Left/Right, Home, and End move and activate tabs;
+- main-content rerenders are observed so semantics remain current after navigation;
+- Escape closes mobile navigation and returns focus to the Menu button;
+- visible focus, reduced-motion, high-contrast, and forced-colors behavior is covered;
+- local file inputs retain keyboard access and minimum touch-target treatment.
+
+The established desktop Chromium, Firefox, WebKit, tablet, Android-phone, and iPhone/WebKit suite verifies the semantic behavior in addition to the dedicated Chromium quality jobs.
 
 ## Lighthouse CI
 
-Lighthouse CI 0.15.1 runs two local static audits and enforces:
+Lighthouse CI 0.15.1 runs three local desktop audits and enforces median thresholds:
 
-- Performance score of at least 0.75;
-- Accessibility score of at least 0.95;
-- Best Practices score of at least 0.90;
-- SEO score of at least 0.90;
-- First Contentful Paint at most 2.5 seconds;
-- Largest Contentful Paint at most 4.0 seconds;
-- Time to Interactive at most 5.0 seconds;
-- Total Blocking Time at most 600 milliseconds;
+- Performance score at least 0.85;
+- Accessibility score at least 0.95;
+- Best Practices score at least 0.95;
+- SEO score at least 0.90;
+- First Contentful Paint at most 2.0 seconds;
+- Largest Contentful Paint at most 2.5 seconds;
+- Total Blocking Time at most 250 milliseconds;
 - Cumulative Layout Shift at most 0.10;
-- explicit total, script, stylesheet, and image transfer budgets;
-- explicit total, script, and stylesheet request-count budgets;
-- zero third-party requests;
-- zero browser-console errors.
+- total page weight at most 750 KB;
+- script transfer at most 500 KB;
+- stylesheet transfer at most 150 KB;
+- image transfer at most 250 KB;
+- zero browser-console errors;
+- at most 45 network requests;
+- zero third-party resources through `lighthouse-budget.json`.
 
-The Lighthouse report is retained as a short-lived workflow artifact and is not uploaded to a public Lighthouse server.
+Speed Index and Time to Interactive remain warning thresholds to expose regressions without turning normal hosted-runner variability into false release blockers.
+
+Lighthouse reports are written only to `lighthouse-reports/` and retained as short-lived private workflow artifacts. Temporary public report storage is not used.
 
 ## Privacy-safe visual regression
 
 The repository does not commit PNG screenshot baselines because screenshots can accidentally capture household data and binary baseline changes are difficult to review.
 
-Instead, v112 adds deterministic text-based visual-layout snapshots for:
+Instead, v112 adds deterministic text-based visual-layout contracts for:
 
 - Dashboard desktop at 1440 × 1000;
 - Reports desktop at 1440 × 1000;
 - Reports phone at 390 × 844.
 
-The snapshots compare required visible and hidden surfaces, primary-tab count, card and report-page counts, responsive range-control columns, mobile control height, main-content width, topbar placement, and horizontal overflow.
+The contracts compare required visible and hidden surfaces, primary-tab count, card and report-page counts, responsive range-control columns, mobile control height, main-content width, topbar placement, and horizontal overflow.
 
-Actual geometry and computed colors are saved as JSON diagnostics. Playwright screenshots, traces, and video are generated only when a quality test fails and remain workflow artifacts rather than repository files.
+Actual geometry and computed colors are saved as JSON diagnostics. Playwright screenshots, traces, and video are generated only when a test fails and remain workflow artifacts rather than repository files.
 
 ## Supply-chain and workflow safety
 
@@ -65,14 +74,20 @@ The new workflow:
 
 - uses read-only repository permission;
 - pins every external GitHub Action to a full commit SHA;
-- installs axe-core and Lighthouse CI at exact versions;
-- uses `--ignore-scripts`, `--no-save`, and `--package-lock=false`;
-- does not change the locked application dependency graph;
+- installs the locked dependency graph with lifecycle scripts disabled;
+- invokes Lighthouse CI at an exact version;
 - does not use `pull_request_target`;
-- does not download remote browser scripts with curl or wget;
+- does not bootstrap or commit binary visual baselines;
+- does not upload reports to public temporary storage;
 - uses the existing synthetic Playwright vault helper.
 
 Repository security-drift tests enforce these requirements and require every v112 quality control file to remain present.
+
+## Future bank import roadmap
+
+This release also records a dedicated future **v115 — Bank Export Import & Mapping** release in `BANK_IMPORT_ROADMAP.md` and `ROADMAP.md`.
+
+The planned first-class formats are CSV/delimited files, OFX, QFX, and QBO. The future release must include content-aware format/schema detection, explicit mapping preview, amount-sign validation, v109 duplicate review, backup-first guarded writes, and read-back verification. CAMT, MT940, institution-specific JSON, and XLSX remain candidates only after parser and synthetic-fixture validation. PDF statements remain outside that release because they require a separate extraction and verification workflow.
 
 ## Architecture and data preservation
 
@@ -96,19 +111,26 @@ No new browser-local data key is introduced.
 ## New files
 
 - `.github/workflows/quality.yml`
-- `.lighthouserc.cjs`
 - `lighthouse-budget.json`
+- `lighthouserc.cjs`
 - `playwright.quality.config.js`
 - `quality-baselines/v112-layout-contracts.json`
 - `quality-tests/accessibility.spec.js`
+- `quality-tests/tab-semantics.spec.js`
 - `quality-tests/visual-contracts.spec.js`
+- `src/v112/accessibility.js`
+- `styles/v112.css`
 - `QUALITY_GATES.md`
+- `BANK_IMPORT_ROADMAP.md`
 
 ## Updated files
 
 - `README.md`
 - `ROADMAP.md`
 - `TESTING.md`
+- `src/boot-v111.js`
+- `tests/accessibility-semantics.spec.js`
+- `tests/helpers/app.js`
 - `tests/repository-security.spec.js`
 
 ## Required release checks
@@ -117,8 +139,8 @@ Before merge:
 
 1. Local source — desktop;
 2. Local source — responsive;
-3. Axe accessibility and visual contracts;
-4. Lighthouse quality budgets;
+3. Accessibility and visual contracts;
+4. Lighthouse CI budgets;
 5. Full history privacy and secret scan;
 6. JavaScript security analysis;
 7. Dependency Review;
