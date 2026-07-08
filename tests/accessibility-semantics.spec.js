@@ -32,3 +32,16 @@ test('moves secondary navigation with arrow keys', async ({ app }) => {
   await expect(next).toHaveAttribute('aria-selected', 'true');
   await expect(next).toHaveAttribute('tabindex', '0');
 });
+
+test('labels table wrappers as keyboard-accessible scroll regions', async ({ app }) => {
+  const { page } = app;
+  await openPrimary(page, 'Money');
+  await page.getByRole('tab', { name: 'Goals & Health', exact: true }).click();
+
+  const region = page.locator('.table-wrap').first();
+  await expect(region).toHaveAttribute('role', 'region');
+  await expect(region).toHaveAttribute('tabindex', '0');
+  await expect(region).toHaveAttribute('aria-label', /table/i);
+  await region.focus();
+  await expect(region).toBeFocused();
+});
