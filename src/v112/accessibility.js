@@ -21,6 +21,30 @@ function normalizeTablists(root = document) {
   });
 }
 
+function tableRegionLabel(wrapper, index) {
+  const table = wrapper.querySelector('table');
+  const caption = table?.querySelector('caption')?.textContent?.trim();
+  if (caption) return caption;
+  const article = wrapper.closest('article, section');
+  const heading = article?.querySelector('h2, h3, h4')?.textContent?.trim();
+  return heading ? `${heading} table` : `Scrollable data table ${index + 1}`;
+}
+
+function normalizeScrollableRegions(root = document) {
+  root.querySelectorAll?.('.table-wrap').forEach((wrapper, index) => {
+    setAttributeIfChanged(wrapper, 'tabindex', '0');
+    setAttributeIfChanged(wrapper, 'role', 'region');
+    if (!wrapper.getAttribute('aria-label') && !wrapper.getAttribute('aria-labelledby')) {
+      setAttributeIfChanged(wrapper, 'aria-label', tableRegionLabel(wrapper, index));
+    }
+  });
+}
+
+function normalizeRenderedAccessibility(root = document) {
+  normalizeTablists(root);
+  normalizeScrollableRegions(root);
+}
+
 function handleTabKeyboard(event) {
   if (!TAB_KEYS.has(event.key)) return;
   const current = event.target.closest?.('[role="tab"]');
@@ -49,10 +73,10 @@ export function installAccessibilityEnhancements() {
 
   const main = document.getElementById('main');
   main?.setAttribute('tabindex', '-1');
-  normalizeTablists(document);
+  normalizeRenderedAccessibility(document);
 
   if (main) {
-    const observer = new MutationObserver(() => normalizeTablists(main));
+    const observer = new MutationObserver(() => normalizeRenderedAccessibility(main));
     observer.observe(main, { childList: true, subtree: true });
   }
 
