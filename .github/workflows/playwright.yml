@@ -1,0 +1,112 @@
+name: Playwright Regression
+
+on:
+  push:
+    branches:
+      - main
+      - v108.1-playwright-infrastructure
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playwright-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-e2e:
+    name: Local source — ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+          - desktop
+          - responsive
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run desktop browsers
+        if: matrix.shard == 'desktop'
+        run: npx playwright test --grep-invert @live --project=chromium --project=firefox --project=webkit
+
+      - name: Run tablet and phone projects
+        if: matrix.shard == 'responsive'
+        run: npx playwright test --grep-invert @live --project=tablet --project=mobile-chromium --project=mobile-webkit
+
+      - name: Upload Playwright diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-${{ matrix.shard }}-${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  live-smoke:
+    name: Cloudflare deployment smoke
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    needs: local-e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_SKIP_WEBSERVER: '1'
+      LIVE_BASE_URL: https://gringotts-budget-vault.pages.dev/?release=playwright-${{ github.sha }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Cloudflare and run smoke test
+        shell: bash
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            echo "Cloudflare smoke attempt ${attempt}/6"
+            if npm run test:live; then
+              exit 0
+            fi
+            sleep 30
+          done
+          exit 1
+
+      - name: Upload deployment diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-live-${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
