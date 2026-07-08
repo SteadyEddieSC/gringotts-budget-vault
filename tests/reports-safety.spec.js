@@ -1,6 +1,6 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('downloads the v108 Vault Workbook and exposes the annual tracker input', async ({ app }, testInfo) => {
+test('downloads the v109 Vault Workbook and exposes the annual tracker input', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openPrimary(page, 'Reports');
@@ -10,7 +10,7 @@ test('downloads the v108 Vault Workbook and exposes the annual tracker input', a
     page.waitForEvent('download'),
     page.locator('#vaultXlsx').click()
   ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v108_2026-07_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v109_2026-07_.*\.xlsx/i);
 });
 
 test('blocks an empty restore and preserves the populated vault', async ({ app }) => {
@@ -45,5 +45,5 @@ test('downloads a full backup from Tools instead of the header', async ({ app },
     page.waitForEvent('download'),
     page.locator('#exportBackup').click()
   ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_v108_backup_12_/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_v109_backup_12_/i);
 });
