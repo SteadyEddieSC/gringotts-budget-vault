@@ -56,7 +56,7 @@ export function calendarModel(selectedMonth = getMonth()) {
   const pressureDays = [];
   scheduledDays.forEach((day) => {
     cumulative += day.net;
-    if (day.bills > day.paydays || cumulative < 0) pressureDays.push({ ...day, cumulative });
+    if (cumulative < 0) pressureDays.push({ ...day, cumulative });
   });
 
   return {
