@@ -2,6 +2,16 @@
 
 ## Shipped
 
+### v108.1 — Playwright Testing Infrastructure
+
+- Added locked Playwright dependencies and browser configuration.
+- Added synthetic multi-month test data that never uses real household transactions.
+- Added automated boot, navigation, responsive-layout, month-control, Review Queue, Goals, Reports, Backup, and Restore-safety tests.
+- Added desktop Chromium, Firefox, WebKit, iPad, Android-phone, and iPhone/WebKit projects.
+- Added GitHub Actions local-source testing and a retried post-deployment Cloudflare smoke test.
+- Added failure screenshots, video, traces, HTML reports, and 14-day artifact retention.
+- Established passing local and deployment browser tests as a future release gate.
+
 ### v108 — Goals & Vault Health
 
 - Added Money → Goals & Health without creating another top-level destination.
@@ -73,11 +83,16 @@
 
 Every release includes navigation, content-value, action-placement, responsive-layout, accessibility, and working-control review. Larger UI overhauls should occur about every 10 releases, within a 10–20 release range depending on feature growth.
 
+## Testing governance
+
+Future releases should pass the local Playwright browser suite before merge and the Cloudflare smoke test after production deployment. Any remaining manual checks must be listed explicitly.
+
 ## Architecture guardrails
 - Local-first transaction storage and processing.
 - No transaction uploads.
 - Goal and health data remain separate browser-local settings.
 - Health history is explicit, not automatically written by page views.
+- Automated tests use synthetic browser-local data only.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module entry runtime only.
 - Best-populated readable vault selection.
