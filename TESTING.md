@@ -117,6 +117,7 @@ npm run report
 - an external GitHub Action is not pinned to a full 40-character commit SHA;
 - a workflow uses `pull_request_target`;
 - a workflow requests `write-all` or repository-content write permission;
+- the CodeQL workflow does not use read-only defaults and narrowly scoped security-event upload permission;
 - required public security files disappear;
 - the Cloudflare Content Security Policy or local-first browser headers are weakened.
 
@@ -160,7 +161,7 @@ The locked npm dependency graph is installed without lifecycle scripts and fails
 
 ### CodeQL
 
-CodeQL performs extended JavaScript security analysis and publishes findings to GitHub's Security area.
+CodeQL performs extended JavaScript security analysis and publishes findings to GitHub's Security area. The workflow uses read-only defaults and grants `security-events: write` only to the analysis job that uploads results.
 
 ### OpenSSF Scorecard
 
