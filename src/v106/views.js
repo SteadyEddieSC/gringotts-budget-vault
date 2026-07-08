@@ -7,6 +7,8 @@ import { importView, exportsView, rulesView } from '../v104/views-admin.js';
 import { intelligenceView, reportsView } from '../v105/views.js';
 import { calendarAccessibleLabel, calendarModel, calendarSummary, dayDetails } from './calendar.js';
 
+export { reportsView };
+
 function concise(html, replacements = []) {
   return replacements.reduce((output, [from, to]) => output.replace(from, to), html);
 }
