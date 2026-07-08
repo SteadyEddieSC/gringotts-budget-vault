@@ -26,7 +26,7 @@ export function reviewReasons(transaction) {
   const reasons = [];
   if (transaction.reviewed === false) reasons.push('Not reviewed');
   if (categoryNeedsCleanup(transaction)) reasons.push('Category needs cleanup');
-  if (transaction.review_required === true) reasons.push('Source marked review required');
+  if (transaction.review_required === true && transaction.reviewed !== true) reasons.push('Source marked review required');
   return reasons;
 }
 
@@ -134,6 +134,7 @@ export function saveTransactionReview(rowIndex, changes, markReviewed, notify = 
     transaction.account = clean(changes.account);
     transaction.notes = clean(changes.notes);
     transaction.reviewed = Boolean(markReviewed);
+    if (markReviewed) transaction.review_required = false;
     transaction.reviewedAt = markReviewed ? new Date().toISOString() : transaction.reviewedAt || '';
     transaction.reviewSource = 'Gringotts v107 Review Queue';
     writeVault(candidate, vault);
@@ -162,6 +163,7 @@ export function batchMarkCategorizedReviewed(month = getMonth(), notify = () => 
     eligible.forEach((item) => {
       const transaction = vault.transactions[item.rowIndex];
       transaction.reviewed = true;
+      transaction.review_required = false;
       transaction.reviewedAt = reviewedAt;
       transaction.reviewSource = 'Gringotts v107 categorized batch review';
     });
