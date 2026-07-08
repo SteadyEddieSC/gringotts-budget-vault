@@ -2,6 +2,14 @@
 
 ## Shipped
 
+### v106.1 — Boot-Safe Hotfix
+
+- Added a visible loading state so module failures cannot appear as an unexplained black page.
+- Added exact on-page error reporting for module-load, window, and unhandled-promise failures.
+- Added Retry v106.1 and a standalone stable v105 rescue page.
+- Preserved all browser-local vault, budget, recurring, bill, payday, rule, and month data.
+- Kept the stable rescue separate from the primary runtime rather than stacking compatibility runtimes.
+
 ### v106 — Calendar, Cash Flow & UI Consolidation
 
 - Consolidated eleven top-level destinations into six: Dashboard, Money, Calendar, Reports, Activity, and Tools.
