@@ -1,4 +1,4 @@
-import { esc, getMonth, money, monthLabel } from '../v103/core.js';
+import { esc, getMonth, money } from '../v103/core.js';
 import { trackerTemplateSnapshot } from '../v104/template-workbook.js';
 import { exportsView } from '../v104/views-admin.js';
 import {
@@ -20,14 +20,20 @@ const presetLabels = {
   last12: 'Rolling 12 months',
   custom: 'Custom dates'
 };
+const countMetrics = new Set(['Transactions', 'Pending', 'Review queue']);
 
 function percent(value) {
   if (value === null || value === undefined || !Number.isFinite(value)) return 'New / no prior baseline';
   return `${value > 0 ? '+' : ''}${(value * 100).toFixed(1)}%`;
 }
 
+function metricValue(item, value) {
+  return countMetrics.has(item.label) ? Number(value).toLocaleString() : money(value);
+}
+
 function metricChange(item) {
-  const direction = item.delta === 0 ? 'No change' : `${money(Math.abs(item.delta))} ${item.delta > 0 ? 'higher' : 'lower'}`;
+  const amount = countMetrics.has(item.label) ? Math.abs(item.delta).toLocaleString() : money(Math.abs(item.delta));
+  const direction = item.delta === 0 ? 'No change' : `${amount} ${item.delta > 0 ? 'higher' : 'lower'}`;
   return `<span class="comparison-direction ${item.direction}">${esc(direction)}<small>${esc(percent(item.percent))}</small></span>`;
 }
 
@@ -65,7 +71,7 @@ function executivePage(model) {
 
 function comparisonPage(model) {
   if (!model.comparison) return `<article class="card printable-report report-page"><h2>Year-over-year comparison</h2><p>Prior-year comparison is disabled for this report range.</p></article>`;
-  return `<article class="card printable-report report-page"><div class="section-title-row"><div><h2>Year-over-year comparison</h2><p>${esc(model.label)} versus ${esc(model.comparison.label)}</p></div><div class="section-meta">Equivalent dates</div></div><div class="table-wrap report-table-wrap"><table class="ledger comparison-table"><thead><tr><th>Metric</th><th>Current</th><th>Prior year</th><th>Change</th></tr></thead><tbody>${model.comparison.rows.map((item) => `<tr><td><strong>${esc(item.label)}</strong></td><td>${['Transactions','Pending','Review queue'].includes(item.label) ? item.current : money(item.current)}</td><td>${['Transactions','Pending','Review queue'].includes(item.label) ? item.prior : money(item.prior)}</td><td>${metricChange(item)}</td></tr>`).join('')}</tbody></table></div><h3>Monthly trend</h3><div class="table-wrap report-table-wrap"><table class="ledger monthly-comparison-table"><thead><tr><th>Month</th><th>Income</th><th>Spending</th><th>Net</th><th>Prior spending</th></tr></thead><tbody>${model.monthly.map((item) => `<tr><td>${esc(item.label)}</td><td>${money(item.income)}</td><td>${money(item.spend)}</td><td>${money(item.net)}</td><td>${money(item.priorSpend)}</td></tr>`).join('')}</tbody></table></div></article>`;
+  return `<article class="card printable-report report-page"><div class="section-title-row"><div><h2>Year-over-year comparison</h2><p>${esc(model.label)} versus ${esc(model.comparison.label)}</p></div><div class="section-meta">Equivalent dates</div></div><div class="table-wrap report-table-wrap"><table class="ledger comparison-table"><thead><tr><th>Metric</th><th>Current</th><th>Prior year</th><th>Change</th></tr></thead><tbody>${model.comparison.rows.map((item) => `<tr><td><strong>${esc(item.label)}</strong></td><td>${metricValue(item, item.current)}</td><td>${metricValue(item, item.prior)}</td><td>${metricChange(item)}</td></tr>`).join('')}</tbody></table></div><h3>Monthly trend</h3><div class="table-wrap report-table-wrap"><table class="ledger monthly-comparison-table"><thead><tr><th>Month</th><th>Income</th><th>Spending</th><th>Net</th><th>Prior spending</th></tr></thead><tbody>${model.monthly.map((item) => `<tr><td>${esc(item.label)}</td><td>${money(item.income)}</td><td>${money(item.spend)}</td><td>${money(item.net)}</td><td>${money(item.priorSpend)}</td></tr>`).join('')}</tbody></table></div></article>`;
 }
 
 function spendingPage(model) {
