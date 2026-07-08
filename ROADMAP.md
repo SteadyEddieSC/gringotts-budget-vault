@@ -2,34 +2,36 @@
 
 ## Shipped
 
+### v108 — Goals & Vault Health
+
+- Added Money → Goals & Health without creating another top-level destination.
+- Added goals and sinking funds with target, current amount, monthly contribution, due date, notes, contribution updates, editing, archiving, and deletion.
+- Added an explainable Vault Health score with visible deductions and actionable next steps.
+- Added explicit Save Snapshot history; no health history is written merely by viewing the page.
+- Added Goals, Vault Health, and Health History sheets to the deeper workbook, expanding it from 17 to 20 sheets.
+- Changed Review Queue category, owner, and account fields to native select controls.
+- Constrained the month selector to a compact desktop toolbar while preserving the compact phone layout.
+- Preserved the persistent-shell performance improvements and parsed-vault cache from v107.
+
 ### v107 — Review Queue & Performance
 
-- Added a compact phone month control that keeps Previous, selected month, Next, Latest, and transaction count in a tighter responsive layout.
-- Replaced full-page shell reconstruction with a persistent header/navigation shell and main-content-only rendering.
-- Added requestAnimationFrame render coalescing and debounced ledger searching.
-- Added parsed-vault caching with explicit invalidation after verified vault writes.
-- Added Activity → Review Queue for one-transaction-at-a-time mobile review.
-- Added Previous/Next review controls, category/owner/account/notes editing, and rule suggestions.
-- Added backup-first editing: enabling edits downloads a JSON backup and attempts a local recovery snapshot.
-- Added verified single-row saves and a guarded categorized-only batch review action.
-- Preserved the boot-safe error screen and stable v105 rescue page.
+- Added a compact phone month control.
+- Replaced full-page shell reconstruction with persistent navigation and main-content-only rendering.
+- Added parsed-vault caching, render coalescing, and debounced ledger searching.
+- Added Activity → Review Queue with backup-first editing and verified transaction saves.
 
 ### v106.2 — Reports Export Fix
 
 - Corrected the missing `reportsView` re-export that blocked v106 startup.
-- Advanced production cache keys while retaining the boot-safe loader.
 
 ### v106.1 — Boot-Safe Hotfix
 
-- Added visible loading and exact on-page module error reporting.
-- Added Retry and a standalone stable v105 rescue page.
+- Added visible loading, exact module error reporting, Retry, and the stable v105 rescue page.
 
 ### v106 — Calendar, Cash Flow & UI Consolidation
 
 - Consolidated eleven top-level destinations into Dashboard, Money, Calendar, Reports, Activity, and Tools.
-- Added responsive phone/tablet navigation, full calendar day detail, and cash-flow pressure warnings.
-- Moved Backup out of the header and Dashboard hero.
-- Added project UI governance and scheduled the next deeper architecture review for about v116.
+- Added responsive navigation, calendar day detail, cash-flow pressure warnings, and UI governance.
 
 ### v105 — Bills, Recurring & Budget Intelligence
 
@@ -45,11 +47,6 @@
 
 ## Next releases
 
-### v108 — Goals & Vault Health
-- Goals and sinking funds.
-- Vault Health score and history.
-- Actionable next steps and workbook sheets.
-
 ### v109 — Import Memory & Duplicate Guard
 - Exact transaction-ID protection.
 - Fuzzy duplicate review and import history.
@@ -58,6 +55,11 @@
 ### v110 — Month Close & Forecasting
 - Statement reconciliation and close snapshots.
 - Reopen workflow, household forecast, debt, and promotional APR planning.
+
+### v111 — Household Reporting III
+- Goal and health sections in family meeting packs.
+- Custom report date ranges.
+- Year-over-year reporting and cleaner PDF pagination.
 
 ### v116 — Planned UI Architecture Review
 - Reassess primary and secondary navigation.
@@ -74,9 +76,11 @@ Every release includes navigation, content-value, action-placement, responsive-l
 ## Architecture guardrails
 - Local-first transaction storage and processing.
 - No transaction uploads.
+- Goal and health data remain separate browser-local settings.
+- Health history is explicit, not automatically written by page views.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module entry runtime only.
 - Best-populated readable vault selection.
 - Never auto-save an empty vault.
-- Backup-first before destructive or broad write operations.
+- Backup-first before destructive or broad transaction writes.
 - Report generation remains local and self-contained.
