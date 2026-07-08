@@ -2,24 +2,25 @@
 
 ## Shipped
 
+### v104 — Household Reporting II
+
+- Fixed Previous, Next, Latest, and native month/year picker controls by correcting render/bind order.
+- Removed informational pills and changed the header version to quiet inline text.
+- Added local filling of the preferred six-sheet annual income-and-expense tracker template.
+- Preserved formulas, charts, styling, category setup, annual overview, and monthly overview.
+- Kept the Quick Transactions export and the curated Vault Workbook as separate reports.
+
 ### v103 — Reports & Month Navigator
 
-Shared month navigation, executive summary, family meeting-pack preview, Family Tracker XLSX, curated 12-sheet Vault Workbook XLSX, and browser-local report generation.
+Introduced shared month state, executive summary, family meeting-pack preview, Quick Transactions XLSX, curated 12-sheet Vault Workbook XLSX, and browser-local report generation. Its month control binding defect was corrected in v104.
 
 ## Next releases
-
-### v104 — Household Reporting II
-- Polished full-page executive report.
-- Improved print/PDF hierarchy and page breaks.
-- Richer month-over-month and year-over-year comparisons.
-- Custom family meeting notes and action items.
-- Optional date-range reporting beyond one month.
 
 ### v105 — Bills, Recurring & Budget Intelligence
 - Bill and subscription amount-change alerts.
 - Budget versus actual tracking.
 - Category tuning suggestions.
-- Recurring-charge confirmation/exclusion controls.
+- Recurring-charge confirmation and exclusion controls.
 - Spending trend cards.
 
 ### v106 — Calendar & Cash-Flow II
@@ -51,6 +52,7 @@ Shared month navigation, executive summary, family meeting-pack preview, Family 
 ## Architecture guardrails
 - Local-first transaction storage and processing.
 - No transaction uploads.
+- User-selected report templates remain local and are not published by the app.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module entry runtime only.
 - Same-origin helper modules are implementation details, not stacked runtimes.
@@ -61,4 +63,4 @@ Shared month navigation, executive summary, family meeting-pack preview, Family 
 
 ## Historical roadmap record
 
-Earlier v60–v70 planning included Differential Pull Studio, Rules Engine II, Cash-Flow Command Center, Debt Payoff Planner, Receipt & Evidence Vault, Family Budget Briefing, PWA hardening, UI Overhaul III, Import Connectors, Household Goals, and Shared Household Handoff. Those ideas have been retained, reordered, or superseded by the current v104–v110 plan.
+Earlier v60–v70 planning included Differential Pull Studio, Rules Engine II, Cash-Flow Command Center, Debt Payoff Planner, Receipt & Evidence Vault, Family Budget Briefing, PWA hardening, UI Overhaul III, Import Connectors, Household Goals, and Shared Household Handoff. Those ideas have been retained, reordered, or superseded by the current v105–v110 plan.
