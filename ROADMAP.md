@@ -2,52 +2,48 @@
 
 ## Shipped
 
+### v107 — Review Queue & Performance
+
+- Added a compact phone month control that keeps Previous, selected month, Next, Latest, and transaction count in a tighter responsive layout.
+- Replaced full-page shell reconstruction with a persistent header/navigation shell and main-content-only rendering.
+- Added requestAnimationFrame render coalescing and debounced ledger searching.
+- Added parsed-vault caching with explicit invalidation after verified vault writes.
+- Added Activity → Review Queue for one-transaction-at-a-time mobile review.
+- Added Previous/Next review controls, category/owner/account/notes editing, and rule suggestions.
+- Added backup-first editing: enabling edits downloads a JSON backup and attempts a local recovery snapshot.
+- Added verified single-row saves and a guarded categorized-only batch review action.
+- Preserved the boot-safe error screen and stable v105 rescue page.
+
+### v106.2 — Reports Export Fix
+
+- Corrected the missing `reportsView` re-export that blocked v106 startup.
+- Advanced production cache keys while retaining the boot-safe loader.
+
 ### v106.1 — Boot-Safe Hotfix
 
-- Added a visible loading state so module failures cannot appear as an unexplained black page.
-- Added exact on-page error reporting for module-load, window, and unhandled-promise failures.
-- Added Retry v106.1 and a standalone stable v105 rescue page.
-- Preserved all browser-local vault, budget, recurring, bill, payday, rule, and month data.
-- Kept the stable rescue separate from the primary runtime rather than stacking compatibility runtimes.
+- Added visible loading and exact on-page module error reporting.
+- Added Retry and a standalone stable v105 rescue page.
 
 ### v106 — Calendar, Cash Flow & UI Consolidation
 
-- Consolidated eleven top-level destinations into six: Dashboard, Money, Calendar, Reports, Activity, and Tools.
-- Added responsive phone/tablet menu behavior instead of a horizontally overflowing navigation strip.
-- Moved Backup out of the header and Dashboard hero into Tools → Exports & Backup while retaining the guarded Restore backup action.
-- Grouped budgets, recurring charges, bills, and paydays under Money.
-- Grouped transactions and rules under Activity.
-- Grouped Import/Restore, Exports & Backup, Diagnostics, and Roadmap under Tools.
-- Added a full selected-month calendar with clickable day detail.
-- Added bills, paydays, transaction activity, scheduled totals, and cash-flow pressure warnings.
-- Added a project UI governance standard with a release-level quality gate.
-- Scheduled the next deeper UI architecture review for approximately v116, or earlier if complexity thresholds are reached.
+- Consolidated eleven top-level destinations into Dashboard, Money, Calendar, Reports, Activity, and Tools.
+- Added responsive phone/tablet navigation, full calendar day detail, and cash-flow pressure warnings.
+- Moved Backup out of the header and Dashboard hero.
+- Added project UI governance and scheduled the next deeper architecture review for about v116.
 
 ### v105 — Bills, Recurring & Budget Intelligence
 
-- Added monthly category budgets, budget-versus-actual progress, and three-month suggestions.
-- Added recurring-charge Confirm, Exclude, and Reset controls.
-- Added recurring amount-change alerts using a $2 or 5% threshold.
-- Added six-month household spending trends and category tuning.
-- Expanded the deeper Vault Workbook from 12 to 17 sheets.
+- Added category budgets, recurring-charge review, amount-change alerts, trends, and the 17-sheet Vault Workbook.
 
 ### v104 — Household Reporting II
 
-- Fixed Previous, Next, Latest, and native month/year picker controls.
-- Removed informational pills and changed the header version to quiet inline text.
-- Added local filling of the preferred six-sheet annual income-and-expense tracker template.
+- Fixed month controls, removed informational pills, and added local filling of the preferred annual tracker.
 
 ### v103 — Reports & Month Navigator
 
-Introduced shared month state, executive summary, family meeting-pack preview, Quick Transactions XLSX, curated Vault Workbook XLSX, and browser-local report generation.
+- Added shared month state, executive reporting, meeting packs, and local XLSX generation.
 
 ## Next releases
-
-### v107 — Review Queue II
-- One-transaction-at-a-time mobile review.
-- Forward/back controls.
-- Guarded category, owner, account, and notes edits.
-- Rule suggestions and backup-first batch review.
 
 ### v108 — Goals & Vault Health
 - Goals and sinking funds.
@@ -73,21 +69,14 @@ Introduced shared month state, executive summary, family meeting-pack preview, Q
 
 ## UI governance
 
-Every release now includes a navigation, content-value, action-placement, responsive-layout, accessibility, and working-control review. Larger UI overhauls should occur approximately every 10 releases, within a 10–20 release range depending on feature growth.
+Every release includes navigation, content-value, action-placement, responsive-layout, accessibility, and working-control review. Larger UI overhauls should occur about every 10 releases, within a 10–20 release range depending on feature growth.
 
 ## Architecture guardrails
 - Local-first transaction storage and processing.
 - No transaction uploads.
-- Budgets and recurring preferences remain local browser settings.
-- User-selected report templates remain local and are not published by the app.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module entry runtime only.
-- Same-origin helper modules are implementation details, not stacked runtimes.
 - Best-populated readable vault selection.
 - Never auto-save an empty vault.
 - Backup-first before destructive or broad write operations.
 - Report generation remains local and self-contained.
-
-## Historical roadmap record
-
-Earlier v60–v70 planning included Differential Pull Studio, Rules Engine II, Cash-Flow Command Center, Debt Payoff Planner, Receipt & Evidence Vault, Family Budget Briefing, PWA hardening, UI Overhaul III, Import Connectors, Household Goals, and Shared Household Handoff. Those ideas have been retained, reordered, or superseded by the current v107–v116 plan.
