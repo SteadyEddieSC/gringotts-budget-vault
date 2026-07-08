@@ -1,5 +1,10 @@
 const boot = document.getElementById('bootStatus');
 
+if (!globalThis.CSS) globalThis.CSS = {};
+if (typeof globalThis.CSS.escape !== 'function') {
+  globalThis.CSS.escape = (value) => String(value ?? '').replace(/[^a-zA-Z0-9_-]/g, (character) => `\\${character}`);
+}
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
