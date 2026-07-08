@@ -11,7 +11,7 @@ A public, local-first household budgeting application deployed as a static Cloud
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
 Current application runtime: **v108 — Goals & Vault Health**  
-Current quality-infrastructure release: **v108.3 — Security Completion**
+Current quality-infrastructure release: **v108.4 — Security Alert Cleanup**
 
 ## Live application
 
