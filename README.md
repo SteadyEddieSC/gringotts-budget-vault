@@ -1,6 +1,7 @@
 # Gringotts Budget Vault
 
 [![Playwright Regression](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/playwright.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/playwright.yml)
+[![Accessibility & Quality](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/quality.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/quality.yml)
 [![Public Repository Security](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/security.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/security.yml)
 [![Supply Chain](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/supply-chain.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/supply-chain.yml)
 [![CodeQL](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml)
@@ -11,7 +12,7 @@ A public, local-first household budgeting application deployed as a static Cloud
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
 Current application runtime: **v111 — Household Reporting III**  
-Current quality-infrastructure release: **v108.4 — Security Alert Cleanup**
+Current quality-infrastructure release: **v112 — Accessibility & Quality Automation**
 
 ## Live application
 
@@ -38,7 +39,9 @@ The application remains local-first:
 - month-close history stores summaries and signatures, not redundant transaction copies;
 - forecast settings and debt planning remain separate from transaction history;
 - import history stores metadata only, not redundant transaction copies;
-- automated browser tests use a fictional vault in an isolated browser profile;
+- automated browser and quality tests use a fictional vault in an isolated browser profile;
+- axe, visual-layout, and Lighthouse checks run against local static content only;
+- no screenshot baseline containing transaction data is committed;
 - no service worker or offline application cache is registered;
 - the application must not automatically save an empty vault;
 - broad transaction writes remain backup-first and verified after storage.
@@ -68,6 +71,17 @@ Playwright regression tests cover:
 - report and backup downloads;
 - service-worker absence and unexpected network writes.
 
+v112 quality automation adds:
+
+- axe-core scans across eight important household workflows;
+- a release block for serious or critical WCAG-tagged violations;
+- keyboard and skip-link smoke coverage;
+- Lighthouse CI category, timing, resource-size, and request-count budgets;
+- a zero third-party request budget;
+- deterministic text-based visual-layout snapshots for key desktop and phone surfaces;
+- short-lived accessibility, Lighthouse, screenshot-on-failure, trace, and video artifacts;
+- security-drift enforcement for pinned quality tools and local synthetic data.
+
 Public-repository and supply-chain automation adds:
 
 - full-history secret scanning with Gitleaks;
@@ -78,13 +92,14 @@ Public-repository and supply-chain automation adds:
 - OpenSSF Scorecard analysis;
 - Dependabot updates for npm and GitHub Actions;
 - full-commit-SHA pinning for every external GitHub Action;
-- regression checks that prevent workflow-permission, action-pinning, and security-header drift.
+- regression checks that prevent workflow-permission, action-pinning, security-header, and quality-gate drift.
 
 The Cloudflare deployment serves a restrictive Content Security Policy, clickjacking protection, no-referrer policy, disabled worker execution, and cross-origin isolation headers suitable for the local-first static application.
 
 See:
 
 - [`TESTING.md`](TESTING.md) for automated checks and local commands;
+- [`QUALITY_GATES.md`](QUALITY_GATES.md) for axe, Lighthouse, and visual-contract details;
 - [`GITHUB_SETTINGS_CHECKLIST.md`](GITHUB_SETTINGS_CHECKLIST.md) for the exact repository settings that must be confirmed manually;
 - [`SECURITY.md`](SECURITY.md) for private vulnerability reporting and sensitive-data boundaries.
 
@@ -103,6 +118,8 @@ npm run privacy:history
 npm audit --audit-level=high
 ```
 
+The quality suite uses exact temporary tool versions and does not modify the lockfile. See [`QUALITY_GATES.md`](QUALITY_GATES.md) for those commands.
+
 ## Cloudflare Pages deployment
 
 Use Cloudflare Pages, not Workers/Wrangler:
@@ -115,7 +132,7 @@ Use Cloudflare Pages, not Workers/Wrangler:
 
 ## Security reports
 
-Do not open a public issue containing credentials, account data, transaction exports, or other sensitive information. Follow [`SECURITY.md`](SECURITY.md) for private reporting guidance.
+Do not open a public issue containing credentials, account data, transaction exports, generated quality artifacts, or other sensitive information. Follow [`SECURITY.md`](SECURITY.md) for private reporting guidance.
 
 ## Project status
 
