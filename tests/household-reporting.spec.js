@@ -99,8 +99,8 @@ test('includes local goal, health, forecast, and debt context in the family repo
     }], monthlyExtra: 50 }));
   });
   await openReports(page);
-  await expect(page.getByText('Synthetic Emergency Fund')).toBeVisible();
-  await expect(page.getByText('Synthetic Promo Card')).toBeVisible();
+  await expect(page.getByText('Synthetic Emergency Fund').first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
   await expect(page.getByText(/Vault Health/i).first()).toBeVisible();
   await expect(page.getByText(/Forecast:/i)).toBeVisible();
   await expect(page.getByText(/Current priority: Synthetic Promo Card/i)).toBeVisible();
