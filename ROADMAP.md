@@ -2,6 +2,20 @@
 
 ## Shipped
 
+### v112 — Accessibility & Quality Automation
+
+- Added a dedicated read-only GitHub Actions workflow for accessibility, responsive-layout, and Lighthouse quality gates.
+- Added pinned axe-core scans across Dashboard, Money, Calendar, Reports, Activity, and Tools workflows.
+- Added a release block for serious or critical violations carrying WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA tags.
+- Added keyboard entry, skip-link, and primary-control accessible-name smoke coverage.
+- Added Lighthouse CI minimum scores for performance, accessibility, best practices, and SEO.
+- Added timing budgets for FCP, LCP, interactive, total blocking time, and cumulative layout shift.
+- Added total/script/stylesheet/image size budgets, resource-count budgets, and a zero third-party-request budget.
+- Added privacy-safe text-based visual-layout snapshots for Dashboard desktop, Reports desktop, and Reports phone.
+- Added short-lived JSON, Lighthouse, screenshot-on-failure, trace, and video diagnostics without committing household-data images.
+- Extended repository security-drift tests to enforce pinned quality tools, read-only permissions, local synthetic data, and required quality files.
+- Preserved the visible v111 application runtime and every local-first data safeguard.
+
 ### v111 — Household Reporting III
 
 - Added selected-month, year-to-date, rolling 3/6/12-month, and custom report ranges.
@@ -126,16 +140,14 @@
 
 ## Next releases
 
-### v112 — Accessibility & Quality Automation
-- Add axe-core accessibility scans to Playwright.
-- Add Lighthouse CI performance, accessibility, best-practice, and SEO budgets.
-- Add selective visual regression snapshots for the most important desktop and phone layouts.
-- Keep synthetic data and local-first boundaries in every quality check.
-
 ### v113 — Household Insights IV
 - Add explainable anomaly and unusual-spending review.
 - Add recurring-cost opportunity summaries and household decision prompts.
 - Feed insights into the report center without silently changing categories or transactions.
+
+### v114 — Guided Household Planning
+- Add advisor-style planning checklists driven by goals, close status, forecast pressure, and debt priorities.
+- Keep every recommendation explainable and separate from transaction writes.
 
 ### v116 — Planned UI Architecture Review
 - Reassess primary and secondary navigation.
@@ -154,6 +166,8 @@ Every release includes navigation, content-value, action-placement, responsive-l
 Future releases should pass:
 
 - local Playwright desktop and responsive jobs before merge;
+- axe accessibility and visual-contract quality checks before merge;
+- Lighthouse category, timing, size, and request budgets before merge;
 - repository security-drift tests before merge;
 - full-history privacy and Gitleaks checks before merge;
 - Dependency Review and `npm audit` before merge;
@@ -171,7 +185,8 @@ OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. A
 - Forecast and debt planning remain separate browser-local data.
 - Goal and health data remain separate browser-local settings.
 - Health history is explicit, not automatically written by page views.
-- Automated tests use synthetic browser-local data only.
+- Automated browser and quality tests use synthetic browser-local data only.
+- No committed screenshot baselines containing household data.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module entry runtime only.
 - Best-populated readable vault selection.
