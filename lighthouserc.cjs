@@ -1,6 +1,7 @@
 module.exports = {
   ci: {
     collect: {
+      url: ['http://127.0.0.1:4173/?quality=lighthouse'],
       numberOfRuns: 3,
       settings: {
         preset: 'desktop',
