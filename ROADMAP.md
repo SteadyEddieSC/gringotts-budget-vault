@@ -2,26 +2,30 @@
 
 ## Shipped
 
+### v105 — Bills, Recurring & Budget Intelligence
+
+- Added a dedicated Bills & Budget workspace.
+- Added monthly category budgets stored locally in the browser.
+- Added budget-versus-actual progress, over-budget warnings, and three-month budget suggestions.
+- Added recurring-charge detection with Confirm, Exclude, and Reset controls.
+- Added recurring amount-change alerts using a $2 or 5% materiality threshold.
+- Added six-month household spending trends.
+- Added category tuning recommendations.
+- Expanded the Vault Workbook from 12 to 17 sheets with Budget vs Actual, Recurring Watch, Amount Changes, Spending Trends, and Category Tuning.
+- Preserved the preferred annual household tracker workflow from v104.
+
 ### v104 — Household Reporting II
 
 - Fixed Previous, Next, Latest, and native month/year picker controls by correcting render/bind order.
 - Removed informational pills and changed the header version to quiet inline text.
 - Added local filling of the preferred six-sheet annual income-and-expense tracker template.
 - Preserved formulas, charts, styling, category setup, annual overview, and monthly overview.
-- Kept the Quick Transactions export and the curated Vault Workbook as separate reports.
 
 ### v103 — Reports & Month Navigator
 
-Introduced shared month state, executive summary, family meeting-pack preview, Quick Transactions XLSX, curated 12-sheet Vault Workbook XLSX, and browser-local report generation. Its month control binding defect was corrected in v104.
+Introduced shared month state, executive summary, family meeting-pack preview, Quick Transactions XLSX, curated Vault Workbook XLSX, and browser-local report generation. Its month-control binding defect was corrected in v104.
 
 ## Next releases
-
-### v105 — Bills, Recurring & Budget Intelligence
-- Bill and subscription amount-change alerts.
-- Budget versus actual tracking.
-- Category tuning suggestions.
-- Recurring-charge confirmation and exclusion controls.
-- Spending trend cards.
 
 ### v106 — Calendar & Cash-Flow II
 - Full month/week/day calendar.
@@ -52,6 +56,7 @@ Introduced shared month state, executive summary, family meeting-pack preview, Q
 ## Architecture guardrails
 - Local-first transaction storage and processing.
 - No transaction uploads.
+- Budgets and recurring preferences remain local browser settings.
 - User-selected report templates remain local and are not published by the app.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module entry runtime only.
@@ -63,4 +68,4 @@ Introduced shared month state, executive summary, family meeting-pack preview, Q
 
 ## Historical roadmap record
 
-Earlier v60–v70 planning included Differential Pull Studio, Rules Engine II, Cash-Flow Command Center, Debt Payoff Planner, Receipt & Evidence Vault, Family Budget Briefing, PWA hardening, UI Overhaul III, Import Connectors, Household Goals, and Shared Household Handoff. Those ideas have been retained, reordered, or superseded by the current v105–v110 plan.
+Earlier v60–v70 planning included Differential Pull Studio, Rules Engine II, Cash-Flow Command Center, Debt Payoff Planner, Receipt & Evidence Vault, Family Budget Briefing, PWA hardening, UI Overhaul III, Import Connectors, Household Goals, and Shared Household Handoff. Those ideas have been retained, reordered, or superseded by the current v106–v110 plan.
