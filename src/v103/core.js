@@ -7,10 +7,12 @@ export const num=value=>Number.isFinite(Number(value))?Number(value):0;
 export const money=value=>num(value).toLocaleString(undefined,{style:'currency',currency:'USD'});
 export const stamp=()=>new Date().toISOString().replace(/[:.]/g,'-');
 export const uid=prefix=>prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+let vaultCache=null;
+export function invalidateVaultCache(){vaultCache=null}
 export function read(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
-export function save(key,value){localStorage.setItem(key,JSON.stringify(value))}
+export function save(key,value){localStorage.setItem(key,JSON.stringify(value));if(String(key).startsWith('gringottsBudgetVault.'))invalidateVaultCache()}
 export function keys(){try{return Object.keys(localStorage).sort()}catch{return[]}}
-export function vaults(){return keys().filter(key=>key.startsWith('gringottsBudgetVault.')&&key!=='gringottsBudgetVault.meta').map(key=>{try{const raw=localStorage.getItem(key)||'',obj=JSON.parse(raw),transactions=Array.isArray(obj.transactions)?obj.transactions.length:0,last=Date.parse(obj.lastSavedAt||obj.restoredAt||obj.updatedAt||obj.createdAt||0)||0;return{key,obj,bytes:raw.length,transactions,last,status:'readable'}}catch{return{key,obj:null,bytes:0,transactions:0,last:0,status:'error'}}}).sort((a,b)=>b.transactions-a.transactions||b.last-a.last)}
+export function vaults(){if(vaultCache)return vaultCache;vaultCache=keys().filter(key=>key.startsWith('gringottsBudgetVault.')&&key!=='gringottsBudgetVault.meta').map(key=>{try{const raw=localStorage.getItem(key)||'',obj=JSON.parse(raw),transactions=Array.isArray(obj.transactions)?obj.transactions.length:0,last=Date.parse(obj.lastSavedAt||obj.restoredAt||obj.updatedAt||obj.createdAt||0)||0;return{key,obj,bytes:raw.length,transactions,last,status:'readable'}}catch{return{key,obj:null,bytes:0,transactions:0,last:0,status:'error'}}}).sort((a,b)=>b.transactions-a.transactions||b.last-a.last);return vaultCache}
 export const best=()=>vaults()[0]||null;
 export function state(){const candidate=best();return candidate?.obj?{...candidate.obj,transactions:Array.isArray(candidate.obj.transactions)?candidate.obj.transactions:[],_activeKey:candidate.key}:{transactions:[],_activeKey:'none'}}
 export const txs=()=>state().transactions||[];
