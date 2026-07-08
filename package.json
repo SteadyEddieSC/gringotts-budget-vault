@@ -4,13 +4,17 @@
   "private": true,
   "description": "Playwright browser regression tests for Gringotts Budget Vault",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "playwright test",
     "test:local": "playwright test --grep-invert @live",
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "privacy:history": "node scripts/privacy-history-scan.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.61.1"
