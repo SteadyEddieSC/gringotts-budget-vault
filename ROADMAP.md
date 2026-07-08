@@ -2,6 +2,19 @@
 
 ## Shipped
 
+### v110 — Month Close & Forecasting
+
+- Corrected the live subtitle to `Mischief Managed. Money Managed`.
+- Added account-level statement reconciliation with posted counts, signed activity, explained differences, and stale-signature detection.
+- Added close blockers for pending, unreviewed, missing, stale, and unexplained reconciliation conditions.
+- Added immutable close revisions containing summary data and transaction signatures without redundant full transaction copies.
+- Added controlled reopen events that require a reason and preserve prior close revisions.
+- Added one-time, weekly, biweekly, and monthly bill/payday schedules.
+- Added 30-, 60-, and 90-day cash forecasts with starting cash, minimum buffer, flexible spending, pressure days, and projected monthly balances.
+- Added debt and promotional APR planning with payoff-pace, interest, urgency, priority, and local payment tracking.
+- Expanded the Vault Workbook from 20 to 24 sheets with Month Close, Reconciliations, Cash Forecast, and Debt Plan.
+- Added synthetic Playwright coverage for close, reopen, forecast, debt, no transaction mutation, and responsive layouts.
+
 ### v109 — Import Memory & Duplicate Guard
 
 - Added exact duplicate protection using stable transaction IDs and deterministic fallback fingerprints.
@@ -100,12 +113,8 @@
 
 ## Next releases
 
-### v110 — Month Close & Forecasting
-- Statement reconciliation and close snapshots.
-- Reopen workflow, household forecast, debt, and promotional APR planning.
-
 ### v111 — Household Reporting III
-- Goal and health sections in family meeting packs.
+- Goal, health, month-close, forecast, and debt sections in family meeting packs.
 - Custom report date ranges.
 - Year-over-year reporting and cleaner PDF pagination.
 
@@ -144,6 +153,8 @@ OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. A
 - Local-first transaction storage and processing.
 - No transaction uploads.
 - Import history stores metadata only under a separate browser-local key.
+- Month-close history stores summaries and deterministic signatures rather than redundant transactions.
+- Forecast and debt planning remain separate browser-local data.
 - Goal and health data remain separate browser-local settings.
 - Health history is explicit, not automatically written by page views.
 - Automated tests use synthetic browser-local data only.
