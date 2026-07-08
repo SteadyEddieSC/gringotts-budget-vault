@@ -17,7 +17,7 @@ The fixture includes:
 - an Other/unreviewed transaction;
 - a source-review-required transaction;
 - recurring charges with an amount change;
-- multiple accounts and owners.
+- multiple fictional accounts and owners.
 
 Each Playwright test receives fresh browser storage. It cannot see or alter the user's normal browser profile.
 
@@ -25,8 +25,9 @@ Each Playwright test receives fresh browser storage. It cannot see or alter the 
 
 Requirements:
 
-- Node.js 20 or newer;
-- Python 3 for the local static server.
+- Node.js 24 or newer;
+- Python 3 for the local static server;
+- Git history available when running the privacy-history scan.
 
 Install the locked dependencies and browsers:
 
@@ -39,6 +40,12 @@ Run the local-source suite:
 
 ```bash
 npm run test:local
+```
+
+Run the full-history privacy check:
+
+```bash
+npm run privacy:history
 ```
 
 Run with a visible browser:
@@ -59,7 +66,7 @@ Open the last HTML report:
 npm run report
 ```
 
-## What is tested
+## What Playwright tests
 
 ### Boot and architecture
 
@@ -99,7 +106,7 @@ npm run report
 
 ## Browser projects
 
-The local GitHub Actions suite runs:
+The GitHub Actions suite runs:
 
 - desktop Chromium;
 - desktop Firefox;
@@ -108,20 +115,60 @@ The local GitHub Actions suite runs:
 - Android phone emulation;
 - iPhone/WebKit emulation.
 
+## Public-repository security tests
+
+### Privacy-history scanner
+
+`scripts/privacy-history-scan.mjs` scans all reachable Git history for:
+
+- bank and transaction JSON export filenames;
+- backup and generated-vault JSON filenames;
+- transaction or ledger CSV files;
+- QFX, OFX, QBO, XLSX, XLS, DOCX, and PDF files;
+- SSN-formatted values;
+- labeled routing, ABA, account, and full payment-card numbers.
+
+The committed synthetic fixture is the only allowed vault-shaped data file.
+
+### Gitleaks
+
+The security workflow checks the full repository history for hardcoded credentials, API keys, tokens, and similar secrets.
+
+### CodeQL
+
+CodeQL performs JavaScript security analysis and publishes findings to GitHub's Security area.
+
+### Dependabot
+
+Dependabot checks npm and GitHub Actions dependencies monthly and opens grouped update pull requests.
+
 ## GitHub Actions
 
-`.github/workflows/playwright.yml` runs the local-source suite on:
+`.github/workflows/playwright.yml` runs browser tests on:
 
 - pushes to `main`;
-- pushes to the testing-infrastructure branch;
 - pull requests targeting `main`;
 - manual workflow dispatch.
 
-Desktop and responsive projects run as separate jobs. Failure artifacts retain screenshots, video, traces, test results, and the HTML report for 14 days.
+`.github/workflows/security.yml` runs full-history privacy and secret scanning on:
+
+- pushes to `main`;
+- pull requests targeting `main`;
+- manual workflow dispatch;
+- a weekly schedule.
+
+`.github/workflows/codeql.yml` runs JavaScript security analysis on:
+
+- pushes to `main`;
+- pull requests targeting `main`;
+- manual workflow dispatch;
+- a weekly schedule.
+
+Desktop and responsive Playwright projects run as separate jobs. Failure artifacts retain screenshots, video, traces, test results, and the HTML report for 14 days.
 
 ## Live Cloudflare smoke test
 
-After a successful local suite on `main`, a Chromium smoke test checks the deployed Cloudflare Pages site. It retries for up to approximately three minutes to allow deployment propagation.
+After a successful local Playwright suite on `main`, a Chromium smoke test checks the deployed Cloudflare Pages site. It retries for up to approximately three minutes to allow deployment propagation.
 
 The live test verifies:
 
@@ -133,8 +180,10 @@ The live test also uses synthetic localStorage inside an isolated GitHub runner 
 
 ## Release gate
 
-Future releases should not be described as browser-verified until:
+Future releases should not be described as fully verified until:
 
-1. the local Playwright jobs pass;
-2. the Cloudflare smoke job passes after the production push;
-3. any intentionally unautomated manual checks are clearly listed.
+1. local Playwright desktop and responsive jobs pass;
+2. full-history privacy and Gitleaks jobs pass;
+3. CodeQL completes without an unresolved release-blocking finding;
+4. the Cloudflare smoke job passes after production deployment;
+5. any intentionally unautomated manual checks are clearly listed.

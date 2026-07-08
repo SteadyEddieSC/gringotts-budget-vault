@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - v108.1-playwright-infrastructure
   pull_request:
     branches:
       - main
@@ -30,12 +29,12 @@ jobs:
           - responsive
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install locked dependencies
@@ -54,7 +53,7 @@ jobs:
 
       - name: Upload Playwright diagnostics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-${{ matrix.shard }}-${{ github.run_attempt }}
           path: |
@@ -74,12 +73,12 @@ jobs:
       LIVE_BASE_URL: https://gringotts-budget-vault.pages.dev/?release=playwright-${{ github.sha }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install locked dependencies
@@ -102,7 +101,7 @@ jobs:
 
       - name: Upload deployment diagnostics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-live-${{ github.run_attempt }}
           path: |
