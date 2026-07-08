@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v108/);
+    await expect(page.locator('.version-text')).toContainText(/^v109/);
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
     const destinations = [
