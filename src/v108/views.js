@@ -1,19 +1,18 @@
-import { account, category, esc, flow, getMonth, money, monthLabel, owner, reportAmount, txName } from '../v103/core.js';
-import { planningView } from '../v104/views-main.js';
+import { esc, getMonth, money, monthLabel } from '../v103/core.js';
+import { ledgerView, planningView } from '../v104/views-main.js';
+import { exportsView, importView, rulesView } from '../v104/views-admin.js';
 import { intelligenceView } from '../v105/views.js';
 import {
   calendarView, compactMonthNavigator, dashboardView, diagnosticsView,
-  reportsView as baseReportsView, toolsView
+  reportsView as baseReportsView
 } from '../v107/views.js';
 import { reviewOptions, reviewQueue, reviewSession } from '../v107/review.js';
-import { ledgerView } from '../v104/views-main.js';
-import { rulesView } from '../v104/views-admin.js';
 import {
   activeGoals, expandedWorkbookSheetsV108, goalProgress, goalSummary,
   healthHistory, vaultHealth
 } from './goals.js';
 
-export { calendarView, dashboardView, diagnosticsView, toolsView };
+export { calendarView, dashboardView, diagnosticsView };
 
 function selectOptions(values, current, blankLabel = '') {
   const normalized = [...new Set([current, ...values].map((value) => String(value || '').trim()).filter(Boolean))]
@@ -109,4 +108,20 @@ export function reportsView() {
     }
   }
   return html;
+}
+
+export function roadmapView() {
+  const roadmap = [
+    ['v109', 'Import Memory & Duplicate Guard', 'exact and fuzzy duplicate protection, import history, and coverage-gap warnings'],
+    ['v110', 'Month Close & Forecasting', 'reconciliation, close snapshots, forecasting, debt, and promotional APR planning'],
+    ['v111', 'Household Reporting III', 'goal and health meeting-pack sections, custom date ranges, year-over-year reporting, and cleaner PDF pagination'],
+    ['v116', 'Planned UI Architecture Review', 'navigation, content, accessibility, and responsive-design overhaul; earlier if thresholds are reached']
+  ];
+  return `<section class="section active"><div class="section-title-row"><div><h2>Roadmap</h2><p>Every release includes responsive and navigation checks; the next larger architecture review remains scheduled for about v116.</p></div><div class="section-meta">Next: v109</div></div><article class="roadmap-item shipped"><h3>v108 — Goals & Vault Health</h3><p>Goals, sinking funds, explainable health scoring, explicit score history, native review dropdowns, compact desktop month controls, and a 20-sheet Vault Workbook.</p></article><div class="roadmap">${roadmap.map((item) => `<article class="roadmap-item"><h3>${esc(item[0])} — ${esc(item[1])}</h3><p>${esc(item[2])}</p></article>`).join('')}</div></section>`;
+}
+
+export function toolsView(section = 'import') {
+  const map = { import: importView, exports: exportsView, roadmap: roadmapView };
+  const content = section === 'diagnostics' ? '<div id="diagnosticsMount"></div>' : (map[section] || map.import)();
+  return `<div class="workspace"><div class="subnav tools-subnav" role="tablist" aria-label="Tools sections"><button class="subtab ${section === 'import' ? 'active' : ''}" data-tools-section="import">Import / Restore</button><button class="subtab ${section === 'exports' ? 'active' : ''}" data-tools-section="exports">Exports & Backup</button><button class="subtab ${section === 'diagnostics' ? 'active' : ''}" data-tools-section="diagnostics">Diagnostics</button><button class="subtab ${section === 'roadmap' ? 'active' : ''}" data-tools-section="roadmap">Roadmap</button></div>${content}</div>`;
 }
