@@ -4,7 +4,7 @@ import {
   recurringAmountAlerts, recurringWatch, spendingTrends
 } from './intelligence.js';
 import {
-  dashboardView, ledgerView, planningView, reportsView as baseReportsView
+  dashboardView, ledgerView, monthNavigator, planningView, reportsView as baseReportsView
 } from '../v104/views-main.js';
 
 export { dashboardView, ledgerView, planningView };
@@ -52,6 +52,7 @@ export function intelligenceView() {
 
   return `<section class="section active intelligence-view">
     <div class="section-title-row"><div><h2>Bills, Recurring & Budgets</h2><p>Local budget targets, recurring-charge review, amount-change alerts, and spending trends.</p></div><div class="section-meta">${esc(monthLabel(month))}</div></div>
+    ${monthNavigator()}
 
     <div class="kpi-grid">
       <article class="kpi"><strong>${summary.categories}</strong><span>Budgeted categories</span></article>
