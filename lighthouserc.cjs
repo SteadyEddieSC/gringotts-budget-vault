@@ -1,3 +1,5 @@
+const budgets = require('./lighthouse-budget.json');
+
 module.exports = {
   ci: {
     collect: {
@@ -6,6 +8,7 @@ module.exports = {
       settings: {
         preset: 'desktop',
         onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+        budgets,
         chromeFlags: '--headless --no-sandbox --disable-dev-shm-usage'
       }
     },
@@ -24,7 +27,9 @@ module.exports = {
         'total-byte-weight': ['error', { maxNumericValue: 750000, aggregationMethod: 'median-run' }],
         'resource-summary:script:size': ['error', { maxNumericValue: 500000, aggregationMethod: 'median-run' }],
         'resource-summary:stylesheet:size': ['error', { maxNumericValue: 150000, aggregationMethod: 'median-run' }],
-        'resource-summary:image:size': ['error', { maxNumericValue: 250000, aggregationMethod: 'median-run' }]
+        'resource-summary:image:size': ['error', { maxNumericValue: 250000, aggregationMethod: 'median-run' }],
+        'errors-in-console': ['error', { maxLength: 0, aggregationMethod: 'median-run' }],
+        'network-requests': ['error', { maxLength: 45, aggregationMethod: 'median-run' }]
       }
     },
     upload: {
