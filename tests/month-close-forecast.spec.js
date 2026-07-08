@@ -1,4 +1,4 @@
-import { test, expect, openPrimary, waitForApp } from './helpers/app.js';
+import { test, expect, openPrimary } from './helpers/app.js';
 
 async function openCloseForecast(page) {
   await openPrimary(page, 'Money');
@@ -7,7 +7,7 @@ async function openCloseForecast(page) {
 }
 
 async function cleanSelectedMonth(page) {
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const vault = JSON.parse(localStorage.getItem('gringottsBudgetVault.latest'));
     vault.transactions = vault.transactions.map((transaction) => {
       if (!String(transaction.date || '').startsWith('2026-07')) return transaction;
@@ -19,9 +19,9 @@ async function cleanSelectedMonth(page) {
       };
     });
     localStorage.setItem('gringottsBudgetVault.latest', JSON.stringify(vault));
+    const core = await import('/src/v103/core.js');
+    core.invalidateVaultCache();
   });
-  await page.reload();
-  await waitForApp(page);
 }
 
 test('corrects the subtitle and exposes v110 under the existing Money destination', async ({ app }) => {
