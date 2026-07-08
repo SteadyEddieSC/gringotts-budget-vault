@@ -64,11 +64,12 @@ test('Cloudflare headers preserve the local-first browser boundary', () => {
 test('quality automation stays local and avoids temporary public Lighthouse storage', () => {
   const workflow = read('.github/workflows/quality.yml');
   const lighthouse = read('lighthouserc.cjs');
-  expect(workflow).toContain('temporaryPublicStorage: false');
+  expect(workflow).toContain('npm exec --yes --package=@lhci/cli@0.15.1 -- lhci');
+  expect(workflow).not.toContain('treosh/lighthouse-ci-action');
   expect(workflow).not.toContain('temporaryPublicStorage: true');
-  expect(workflow).toMatch(/treosh\/lighthouse-ci-action@[0-9a-f]{40}/i);
   expect(lighthouse).toContain("target: 'filesystem'");
   expect(lighthouse).toContain("outputDir: './lighthouse-reports'");
+  expect(lighthouse).toContain("http://127.0.0.1:4173/?quality=lighthouse");
 });
 
 test('public repository security and quality control files remain present', () => {
