@@ -7,7 +7,7 @@
 - Added a dedicated read-only GitHub Actions workflow for accessibility, responsive-layout, and Lighthouse quality gates.
 - Added pinned axe-core scans across Dashboard, Money, Calendar, Reports, Activity, and Tools workflows.
 - Added a release block for serious or critical violations carrying WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA tags.
-- Added keyboard entry, skip-link, and primary-control accessible-name smoke coverage.
+- Added keyboard entry, skip-link, tab semantics, arrow-key navigation, and primary-control accessible-name smoke coverage.
 - Added Lighthouse CI minimum scores for performance, accessibility, best practices, and SEO.
 - Added timing budgets for FCP, LCP, interactive, total blocking time, and cumulative layout shift.
 - Added total/script/stylesheet/image size budgets, resource-count budgets, and a zero third-party-request budget.
@@ -148,6 +148,16 @@
 ### v114 — Guided Household Planning
 - Add advisor-style planning checklists driven by goals, close status, forecast pressure, and debt priorities.
 - Keep every recommendation explainable and separate from transaction writes.
+
+### v115 — Bank Export Import & Mapping
+- Add local import for common bank and credit-card exports, beginning with CSV/delimited files, OFX, QFX, and QBO.
+- Detect source format and schema from both extension and content rather than assuming every bank CSV uses the same columns.
+- Add explicit date, description, amount/debit/credit, account, status, memo, and stable-ID mapping preview.
+- Reuse the v109 overlap, date-coverage, stable-ID, fingerprint, pending-to-posted, and fuzzy duplicate review workflow.
+- Require backup-first guarded writes, acknowledgement, confirmation, read-back verification, and missing-only insertion.
+- Evaluate CAMT.053/CAMT.054, MT940, institution-specific JSON, and XLSX only after synthetic fixture and parser-safety validation.
+- Keep PDF statement extraction outside this release because statements require a separate verification workflow.
+- See `BANK_IMPORT_ROADMAP.md` for format scope, safety boundaries, test fixtures, and definition of done.
 
 ### v116 — Planned UI Architecture Review
 - Reassess primary and secondary navigation.
