@@ -10,7 +10,7 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application runtime: **v110 — Month Close & Forecasting**  
+Current application runtime: **v111 — Household Reporting III**  
 Current quality-infrastructure release: **v108.4 — Security Alert Cleanup**
 
 ## Live application
@@ -33,6 +33,8 @@ Do not commit or attach:
 The application remains local-first:
 
 - transaction processing and duplicate reconciliation occur in the browser;
+- report ranges are saved as settings only and never copy or mutate transactions;
+- custom-range, prior-year, Markdown, CSV, XLSX, and printable reports are generated in the browser;
 - month-close history stores summaries and signatures, not redundant transaction copies;
 - forecast settings and debt planning remain separate from transaction history;
 - import history stores metadata only, not redundant transaction copies;
@@ -49,6 +51,11 @@ Playwright regression tests cover:
 - primary and secondary navigation;
 - desktop, tablet, Android-phone, and iPhone layouts;
 - month navigation and responsive overflow;
+- custom report ranges and year-to-date presets;
+- equivalent prior-year comparisons using fictional test rows;
+- complete family report sections for goals, health, close, forecast, and debt;
+- 28-sheet workbook and range CSV downloads;
+- print-media page layout and screen-control hiding;
 - Review Queue dropdowns and guarded editing;
 - Goals and Vault Health;
 - exact and fuzzy duplicate import review;
