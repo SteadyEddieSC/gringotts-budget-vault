@@ -38,8 +38,10 @@ async function scanSurface(page, testInfo, name) {
 }
 
 async function clickSubsection(page, name) {
-  await page.getByRole('button', { name, exact: true }).click();
-  await expect(page.getByRole('button', { name, exact: true })).toHaveClass(/active/);
+  const tab = page.getByRole('tab', { name, exact: true });
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+  await expect(tab).toHaveClass(/active/);
 }
 
 test('axe scans every primary and important secondary surface', async ({ page }, testInfo) => {
