@@ -1,0 +1,162 @@
+{
+  "version": "playwright-fixture-1",
+  "appVersion": "v108-test",
+  "source": {
+    "fileName": "synthetic-vault.json",
+    "institution": "Synthetic Test Bank"
+  },
+  "lastSavedAt": "2026-07-16T12:00:00.000Z",
+  "transactions": [
+    {
+      "id": "jul-review-1",
+      "date": "2026-07-15",
+      "name": "Needs Review Purchase",
+      "merchant": "Needs Review Purchase",
+      "amount": 42.5,
+      "type": "Expense",
+      "category": "Other",
+      "account": "Test Checking",
+      "owner": "Edwin",
+      "reviewed": false,
+      "pending": false
+    },
+    {
+      "id": "jul-pending-1",
+      "date": "2026-07-14",
+      "name": "Pending Groceries",
+      "merchant": "Pending Groceries",
+      "amount": 88.12,
+      "type": "Expense",
+      "category": "Groceries",
+      "account": "Test Checking",
+      "owner": "Alexia",
+      "reviewed": true,
+      "pending": true
+    },
+    {
+      "id": "jul-sub-1",
+      "date": "2026-07-10",
+      "name": "StreamFlix",
+      "merchant": "StreamFlix",
+      "amount": 19.99,
+      "type": "Expense",
+      "category": "Subscriptions",
+      "account": "Test Credit Card",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "jul-utility-1",
+      "date": "2026-07-05",
+      "name": "Electric Utility",
+      "merchant": "Electric Utility",
+      "amount": 145,
+      "type": "Expense",
+      "category": "Utilities",
+      "account": "Test Checking",
+      "owner": "Alexia",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "jul-transfer-1",
+      "date": "2026-07-02",
+      "name": "Transfer to Savings",
+      "amount": 500,
+      "type": "Transfer",
+      "category": "Transfer",
+      "account": "Test Checking",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "jul-income-1",
+      "date": "2026-07-01",
+      "name": "Synthetic Payroll",
+      "amount": -5000,
+      "type": "Income",
+      "category": "Income",
+      "account": "Test Checking",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "jun-review-1",
+      "date": "2026-06-20",
+      "name": "Source Review Charge",
+      "amount": 33.33,
+      "type": "Expense",
+      "category": "Household",
+      "account": "Test Credit Card",
+      "owner": "Alexia",
+      "reviewed": false,
+      "review_required": true,
+      "pending": false
+    },
+    {
+      "id": "jun-sub-1",
+      "date": "2026-06-10",
+      "name": "StreamFlix",
+      "merchant": "StreamFlix",
+      "amount": 17.99,
+      "type": "Expense",
+      "category": "Subscriptions",
+      "account": "Test Credit Card",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "jun-grocery-1",
+      "date": "2026-06-06",
+      "name": "Synthetic Market",
+      "amount": 120.45,
+      "type": "Expense",
+      "category": "Groceries",
+      "account": "Test Checking",
+      "owner": "Alexia",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "jun-income-1",
+      "date": "2026-06-01",
+      "name": "Synthetic Payroll",
+      "amount": -5000,
+      "type": "Income",
+      "category": "Income",
+      "account": "Test Checking",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "may-sub-1",
+      "date": "2026-05-10",
+      "name": "StreamFlix",
+      "merchant": "StreamFlix",
+      "amount": 17.99,
+      "type": "Expense",
+      "category": "Subscriptions",
+      "account": "Test Credit Card",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    },
+    {
+      "id": "may-income-1",
+      "date": "2026-05-01",
+      "name": "Synthetic Payroll",
+      "amount": -5000,
+      "type": "Income",
+      "category": "Income",
+      "account": "Test Checking",
+      "owner": "Edwin",
+      "reviewed": true,
+      "pending": false
+    }
+  ]
+}

@@ -27,6 +27,13 @@ scratch/
 *.docx
 *.pdf
 
+# Playwright dependencies and generated artifacts
+node_modules/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
 # OS/editor noise
 .DS_Store
 Thumbs.db

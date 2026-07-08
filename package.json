@@ -1,0 +1,18 @@
+{
+  "name": "gringotts-budget-vault-tests",
+  "version": "108.1.0",
+  "private": true,
+  "description": "Playwright browser regression tests for Gringotts Budget Vault",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:local": "playwright test --grep-invert @live",
+    "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}
