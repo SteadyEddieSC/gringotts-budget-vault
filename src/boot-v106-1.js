@@ -34,6 +34,14 @@ window.addEventListener('unhandledrejection', (event) => {
 
 import('./runtime-v106-calendar-ui.js?v=106calendarui2')
   .then(() => {
+    if (window.GringottsCleanRuntime?.BUILD) {
+      window.GringottsCleanRuntime.BUILD.version = 'v106.1';
+      window.GringottsCleanRuntime.BUILD.name = 'Boot-Safe Calendar, Cash Flow & UI Consolidation';
+      window.GringottsCleanRuntime.BUILD.cacheBust = '1061boot1';
+    }
+    document.title = 'Gringotts Budget Vault v106.1';
+    const version = document.querySelector('.version-text');
+    if (version) version.textContent = 'v106.1';
     if (boot?.isConnected) boot.remove();
   })
   .catch(renderFailure);
