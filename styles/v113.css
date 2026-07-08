@@ -1,0 +1,132 @@
+.household-insights-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.insight-kpis {
+  margin-top: 0;
+}
+
+.insight-period-card .summary-box {
+  min-height: 100%;
+}
+
+.insight-signal-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.insight-card {
+  border-inline-start: 4px solid color-mix(in srgb, var(--accent, #d7b45b) 62%, transparent);
+}
+
+.insight-card.high {
+  border-inline-start-color: #ef8d7b;
+}
+
+.insight-card.review {
+  border-inline-start-color: #e6bd65;
+}
+
+.insight-card.watch {
+  border-inline-start-color: #7eb8d8;
+}
+
+.insight-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .65rem;
+  margin: .85rem 0;
+}
+
+.insight-facts span {
+  display: grid;
+  gap: .15rem;
+  min-width: 0;
+  padding: .7rem;
+  border: 1px solid var(--line, rgba(255,255,255,.12));
+  border-radius: .75rem;
+  background: color-mix(in srgb, var(--panel, #111827) 88%, transparent);
+}
+
+.insight-facts strong {
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.insight-evidence {
+  margin-top: .8rem;
+}
+
+.insight-evidence summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.insight-prompts {
+  display: grid;
+  gap: .75rem;
+  padding-left: 1.4rem;
+}
+
+.insight-prompts li {
+  padding-left: .25rem;
+}
+
+.insight-prompts span {
+  display: block;
+  margin-top: .25rem;
+  color: var(--muted, #a9b4c5);
+}
+
+.methodology-card ul,
+.household-insights-report ul,
+.household-insights-report ol {
+  display: grid;
+  gap: .5rem;
+}
+
+.recurring-insights-table td:last-child {
+  min-width: 18rem;
+}
+
+.household-insights-report .card {
+  break-inside: avoid;
+}
+
+.insight-report-grid small {
+  color: var(--muted, #a9b4c5);
+}
+
+@media (max-width: 900px) {
+  .insight-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .insight-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .household-insights-page .section-title-row {
+    align-items: flex-start;
+  }
+
+  .recurring-insights-table td:last-child {
+    min-width: 14rem;
+  }
+}
+
+@media print {
+  .household-insights-report {
+    break-before: page;
+  }
+
+  .household-insights-report .card {
+    box-shadow: none;
+  }
+}
