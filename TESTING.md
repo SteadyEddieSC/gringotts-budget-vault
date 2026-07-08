@@ -6,7 +6,7 @@ Gringotts uses Playwright to test the browser application against a synthetic va
 
 ## Synthetic data boundary
 
-`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory. v110 month-close, forecast, and debt cases generate fictional reconciliation values, bills, paydays, balances, and promotional terms in test code. No bank export, filled import file, statement, debt record, or household financial data is committed.
+`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory. v110 month-close, forecast, and debt cases generate fictional reconciliation values, bills, paydays, balances, and promotional terms in test code. v111 reporting cases generate fictional prior-year rows, goals, forecasts, and debts in browser memory. No bank export, filled import file, statement, debt record, generated report, or household financial data is committed.
 
 The fixture includes:
 
@@ -77,7 +77,7 @@ npm run report
 ### Boot and architecture
 
 - application boots without module or JavaScript errors;
-- v110 and the corrected `Mischief Managed. Money Managed` subtitle are present;
+- v111 and the corrected `Mischief Managed. Money Managed` subtitle are present;
 - six primary destinations remain present;
 - no service worker is registered;
 - normal navigation makes no network write requests.
@@ -89,7 +89,22 @@ npm run report
 - each tested viewport avoids full-page horizontal overflow;
 - the desktop month toolbar remains compact;
 - Previous, Next, native month value changes, and Latest work;
-- Close & Forecast remains consolidated under Money on phone, tablet, and desktop.
+- Close & Forecast remains consolidated under Money;
+- Household Reporting III remains consolidated under Reports.
+
+### Household Reporting III
+
+- the complete family report renders executive, comparison, spending, goal/health, close/forecast/debt, and meeting pages;
+- selected-month, year-to-date, rolling, and custom range controls use native form fields;
+- custom start and end dates persist under `gringottsReportRange.v1`;
+- year-to-date resolves from January 1 through the end of the selected month;
+- prior-year comparisons use the equivalent dates and fictional prior-year rows generated in test memory;
+- goals, Vault Health, forecast, and debt data appear without changing transactions;
+- report-range changes make no network write request;
+- the 28-sheet workbook download starts;
+- the range CSV download starts;
+- print media hides screen-only controls and exposes six report pages;
+- phone, tablet, and desktop layouts remain inside the viewport.
 
 ### Review Queue
 
@@ -137,9 +152,9 @@ npm run report
 
 ### Reports and safety
 
-- the v110 24-sheet Vault Workbook download starts;
-- Month Close, Reconciliations, Cash Forecast, and Debt Plan are included in the expanded workbook;
 - the annual tracker file input is present;
+- the selected-month quick XLSX remains available;
+- Report Range, Range Transactions, Year over Year, and Family Meeting Brief are included in the expanded workbook;
 - an empty JSON restore is blocked;
 - the populated synthetic vault remains intact;
 - Backup is available under Tools and absent from the header.
@@ -179,7 +194,7 @@ The GitHub Actions suite runs:
 - SSN-formatted values;
 - labeled routing, ABA, account, and full payment-card numbers.
 
-The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import and v110 close, forecast, and debt scenarios are generated from fictional values in Playwright test code.
+The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import, v110 close/forecast/debt, and v111 reporting scenarios are generated from fictional values in Playwright test code and browser memory.
 
 ### Gitleaks
 
@@ -252,8 +267,9 @@ After a successful local Playwright suite on `main`, a Chromium smoke test check
 The live test verifies:
 
 - the app boots without a module error;
-- v110 and the corrected subtitle are served;
+- v111 and the corrected subtitle are served;
 - all six primary destinations open;
+- the range-aware family report and report preset control render;
 - Content Security Policy is active;
 - clickjacking protection is active;
 - MIME sniffing is disabled;
