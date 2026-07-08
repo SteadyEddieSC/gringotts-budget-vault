@@ -2,7 +2,7 @@
   "name": "gringotts-budget-vault-tests",
   "version": "112.0.0",
   "private": true,
-  "description": "Playwright, accessibility, visual, and Lighthouse quality tests for Gringotts Budget Vault",
+  "description": "Playwright, accessibility, visual-contract, and Lighthouse quality tests for Gringotts Budget Vault",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -13,9 +13,9 @@
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "test:quality": "playwright test --config=playwright.quality.config.js",
-    "test:a11y": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js",
-    "test:visual": "playwright test --config=playwright.quality.config.js quality-tests/visual-regression.spec.js",
+    "test:quality": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js",
+    "test:a11y": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/tab-semantics.spec.js",
+    "test:visual": "playwright test --config=playwright.quality.config.js quality-tests/visual-contracts.spec.js",
     "report": "playwright show-report",
     "privacy:history": "node scripts/privacy-history-scan.mjs"
   },
