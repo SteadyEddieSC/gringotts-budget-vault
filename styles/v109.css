@@ -1,0 +1,29 @@
+.import-restore-page > .section-title-row { margin-bottom: 1rem; }
+.import-workflow,
+.restore-workflow { display: grid; gap: 1rem; }
+.restore-workflow { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border, #334155); }
+.import-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.import-summary-grid .kpi { min-width: 0; }
+.import-table td { min-width: 11rem; vertical-align: top; }
+.import-table td:last-child { min-width: 14rem; }
+.fuzzy-review-list { display: grid; gap: .75rem; }
+.fuzzy-review-card { border: 1px solid var(--border, #334155); border-radius: .8rem; padding: .9rem; background: rgba(15, 23, 42, .32); }
+.fuzzy-review-card p { margin: .45rem 0; }
+.fuzzy-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.fuzzy-comparison > div { min-width: 0; padding: .7rem; border-radius: .6rem; background: rgba(15, 23, 42, .45); }
+.fuzzy-review-card label { display: grid; gap: .35rem; max-width: 24rem; margin-top: .75rem; }
+.compact-list .list-item { align-items: flex-start; }
+.import-coverage-card .notes { margin-top: .75rem; }
+
+@media (max-width: 900px) {
+  .import-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .import-summary-grid,
+  .fuzzy-comparison { grid-template-columns: minmax(0, 1fr); }
+  .import-workflow .grid.two,
+  .restore-workflow .grid.two { grid-template-columns: minmax(0, 1fr); }
+  .import-table td { min-width: 9rem; }
+  .fuzzy-review-card { padding: .75rem; }
+}
