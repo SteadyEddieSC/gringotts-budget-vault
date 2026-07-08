@@ -1,0 +1,37 @@
+name: Privacy or security concern
+about: Use this only for non-sensitive coordination; do not paste secrets or financial data
+labels:
+  - security
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not include credentials, transaction exports, vault backups, account numbers, routing numbers, or screenshots containing household financial information.**
+
+        Use the repository Security tab's private vulnerability-reporting option for sensitive details when available.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Concern category
+      options:
+        - Local browser data handling
+        - Restore or backup safety
+        - Unexpected network activity
+        - Dependency or workflow concern
+        - Other non-sensitive security coordination
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Non-sensitive summary
+      description: Use fictional data only. Do not paste secrets or personal financial information.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I have not included credentials, personal identifiers, transaction exports, backups, or other sensitive data.
+          required: true
