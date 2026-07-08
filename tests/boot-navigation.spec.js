@@ -11,9 +11,9 @@ const destinations = [
 
 test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v110/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v111/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v110');
+  await expect(page.locator('.version-text')).toHaveText('v111');
 
   const methods = [];
   page.on('request', (request) => methods.push({ method: request.method(), url: request.url() }));
