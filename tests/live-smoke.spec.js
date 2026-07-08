@@ -6,11 +6,23 @@ const liveURL = process.env.LIVE_BASE_URL;
 test.describe('@live Cloudflare deployment', () => {
   test.skip(!liveURL, 'LIVE_BASE_URL is required for the deployment smoke test.');
 
-  test('boots the deployed app and opens every primary destination', async ({ page }) => {
+  test('boots the deployed app, serves hardened headers, and opens every primary destination', async ({ page }) => {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await seedVault(page);
-    await page.goto(liveURL, { waitUntil: 'domcontentloaded' });
+    const response = await page.goto(liveURL, { waitUntil: 'domcontentloaded' });
+    expect(response, 'Cloudflare should return a document response').not.toBeNull();
+
+    const headers = response.headers();
+    expect(headers['content-security-policy']).toContain("default-src 'self'");
+    expect(headers['content-security-policy']).toContain("frame-ancestors 'none'");
+    expect(headers['content-security-policy']).toContain("connect-src 'self'");
+    expect(headers['content-security-policy']).toContain("worker-src 'none'");
+    expect(headers['x-content-type-options']).toBe('nosniff');
+    expect(headers['x-frame-options']).toBe('DENY');
+    expect(headers['referrer-policy']).toBe('no-referrer');
+    expect(headers['cross-origin-opener-policy']).toBe('same-origin');
+    expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
     await expect(page.locator('.version-text')).toContainText(/^v108/);
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);

@@ -48,6 +48,12 @@ Run the full-history privacy check:
 npm run privacy:history
 ```
 
+Run the npm vulnerability gate:
+
+```bash
+npm audit --audit-level=high
+```
+
 Run with a visible browser:
 
 ```bash
@@ -104,6 +110,16 @@ npm run report
 - the populated synthetic vault remains intact;
 - Backup is available under Tools and absent from the header.
 
+### Repository security drift
+
+`tests/repository-security.spec.js` fails when:
+
+- an external GitHub Action is not pinned to a full 40-character commit SHA;
+- a workflow uses `pull_request_target`;
+- a workflow requests `write-all` or repository-content write permission;
+- required public security files disappear;
+- the Cloudflare Content Security Policy or local-first browser headers are weakened.
+
 ## Browser projects
 
 The GitHub Actions suite runs:
@@ -132,15 +148,31 @@ The committed synthetic fixture is the only allowed vault-shaped data file.
 
 ### Gitleaks
 
-The security workflow checks the full repository history for hardcoded credentials, API keys, tokens, and similar secrets.
+The security workflow checks full repository history for hardcoded credentials, API keys, tokens, and similar secrets. Public comments and secret-result artifacts are disabled.
+
+### Dependency Review
+
+Pull requests are checked for newly introduced vulnerable dependencies. The check fails when a new dependency has a High or Critical known vulnerability.
+
+### npm audit
+
+The locked npm dependency graph is installed without lifecycle scripts and fails CI on High or Critical audit findings.
 
 ### CodeQL
 
-CodeQL performs JavaScript security analysis and publishes findings to GitHub's Security area.
+CodeQL performs extended JavaScript security analysis and publishes findings to GitHub's Security area.
+
+### OpenSSF Scorecard
+
+OpenSSF Scorecard evaluates repository supply-chain practices weekly and after changes reach `main`. Results are published to GitHub code scanning and retained as a short-lived SARIF artifact.
 
 ### Dependabot
 
 Dependabot checks npm and GitHub Actions dependencies monthly and opens grouped update pull requests.
+
+### Action pinning
+
+Every external GitHub Action is referenced by a full commit SHA. Version comments remain next to the SHA for maintainability, and Dependabot can propose controlled updates.
 
 ## GitHub Actions
 
@@ -157,10 +189,22 @@ Dependabot checks npm and GitHub Actions dependencies monthly and opens grouped 
 - manual workflow dispatch;
 - a weekly schedule.
 
+`.github/workflows/supply-chain.yml` runs:
+
+- Dependency Review on pull requests;
+- `npm audit` on pull requests and `main`;
+- manual workflow dispatch.
+
 `.github/workflows/codeql.yml` runs JavaScript security analysis on:
 
 - pushes to `main`;
 - pull requests targeting `main`;
+- manual workflow dispatch;
+- a weekly schedule.
+
+`.github/workflows/scorecard.yml` runs OpenSSF Scorecard on:
+
+- pushes to `main`;
 - manual workflow dispatch;
 - a weekly schedule.
 
@@ -174,7 +218,12 @@ The live test verifies:
 
 - the app boots without a module error;
 - v108 is served;
-- all six primary destinations open.
+- all six primary destinations open;
+- Content Security Policy is active;
+- clickjacking protection is active;
+- MIME sniffing is disabled;
+- referrer leakage is disabled;
+- cross-origin opener and resource policies are active.
 
 The live test also uses synthetic localStorage inside an isolated GitHub runner browser.
 
@@ -184,6 +233,10 @@ Future releases should not be described as fully verified until:
 
 1. local Playwright desktop and responsive jobs pass;
 2. full-history privacy and Gitleaks jobs pass;
-3. CodeQL completes without an unresolved release-blocking finding;
-4. the Cloudflare smoke job passes after production deployment;
-5. any intentionally unautomated manual checks are clearly listed.
+3. Dependency Review and `npm audit` pass;
+4. CodeQL completes without an unresolved release-blocking finding;
+5. repository security-drift tests pass;
+6. the Cloudflare smoke job passes after production deployment;
+7. any intentionally unautomated manual checks are clearly listed.
+
+OpenSSF Scorecard is monitored as a continuing improvement signal. It is not a pull-request merge gate because it runs after changes reach `main` and on a schedule.

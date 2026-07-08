@@ -2,6 +2,17 @@
 
 ## Shipped
 
+### v108.3 — Security Completion
+
+- Added Dependency Review for vulnerable dependency changes in pull requests.
+- Added a High/Critical `npm audit` merge gate with lifecycle scripts disabled during installation.
+- Added OpenSSF Scorecard supply-chain analysis and code-scanning publication.
+- Pinned every external GitHub Action to a full trusted commit SHA.
+- Added automated action-pinning, workflow-permission, required-file, and security-header drift tests.
+- Added a restrictive Cloudflare Content Security Policy, clickjacking protection, worker blocking, cross-origin policies, and expanded Permissions Policy.
+- Extended the live Cloudflare smoke test to validate deployed security headers.
+- Added an exact manual GitHub settings checklist for rulesets, Actions, security toggles, integrations, and account protection.
+
 ### v108.2 — Public Repository Hardening
 
 - Updated the repository documentation for public visibility and clarified the local-first data boundary.
@@ -82,6 +93,12 @@
 - Custom report date ranges.
 - Year-over-year reporting and cleaner PDF pagination.
 
+### v112 — Accessibility & Quality Automation
+- Add axe-core accessibility scans to Playwright.
+- Add Lighthouse CI performance, accessibility, best-practice, and SEO budgets.
+- Add selective visual regression snapshots for the most important desktop and phone layouts.
+- Keep synthetic data and local-first boundaries in every quality check.
+
 ### v116 — Planned UI Architecture Review
 - Reassess primary and secondary navigation.
 - Audit every page for useful, non-repetitive text.
@@ -94,16 +111,18 @@
 
 Every release includes navigation, content-value, action-placement, responsive-layout, accessibility, and working-control review. Larger UI overhauls should occur about every 10 releases, within a 10–20 release range depending on feature growth.
 
-## Testing governance
+## Testing and security governance
 
 Future releases should pass:
 
 - local Playwright desktop and responsive jobs before merge;
+- repository security-drift tests before merge;
 - full-history privacy and Gitleaks checks before merge;
+- Dependency Review and `npm audit` before merge;
 - CodeQL without an unresolved release-blocking finding;
 - the Cloudflare smoke test after production deployment.
 
-Any intentionally unautomated manual checks must be listed explicitly.
+OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. Any intentionally unautomated manual checks must be listed explicitly.
 
 ## Architecture guardrails
 - Local-first transaction storage and processing.
