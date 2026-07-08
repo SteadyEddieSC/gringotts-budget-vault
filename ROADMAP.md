@@ -2,6 +2,19 @@
 
 ## Shipped
 
+### v111 — Household Reporting III
+
+- Added selected-month, year-to-date, rolling 3/6/12-month, and custom report ranges.
+- Added a separate browser-local report-range key that never copies or mutates transactions.
+- Added equivalent prior-year comparison metrics and aligned monthly rows.
+- Rebuilt the Reports Center around six complete family-report pages.
+- Added goals, Vault Health, close status, forecast pressure, debt priority, promotional payoff gaps, questions, wins, risks, and actions to family reports.
+- Added print-only page breaks, print-safe colors, reduced table density, and card break protection.
+- Expanded the Vault Workbook from 24 to 28 sheets with Report Range, Range Transactions, Year over Year, and Family Meeting Brief.
+- Added range-aware CSV, Executive Markdown, Family Meeting Markdown, and XLSX filenames.
+- Preserved selected-month quick XLSX and annual-tracker workflows.
+- Added synthetic Playwright coverage for ranges, prior-year rows, full family context, print media, downloads, no network writes, and responsive layouts.
+
 ### v110 — Month Close & Forecasting
 
 - Corrected the live subtitle to `Mischief Managed. Money Managed`.
@@ -113,16 +126,16 @@
 
 ## Next releases
 
-### v111 — Household Reporting III
-- Goal, health, month-close, forecast, and debt sections in family meeting packs.
-- Custom report date ranges.
-- Year-over-year reporting and cleaner PDF pagination.
-
 ### v112 — Accessibility & Quality Automation
 - Add axe-core accessibility scans to Playwright.
 - Add Lighthouse CI performance, accessibility, best-practice, and SEO budgets.
 - Add selective visual regression snapshots for the most important desktop and phone layouts.
 - Keep synthetic data and local-first boundaries in every quality check.
+
+### v113 — Household Insights IV
+- Add explainable anomaly and unusual-spending review.
+- Add recurring-cost opportunity summaries and household decision prompts.
+- Feed insights into the report center without silently changing categories or transactions.
 
 ### v116 — Planned UI Architecture Review
 - Reassess primary and secondary navigation.
@@ -153,6 +166,7 @@ OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. A
 - Local-first transaction storage and processing.
 - No transaction uploads.
 - Import history stores metadata only under a separate browser-local key.
+- Report-range settings remain separate and never contain transaction copies.
 - Month-close history stores summaries and deterministic signatures rather than redundant transactions.
 - Forecast and debt planning remain separate browser-local data.
 - Goal and health data remain separate browser-local settings.
