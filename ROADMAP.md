@@ -2,6 +2,18 @@
 
 ## Shipped
 
+### v109 — Import Memory & Duplicate Guard
+
+- Added exact duplicate protection using stable transaction IDs and deterministic fallback fingerprints.
+- Added explainable fuzzy duplicate review for near-date merchant matches and pending-to-posted candidates.
+- Added native Keep incoming, Skip incoming, and Defer/review decisions; ambiguous matches are never discarded automatically.
+- Added date coverage, overlap, and missing-month warnings before any write.
+- Added missing-only incremental import into a selected populated readable vault.
+- Added required pre-import backup, explicit acknowledgement, confirmation, read-back count verification, and inserted-token verification.
+- Added browser-local import history metadata without redundant transaction copies.
+- Added synthetic Playwright coverage for all-new, exact, mixed fuzzy/new, invalid, empty, metadata, network, and responsive cases.
+- Preserved guarded full restore, best-populated-readable-vault selection, the v105 rescue page, and all existing browser-local data.
+
 ### v108.4 — Security Alert Cleanup
 
 - Removed the obsolete no-op month-label replacement identified by CodeQL while preserving label behavior.
@@ -88,11 +100,6 @@
 
 ## Next releases
 
-### v109 — Import Memory & Duplicate Guard
-- Exact transaction-ID protection.
-- Fuzzy duplicate review and import history.
-- Date-gap warnings and missing-only incremental imports.
-
 ### v110 — Month Close & Forecasting
 - Statement reconciliation and close snapshots.
 - Reopen workflow, household forecast, debt, and promotional APR planning.
@@ -136,6 +143,7 @@ OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. A
 ## Architecture guardrails
 - Local-first transaction storage and processing.
 - No transaction uploads.
+- Import history stores metadata only under a separate browser-local key.
 - Goal and health data remain separate browser-local settings.
 - Health history is explicit, not automatically written by page views.
 - Automated tests use synthetic browser-local data only.

@@ -6,7 +6,7 @@ Gringotts uses Playwright to test the browser application against a synthetic va
 
 ## Synthetic data boundary
 
-`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts.
+`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory; no bank export or filled import file is committed.
 
 The fixture includes:
 
@@ -102,9 +102,23 @@ npm run report
 - contributions update funded progress;
 - a health snapshot is saved only after the explicit action.
 
+### Import Memory and Duplicate Guard
+
+- all-new rows are previewed, backed up, written, read back, and verified;
+- exact stable-ID duplicates are skipped;
+- rows without stable IDs use a deterministic date, signed amount, normalized merchant, account, and source fingerprint;
+- fuzzy near-date merchant matches remain unresolved until a native decision select is used;
+- pending-to-posted candidates are explained rather than automatically discarded;
+- mixed new and duplicate files write only the reviewed missing rows;
+- missing-month coverage warnings appear before confirmation;
+- malformed JSON, missing transaction arrays, and empty arrays are blocked;
+- import history records metadata and verification results without full transaction copies;
+- importing makes no network write request;
+- phone, tablet, and desktop layouts remain inside the viewport.
+
 ### Reports and safety
 
-- the v108 Vault Workbook download starts;
+- the v109 Vault Workbook download starts;
 - the annual tracker file input is present;
 - an empty JSON restore is blocked;
 - the populated synthetic vault remains intact;
@@ -145,7 +159,7 @@ The GitHub Actions suite runs:
 - SSN-formatted values;
 - labeled routing, ABA, account, and full payment-card numbers.
 
-The committed synthetic fixture is the only allowed vault-shaped data file.
+The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import scenarios are generated in the Playwright test code from fictional values.
 
 ### Gitleaks
 
@@ -218,7 +232,7 @@ After a successful local Playwright suite on `main`, a Chromium smoke test check
 The live test verifies:
 
 - the app boots without a module error;
-- v108 is served;
+- v109 is served;
 - all six primary destinations open;
 - Content Security Policy is active;
 - clickjacking protection is active;

@@ -10,7 +10,7 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application runtime: **v108 — Goals & Vault Health**  
+Current application runtime: **v109 — Import Memory & Duplicate Guard**  
 Current quality-infrastructure release: **v108.4 — Security Alert Cleanup**
 
 ## Live application
@@ -32,7 +32,8 @@ Do not commit or attach:
 
 The application remains local-first:
 
-- transaction processing occurs in the browser;
+- transaction processing and duplicate reconciliation occur in the browser;
+- import history stores metadata only, not redundant transaction copies;
 - automated browser tests use a fictional vault in an isolated browser profile;
 - no service worker or offline application cache is registered;
 - the application must not automatically save an empty vault;
@@ -48,8 +49,10 @@ Playwright regression tests cover:
 - month navigation and responsive overflow;
 - Review Queue dropdowns and guarded editing;
 - Goals and Vault Health;
+- exact and fuzzy duplicate import review;
+- missing-only imports, import history, date-gap warnings, and read-back verification;
+- malformed, missing-array, empty-import, and empty-restore blocking;
 - report and backup downloads;
-- empty-restore blocking;
 - service-worker absence and unexpected network writes.
 
 Public-repository and supply-chain automation adds:
