@@ -61,17 +61,42 @@ test('Cloudflare headers preserve the local-first browser boundary', () => {
   for (const value of required) expect(headers).toContain(value);
 });
 
-test('public repository security control files remain present', () => {
+test('quality automation stays local and avoids public or binary baseline storage', () => {
+  const workflow = read('.github/workflows/quality.yml');
+  const lighthouse = read('lighthouserc.cjs');
+  const packageJson = read('package.json');
+  expect(workflow).toContain('npm exec --yes --package=@lhci/cli@0.15.1 -- lhci');
+  expect(workflow).toContain('npm run test:quality');
+  expect(workflow).toContain('npm ci --ignore-scripts');
+  expect(workflow).not.toContain('treosh/lighthouse-ci-action');
+  expect(workflow).not.toContain('temporaryPublicStorage: true');
+  expect(workflow).not.toContain('--update-snapshots');
+  expect(workflow).not.toContain('quality-tests/__screenshots__');
+  expect(packageJson).toContain('quality-tests/visual-contracts.spec.js');
+  expect(packageJson).not.toContain('visual-regression.spec.js');
+  expect(lighthouse).toContain("target: 'filesystem'");
+  expect(lighthouse).toContain("outputDir: './lighthouse-reports'");
+  expect(lighthouse).toContain("http://127.0.0.1:4173/?quality=lighthouse");
+});
+
+test('public repository security and quality control files remain present', () => {
   const required = [
     'SECURITY.md',
     '.github/dependabot.yml',
     '.github/workflows/codeql.yml',
     '.github/workflows/playwright.yml',
+    '.github/workflows/quality.yml',
     '.github/workflows/security.yml',
     '.github/workflows/supply-chain.yml',
     '.github/workflows/scorecard.yml',
+    'playwright.quality.config.js',
+    'lighthouserc.cjs',
+    'quality-baselines/v112-layout-contracts.json',
+    'quality-tests/accessibility.spec.js',
+    'quality-tests/tab-semantics.spec.js',
+    'quality-tests/visual-contracts.spec.js',
     'scripts/privacy-history-scan.mjs'
   ];
   const missing = required.filter((relativePath) => !fs.existsSync(path.join(root, relativePath)));
-  expect(missing, 'Missing repository security controls').toEqual([]);
+  expect(missing, 'Missing repository security or quality controls').toEqual([]);
 });

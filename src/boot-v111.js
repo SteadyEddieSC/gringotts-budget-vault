@@ -32,7 +32,9 @@ window.addEventListener('error', (event) => { if (event?.error) renderFailure(ev
 window.addEventListener('unhandledrejection', (event) => renderFailure(event?.reason));
 
 import('./runtime-v111-reporting.js?v=111reporting1')
-  .then(() => {
+  .then(async () => {
+    const { installAccessibilityEnhancements } = await import('./v112/accessibility.js?v=112a11y1');
+    installAccessibilityEnhancements();
     document.title = 'Gringotts Budget Vault v111';
     const version = document.querySelector('.version-text');
     if (version) version.textContent = 'v111';

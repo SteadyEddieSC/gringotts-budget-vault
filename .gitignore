@@ -27,12 +27,15 @@ scratch/
 *.docx
 *.pdf
 
-# Playwright dependencies and generated artifacts
+# Playwright and quality dependencies / generated artifacts
 node_modules/
 playwright-report/
+quality-report/
 test-results/
 blob-report/
+lighthouse-reports/
 .playwright/
+.lighthouseci/
 
 # OS/editor noise
 .DS_Store

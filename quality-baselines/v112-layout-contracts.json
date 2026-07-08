@@ -1,0 +1,51 @@
+{
+  "version": "v112",
+  "description": "Privacy-safe visual regression contracts. These compare structure, geometry, visibility, and responsive layout using only the synthetic Playwright vault; no screenshot pixels or household data are committed.",
+  "snapshots": {
+    "dashboard-desktop": {
+      "viewport": { "width": 1440, "height": 1000 },
+      "route": "Dashboard",
+      "requiredVisible": [
+        ".topbar",
+        ".primary-nav",
+        "#main",
+        ".section.active"
+      ],
+      "requiredHidden": ["#menuToggle"],
+      "minimumPrimaryTabs": 6,
+      "minimumCards": 3,
+      "maximumHorizontalOverflow": 2,
+      "minimumMainWidth": 1000,
+      "maximumTopbarY": 32
+    },
+    "reports-desktop": {
+      "viewport": { "width": 1440, "height": 1000 },
+      "route": "Reports",
+      "requiredVisible": [
+        ".range-controls",
+        ".report-range-grid",
+        ".report-page",
+        ".comparison-table"
+      ],
+      "minimumReportPages": 6,
+      "expectedRangeColumns": 4,
+      "maximumHorizontalOverflow": 2,
+      "minimumMainWidth": 1000
+    },
+    "reports-phone": {
+      "viewport": { "width": 390, "height": 844 },
+      "route": "Reports",
+      "requiredVisible": [
+        "#menuToggle",
+        ".range-controls",
+        ".report-range-grid",
+        ".report-page"
+      ],
+      "minimumReportPages": 6,
+      "expectedRangeColumns": 1,
+      "maximumHorizontalOverflow": 2,
+      "minimumControlHeight": 40,
+      "minimumMainWidth": 300
+    }
+  }
+}

@@ -1,0 +1,101 @@
+name: Accessibility & Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  accessibility-visual:
+    name: Accessibility and visual contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run axe, keyboard, and privacy-safe visual contract gates
+        run: npm run test:quality
+
+      - name: Upload quality diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: accessibility-visual-${{ github.run_attempt }}
+          path: |
+            quality-report/
+            quality-results/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  lighthouse:
+    name: Lighthouse CI budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Start local static server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/gringotts-lighthouse-server.log 2>&1 &
+          for attempt in 1 2 3 4 5 6; do
+            if curl --fail --silent http://127.0.0.1:4173/?quality=lighthouse > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/gringotts-lighthouse-server.log
+          exit 1
+
+      - name: Verify exact Lighthouse CI version
+        run: npm exec --yes --package=@lhci/cli@0.15.1 -- lhci --version
+
+      - name: Run local Lighthouse CI assertions
+        run: npm exec --yes --package=@lhci/cli@0.15.1 -- lhci autorun --config=lighthouserc.cjs
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse-reports-${{ github.run_attempt }}
+          path: |
+            lighthouse-reports/
+            /tmp/gringotts-lighthouse-server.log
+          if-no-files-found: ignore
+          retention-days: 14

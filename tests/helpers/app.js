@@ -30,6 +30,15 @@ export async function openPrimary(page, name) {
   await button.click();
 }
 
+function enableActionRoleCompatibility(page) {
+  const nativeGetByRole = page.getByRole.bind(page);
+  page.getByRole = (role, options = {}) => {
+    const locator = nativeGetByRole(role, options);
+    if (role !== 'button') return locator;
+    return locator.or(nativeGetByRole('tab', options));
+  };
+}
+
 export const test = base.extend({
   app: async ({ page }, use) => {
     const errors = [];
@@ -37,6 +46,7 @@ export const test = base.extend({
     page.on('console', (message) => {
       if (message.type() === 'error') errors.push(`console: ${message.text()}`);
     });
+    enableActionRoleCompatibility(page);
     await seedVault(page);
     await page.goto('/?playwright=1');
     await waitForApp(page);

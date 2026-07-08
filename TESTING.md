@@ -4,9 +4,11 @@
 
 Gringotts uses Playwright to test the browser application against a synthetic vault. Automated tests never use or upload a real household transaction file.
 
+The visible application remains v111 — Household Reporting III. v112 adds accessibility and quality infrastructure around that runtime.
+
 ## Synthetic data boundary
 
-`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory. v110 month-close, forecast, and debt cases generate fictional reconciliation values, bills, paydays, balances, and promotional terms in test code. v111 reporting cases generate fictional prior-year rows, goals, forecasts, and debts in browser memory. No bank export, filled import file, statement, debt record, generated report, or household financial data is committed.
+`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory. v110 month-close, forecast, and debt cases generate fictional reconciliation values, bills, paydays, balances, and promotional terms in test code. v111 reporting cases generate fictional prior-year rows, goals, forecasts, and debts in browser memory. v112 axe and visual-layout checks reuse the same fictional fixture and never commit generated screenshots. No bank export, filled import file, statement, debt record, generated report, accessibility artifact, or household financial data is committed.
 
 The fixture includes:
 
@@ -71,6 +73,8 @@ Open the last HTML report:
 ```bash
 npm run report
 ```
+
+For the v112 axe, visual-contract, and Lighthouse commands, see [`QUALITY_GATES.md`](QUALITY_GATES.md).
 
 ## What Playwright tests
 
@@ -159,6 +163,54 @@ npm run report
 - the populated synthetic vault remains intact;
 - Backup is available under Tools and absent from the header.
 
+## v112 accessibility and quality automation
+
+### Axe accessibility gate
+
+The dedicated quality suite scans eight important workflows with axe-core 4.10.3:
+
+- Dashboard;
+- Money — Budget & Recurring;
+- Money — Goals & Health;
+- Money — Close & Forecast;
+- Calendar;
+- Reports — Household Reporting III;
+- Activity — Review Queue;
+- Tools — Import / Restore.
+
+The suite fails when axe reports a serious or critical violation associated with WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA. The complete synthetic result is retained in a short-lived artifact for diagnosis.
+
+Keyboard smoke coverage verifies the skip link and accessible names for all six primary destinations.
+
+### Privacy-safe visual layout snapshots
+
+The quality suite checks committed text-based layout contracts rather than committing PNG screenshots. It covers:
+
+- Dashboard desktop at 1440 × 1000;
+- Reports desktop at 1440 × 1000;
+- Reports phone at 390 × 844.
+
+The contracts detect changes to required visibility, primary navigation count, report-page count, responsive range-control columns, mobile control height, main-content width, topbar placement, and horizontal overflow. Actual geometry and computed colors are saved as JSON workflow diagnostics.
+
+Playwright captures screenshots, video, and traces only when a quality test fails. Those files remain short-lived workflow artifacts.
+
+### Lighthouse CI budgets
+
+Lighthouse CI 0.15.1 runs two local static audits. It enforces:
+
+- Performance score at least 0.75;
+- Accessibility score at least 0.95;
+- Best Practices score at least 0.90;
+- SEO score at least 0.90;
+- FCP at most 2.5 seconds;
+- LCP at most 4.0 seconds;
+- interactive at most 5.0 seconds;
+- Total Blocking Time at most 600 milliseconds;
+- Cumulative Layout Shift at most 0.10;
+- explicit resource size and count budgets;
+- no third-party requests;
+- no browser-console errors.
+
 ### Repository security drift
 
 `tests/repository-security.spec.js` fails when:
@@ -167,12 +219,16 @@ npm run report
 - a workflow uses `pull_request_target`;
 - a workflow requests `write-all` or repository-content write permission;
 - the CodeQL workflow does not use read-only defaults and narrowly scoped security-event upload permission;
-- required public security files disappear;
+- the v112 quality workflow loses read-only permissions or exact axe/Lighthouse versions;
+- the quality workflow installs packages without `--ignore-scripts`, `--no-save`, or `--package-lock=false`;
+- quality tests stop using the synthetic Playwright helper;
+- a remote axe script or committed image baseline is introduced;
+- required public security or quality files disappear;
 - the Cloudflare Content Security Policy or local-first browser headers are weakened.
 
 ## Browser projects
 
-The GitHub Actions suite runs:
+The established GitHub Actions suite runs:
 
 - desktop Chromium;
 - desktop Firefox;
@@ -180,6 +236,8 @@ The GitHub Actions suite runs:
 - iPad emulation;
 - Android phone emulation;
 - iPhone/WebKit emulation.
+
+The v112 quality suite adds one deterministic desktop Chromium project and explicitly changes the viewport for its selected phone visual contract.
 
 ## Public-repository security tests
 
@@ -194,7 +252,7 @@ The GitHub Actions suite runs:
 - SSN-formatted values;
 - labeled routing, ABA, account, and full payment-card numbers.
 
-The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import, v110 close/forecast/debt, and v111 reporting scenarios are generated from fictional values in Playwright test code and browser memory.
+The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import, v110 close/forecast/debt, v111 reporting, and v112 quality scenarios are generated from fictional values in test code and isolated browser memory.
 
 ### Gitleaks
 
@@ -207,6 +265,8 @@ Pull requests are checked for newly introduced vulnerable dependencies. The chec
 ### npm audit
 
 The locked npm dependency graph is installed without lifecycle scripts and fails CI on High or Critical audit findings.
+
+The two temporary v112 quality packages are installed at exact versions without lifecycle scripts, without saving to `package.json`, and without changing `package-lock.json`.
 
 ### CodeQL
 
@@ -227,6 +287,12 @@ Every external GitHub Action is referenced by a full commit SHA. Version comment
 ## GitHub Actions
 
 `.github/workflows/playwright.yml` runs browser tests on:
+
+- pushes to `main`;
+- pull requests targeting `main`;
+- manual workflow dispatch.
+
+`.github/workflows/quality.yml` runs axe, visual contracts, and Lighthouse budgets on:
 
 - pushes to `main`;
 - pull requests targeting `main`;
@@ -258,7 +324,7 @@ Every external GitHub Action is referenced by a full commit SHA. Version comment
 - manual workflow dispatch;
 - a weekly schedule.
 
-Desktop and responsive Playwright projects run as separate jobs. Failure artifacts retain screenshots, video, traces, test results, and the HTML report for 14 days.
+Desktop and responsive Playwright projects run as separate jobs. Failure artifacts retain screenshots, video, traces, test results, and HTML reports for 14 days. Quality artifacts use the same 14-day retention.
 
 ## Live Cloudflare smoke test
 
@@ -283,11 +349,13 @@ The live test also uses synthetic localStorage inside an isolated GitHub runner 
 Future releases should not be described as fully verified until:
 
 1. local Playwright desktop and responsive jobs pass;
-2. full-history privacy and Gitleaks jobs pass;
-3. Dependency Review and `npm audit` pass;
-4. CodeQL completes without an unresolved release-blocking finding;
-5. repository security-drift tests pass;
-6. the Cloudflare smoke job passes after production deployment;
-7. any intentionally unautomated manual checks are clearly listed.
+2. axe accessibility and visual-contract checks pass;
+3. Lighthouse category, timing, size, and request budgets pass;
+4. full-history privacy and Gitleaks jobs pass;
+5. Dependency Review and `npm audit` pass;
+6. CodeQL completes without an unresolved release-blocking finding;
+7. repository security-drift tests pass;
+8. the Cloudflare smoke job passes after production deployment;
+9. any intentionally unautomated manual checks are clearly listed.
 
 OpenSSF Scorecard is monitored as a continuing improvement signal. It is not a pull-request merge gate because it runs after changes reach `main` and on a schedule.
