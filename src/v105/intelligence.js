@@ -111,7 +111,7 @@ export function recurringWatch() {
 }
 
 export function recurringAmountAlerts() {
-  return recurringWatch().filter((item) => item.status !== 'excluded' && item.previousAmount > 0 && Math.abs(item.delta) >= Math.max(2, item.previousAmount * 0.05));
+  return recurringWatch().filter((item) => item.status !== 'excluded' && item.previousAmount > 0 && (Math.abs(item.delta) >= 2 || Math.abs(item.percent) >= 0.05));
 }
 
 export function recentMonths(selectedMonth = getMonth(), count = 6) {
