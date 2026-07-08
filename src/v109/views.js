@@ -16,9 +16,44 @@ function destinationOptions(state) {
   return state.destinations.map((destination) => `<option value="${esc(destination.key)}" ${destination.key === state.destinationKey ? 'selected' : ''}>${esc(destination.key)} — ${destination.transactions} transactions</option>`).join('');
 }
 
+function addMonth(value, offset) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})$/);
+  if (!match) return '';
+  const date = new Date(Number(match[1]), Number(match[2]) - 1 + offset, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthsBetween(start, end) {
+  if (!start || !end || start > end) return [];
+  const months = [];
+  let cursor = start;
+  while (cursor && cursor <= end && months.length < 120) {
+    months.push(cursor);
+    cursor = addMonth(cursor, 1);
+  }
+  return months;
+}
+
+function priorImportCoverageWarning(state) {
+  const incomingEarliest = state.analysis?.coverage?.incomingEarliest;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(incomingEarliest || '')) return '';
+  const prior = state.history
+    .filter((entry) => /^\d{4}-\d{2}-\d{2}$/.test(entry?.latestDate || ''))
+    .sort((left, right) => String(right.timestamp || '').localeCompare(String(left.timestamp || '')))[0];
+  if (!prior || prior.latestDate >= incomingEarliest) return '';
+  const priorMonth = prior.latestDate.slice(0, 7);
+  const incomingMonth = incomingEarliest.slice(0, 7);
+  const gap = monthsBetween(addMonth(priorMonth, 1), addMonth(incomingMonth, -1));
+  if (!gap.length) return `Prior import history ended ${prior.latestDate}; this file begins ${incomingEarliest} in the following month.`;
+  return `Prior import history ended ${prior.latestDate}; this file begins ${incomingEarliest}. Review current-vault coverage for ${gap.join(', ')} before confirming.`;
+}
+
 function coverageView(state) {
   const coverage = state.analysis.coverage;
-  return `<article class="card import-coverage-card"><div class="section-title-row"><div><h3>Date coverage</h3><p>Use these ranges to spot missing periods before any write.</p></div><div class="section-meta">Overlap: ${esc(coverage.overlap)}</div></div><div class="grid two"><div class="summary-box compact">Incoming earliest: ${esc(coverage.incomingEarliest)}\nIncoming latest: ${esc(coverage.incomingLatest)}</div><div class="summary-box compact">Existing earliest: ${esc(coverage.existingEarliest)}\nExisting latest: ${esc(coverage.existingLatest)}</div></div><div class="notes">${coverage.warnings.map((warning) => `<div class="note ${coverage.missingIncomingMonths.length ? 'risk-note' : 'good-note'}">${esc(warning)}</div>`).join('')}</div></article>`;
+  const historyWarning = priorImportCoverageWarning(state);
+  const warnings = [...coverage.warnings, ...(historyWarning ? [historyWarning] : [])];
+  const hasRisk = coverage.missingIncomingMonths.length > 0 || Boolean(historyWarning);
+  return `<article class="card import-coverage-card"><div class="section-title-row"><div><h3>Date coverage</h3><p>Use these ranges to spot missing periods before any write.</p></div><div class="section-meta">Overlap: ${esc(coverage.overlap)}</div></div><div class="grid two"><div class="summary-box compact">Incoming earliest: ${esc(coverage.incomingEarliest)}\nIncoming latest: ${esc(coverage.incomingLatest)}</div><div class="summary-box compact">Existing earliest: ${esc(coverage.existingEarliest)}\nExisting latest: ${esc(coverage.existingLatest)}</div></div><div class="notes">${warnings.map((warning) => `<div class="note ${hasRisk ? 'risk-note' : 'good-note'}">${esc(warning)}</div>`).join('')}</div></article>`;
 }
 
 function exactDuplicatesView(state) {
