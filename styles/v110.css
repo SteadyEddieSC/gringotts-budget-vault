@@ -1,0 +1,56 @@
+.close-forecast-page { min-width: 0; }
+.close-forecast-page > .month-nav { margin-bottom: 1rem; }
+.close-section,
+.forecast-section,
+.debt-section { display: grid; gap: 1rem; min-width: 0; margin-top: 1.25rem; }
+.forecast-section,
+.debt-section { padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.subsection-heading { margin: .25rem 0 0; }
+.close-overview.closed-month { border-color: rgba(74, 222, 128, .55); }
+.close-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; margin: .9rem 0; }
+.close-summary-grid > div { min-width: 0; padding: .75rem; border: 1px solid var(--line); border-radius: 12px; background: #0b1220; }
+.close-summary-grid strong { display: block; font-size: clamp(1.05rem, 3vw, 1.45rem); overflow-wrap: anywhere; }
+.close-summary-grid span { color: var(--muted); font-size: .82rem; }
+.reconciliation-grid,
+.debt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; min-width: 0; }
+.reconciliation-card,
+.debt-card { min-width: 0; }
+.reconciliation-card .summary-box { min-height: 0; }
+.reconciliation-card textarea,
+.debt-section textarea { resize: vertical; }
+.warning-note { border-left-color: var(--gold); background: rgba(245, 196, 81, .08); }
+.forecast-kpis,
+.debt-kpis { margin-bottom: 0; }
+.forecast-table { min-width: 650px; }
+.planning-event-list .planning-event { align-items: flex-start; }
+.planning-event > span:last-child { display: grid; justify-items: end; gap: .45rem; }
+.small-button { padding: .45rem .65rem; min-height: 0; }
+.debt-facts { display: flex; flex-wrap: wrap; gap: .45rem; margin: .7rem 0; }
+.debt-facts span { border: 1px solid var(--line); border-radius: 999px; padding: .35rem .55rem; color: var(--muted); font-size: .8rem; }
+.close-forecast-page .card,
+.close-forecast-page .grid,
+.close-forecast-page label,
+.close-forecast-page input,
+.close-forecast-page select,
+.close-forecast-page textarea,
+.close-forecast-page button { min-width: 0; max-width: 100%; }
+.close-forecast-page .summary-box,
+.close-forecast-page .section-meta,
+.close-forecast-page p,
+.close-forecast-page button { overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .close-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reconciliation-grid,
+  .debt-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .money-subnav { grid-template-columns: 1fr 1fr; }
+  .close-summary-grid { grid-template-columns: minmax(0, 1fr); }
+  .planning-event { flex-direction: column; }
+  .planning-event > span:last-child { width: 100%; justify-items: stretch; }
+  .planning-event .small-button { width: 100%; }
+  .debt-facts { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .debt-facts span { border-radius: 10px; }
+}

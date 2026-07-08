@@ -6,7 +6,7 @@ Gringotts uses Playwright to test the browser application against a synthetic va
 
 ## Synthetic data boundary
 
-`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory; no bank export or filled import file is committed.
+`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory. v110 month-close, forecast, and debt cases generate fictional reconciliation values, bills, paydays, balances, and promotional terms in test code. No bank export, filled import file, statement, debt record, or household financial data is committed.
 
 The fixture includes:
 
@@ -77,7 +77,8 @@ npm run report
 ### Boot and architecture
 
 - application boots without module or JavaScript errors;
-- version and six primary destinations are present;
+- v110 and the corrected `Mischief Managed. Money Managed` subtitle are present;
+- six primary destinations remain present;
 - no service worker is registered;
 - normal navigation makes no network write requests.
 
@@ -87,7 +88,8 @@ npm run report
 - mobile Menu navigation works;
 - each tested viewport avoids full-page horizontal overflow;
 - the desktop month toolbar remains compact;
-- Previous, Next, native month value changes, and Latest work.
+- Previous, Next, native month value changes, and Latest work;
+- Close & Forecast remains consolidated under Money on phone, tablet, and desktop.
 
 ### Review Queue
 
@@ -116,9 +118,27 @@ npm run report
 - importing makes no network write request;
 - phone, tablet, and desktop layouts remain inside the viewport.
 
+### Month Close and Forecasting
+
+- pending transactions and unresolved review items block month close;
+- each represented account can be reconciled against posted count and signed statement activity;
+- explained differences remain visible and unexplained differences block close;
+- reconciliation signatures become stale when selected-month transactions change;
+- closing creates a verified immutable summary revision without storing full transaction copies;
+- closing does not alter the populated vault or transaction count;
+- reopening requires a reason, preserves the prior close revision, and appends a separate reopen event;
+- one-time, weekly, biweekly, and monthly bill or payday schedules remain local;
+- forecast settings persist separately from transactions;
+- the cash forecast displays projected ending cash, low balance, pressure days, and scheduled occurrences;
+- promotional APR planning calculates a simple payoff pace and urgency signal;
+- locally recording a planning payment changes only the debt-planning entry;
+- close, forecast, and debt actions make no network write request;
+- phone, tablet, and desktop layouts remain inside the viewport.
+
 ### Reports and safety
 
-- the v109 Vault Workbook download starts;
+- the v110 24-sheet Vault Workbook download starts;
+- Month Close, Reconciliations, Cash Forecast, and Debt Plan are included in the expanded workbook;
 - the annual tracker file input is present;
 - an empty JSON restore is blocked;
 - the populated synthetic vault remains intact;
@@ -159,7 +179,7 @@ The GitHub Actions suite runs:
 - SSN-formatted values;
 - labeled routing, ABA, account, and full payment-card numbers.
 
-The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import scenarios are generated in the Playwright test code from fictional values.
+The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import and v110 close, forecast, and debt scenarios are generated from fictional values in Playwright test code.
 
 ### Gitleaks
 
@@ -232,7 +252,7 @@ After a successful local Playwright suite on `main`, a Chromium smoke test check
 The live test verifies:
 
 - the app boots without a module error;
-- v109 is served;
+- v110 and the corrected subtitle are served;
 - all six primary destinations open;
 - Content Security Policy is active;
 - clickjacking protection is active;
