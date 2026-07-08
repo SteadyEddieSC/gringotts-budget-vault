@@ -2,15 +2,17 @@ import { esc, getMonth, money } from '../v103/core.js';
 import { trackerTemplateSnapshot } from '../v104/template-workbook.js';
 import { exportsView } from '../v104/views-admin.js';
 import {
-  activityView, calendarView, dashboardView, diagnosticsView, importView, moneyView
+  activityView as baseActivityView, calendarView, dashboardView, diagnosticsView, importView, moneyView
 } from '../v110/views.js';
 import { compactMonthNavigator } from '../v107/views.js';
+import { buildHouseholdInsights } from '../v113/insights.js';
+import { insightsReportPage, insightsView } from '../v113/views.js';
 import {
   expandedWorkbookSheetsV111, householdReportModel, rangeExecutiveSummary,
   reportRangeSettings
 } from './reporting.js';
 
-export { activityView, calendarView, dashboardView, diagnosticsView, importView, moneyView };
+export { calendarView, dashboardView, diagnosticsView, importView, moneyView };
 
 const presetLabels = {
   month: 'Selected month',
@@ -43,6 +45,17 @@ function bars(items, maxItems = 8) {
   return selected.length ? `<div class="bars">${selected.map(([label, amount]) => `<div class="bar-row"><span class="bar-label" title="${esc(label)}">${esc(label)}</span><span class="bar-track"><span class="bar-fill" style="width:${Math.max(2, Math.min(100, amount / max * 100))}%"></span></span><strong>${money(amount)}</strong></div>`).join('')}</div>` : '<p>No spending appears in this report range.</p>';
 }
 
+export function activityView(section = 'ledger', search = '', reviewPosition = 0) {
+  let content = '';
+  if (section === 'insights') content = insightsView();
+  else {
+    const base = baseActivityView(section, search, reviewPosition);
+    const subnavClose = base.indexOf('</div>');
+    content = subnavClose >= 0 && base.endsWith('</div>') ? base.slice(subnavClose + 6, -6) : base;
+  }
+  return `<div class="workspace"><div class="subnav activity-subnav" role="tablist" aria-label="Activity sections"><button class="subtab ${section === 'ledger' ? 'active' : ''}" data-activity-section="ledger">Transactions</button><button class="subtab ${section === 'review' ? 'active' : ''}" data-activity-section="review">Review Queue</button><button class="subtab ${section === 'rules' ? 'active' : ''}" data-activity-section="rules">Rules</button><button class="subtab ${section === 'insights' ? 'active' : ''}" data-activity-section="insights">Insights</button></div>${content}</div>`;
+}
+
 function reportControls(settings) {
   return `<article class="card range-controls screen-only"><div class="section-title-row"><div><h3>Report range</h3><p>Choose a reusable household reporting period. This changes reports only and never filters or edits the vault.</p></div><div class="section-meta">${esc(presetLabels[settings.preset])}</div></div>
     <div class="report-range-grid">
@@ -61,12 +74,12 @@ function downloadOptions(template, model) {
     <article class="card report-option"><h3>28-sheet Vault Workbook</h3><p>Includes the full v110 workbook plus Report Range, Range Transactions, Year over Year, and Family Meeting Brief.</p><button id="vaultXlsx" class="btn primary">Download 28-sheet Workbook</button></article>
     <article class="card report-option"><h3>Range transaction export</h3><p>Download the active ${esc(model.label)} transaction range as CSV, or retain the selected-month quick XLSX.</p><div class="button-row"><button id="familyCsv" class="btn secondary">Download Range CSV</button><button id="familyXlsx" class="btn secondary">Selected-Month Quick XLSX</button></div></article>
     <article class="card report-option"><h3>Range executive report</h3><p>Download or copy the custom-range narrative with year-over-year context.</p><div class="button-row"><button id="executiveMd" class="btn secondary">Download Executive Markdown</button><button id="copyExecutive" class="btn secondary">Copy Range Summary</button></div></article>
-    <article class="card report-option"><h3>Family meeting pack</h3><p>Goals, Vault Health, close status, forecast, debt priorities, questions, wins, risks, and actions.</p><div class="button-row"><button id="meetingMd" class="btn secondary">Download Meeting Pack</button><button id="printReports" class="btn secondary">Print / Save PDF</button></div></article>
+    <article class="card report-option"><h3>Family meeting pack</h3><p>Insights, goals, Vault Health, close status, forecast, debt priorities, questions, wins, risks, and actions.</p><div class="button-row"><button id="meetingMd" class="btn secondary">Download Meeting Pack</button><button id="printReports" class="btn secondary">Print / Save PDF</button></div></article>
   </div>`;
 }
 
 function executivePage(model) {
-  return `<article class="card printable-report report-page report-cover"><div class="report-kicker">Household Reporting III</div><h2>Family Financial Report</h2><p class="report-period">${esc(model.label)}</p><p class="executive-text">${esc(rangeExecutiveSummary(model))}</p><div class="report-metrics"><span><strong>${model.metrics.count}</strong> Transactions</span><span><strong>${money(model.metrics.income)}</strong> Income</span><span><strong>${money(model.metrics.spend)}</strong> Spending</span><span><strong>${money(model.metrics.net)}</strong> Net</span></div><div class="report-quality-line"><span>${model.metrics.pending} pending</span><span>${model.metrics.review} need review</span><span>Generated ${esc(new Date(model.generatedAt).toLocaleString())}</span></div></article>`;
+  return `<article class="card printable-report report-page report-cover"><div class="report-kicker">Household Insights IV</div><h2>Family Financial Report</h2><p class="report-period">${esc(model.label)}</p><p class="executive-text">${esc(rangeExecutiveSummary(model))}</p><div class="report-metrics"><span><strong>${model.metrics.count}</strong> Transactions</span><span><strong>${money(model.metrics.income)}</strong> Income</span><span><strong>${money(model.metrics.spend)}</strong> Spending</span><span><strong>${money(model.metrics.net)}</strong> Net</span></div><div class="report-quality-line"><span>${model.metrics.pending} pending</span><span>${model.metrics.review} need review</span><span>Generated ${esc(new Date(model.generatedAt).toLocaleString())}</span></div></article>`;
 }
 
 function comparisonPage(model) {
@@ -87,25 +100,29 @@ function planningPage(model) {
   return `<section class="printable-report report-page"><h2>Month close, forecast, and debt</h2><div class="report-metrics"><span><strong>${model.close.closedMonths}</strong> Closed months</span><span><strong>${model.close.openMonths}</strong> Open months</span><span><strong>${model.close.driftedMonths}</strong> Drifted closes</span><span><strong>${money(model.forecast.endingBalance)}</strong> Forecast ending</span></div><div class="grid two"><article class="card"><h3>Cash forecast</h3><div class="summary-box compact">Forecast: ${esc(model.forecast.start)} through ${esc(model.forecast.end)}\nStarting cash: ${money(model.forecast.settings.startingCash)}\nEnding cash: ${money(model.forecast.endingBalance)}\nLowest cash: ${money(model.forecast.lowBalance)} on ${esc(model.forecast.lowDate)}\nDays below buffer: ${model.forecast.pressureDays.length}\nNegative days: ${model.forecast.negativeDays.length}</div></article><article class="card"><h3>Debt plan</h3><div class="summary-box compact">Total planned balance: ${money(model.debt.totalBalance)}\nMonthly minimums: ${money(model.debt.minimumPayments)}\nTarget payments: ${money(model.debt.targetPayments)}\nEstimated monthly interest: ${money(model.debt.estimatedMonthlyInterest)}\nPromos within 6 months: ${model.debt.promoExpiring}\nCurrent priority: ${esc(priority?.name || 'No debt plan entry')}</div></article></div><div class="table-wrap report-table-wrap"><table class="ledger debt-report-table"><thead><tr><th>Priority</th><th>Debt</th><th>Balance</th><th>Effective APR</th><th>Target</th><th>Promo end</th><th>Promo gap</th></tr></thead><tbody>${model.debt.priority.map((debt, index) => `<tr><td>${index + 1}</td><td>${esc(debt.name)}</td><td>${money(debt.balance)}</td><td>${debt.effectiveApr}%</td><td>${money(debt.targetPayment)}</td><td>${esc(debt.promoEnd || '—')}</td><td>${money(debt.promoGap)}</td></tr>`).join('') || '<tr><td colspan="7">No debt planning entries.</td></tr>'}</tbody></table></div></section>`;
 }
 
-function meetingPage(model) {
+function meetingPage(model, insights) {
   const section = (title, values, className = '') => `<article class="card ${className}"><h3>${esc(title)}</h3><ul>${values.map((value) => `<li>${esc(value)}</li>`).join('') || '<li>No item was generated.</li>'}</ul></article>`;
-  return `<section class="printable-report report-page"><h2>Family meeting brief</h2><div class="grid two meeting-report-grid">${section('Questions to Decide Together', model.meeting.questions)}${section('Wins', model.meeting.wins, 'report-wins')}${section('Risks & Watch Items', model.meeting.risks, 'report-risks')}${section('Action Items', model.meeting.actions, 'report-actions')}</div></section>`;
+  const questions = [...new Set([...insights.prompts.map((item) => item.question), ...model.meeting.questions])].slice(0, 10);
+  const insightRisks = insights.signals.filter((item) => item.severity !== 'watch').slice(0, 4).map((item) => item.summary);
+  const risks = [...new Set([...insightRisks, ...model.meeting.risks])].slice(0, 10);
+  return `<section class="printable-report report-page"><h2>Family meeting brief</h2><div class="grid two meeting-report-grid">${section('Questions to Decide Together', questions)}${section('Wins', model.meeting.wins, 'report-wins')}${section('Risks & Watch Items', risks, 'report-risks')}${section('Action Items', model.meeting.actions, 'report-actions')}</div></section>`;
 }
 
 export function reportsView() {
   const settings = reportRangeSettings();
   const model = householdReportModel(settings);
+  const insights = buildHouseholdInsights({ rows: model.currentRows, start: settings.start, end: settings.end, label: model.label });
   const template = trackerTemplateSnapshot();
-  return `<section class="section active report-center v111-report-center"><div class="section-title-row"><div><h2>Reports Center</h2><p>Build selected-month, custom-range, year-over-year, and family meeting reports entirely in this browser.</p></div><div class="section-meta">${esc(model.label)}</div></div>${compactMonthNavigator()}${reportControls(settings)}${downloadOptions(template, model)}${executivePage(model)}${comparisonPage(model)}${spendingPage(model)}${goalsHealthPage(model)}${planningPage(model)}${meetingPage(model)}<article class="card screen-only"><h3>Vault workbook contents</h3><p>The deeper workbook contains ${expandedWorkbookSheetsV111(getMonth(), model).length} sheets.</p><ul class="sheet-list">${expandedWorkbookSheetsV111(getMonth(), model).map((sheet) => `<li>${esc(sheet.name)}</li>`).join('')}</ul></article></section>`;
+  return `<section class="section active report-center v111-report-center v113-report-center"><div class="section-title-row"><div><h2>Reports Center</h2><p>Build selected-month, custom-range, year-over-year, insights, and family meeting reports entirely in this browser.</p></div><div class="section-meta">${esc(model.label)}</div></div>${compactMonthNavigator()}${reportControls(settings)}${downloadOptions(template, model)}${executivePage(model)}${comparisonPage(model)}${spendingPage(model)}${goalsHealthPage(model)}${planningPage(model)}${insightsReportPage(insights)}${meetingPage(model, insights)}<article class="card screen-only"><h3>Vault workbook contents</h3><p>The deeper workbook contains ${expandedWorkbookSheetsV111(getMonth(), model).length} sheets.</p><ul class="sheet-list">${expandedWorkbookSheetsV111(getMonth(), model).map((sheet) => `<li>${esc(sheet.name)}</li>`).join('')}</ul></article></section>`;
 }
 
 export function roadmapView() {
   const roadmap = [
-    ['v112', 'Accessibility & Quality Automation', 'axe-core accessibility scans, Lighthouse CI budgets, and selective synthetic visual regression'],
-    ['v113', 'Household Insights IV', 'explainable anomalies, recurring-cost opportunities, and report-driven household decisions'],
+    ['v114', 'Guided Household Planning', 'advisor-style planning checklists driven by goals, close status, forecast pressure, debt priorities, and household insights'],
+    ['v115', 'Bank Export Import & Mapping', 'local CSV, OFX, QFX, and QBO parsing with mapping preview, duplicate review, backup-first writes, and read-back verification'],
     ['v116', 'Planned UI Architecture Review', 'navigation, content usefulness, accessibility, touch targets, density, and responsive design']
   ];
-  return `<section class="section active"><div class="section-title-row"><div><h2>Roadmap</h2><p>Every release retains responsive, privacy, security, and working-control gates.</p></div><div class="section-meta">Next: v112</div></div><article class="roadmap-item shipped"><h3>v111 — Household Reporting III</h3><p>Custom date ranges, year-over-year reporting, complete family meeting sections, four range-aware workbook sheets, and cleaner PDF pagination.</p></article><div class="roadmap">${roadmap.map((item) => `<article class="roadmap-item"><h3>${esc(item[0])} — ${esc(item[1])}</h3><p>${esc(item[2])}</p></article>`).join('')}</div></section>`;
+  return `<section class="section active"><div class="section-title-row"><div><h2>Roadmap</h2><p>Every release retains responsive, privacy, security, accessibility, and working-control gates.</p></div><div class="section-meta">Next: v114</div></div><article class="roadmap-item shipped"><h3>v113 — Household Insights IV</h3><p>Explainable unusual-spending signals, recurring-cost opportunities, traceable decision prompts, and report-center integration without automatic transaction changes.</p></article><div class="roadmap">${roadmap.map((item) => `<article class="roadmap-item"><h3>${esc(item[0])} — ${esc(item[1])}</h3><p>${esc(item[2])}</p></article>`).join('')}</div></section>`;
 }
 
 export function toolsView(section = 'import') {
