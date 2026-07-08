@@ -2,14 +2,16 @@
 
 [![Playwright Regression](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/playwright.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/playwright.yml)
 [![Public Repository Security](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/security.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/security.yml)
+[![Supply Chain](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/supply-chain.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/supply-chain.yml)
 [![CodeQL](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml)
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site.
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
 Current application runtime: **v108 — Goals & Vault Health**  
-Current quality-infrastructure release: **v108.2 — Public Repository Hardening**
+Current quality-infrastructure release: **v108.3 — Security Completion**
 
 ## Live application
 
@@ -36,7 +38,7 @@ The application remains local-first:
 - the application must not automatically save an empty vault;
 - broad transaction writes remain backup-first and verified after storage.
 
-## Automated testing
+## Automated testing and security
 
 Playwright regression tests cover:
 
@@ -50,14 +52,25 @@ Playwright regression tests cover:
 - empty-restore blocking;
 - service-worker absence and unexpected network writes.
 
-Public-repository security automation adds:
+Public-repository and supply-chain automation adds:
 
 - full-history secret scanning with Gitleaks;
 - custom financial-data and forbidden-file history checks;
+- dependency-change review on pull requests;
+- high/critical `npm audit` enforcement;
 - CodeQL analysis for JavaScript;
-- Dependabot updates for npm and GitHub Actions.
+- OpenSSF Scorecard analysis;
+- Dependabot updates for npm and GitHub Actions;
+- full-commit-SHA pinning for every external GitHub Action;
+- regression checks that prevent workflow-permission, action-pinning, and security-header drift.
 
-See [`TESTING.md`](TESTING.md) for local commands and release-gate details.
+The Cloudflare deployment serves a restrictive Content Security Policy, clickjacking protection, no-referrer policy, disabled worker execution, and cross-origin isolation headers suitable for the local-first static application.
+
+See:
+
+- [`TESTING.md`](TESTING.md) for automated checks and local commands;
+- [`GITHUB_SETTINGS_CHECKLIST.md`](GITHUB_SETTINGS_CHECKLIST.md) for the exact repository settings that must be confirmed manually;
+- [`SECURITY.md`](SECURITY.md) for private vulnerability reporting and sensitive-data boundaries.
 
 ## Local browser testing
 
@@ -70,6 +83,8 @@ Requirements:
 npm ci
 npx playwright install chromium firefox webkit
 npm run test:local
+npm run privacy:history
+npm audit --audit-level=high
 ```
 
 ## Cloudflare Pages deployment
