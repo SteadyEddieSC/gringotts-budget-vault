@@ -15,7 +15,7 @@ function renderFailure(error) {
       <h1>Gringotts could not start</h1>
       <p>The page shell loaded, but a JavaScript module failed before the vault interface could render. Your browser data has not been cleared or overwritten.</p>
       <div class="boot-actions">
-        <button id="bootRetry" type="button">Retry v106.1</button>
+        <button id="bootRetry" type="button">Retry v106.2</button>
         <a href="rescue-v105.html?release=rescue1051">Open stable v105 rescue</a>
       </div>
       <details open>
@@ -33,16 +33,16 @@ window.addEventListener('unhandledrejection', (event) => {
   renderFailure(event?.reason);
 });
 
-import('./runtime-v106-calendar-ui.js?v=106calendarui2')
+import('./runtime-v106-calendar-ui.js?v=106calendarui3')
   .then(() => {
     if (window.GringottsCleanRuntime?.BUILD) {
-      window.GringottsCleanRuntime.BUILD.version = 'v106.1';
-      window.GringottsCleanRuntime.BUILD.name = 'Boot-Safe Calendar, Cash Flow & UI Consolidation';
-      window.GringottsCleanRuntime.BUILD.cacheBust = '1061boot1';
+      window.GringottsCleanRuntime.BUILD.version = 'v106.2';
+      window.GringottsCleanRuntime.BUILD.name = 'Calendar, Cash Flow & UI Consolidation — Reports Export Fix';
+      window.GringottsCleanRuntime.BUILD.cacheBust = '1062boot1';
     }
-    document.title = 'Gringotts Budget Vault v106.1';
+    document.title = 'Gringotts Budget Vault v106.2';
     const version = document.querySelector('.version-text');
-    if (version) version.textContent = 'v106.1';
+    if (version) version.textContent = 'v106.2';
     if (boot?.isConnected) boot.remove();
   })
   .catch(renderFailure);
