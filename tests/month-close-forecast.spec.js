@@ -74,7 +74,7 @@ test('reconciles, closes, and reopens without changing transactions', async ({ a
   await page.locator('#reopenReason').fill('Statement correction required');
   page.once('dialog', (dialog) => dialog.accept());
   await page.locator('#reopenMonth').click();
-  await expect(page.getByText(/^Open$/).first()).toBeVisible();
+  await expect(page.getByText(/^Ready to close$/).first()).toBeVisible();
 
   const reopened = await page.evaluate(() => ({
     vaultCount: JSON.parse(localStorage.getItem('gringottsBudgetVault.latest')).transactions.length,
