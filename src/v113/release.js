@@ -1,4 +1,5 @@
 import { BUILD } from '../v103/core.js';
+import { installV113DownloadOverrides } from './reporting.js';
 
 export function activateV113() {
   Object.assign(BUILD, {
@@ -8,5 +9,6 @@ export function activateV113() {
     cacheBust: '113insights1'
   });
   if (window.GringottsCleanRuntime?.BUILD) Object.assign(window.GringottsCleanRuntime.BUILD, BUILD);
+  installV113DownloadOverrides();
   return BUILD;
 }
