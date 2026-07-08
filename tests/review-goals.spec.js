@@ -19,7 +19,7 @@ test('Review Queue uses native selects and performs a verified backup-first edit
   await expect(page.locator('#reviewCategory')).toBeEnabled();
 
   await page.locator('#reviewCategory').selectOption({ label: 'Groceries' });
-  await page.locator('#reviewOwner').selectOption({ label: 'Edwin' });
+  await page.locator('#reviewOwner').selectOption({ label: 'Test Owner A' });
   await page.locator('#reviewAccount').selectOption({ label: 'Test Checking' });
   await page.locator('#reviewNotes').fill('Reviewed by Playwright');
   await page.getByRole('button', { name: 'Save & Mark Reviewed' }).click();
