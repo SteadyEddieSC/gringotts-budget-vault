@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v110/);
+    await expect(page.locator('.version-text')).toContainText(/^v111/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -41,6 +41,10 @@ test.describe('@live Cloudflare deployment', () => {
       await openPrimary(page, name);
       await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
     }
+
+    await openPrimary(page, 'Reports');
+    await expect(page.getByRole('heading', { name: 'Family Financial Report' })).toBeVisible();
+    await expect(page.locator('#reportPreset')).toBeVisible();
 
     expect(errors, 'Deployed page errors').toEqual([]);
   });
