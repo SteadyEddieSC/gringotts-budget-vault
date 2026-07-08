@@ -38,6 +38,13 @@ test('workflows avoid dangerous broad permissions and privileged PR triggers', (
   expect(failures, 'Dangerous workflow capabilities').toEqual([]);
 });
 
+test('CodeQL keeps read-only defaults and grants write access only to security events', () => {
+  const workflow = read('.github/workflows/codeql.yml');
+  expect(workflow).toMatch(/^permissions: read-all$/m);
+  expect(workflow).toMatch(/analyze:[\s\S]*?permissions:\n\s+actions: read\n\s+contents: read\n\s+security-events: write/);
+  expect(workflow).not.toMatch(/^\s+packages:\s*(read|write)\s*$/m);
+});
+
 test('Cloudflare headers preserve the local-first browser boundary', () => {
   const headers = read('_headers');
   const required = [

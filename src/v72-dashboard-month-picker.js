@@ -8,7 +8,7 @@
   function selectedMonth(){const saved=localStorage.getItem(MONTH_KEY); return saved||availableMonth();}
   function setSelectedMonth(key){if(/^\d{4}-\d{2}$/.test(key)){localStorage.setItem(MONTH_KEY,key);} render();}
   function addMonths(key,delta){const [y,m]=String(key).split('-').map(Number); const d=new Date(y,m-1+delta,1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
-  function label(key){const [y,m]=String(key).split('-').map(Number); if(!y||!m) return key||'Month'; return new Date(y,m-1,1).toLocaleString(undefined,{month:'short',year:'2-digit'}).toUpperCase().replace(' ',' ');}
+  function label(key){const [y,m]=String(key).split('-').map(Number); if(!y||!m) return key||'Month'; return new Date(y,m-1,1).toLocaleString(undefined,{month:'short',year:'2-digit'}).toUpperCase();}
   function fullLabel(key){const [y,m]=String(key).split('-').map(Number); if(!y||!m) return key||'unknown'; return new Date(y,m-1,1).toLocaleString(undefined,{month:'long',year:'numeric'});}
   function amount(t){return Number(t.amount||0);} function outflow(t){return amount(t)>0?Math.abs(amount(t)):0;} function income(t){return amount(t)<0?Math.abs(amount(t)):0;}
   function cat(t){return String(t.category||t.personal_finance_category_primary||'Other').trim()||'Other';}

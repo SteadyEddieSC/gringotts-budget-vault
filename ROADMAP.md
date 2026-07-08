@@ -2,6 +2,15 @@
 
 ## Shipped
 
+### v108.4 — Security Alert Cleanup
+
+- Removed the obsolete no-op month-label replacement identified by CodeQL while preserving label behavior.
+- Changed the CodeQL workflow to read-only defaults with job-scoped `security-events: write` access.
+- Updated the pinned CodeQL Action and Scorecard SARIF uploader to v4.37.0 by full commit SHA.
+- Added a regression test that enforces least-privilege CodeQL permissions.
+- Documented which OpenSSF Scorecard findings were corrected, stale pending refresh, or accepted for this solo-maintainer project.
+- Preserved the visible v108 application runtime and all browser-local data safeguards.
+
 ### v108.3 — Security Completion
 
 - Added Dependency Review for vulnerable dependency changes in pull requests.
