@@ -64,7 +64,8 @@ export function reviewView(position = 0) {
   if (!item) {
     return `<section class="section active review-page">
       <div class="section-title-row"><div><h2>Review Queue</h2><p>${esc(monthLabel(month))} has no transactions requiring category or review cleanup.</p></div><div class="section-meta">Queue clear</div></div>
-      <article class="card"><h3>Nothing waiting</h3><p>Use the month controls on Dashboard, Money, Calendar, or Reports to review another month.</p></article>
+      ${compactMonthNavigator()}
+      <article class="card"><h3>Nothing waiting</h3><p>Use the month controls above to review another month.</p></article>
     </section>`;
   }
 
@@ -72,6 +73,8 @@ export function reviewView(position = 0) {
   const locked = session.editingEnabled ? '' : 'disabled';
   return `<section class="section active review-page">
     <div class="section-title-row"><div><h2>Review Queue</h2><p>Review one transaction at a time without losing your place on phone or tablet.</p></div><div class="section-meta">${safePosition + 1} of ${queue.length} · ${esc(monthLabel(month))}</div></div>
+
+    ${compactMonthNavigator()}
 
     <article class="card review-safety ${session.editingEnabled ? 'editing-ready' : ''}">
       <div><h3>${session.editingEnabled ? 'Safe editing enabled' : 'Editing locked'}</h3><p>${session.editingEnabled ? `The current vault is protected by a downloaded backup${session.recoveryStored ? ' and a local recovery snapshot' : ''}.` : 'Enable safe editing to download a backup before any transaction row can change.'}</p></div>
