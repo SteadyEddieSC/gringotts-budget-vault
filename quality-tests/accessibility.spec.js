@@ -62,7 +62,7 @@ test('axe scans every primary and important secondary surface', async ({ page },
   await scanSurface(page, testInfo, 'Calendar');
 
   await openPrimary(page, 'Reports');
-  await scanSurface(page, testInfo, 'Reports');
+  await scanSurface(page, testInfo, 'Reports with Household Insights');
 
   await openPrimary(page, 'Activity');
   await scanSurface(page, testInfo, 'Activity — Transactions');
@@ -70,6 +70,8 @@ test('axe scans every primary and important secondary surface', async ({ page },
   await scanSurface(page, testInfo, 'Activity — Review Queue');
   await clickSubsection(page, 'Rules');
   await scanSurface(page, testInfo, 'Activity — Rules');
+  await clickSubsection(page, 'Insights');
+  await scanSurface(page, testInfo, 'Activity — Household Insights');
 
   await openPrimary(page, 'Tools');
   await scanSurface(page, testInfo, 'Tools — Import and Restore');
