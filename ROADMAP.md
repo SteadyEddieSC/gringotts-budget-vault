@@ -2,12 +2,28 @@
 
 ## Shipped
 
+### v113 — Household Insights IV
+
+- Added Activity → Insights without adding another top-level destination.
+- Added explainable merchant amount spikes using the median of earlier normalized-merchant charges from a visible 180-day history window.
+- Added category-spending increases using the immediately preceding equivalent-length period as the comparison baseline.
+- Added large first-seen merchant review using a visible dynamic threshold rather than a hidden fixed rule.
+- Excluded pending transactions from unusual-spending comparisons while still reporting their count.
+- Added recurring-cost amount-change, annualized-increase, annual-footprint, and confirm-or-exclude review prompts.
+- Added source-transaction evidence, baseline counts, selected and baseline amounts, comparison factors, and calculation methodology.
+- Added household decision questions tied directly to a signal or recurring pattern.
+- Added a seventh printable family-report page and fed insight questions and risks into the family meeting brief.
+- Added Household Insights and Recurring Opportunities workbook sheets, expanding the Vault Workbook from 28 to 30 sheets.
+- Added v113-named workbook, meeting-pack, backup, calendar, rules-review, and diagnostics downloads without copying the application runtime.
+- Added synthetic Playwright coverage for merchant, category, first-seen, recurring, pending-exclusion, no-write, no-network, reports, downloads, accessibility, and responsive behavior.
+- Preserved every local-first, restore, duplicate-review, backup-first, and read-back-verification safeguard.
+
 ### v112 — Accessibility & Quality Automation
 
 - Added a dedicated read-only GitHub Actions workflow for accessibility, responsive-layout, and Lighthouse quality gates.
 - Added pinned axe-core scans across Dashboard, Money, Calendar, Reports, Activity, and Tools workflows.
 - Added a release block for serious or critical violations carrying WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA tags.
-- Added keyboard entry, skip-link, tab semantics, arrow-key navigation, and primary-control accessible-name smoke coverage.
+- Added keyboard entry, skip-link, tab semantics, arrow-key navigation, keyboard-accessible scroll regions, and primary-control accessible-name coverage.
 - Added Lighthouse CI minimum scores for performance, accessibility, best practices, and SEO.
 - Added timing budgets for FCP, LCP, interactive, total blocking time, and cumulative layout shift.
 - Added total/script/stylesheet/image size budgets, resource-count budgets, and a zero third-party-request budget.
@@ -140,13 +156,8 @@
 
 ## Next releases
 
-### v113 — Household Insights IV
-- Add explainable anomaly and unusual-spending review.
-- Add recurring-cost opportunity summaries and household decision prompts.
-- Feed insights into the report center without silently changing categories or transactions.
-
 ### v114 — Guided Household Planning
-- Add advisor-style planning checklists driven by goals, close status, forecast pressure, and debt priorities.
+- Add advisor-style planning checklists driven by goals, close status, forecast pressure, debt priorities, and household insights.
 - Keep every recommendation explainable and separate from transaction writes.
 
 ### v115 — Bank Export Import & Mapping
@@ -187,8 +198,9 @@ Future releases should pass:
 OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. Any intentionally unautomated manual checks must be listed explicitly.
 
 ## Architecture guardrails
-- Local-first transaction storage and processing.
+- Local-first transaction storage, processing, and insight generation.
 - No transaction uploads.
+- Insight generation is read-only and never changes categories, transactions, budgets, rules, recurring preferences, accounts, or planning data.
 - Import history stores metadata only under a separate browser-local key.
 - Report-range settings remain separate and never contain transaction copies.
 - Month-close history stores summaries and deterministic signatures rather than redundant transactions.

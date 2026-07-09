@@ -11,9 +11,10 @@ const destinations = [
 
 test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v111/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v113/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v111');
+  await expect(page.locator('.version-text')).toHaveText('v113');
+  await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
   page.on('request', (request) => methods.push({ method: request.method(), url: request.url() }));
@@ -22,6 +23,11 @@ test('boots without module errors and exposes the consolidated navigation', asyn
     await openPrimary(page, name);
     await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
   }
+
+  await openPrimary(page, 'Activity');
+  await expect(page.getByRole('tab', { name: 'Insights', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: 'Insights', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Household Insights', exact: true })).toBeVisible();
 
   const unsafe = methods.filter(({ method, url }) => method !== 'GET' && !url.startsWith('blob:'));
   expect(unsafe, 'The local-first app should not make write network requests').toEqual([]);
@@ -37,6 +43,10 @@ test('keeps the page inside the viewport at each configured device size', async 
     }));
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 2);
   }
+  await openPrimary(page, 'Activity');
+  await page.getByRole('tab', { name: 'Insights', exact: true }).click();
+  const insightOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(insightOverflow).toBeLessThanOrEqual(2);
 });
 
 test('does not register a service worker', async ({ app }) => {

@@ -11,12 +11,28 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application runtime: **v111 — Household Reporting III**  
+Current application release: **v113 — Household Insights IV**  
 Current quality-infrastructure release: **v112 — Accessibility & Quality Automation**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
+
+## Household Insights IV
+
+v113 adds read-only, explainable financial-review signals under Activity → Insights and inside the Reports Center:
+
+- merchant amount spikes compared with the median of earlier normalized-merchant charges;
+- category increases compared with the immediately preceding equivalent-length period;
+- large first-seen merchants using a visible dynamic threshold;
+- recurring-cost amount changes, annualized increases, and annual footprint prompts;
+- source-transaction evidence and visible calculation methods;
+- questions tied directly to signals or recurring patterns;
+- a seventh printable report page;
+- Household Insights and Recurring Opportunities workbook sheets, expanding the Vault Workbook to 30 sheets;
+- v113-named local workbook, meeting-pack, backup, calendar, rule-review, and diagnostics downloads.
+
+Insights do not change transactions, categories, budgets, rules, accounts, recurring preferences, or planning data. Pending transactions are counted but excluded from unusual-spending comparisons.
 
 ## Privacy and data boundary
 
@@ -33,9 +49,9 @@ Do not commit or attach:
 
 The application remains local-first:
 
-- transaction processing and duplicate reconciliation occur in the browser;
+- transaction processing, duplicate reconciliation, and household insights run in the browser;
 - report ranges are saved as settings only and never copy or mutate transactions;
-- custom-range, prior-year, Markdown, CSV, XLSX, and printable reports are generated in the browser;
+- custom-range, prior-year, insights, Markdown, CSV, XLSX, and printable reports are generated in the browser;
 - month-close history stores summaries and signatures, not redundant transaction copies;
 - forecast settings and debt planning remain separate from transaction history;
 - import history stores metadata only, not redundant transaction copies;
@@ -46,6 +62,19 @@ The application remains local-first:
 - the application must not automatically save an empty vault;
 - broad transaction writes remain backup-first and verified after storage.
 
+## Future bank export imports
+
+A dedicated **v115 — Bank Export Import & Mapping** release is planned so common institution exports can be handled safely rather than treating every file as the same CSV.
+
+Initial planned formats:
+
+- CSV and other delimited text exports;
+- OFX;
+- QFX;
+- QBO.
+
+The release requires content-aware format and schema detection, explicit field mapping, amount-sign validation, duplicate review, backup-first writes, confirmation, and read-back verification. See [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md).
+
 ## Automated testing and security
 
 Playwright regression tests cover:
@@ -54,11 +83,13 @@ Playwright regression tests cover:
 - primary and secondary navigation;
 - desktop, tablet, Android-phone, and iPhone layouts;
 - month navigation and responsive overflow;
+- explainable merchant, category, first-seen, and recurring-cost insight signals;
+- pending-row exclusion and no-write insight behavior;
 - custom report ranges and year-to-date presets;
 - equivalent prior-year comparisons using fictional test rows;
-- complete family report sections for goals, health, close, forecast, and debt;
-- 28-sheet workbook and range CSV downloads;
-- print-media page layout and screen-control hiding;
+- complete family report sections for insights, goals, health, close, forecast, and debt;
+- 30-sheet workbook, meeting-pack, and range CSV downloads;
+- seven-page print layout and screen-control hiding;
 - Review Queue dropdowns and guarded editing;
 - Goals and Vault Health;
 - exact and fuzzy duplicate import review;
@@ -73,12 +104,12 @@ Playwright regression tests cover:
 
 v112 quality automation adds:
 
-- axe-core scans across eight important household workflows;
+- axe-core scans across all primary destinations and important secondary workflows, including Household Insights;
 - a release block for serious or critical WCAG-tagged violations;
-- keyboard and skip-link smoke coverage;
+- keyboard, tab, scroll-region, and skip-link coverage;
 - Lighthouse CI category, timing, resource-size, and request-count budgets;
 - a zero third-party request budget;
-- deterministic text-based visual-layout snapshots for key desktop and phone surfaces;
+- deterministic text-based visual-layout contracts for key desktop and phone surfaces;
 - short-lived accessibility, Lighthouse, screenshot-on-failure, trace, and video artifacts;
 - security-drift enforcement for pinned quality tools and local synthetic data.
 
@@ -100,6 +131,7 @@ See:
 
 - [`TESTING.md`](TESTING.md) for automated checks and local commands;
 - [`QUALITY_GATES.md`](QUALITY_GATES.md) for axe, Lighthouse, and visual-contract details;
+- [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md) for the planned guarded bank-export workflow;
 - [`GITHUB_SETTINGS_CHECKLIST.md`](GITHUB_SETTINGS_CHECKLIST.md) for the exact repository settings that must be confirmed manually;
 - [`SECURITY.md`](SECURITY.md) for private vulnerability reporting and sensitive-data boundaries.
 
@@ -118,7 +150,7 @@ npm run privacy:history
 npm audit --audit-level=high
 ```
 
-The quality suite uses exact temporary tool versions and does not modify the lockfile. See [`QUALITY_GATES.md`](QUALITY_GATES.md) for those commands.
+See [`QUALITY_GATES.md`](QUALITY_GATES.md) for the accessibility, visual-contract, and Lighthouse commands.
 
 ## Cloudflare Pages deployment
 
