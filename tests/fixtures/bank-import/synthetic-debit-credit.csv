@@ -1,0 +1,3 @@
+Posted Date,Payee,Debit,Credit,State,Account Number,Transaction ID,Category
+2026-07-22,Synthetic Hardware,75.25,,Posted,TEST00001234,split-new-1,Household
+2026-07-23,Synthetic Payroll,,2500.00,Posted,TEST00001234,split-new-2,Income
