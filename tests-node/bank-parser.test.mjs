@@ -155,8 +155,19 @@ test('blocks malformed or empty OFX-family files', () => {
 test('blocks oversized files and excessive row counts before browser work', () => {
   assert.throws(() => inspectBankExportText({ fileName: 'large.csv', text: 'Date,Amount\n', sizeBytes: MAX_BANK_EXPORT_BYTES + 1 }), /5 MB/i);
   const header = 'Date,Description,Amount\n';
-  const rows = Array.from({ length: 25_001 }, (_, index) => `2026-07-01,Synthetic ${index},-1`).join('\n');
-  assert.throws(() => parseDelimitedText(header + rows), /25,000 rows/i);
+  const parserOverflow = Array.from({ length: 25_002 }, (_, index) => `2026-07-01,Synthetic ${index},-1`).join('\n');
+  assert.throws(() => parseDelimitedText(header + parserOverflow), /25,000 rows/i);
+
+  const normalizationOverflow = Array.from({ length: 25_001 }, (_, index) => `2026-07-01,Synthetic ${index},-1`).join('\n');
+  const inspected = mappedInspection(header + normalizationOverflow, 'limit.csv');
+  const normalized = normalizeDelimitedExport(inspected, {
+    mapping: inspected.defaultMapping,
+    dateOrder: 'auto',
+    signMode: 'bank',
+    accountLabel: 'Synthetic Limit Test'
+  });
+  assert.match(normalized.errors.join(' '), /more than 25,000 normalized rows/i);
+  assert.equal(normalized.transactions.length, 0);
 });
 
 test('blocks rows with both debit and credit or neither', () => {
