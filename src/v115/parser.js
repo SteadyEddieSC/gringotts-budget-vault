@@ -226,13 +226,14 @@ export function parseOfxFamily(text, format = 'ofx') {
   const warnings = [];
   const transactions = blocks.map((block, index) => {
     const date = parseOfxDate(tagValue(block, 'DTPOSTED') || tagValue(block, 'DTUSER') || tagValue(block, 'DTAVAIL'));
-    const rawAmount = Number(tagValue(block, 'TRNAMT').replace(/,/g, ''));
+    const rawAmountText = tagValue(block, 'TRNAMT');
+    const rawAmount = Number(rawAmountText.replace(/,/g, ''));
     const fitid = tagValue(block, 'FITID');
     const trnType = tagValue(block, 'TRNTYPE').toUpperCase();
     const name = tagValue(block, 'NAME') || tagValue(block, 'PAYEE') || tagValue(block, 'MEMO') || `Imported transaction ${index + 1}`;
     const memo = tagValue(block, 'MEMO');
     if (!date) throw new Error(`OFX transaction ${index + 1} has no valid posting date.`);
-    if (!Number.isFinite(rawAmount)) throw new Error(`OFX transaction ${index + 1} has no numeric TRNAMT value.`);
+    if (!rawAmountText || !Number.isFinite(rawAmount)) throw new Error(`OFX transaction ${index + 1} has no numeric TRNAMT value.`);
     const amount = -rawAmount;
     const transfer = /XFER|TRANSFER/.test(trnType);
     return {
