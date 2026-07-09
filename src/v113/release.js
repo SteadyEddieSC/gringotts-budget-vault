@@ -1,15 +1,19 @@
 import { BUILD } from '../v103/core.js';
 import { installV113DownloadOverrides } from './reporting.js';
 
+function setTextIfChanged(element, value) {
+  if (element && element.textContent !== value) element.textContent = value;
+}
+
 function normalizeV113Labels(root = document) {
   root.querySelectorAll?.('.report-option h3').forEach((heading) => {
-    if (/28-sheet Vault Workbook/i.test(heading.textContent || '')) heading.textContent = '30-sheet Vault Workbook';
+    if (/28-sheet Vault Workbook/i.test(heading.textContent || '')) setTextIfChanged(heading, '30-sheet Vault Workbook');
   });
   const workbookButton = root.querySelector?.('#vaultXlsx');
-  if (workbookButton) workbookButton.textContent = 'Download 30-sheet Workbook';
+  setTextIfChanged(workbookButton, 'Download 30-sheet Workbook');
   const workbookCard = workbookButton?.closest('.report-option');
   const workbookDescription = workbookCard?.querySelector('p');
-  if (workbookDescription) workbookDescription.textContent = 'Includes the complete Household Reporting III workbook plus Household Insights and Recurring Opportunities.';
+  setTextIfChanged(workbookDescription, 'Includes the complete Household Reporting III workbook plus Household Insights and Recurring Opportunities.');
 
   root.querySelectorAll?.('.sheet-list').forEach((list) => {
     const names = [...list.querySelectorAll('li')].map((item) => item.textContent?.trim());
@@ -22,7 +26,7 @@ function normalizeV113Labels(root = document) {
     });
     const card = list.closest('.card');
     const description = card?.querySelector('p');
-    if (description) description.textContent = 'The deeper workbook contains 30 sheets.';
+    setTextIfChanged(description, 'The deeper workbook contains 30 sheets.');
   });
 }
 
@@ -30,7 +34,15 @@ function installV113UiEnhancements() {
   normalizeV113Labels(document);
   const main = document.getElementById('main');
   if (!main) return;
-  const observer = new MutationObserver(() => normalizeV113Labels(main));
+  let scheduled = false;
+  const observer = new MutationObserver(() => {
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotask(() => {
+      scheduled = false;
+      normalizeV113Labels(main);
+    });
+  });
   observer.observe(main, { childList: true, subtree: true });
 }
 
