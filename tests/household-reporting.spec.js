@@ -24,17 +24,18 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v111 and renders the complete Household Reporting III preview', async ({ app }) => {
+test('boots v113 and renders the complete Household Insights IV preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v111/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v113/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   await expect(page.getByRole('heading', { name: 'Family Financial Report' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Year-over-year comparison' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Goals and Vault Health' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Month close, forecast, and debt' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Household insights' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Family meeting brief' })).toBeVisible();
-  await expect(page.getByText(/28 sheets/i)).toBeVisible();
+  await expect(page.getByText(/30 sheets/i)).toBeVisible();
 });
 
 test('saves a custom range and compares equivalent prior-year dates without network writes', async ({ app }, testInfo) => {
@@ -58,6 +59,7 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
   await expect(page.locator('.comparison-table tbody tr')).toHaveCount(6);
   await expect(page.getByText(/equivalent prior-year range/i).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Household insights' })).toBeVisible();
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
   expect(saved).toMatchObject({ preset: 'custom', start: '2026-05-01', end: '2026-07-31', comparePriorYear: true });
@@ -106,7 +108,7 @@ test('includes local goal, health, forecast, and debt context in the family repo
   await expect(page.getByText(/Current priority: Synthetic Promo Card/i)).toBeVisible();
 });
 
-test('downloads the 28-sheet workbook and range CSV', async ({ app }, testInfo) => {
+test('downloads the 30-sheet workbook and range CSV', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openReports(page);
@@ -114,7 +116,7 @@ test('downloads the 28-sheet workbook and range CSV', async ({ app }, testInfo) 
     page.waitForEvent('download'),
     page.locator('#vaultXlsx').click()
   ]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v111_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v113_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [csv] = await Promise.all([
     page.waitForEvent('download'),
@@ -123,16 +125,16 @@ test('downloads the 28-sheet workbook and range CSV', async ({ app }, testInfo) 
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
 });
 
-test('uses report pages for print and hides screen-only controls', async ({ app }) => {
+test('uses seven report pages for print and hides screen-only controls', async ({ app }) => {
   const { page } = app;
   await openReports(page);
   await page.emulateMedia({ media: 'print' });
   await expect(page.locator('.range-controls')).toBeHidden();
-  await expect(page.locator('.report-page')).toHaveCount(6);
+  await expect(page.locator('.report-page')).toHaveCount(7);
   await expect(page.locator('.report-page').first()).toBeVisible();
 });
 
-test('keeps Household Reporting III inside every configured viewport', async ({ app }) => {
+test('keeps Household Insights IV inside every configured viewport', async ({ app }) => {
   const { page } = app;
   await openReports(page);
   const overflow = await page.evaluate(() => ({
