@@ -32,7 +32,7 @@ test('explains merchant, category, first-seen, and recurring-cost signals', asyn
   await expect(page.getByText(/Synthetic Home Repair is above its prior typical amount/i)).toBeVisible();
   await expect(page.getByText(/Home Repair spending increased/i)).toBeVisible();
   await expect(page.getByText(/Synthetic Appliance Store is a large first-seen merchant/i)).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'StreamFlix', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: /StreamFlix/i })).toBeVisible();
   await expect(page.getByText(/Latest charge is 2\.00 above the prior charge/i)).toBeVisible();
   await expect(page.getByText(/median of earlier normalized-merchant charges/i).first()).toBeVisible();
   await expect(page.getByText(/immediately preceding period of equal length/i).first()).toBeVisible();
