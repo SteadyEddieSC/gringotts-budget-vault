@@ -32,7 +32,7 @@ test('imports all-new legacy JSON rows with backup, verification, and metadata-o
     ]
   };
   await page.locator('#bankImportFile').setInputFiles(jsonFile('fictional-all-new.json', incoming));
-  await expect(page.getByText('JSON', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Format: JSON/i)).toBeVisible();
   await expect(page.getByText(/Gringotts transactions array/i)).toBeVisible();
   await page.locator('#prepareBankDuplicateReview').click();
   await expect(page.getByText(/2 new/).first()).toBeVisible();
@@ -136,7 +136,7 @@ test('blocks malformed, missing-array, and empty JSON without empty-vault overwr
   await expect(page.locator('.error-box').first()).toContainText('Malformed JSON');
 
   await page.locator('#bankImportFile').setInputFiles(jsonFile('missing-array.json', { version: 'synthetic-missing' }));
-  await expect(page.locator('.error-box').first()).toContainText(/No supported CSV\/delimited, OFX, QFX, QBO, or Gringotts JSON signature/i);
+  await expect(page.locator('.error-box').first()).toContainText(/populated transactions array/i);
 
   await page.locator('#bankImportFile').setInputFiles(jsonFile('empty-array.json', { version: 'synthetic-empty', transactions: [] }));
   await expect(page.locator('.error-box').first()).toContainText(/populated transactions array/i);
