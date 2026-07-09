@@ -85,19 +85,15 @@ function enforceContract(actual, contract) {
   }
 }
 
-test('matches the v112 desktop and phone visual layout snapshots', async ({ app }) => {
-  const { page } = app;
-  const actualSnapshots = {};
-  for (const [name, contract] of Object.entries(contracts.snapshots)) {
-    const actual = await computedSnapshot(page, name, contract);
+for (const [name, contract] of Object.entries(contracts.snapshots)) {
+  test(`matches the v113 ${name} visual layout contract`, async ({ app }, testInfo) => {
+    const actual = await computedSnapshot(app.page, name, contract);
     enforceContract(actual, contract);
-    actualSnapshots[name] = actual;
-  }
-
-  fs.mkdirSync(resultsDirectory, { recursive: true });
-  fs.writeFileSync(path.join(resultsDirectory, 'visual-layout-snapshots.json'), JSON.stringify({
-    baselineVersion: contracts.version,
-    generatedAt: new Date().toISOString(),
-    snapshots: actualSnapshots
-  }, null, 2));
-});
+    fs.mkdirSync(resultsDirectory, { recursive: true });
+    fs.writeFileSync(path.join(resultsDirectory, `${name}-${testInfo.project.name}.json`), JSON.stringify({
+      baselineVersion: contracts.version,
+      generatedAt: new Date().toISOString(),
+      snapshot: actual
+    }, null, 2));
+  });
+}
