@@ -29,9 +29,10 @@ test('boots v114 and renders the complete guided household report preview', asyn
   await expect(page).toHaveTitle(/Gringotts Budget Vault v114/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
-  for (const heading of ['Family Financial Report', 'Year-over-year comparison', 'Goals and Vault Health', 'Month close, forecast, and debt', 'Household insights', 'Guided household plan', 'Family meeting brief']) {
+  for (const heading of ['Family Financial Report', 'Year-over-year comparison', 'Goals and Vault Health', 'Month close, forecast, and debt', 'Household insights', 'Family meeting brief']) {
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
+  await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
   await expect(page.getByText(/32 sheets/i)).toBeVisible();
   await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Planning History', { exact: true }).last()).toBeVisible();
@@ -58,7 +59,7 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
   await expect(page.locator('.comparison-table tbody tr')).toHaveCount(6);
   await expect(page.getByText(/equivalent prior-year range/i).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+  await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
   expect(saved).toMatchObject({ preset: 'custom', start: '2026-05-01', end: '2026-07-31', comparePriorYear: true });
