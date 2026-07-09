@@ -16,7 +16,7 @@ test('inspects and maps a signed CSV without writing the vault', async ({ app })
   await openImport(page);
   await page.locator('#bankImportFile').setInputFiles(fixture('synthetic-signed.csv'));
 
-  await expect(page.getByText('CSV / delimited text', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Format: CSV \/ delimited text/i)).toBeVisible();
   await expect(page.getByText(/Generic signed-amount CSV/i)).toBeVisible();
   await expect(page.getByText(/Choose how signed amounts should be interpreted/i)).toBeVisible();
   await expect(page.getByText(/Ambiguous date 07\/10\/2026/i)).toBeVisible();
@@ -37,7 +37,7 @@ test('inspects and maps a signed CSV without writing the vault', async ({ app })
 
   const after = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   expect(after).toBe(before);
-  await expect(page.evaluate(() => localStorage.getItem('gringottsImportHistory.v1'))).resolves.toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem('gringottsImportHistory.v1'))).toBeNull();
 });
 
 test('reconciles duplicates, requires backup, and verifies missing-only CSV writes', async ({ app }, testInfo) => {
@@ -56,7 +56,7 @@ test('reconciles duplicates, requires backup, and verifies missing-only CSV writ
   await page.locator('#prepareBankDuplicateReview').click();
 
   await expect(page.getByText(/1 skipped automatically/i)).toBeVisible();
-  await expect(page.getByText(/2 new/i)).toBeVisible();
+  await expect(page.getByText(/2 new/i).first()).toBeVisible();
   await expect(page.locator('#commitBankImport')).toBeDisabled();
 
   const [backup] = await Promise.all([
@@ -106,7 +106,7 @@ test('parses QFX locally, masks account identifiers, and finds stable-ID duplica
   await openImport(page);
   await page.locator('#bankImportFile').setInputFiles(fixture('synthetic.qfx'));
 
-  await expect(page.getByText('QFX', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Format: QFX/i)).toBeVisible();
   await expect(page.getByText(/QFX STMTTRN/i)).toBeVisible();
   await expect(page.getByText(/Imported account •1234/i).first()).toBeVisible();
   await expect(page.getByText('TESTACCOUNT1234')).toHaveCount(0);
@@ -115,7 +115,7 @@ test('parses QFX locally, masks account identifiers, and finds stable-ID duplica
 
   await page.locator('#prepareBankDuplicateReview').click();
   await expect(page.getByText(/1 skipped automatically/i)).toBeVisible();
-  await expect(page.getByText(/2 new/i)).toBeVisible();
+  await expect(page.getByText(/2 new/i).first()).toBeVisible();
   await expect(page.getByText(/matching stable transaction ID/i)).toBeVisible();
 });
 
@@ -137,7 +137,8 @@ test('normalizes separate debit and credit columns and only uses source category
   await expect(payroll).toContainText('Income');
 });
 
-test('blocks unsupported files, oversized inputs, and preserves full restore safeguards', async ({ app }) => {
+test('blocks unsupported files, oversized inputs, and preserves full restore safeguards', async ({ app }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'Large in-memory browser fixture coverage runs once.');
   const { page } = app;
   await openImport(page);
   await page.locator('#bankImportFile').setInputFiles({
