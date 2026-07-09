@@ -1,5 +1,5 @@
 {
-  "version": "v113",
+  "version": "v114",
   "description": "Privacy-safe visual regression contracts. These compare structure, geometry, visibility, and responsive layout using only the synthetic Playwright vault; no screenshot pixels or household data are committed.",
   "snapshots": {
     "dashboard-desktop": {
@@ -26,9 +26,10 @@
         ".report-range-grid",
         ".report-page",
         ".comparison-table",
-        ".household-insights-report"
+        ".household-insights-report",
+        ".guided-plan-report"
       ],
-      "minimumReportPages": 7,
+      "minimumReportPages": 8,
       "expectedRangeColumns": 4,
       "maximumHorizontalOverflow": 2,
       "minimumMainWidth": 1000
@@ -41,9 +42,10 @@
         ".range-controls",
         ".report-range-grid",
         ".report-page",
-        ".household-insights-report"
+        ".household-insights-report",
+        ".guided-plan-report"
       ],
-      "minimumReportPages": 7,
+      "minimumReportPages": 8,
       "expectedRangeColumns": 1,
       "maximumHorizontalOverflow": 2,
       "minimumControlHeight": 40,
