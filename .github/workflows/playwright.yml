@@ -50,7 +50,17 @@ jobs:
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests
-        run: npm run test:parser
+        shell: bash
+        run: npm run test:parser 2>&1 | tee parser-test.log
+
+      - name: Upload parser failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: parser-preflight-${{ github.run_attempt }}
+          path: parser-test.log
+          if-no-files-found: error
+          retention-days: 7
 
   local-e2e:
     name: Local source — ${{ matrix.shard }}
