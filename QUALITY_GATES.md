@@ -2,39 +2,58 @@
 
 ## Purpose
 
-The quality system protects accessibility, performance, responsive layout, and the local-first data boundary across the v114 Guided Household Planning application.
+The quality system protects parser correctness, accessibility, performance, responsive layout, and the local-first data boundary across v115 Bank Export Import & Mapping.
 
-v114 also stages expensive checks so obvious failures stop early and draft development does not generate avoidable workflow notifications.
+The final matrix remains comprehensive while pure logic and obvious syntax failures stop before expensive browser installation.
 
 ## Data boundary
 
-All automated quality checks use `tests/fixtures/synthetic-vault.json` inside isolated Playwright browser contexts.
+All checks use fictional fixtures in isolated Node or Playwright contexts.
 
-The quality workflow does not:
+The workflows do not:
 
 - read a normal user browser profile;
-- upload a household vault or Guided Plan;
+- upload a household vault, bank export, Guided Plan, or report;
 - commit screenshots containing transaction data;
-- load a remote axe script at application runtime;
+- load remote parser or axe code at application runtime;
 - publish Lighthouse reports to public temporary storage;
 - add a service worker or offline cache;
 - change the restore destination;
-- write transaction data.
+- use a real institution account or identifier.
 
-`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version.
+`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser tests use Node's built-in runner and add no dependency.
 
-## Staged execution
+## Parser and static preflight
 
-Draft pull requests skip the expensive quality jobs.
+Before either browser matrix job can begin, GitHub runs:
 
-When the PR is marked ready for review:
+- `node --check` against current v115 parser, import, view, reporting, release, boot, and integrated-view modules;
+- `npm run test:parser` using synthetic text fixtures and deterministic mutations.
 
-1. keyboard/tab semantics and deterministic visual contracts run first;
-2. the full axe surface inventory runs only after that preflight succeeds;
-3. Lighthouse runs independently in parallel;
-4. diagnostics are uploaded only when a job fails.
+The parser gate covers:
 
-This preserves final coverage while avoiding long axe runs when navigation or layout is already broken.
+- format and delimiter detection;
+- quoted and multiline fields;
+- mapping candidates;
+- date and amount validation;
+- signed, debit, and credit normalization;
+- OFX-family blocks, FITIDs, account masking, and signs;
+- unsupported, malformed, oversized, and excessive-row files;
+- mutation termination and expected error handling.
+
+`Local source — desktop` and `Local source — responsive` both depend on this gate. Parser failure therefore prevents `npm ci` and browser downloads in those jobs.
+
+## Staged browser execution
+
+Draft PRs skip protected jobs.
+
+When ready for review:
+
+1. parser/static preflight runs;
+2. Chromium desktop and Android Chromium run after parser success;
+3. Firefox/WebKit install only after desktop Chromium passes;
+4. iPad/iPhone WebKit install and run only after Android passes;
+5. diagnostics upload only on failure.
 
 ## Axe accessibility gate
 
@@ -45,36 +64,33 @@ Desktop coverage includes:
 - Calendar;
 - Reports with Household Insights and Guided Plan;
 - Transactions, Review Queue, Rules, Insights, and Plan;
-- every Tools subsection.
+- Tools → Bank Export Import / Restore;
+- Exports & Backup, Diagnostics, and Roadmap.
 
-Targeted phone coverage includes Dashboard, Reports, Household Insights, Guided Plan, and mobile navigation.
+Targeted phone coverage includes Dashboard, Reports, Household Insights, Guided Plan, import layout through the visual contract, and mobile navigation.
 
 The gate fails on serious or critical violations associated with WCAG 2.0 A/AA, WCAG 2.1 A/AA, and axe best-practice tags.
-
-Failure artifacts contain fictional test data only.
 
 ## Keyboard and semantic gate
 
 The quality and cross-browser suites verify:
 
-- Skip to content receives first keyboard focus;
-- activating the skip link focuses `#main`;
-- primary controls expose visible focus treatment;
-- rendered IDs remain unique;
-- the mobile menu exposes `aria-expanded` and closes with Escape;
-- secondary navigation uses valid `tablist` and `tab` semantics;
-- exactly one secondary tab is selected and keyboard-focusable;
-- Arrow Left/Right, Home, and End move and activate tabs;
-- scrollable data-table regions are labeled and keyboard-focusable;
-- Guided Plan form fields have unique labels and usable focus targets.
+- Skip to content;
+- visible focus treatment;
+- unique rendered IDs;
+- mobile menu state and Escape behavior;
+- valid secondary tab semantics;
+- Arrow Left/Right, Home, and End navigation;
+- labeled and focusable scrollable tables;
+- labeled Guided Plan and import mapping controls.
 
 The shared enhancement remains in `src/v112/accessibility.js` and observes main-content rerenders.
 
 ## Lighthouse CI gate
 
-`lighthouserc.cjs` runs three local desktop audits against `http://127.0.0.1:4173/?quality=lighthouse`.
+`lighthouserc.cjs` runs three local desktop audits.
 
-Minimum median category scores:
+Minimum median scores:
 
 - Performance: 0.85;
 - Accessibility: 0.95;
@@ -83,66 +99,62 @@ Minimum median category scores:
 
 Maximum median timing assertions:
 
-- First Contentful Paint: 2.0 seconds;
-- Largest Contentful Paint: 2.5 seconds;
-- Total Blocking Time: 250 milliseconds;
-- Cumulative Layout Shift: 0.10.
+- FCP: 2.0 seconds;
+- LCP: 2.5 seconds;
+- TBT: 250 milliseconds;
+- CLS: 0.10.
 
-The gate also enforces:
-
-- total page weight at most 750 KB;
-- script transfer at most 500 KB;
-- stylesheet transfer at most 150 KB;
-- image transfer at most 250 KB;
-- zero browser-console errors;
-- at most 45 network requests;
-- broader size/count budgets in `lighthouse-budget.json`;
-- zero third-party resources.
-
-Speed Index and Time to Interactive remain warning thresholds to avoid environment-sensitive false blockers.
-
-Lighthouse reports are written to `lighthouse-reports/` and uploaded only on failure.
+The gate also enforces page-weight, script, stylesheet, image, console-error, request-count, and zero-third-party-resource budgets. Reports upload only on failure.
 
 ## Privacy-safe visual contracts
 
-Binary screenshot baselines are intentionally not committed.
+No binary screenshot baseline is committed.
 
-The deterministic contracts cover:
+Deterministic contracts cover:
 
-- Dashboard at 1440 × 1000;
-- Reports at 1440 × 1000;
-- Reports at 390 × 844.
+- Dashboard desktop at 1440 × 1000;
+- Reports desktop at 1440 × 1000;
+- Reports phone at 390 × 844;
+- Tools → Bank Export Import / Restore phone at 390 × 844.
 
-The v114 contract verifies:
+The v115 contracts verify:
 
 - required visible and hidden surfaces;
 - six primary destinations;
-- at least eight report pages;
+- eight report pages;
 - Household Insights and Guided Plan report visibility;
-- one-column versus four-column report-range controls;
-- minimum mobile control height;
-- main-content width;
-- topbar placement;
-- document horizontal overflow.
+- one-column and four-column report controls;
+- initial bank-import and full-restore controls;
+- minimum card counts, main width, topbar placement, and horizontal overflow.
 
-Actual geometry and computed colors are stored as temporary JSON diagnostics. Screenshots, traces, and video are retained only when a test fails.
+Actual geometry and computed colors are temporary JSON diagnostics. Screenshots, traces, and video are retained only when a test fails.
 
 ## Workflow security checks
 
 `tests/repository-security.spec.js` verifies:
 
-- every external GitHub Action is pinned to a full commit SHA;
-- no workflow uses `pull_request_target`, `write-all`, or repository-content write permission;
-- CodeQL keeps read-only defaults and narrowly scoped security-event upload permission;
-- draft PRs skip expensive browser, quality, security, supply-chain, and CodeQL jobs;
-- Chromium runs before Firefox/WebKit installation;
-- tablet/Android run before mobile WebKit installation;
-- quality preflight runs before axe inventory;
-- diagnostic artifacts upload only on failure;
-- v114 planning code has no remote-write path or direct vault write;
-- Cloudflare security headers remain intact.
+- every external Action is pinned to a full commit SHA;
+- no privileged PR trigger or broad content-write permission;
+- CodeQL least privilege;
+- parser/static preflight before browser installation;
+- desktop and responsive engine staging;
+- quality preflight before axe;
+- failure-only diagnostics;
+- parser purity: no browser storage or network path;
+- guarded import backup, rollback, and verification controls;
+- v114 Guided Plan and v113 Insights local-only boundaries;
+- v115 boot entry and stable rescue integration;
+- Cloudflare security headers.
 
 ## Local execution
+
+Fast pure check:
+
+```bash
+npm run test:parser
+```
+
+Browser and quality checks:
 
 ```bash
 npm ci --ignore-scripts
@@ -151,7 +163,7 @@ npm run test:preflight
 npm run test:quality
 ```
 
-Individual quality commands:
+Individual commands:
 
 ```bash
 npm run test:a11y
@@ -165,4 +177,4 @@ python3 -m http.server 4173 --bind 127.0.0.1
 npm exec --yes --package=@lhci/cli@0.15.1 -- lhci autorun --config=lighthouserc.cjs
 ```
 
-Generated `quality-report`, `quality-results`, `test-results`, `playwright-report`, and `lighthouse-reports` folders must not be committed.
+Generated parser output, quality reports, test results, Playwright reports, and Lighthouse reports must not be committed.
