@@ -87,10 +87,11 @@ function enforceContract(actual, contract) {
 
 for (const [name, contract] of Object.entries(contracts.snapshots)) {
   test(`matches the v113 ${name} visual layout contract`, async ({ app }, testInfo) => {
+    test.skip(testInfo.project.name !== 'quality-desktop', 'Each contract sets its own viewport and runs once.');
     const actual = await computedSnapshot(app.page, name, contract);
     enforceContract(actual, contract);
     fs.mkdirSync(resultsDirectory, { recursive: true });
-    fs.writeFileSync(path.join(resultsDirectory, `${name}-${testInfo.project.name}.json`), JSON.stringify({
+    fs.writeFileSync(path.join(resultsDirectory, `${name}.json`), JSON.stringify({
       baselineVersion: contracts.version,
       generatedAt: new Date().toISOString(),
       snapshot: actual
