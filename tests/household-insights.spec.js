@@ -68,7 +68,7 @@ test('feeds insights into v114 reports, the 32-sheet workbook, and the meeting p
   await openPrimary(page, 'Reports');
 
   await expect(page.getByRole('heading', { name: 'Household insights', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+  await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Family meeting brief', exact: true })).toBeVisible();
   await expect(page.getByText(/Synthetic Home Repair is above its prior typical amount/i).first()).toBeVisible();
   await expect(page.getByRole('heading', { name: '32-sheet Vault Workbook', exact: true })).toBeVisible();
