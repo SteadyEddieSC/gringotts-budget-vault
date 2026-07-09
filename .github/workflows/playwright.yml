@@ -22,9 +22,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  parser-preflight:
+    name: Parser and static preflight
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Check release module syntax
+        run: |
+          node --check src/v115/parser.js
+          node --check src/v115/bank-import.js
+          node --check src/v115/views.js
+          node --check src/v115/reporting.js
+          node --check src/v115/release.js
+          node --check src/boot-v115.js
+          node --check src/v111/views.js
+
+      - name: Run browser-free parser tests
+        run: npm run test:parser
+
   local-e2e:
     name: Local source — ${{ matrix.shard }}
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: parser-preflight
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
