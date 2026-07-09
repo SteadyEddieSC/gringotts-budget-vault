@@ -54,9 +54,15 @@ export function detectBankFormat({ fileName = '', text = '' } = {}) {
       }
     } catch {}
   }
+  if (extension === 'json') {
+    return { format: 'json', confidence: 'medium', reason: 'The .json extension indicates a Gringotts JSON import candidate.' };
+  }
   if (/<OFX[>\s]/i.test(sample) || /<STMTTRN>/i.test(sample) || /OFXHEADER\s*:/i.test(sample)) {
     const format = extension === 'qbo' ? 'qbo' : extension === 'qfx' ? 'qfx' : 'ofx';
     return { format, confidence: 'high', reason: 'OFX-family headers or transaction blocks were detected.' };
+  }
+  if (['ofx', 'qfx', 'qbo'].includes(extension)) {
+    return { format: extension, confidence: 'medium', reason: `The .${extension} extension indicates an OFX-family export candidate.` };
   }
   if (['csv', 'tsv', 'txt'].includes(extension)) {
     return { format: 'delimited', confidence: 'medium', reason: `The .${extension} extension indicates a delimited text export.` };
