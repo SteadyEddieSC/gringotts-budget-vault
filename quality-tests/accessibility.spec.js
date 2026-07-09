@@ -49,7 +49,7 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'Full surface inventory runs once in the desktop quality project.');
 }
 
-test('axe scans all primary destinations including the insights report', async ({ page }, testInfo) => {
+test('axe scans all primary destinations including insights and guided plan reports', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Dashboard');
@@ -58,7 +58,7 @@ test('axe scans all primary destinations including the insights report', async (
   await openPrimary(page, 'Calendar');
   await scanSurface(page, testInfo, 'Calendar');
   await openPrimary(page, 'Reports');
-  await scanSurface(page, testInfo, 'Reports with Household Insights');
+  await scanSurface(page, testInfo, 'Reports with Household Insights and Guided Plan');
   await openPrimary(page, 'Activity');
   await scanSurface(page, testInfo, 'Activity — Transactions');
   await openPrimary(page, 'Tools');
@@ -80,7 +80,7 @@ test('axe scans every Money subsection', async ({ page }, testInfo) => {
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans every Activity subsection including Household Insights', async ({ page }, testInfo) => {
+test('axe scans every Activity subsection including Guided Plan', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Activity');
@@ -91,6 +91,8 @@ test('axe scans every Activity subsection including Household Insights', async (
   await scanSurface(page, testInfo, 'Activity — Rules');
   await clickSubsection(page, 'Insights');
   await scanSurface(page, testInfo, 'Activity — Household Insights');
+  await clickSubsection(page, 'Plan');
+  await scanSurface(page, testInfo, 'Activity — Guided Household Plan');
   await expectNoBrowserErrors(errors);
 });
 
@@ -109,15 +111,17 @@ test('axe scans every Tools subsection', async ({ page }, testInfo) => {
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans key phone surfaces including Household Insights', async ({ page }, testInfo) => {
+test('axe scans key phone surfaces including Guided Plan', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific axe coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Mobile Dashboard');
   await openPrimary(page, 'Reports');
-  await scanSurface(page, testInfo, 'Mobile Reports with Household Insights');
+  await scanSurface(page, testInfo, 'Mobile Reports with Household Insights and Guided Plan');
   await openPrimary(page, 'Activity');
   await clickSubsection(page, 'Insights');
   await scanSurface(page, testInfo, 'Mobile Activity — Household Insights');
+  await clickSubsection(page, 'Plan');
+  await scanSurface(page, testInfo, 'Mobile Activity — Guided Household Plan');
   await expectNoBrowserErrors(errors);
 });
 

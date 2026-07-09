@@ -24,10 +24,10 @@ async function cleanSelectedMonth(page) {
   });
 }
 
-test('preserves the corrected subtitle and v110 Money features under v113', async ({ app }) => {
+test('preserves the corrected subtitle and v110 Money features under v114', async ({ app }) => {
   const { page } = app;
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
-  await expect(page.locator('.version-text')).toHaveText('v113');
+  await expect(page.locator('.version-text')).toHaveText('v114');
   await openCloseForecast(page);
   await expect(page.getByRole('heading', { name: /Month close — July 2026/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Cash-flow forecast' })).toBeVisible();

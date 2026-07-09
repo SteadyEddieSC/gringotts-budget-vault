@@ -11,32 +11,53 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application release: **v113 — Household Insights IV**  
-Current quality-infrastructure release: **v112 — Accessibility & Quality Automation**
+Current application release: **v114 — Guided Household Planning**  
+Current quality-infrastructure release: **v114 — Staged Release Gates**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## Household Insights IV
+## Guided Household Planning
 
-v113 adds read-only, explainable financial-review signals under Activity → Insights and inside the Reports Center:
+v114 adds **Activity → Plan**, an explainable local checklist generated from:
 
-- merchant amount spikes compared with the median of earlier normalized-merchant charges;
-- category increases compared with the immediately preceding equivalent-length period;
-- large first-seen merchants using a visible dynamic threshold;
-- recurring-cost amount changes, annualized increases, and annual footprint prompts;
-- source-transaction evidence and visible calculation methods;
-- questions tied directly to signals or recurring patterns;
-- a seventh printable report page;
-- Household Insights and Recurring Opportunities workbook sheets, expanding the Vault Workbook to 30 sheets;
-- v113-named local workbook, meeting-pack, backup, calendar, rule-review, and diagnostics downloads.
+- goals and contribution pace;
+- month-close readiness and post-close drift;
+- pending and review-queue rows;
+- saved bills, paydays, cash-buffer pressure, and negative forecast days;
+- debt priority, promotional APR deadlines, and payoff gaps;
+- high-attention Household Insights and recurring-cost increases.
 
-Insights do not change transactions, categories, budgets, rules, accounts, recurring preferences, or planning data. Pending transactions are counted but excluded from unusual-spending comparisons.
+Every generated item shows why it appeared, its evidence, and a recommended next step. Viewing the checklist performs no write. A user must explicitly select **Save Plan Item** before status, owner, target date, or notes are stored.
+
+Guided Plan data uses a separate browser-local key, `gringottsGuidedPlan.v1`, and never changes transactions, categories, budgets, goals, debt balances, forecast settings, recurring preferences, or month-close history.
+
+The Reports Center now includes:
+
+- an eighth printable Guided Plan page;
+- Guided Plan actions in the family meeting brief;
+- Guided Plan and Planning History workbook sheets;
+- a 32-sheet Vault Workbook;
+- a dedicated Guided Plan Markdown export;
+- v114-named local workbook, meeting-pack, backup, calendar, rule-review, and diagnostics downloads.
+
+## Faster, quieter release process
+
+v114 changes how releases are validated without weakening the final merge gate:
+
+- development remains on a feature branch before a PR is opened;
+- draft PRs skip expensive browser, quality, security, supply-chain, and CodeQL jobs;
+- Chromium desktop runs before Firefox and WebKit are installed;
+- Android Chromium runs before WebKit is installed;
+- iPad and iPhone run together after the WebKit installation;
+- keyboard and visual contracts run before the longer axe surface inventory;
+- diagnostics are uploaded only when a job fails;
+- the full required matrix still runs when the PR is marked ready for review.
+
+See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) for the exact workflow.
 
 ## Privacy and data boundary
-
-This repository contains application code, synthetic test data, documentation, and automated tests only.
 
 Do not commit or attach:
 
@@ -49,91 +70,42 @@ Do not commit or attach:
 
 The application remains local-first:
 
-- transaction processing, duplicate reconciliation, and household insights run in the browser;
-- report ranges are saved as settings only and never copy or mutate transactions;
-- custom-range, prior-year, insights, Markdown, CSV, XLSX, and printable reports are generated in the browser;
-- month-close history stores summaries and signatures, not redundant transaction copies;
-- forecast settings and debt planning remain separate from transaction history;
-- import history stores metadata only, not redundant transaction copies;
-- automated browser and quality tests use a fictional vault in an isolated browser profile;
-- axe, visual-layout, and Lighthouse checks run against local static content only;
-- no screenshot baseline containing transaction data is committed;
+- transaction processing, duplicate reconciliation, insights, and guided planning run in the browser;
+- report and checklist settings never copy transaction arrays;
+- custom-range, prior-year, Markdown, CSV, XLSX, and printable reports are generated locally;
+- month-close history stores summaries and signatures rather than transaction copies;
+- import history stores metadata only;
 - no service worker or offline application cache is registered;
-- the application must not automatically save an empty vault;
-- broad transaction writes remain backup-first and verified after storage.
+- an empty vault is never automatically saved over a populated vault;
+- broad transaction writes remain backup-first and read-back verified.
 
 ## Future bank export imports
 
-A dedicated **v115 — Bank Export Import & Mapping** release is planned so common institution exports can be handled safely rather than treating every file as the same CSV.
+A dedicated **v115 — Bank Export Import & Mapping** release is planned for:
 
-Initial planned formats:
-
-- CSV and other delimited text exports;
+- CSV and other delimited exports;
 - OFX;
 - QFX;
 - QBO.
 
-The release requires content-aware format and schema detection, explicit field mapping, amount-sign validation, duplicate review, backup-first writes, confirmation, and read-back verification. See [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md).
+It requires content-aware format and schema detection, explicit field mapping, amount-sign validation, duplicate review, backup-first writes, confirmation, and read-back verification. See [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md).
 
 ## Automated testing and security
 
-Playwright regression tests cover:
+The final merge gate covers:
 
-- application startup and module errors;
-- primary and secondary navigation;
-- desktop, tablet, Android-phone, and iPhone layouts;
-- month navigation and responsive overflow;
-- explainable merchant, category, first-seen, and recurring-cost insight signals;
-- pending-row exclusion and no-write insight behavior;
-- custom report ranges and year-to-date presets;
-- equivalent prior-year comparisons using fictional test rows;
-- complete family report sections for insights, goals, health, close, forecast, and debt;
-- 30-sheet workbook, meeting-pack, and range CSV downloads;
-- seven-page print layout and screen-control hiding;
-- Review Queue dropdowns and guarded editing;
-- Goals and Vault Health;
-- exact and fuzzy duplicate import review;
-- missing-only imports, import history, date-gap warnings, and read-back verification;
-- statement reconciliation and month-close blockers;
-- verified close and reasoned reopen events without transaction changes;
-- recurring bill/payday forecasting and local forecast settings;
-- debt and promotional APR planning;
-- malformed, missing-array, empty-import, and empty-restore blocking;
-- report and backup downloads;
-- service-worker absence and unexpected network writes.
+- Chromium, Firefox, and WebKit desktop behavior;
+- iPad, Android-phone, and iPhone/WebKit layouts;
+- Guided Plan generation, explicit saves, read-back verification, history, source navigation, and no-write viewing;
+- Household Insights, reports, eight-page print layout, and 32-sheet downloads;
+- restore, duplicate import, month close, forecast, debt, goals, and Review Queue safeguards;
+- axe accessibility scans, tab semantics, focus, scroll regions, and mobile navigation;
+- privacy-safe visual contracts and Lighthouse budgets;
+- full-history privacy and Gitleaks scans;
+- Dependency Review, high/critical `npm audit`, and CodeQL;
+- pinned GitHub Actions and least-privilege workflow permissions.
 
-v112 quality automation adds:
-
-- axe-core scans across all primary destinations and important secondary workflows, including Household Insights;
-- a release block for serious or critical WCAG-tagged violations;
-- keyboard, tab, scroll-region, and skip-link coverage;
-- Lighthouse CI category, timing, resource-size, and request-count budgets;
-- a zero third-party request budget;
-- deterministic text-based visual-layout contracts for key desktop and phone surfaces;
-- short-lived accessibility, Lighthouse, screenshot-on-failure, trace, and video artifacts;
-- security-drift enforcement for pinned quality tools and local synthetic data.
-
-Public-repository and supply-chain automation adds:
-
-- full-history secret scanning with Gitleaks;
-- custom financial-data and forbidden-file history checks;
-- dependency-change review on pull requests;
-- high/critical `npm audit` enforcement;
-- CodeQL analysis for JavaScript;
-- OpenSSF Scorecard analysis;
-- Dependabot updates for npm and GitHub Actions;
-- full-commit-SHA pinning for every external GitHub Action;
-- regression checks that prevent workflow-permission, action-pinning, security-header, and quality-gate drift.
-
-The Cloudflare deployment serves a restrictive Content Security Policy, clickjacking protection, no-referrer policy, disabled worker execution, and cross-origin isolation headers suitable for the local-first static application.
-
-See:
-
-- [`TESTING.md`](TESTING.md) for automated checks and local commands;
-- [`QUALITY_GATES.md`](QUALITY_GATES.md) for axe, Lighthouse, and visual-contract details;
-- [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md) for the planned guarded bank-export workflow;
-- [`GITHUB_SETTINGS_CHECKLIST.md`](GITHUB_SETTINGS_CHECKLIST.md) for the exact repository settings that must be confirmed manually;
-- [`SECURITY.md`](SECURITY.md) for private vulnerability reporting and sensitive-data boundaries.
+OpenSSF Scorecard findings are triaged in [`SCORECARD_ALERTS.md`](SCORECARD_ALERTS.md). Some findings are direct code or documentation fixes, some require manual repository settings, and some are accepted tradeoffs for a solo-maintained static personal project.
 
 ## Local browser testing
 
@@ -143,28 +115,32 @@ Requirements:
 - Python 3.
 
 ```bash
-npm ci
-npx playwright install chromium firefox webkit
+npm ci --ignore-scripts
+npx playwright install chromium
+npm run test:preflight
+npm run test:quality
 npm run test:local
 npm run privacy:history
 npm audit --audit-level=high
 ```
 
-See [`QUALITY_GATES.md`](QUALITY_GATES.md) for the accessibility, visual-contract, and Lighthouse commands.
+## Documentation
+
+- [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) — staged branch, draft, ready-for-review, and merge process;
+- [`TESTING.md`](TESTING.md) — browser and security commands;
+- [`QUALITY_GATES.md`](QUALITY_GATES.md) — accessibility, visual-contract, and Lighthouse details;
+- [`SCORECARD_ALERTS.md`](SCORECARD_ALERTS.md) — OpenSSF finding triage;
+- [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md) — planned guarded bank-export workflow;
+- [`GITHUB_SETTINGS_CHECKLIST.md`](GITHUB_SETTINGS_CHECKLIST.md) — manual repository settings;
+- [`SECURITY.md`](SECURITY.md) — private vulnerability reporting and sensitive-data boundaries.
 
 ## Cloudflare Pages deployment
-
-Use Cloudflare Pages, not Workers/Wrangler:
 
 - Project type: Pages / Static
 - Repository: `SteadyEddieSC/gringotts-budget-vault`
 - Production branch: `main`
 - Build command: leave blank
 - Output directory: `/`
-
-## Security reports
-
-Do not open a public issue containing credentials, account data, transaction exports, generated quality artifacts, or other sensitive information. Follow [`SECURITY.md`](SECURITY.md) for private reporting guidance.
 
 ## Project status
 

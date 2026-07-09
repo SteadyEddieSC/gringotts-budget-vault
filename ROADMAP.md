@@ -2,153 +2,94 @@
 
 ## Shipped
 
+### v114 — Guided Household Planning
+
+- Added Activity → Plan without adding another top-level destination.
+- Added deterministic checklist generation from goals, close readiness, Vault Health, forecast pressure, debt priorities, recurring-cost changes, and Household Insights.
+- Added explicit reasons, evidence, recommended next steps, priority, and source-workflow navigation for every action.
+- Added separate browser-local checklist state under `gringottsGuidedPlan.v1`.
+- Added Not started, Planned, Done, and Dismissed states with owner, target date, notes, read-back verification, and explicit decision history.
+- Kept viewing the checklist read-only; only Save Plan Item creates planning metadata.
+- Added an eighth printable Guided Plan report page and fed priority actions into the family meeting brief.
+- Added Guided Plan and Planning History workbook sheets, expanding the Vault Workbook from 30 to 32 sheets.
+- Added a Guided Plan Markdown export and v114-named local workbook, meeting-pack, backup, calendar, rule-review, and diagnostics files.
+- Added synthetic Playwright coverage for action generation, explicit writes, read-back verification, history, source navigation, no transaction changes, no network writes, reports, accessibility, and responsive layouts.
+- Added staged release gates: draft PR suppression, Chromium-first browser preflights, quality preflight before axe, and failure-only diagnostics.
+- Added `RELEASE_PROCESS.md` and `SCORECARD_ALERTS.md` to reduce release noise and explain OpenSSF findings.
+
 ### v113 — Household Insights IV
 
-- Added Activity → Insights without adding another top-level destination.
-- Added explainable merchant amount spikes using the median of earlier normalized-merchant charges from a visible 180-day history window.
-- Added category-spending increases using the immediately preceding equivalent-length period as the comparison baseline.
-- Added large first-seen merchant review using a visible dynamic threshold rather than a hidden fixed rule.
-- Excluded pending transactions from unusual-spending comparisons while still reporting their count.
-- Added recurring-cost amount-change, annualized-increase, annual-footprint, and confirm-or-exclude review prompts.
-- Added source-transaction evidence, baseline counts, selected and baseline amounts, comparison factors, and calculation methodology.
-- Added household decision questions tied directly to a signal or recurring pattern.
-- Added a seventh printable family-report page and fed insight questions and risks into the family meeting brief.
-- Added Household Insights and Recurring Opportunities workbook sheets, expanding the Vault Workbook from 28 to 30 sheets.
-- Added v113-named workbook, meeting-pack, backup, calendar, rules-review, and diagnostics downloads without copying the application runtime.
-- Added synthetic Playwright coverage for merchant, category, first-seen, recurring, pending-exclusion, no-write, no-network, reports, downloads, accessibility, and responsive behavior.
-- Preserved every local-first, restore, duplicate-review, backup-first, and read-back-verification safeguard.
+- Added Activity → Insights with explainable merchant spikes, category increases, large first-seen merchants, and recurring-cost opportunities.
+- Excluded pending rows from anomaly comparisons while reporting their count.
+- Added visible evidence, baselines, comparison factors, methods, and household decision questions.
+- Added a seventh printable report page and Household Insights / Recurring Opportunities workbook sheets, expanding the workbook to 30 sheets.
+- Preserved read-only insight generation and all local-first safeguards.
 
 ### v112 — Accessibility & Quality Automation
 
-- Added a dedicated read-only GitHub Actions workflow for accessibility, responsive-layout, and Lighthouse quality gates.
-- Added pinned axe-core scans across Dashboard, Money, Calendar, Reports, Activity, and Tools workflows.
-- Added a release block for serious or critical violations carrying WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA tags.
-- Added keyboard entry, skip-link, tab semantics, arrow-key navigation, keyboard-accessible scroll regions, and primary-control accessible-name coverage.
-- Added Lighthouse CI minimum scores for performance, accessibility, best practices, and SEO.
-- Added timing budgets for FCP, LCP, interactive, total blocking time, and cumulative layout shift.
-- Added total/script/stylesheet/image size budgets, resource-count budgets, and a zero third-party-request budget.
-- Added privacy-safe text-based visual-layout snapshots for Dashboard desktop, Reports desktop, and Reports phone.
-- Added short-lived JSON, Lighthouse, screenshot-on-failure, trace, and video diagnostics without committing household-data images.
-- Extended repository security-drift tests to enforce pinned quality tools, read-only permissions, local synthetic data, and required quality files.
-- Preserved the visible v111 application runtime and every local-first data safeguard.
+- Added axe, keyboard, visual-contract, and Lighthouse merge gates.
+- Added tab semantics, arrow-key navigation, accessible scroll regions, focus treatment, reduced-motion, and high-contrast support.
+- Added privacy-safe text/geometry contracts rather than committed financial-data screenshots.
+- Added repository security-drift checks for action pinning, permissions, headers, and quality files.
 
 ### v111 — Household Reporting III
 
 - Added selected-month, year-to-date, rolling 3/6/12-month, and custom report ranges.
-- Added a separate browser-local report-range key that never copies or mutates transactions.
-- Added equivalent prior-year comparison metrics and aligned monthly rows.
-- Rebuilt the Reports Center around six complete family-report pages.
-- Added goals, Vault Health, close status, forecast pressure, debt priority, promotional payoff gaps, questions, wins, risks, and actions to family reports.
-- Added print-only page breaks, print-safe colors, reduced table density, and card break protection.
-- Expanded the Vault Workbook from 24 to 28 sheets with Report Range, Range Transactions, Year over Year, and Family Meeting Brief.
-- Added range-aware CSV, Executive Markdown, Family Meeting Markdown, and XLSX filenames.
-- Preserved selected-month quick XLSX and annual-tracker workflows.
-- Added synthetic Playwright coverage for ranges, prior-year rows, full family context, print media, downloads, no network writes, and responsive layouts.
+- Added equivalent prior-year comparisons and six printable family-report pages.
+- Expanded the workbook to 28 sheets and added range-aware CSV, Markdown, and XLSX exports.
 
 ### v110 — Month Close & Forecasting
 
-- Corrected the live subtitle to `Mischief Managed. Money Managed`.
-- Added account-level statement reconciliation with posted counts, signed activity, explained differences, and stale-signature detection.
-- Added close blockers for pending, unreviewed, missing, stale, and unexplained reconciliation conditions.
-- Added immutable close revisions containing summary data and transaction signatures without redundant full transaction copies.
-- Added controlled reopen events that require a reason and preserve prior close revisions.
-- Added one-time, weekly, biweekly, and monthly bill/payday schedules.
-- Added 30-, 60-, and 90-day cash forecasts with starting cash, minimum buffer, flexible spending, pressure days, and projected monthly balances.
-- Added debt and promotional APR planning with payoff-pace, interest, urgency, priority, and local payment tracking.
-- Expanded the Vault Workbook from 20 to 24 sheets with Month Close, Reconciliations, Cash Forecast, and Debt Plan.
-- Added synthetic Playwright coverage for close, reopen, forecast, debt, no transaction mutation, and responsive layouts.
+- Added statement reconciliation, immutable close revisions, reasoned reopen events, recurring bills/paydays, 30/60/90-day forecasts, debt planning, and promotional APR urgency.
+- Expanded the workbook to 24 sheets.
 
 ### v109 — Import Memory & Duplicate Guard
 
-- Added exact duplicate protection using stable transaction IDs and deterministic fallback fingerprints.
-- Added explainable fuzzy duplicate review for near-date merchant matches and pending-to-posted candidates.
-- Added native Keep incoming, Skip incoming, and Defer/review decisions; ambiguous matches are never discarded automatically.
-- Added date coverage, overlap, and missing-month warnings before any write.
-- Added missing-only incremental import into a selected populated readable vault.
-- Added required pre-import backup, explicit acknowledgement, confirmation, read-back count verification, and inserted-token verification.
-- Added browser-local import history metadata without redundant transaction copies.
-- Added synthetic Playwright coverage for all-new, exact, mixed fuzzy/new, invalid, empty, metadata, network, and responsive cases.
-- Preserved guarded full restore, best-populated-readable-vault selection, the v105 rescue page, and all existing browser-local data.
+- Added stable-ID and deterministic fingerprint duplicate protection, fuzzy review, date coverage warnings, missing-only imports, backup-first writes, and verified import history metadata.
 
 ### v108.4 — Security Alert Cleanup
 
-- Removed the obsolete no-op month-label replacement identified by CodeQL while preserving label behavior.
-- Changed the CodeQL workflow to read-only defaults with job-scoped `security-events: write` access.
-- Updated the pinned CodeQL Action and Scorecard SARIF uploader to v4.37.0 by full commit SHA.
-- Added a regression test that enforces least-privilege CodeQL permissions.
-- Documented which OpenSSF Scorecard findings were corrected, stale pending refresh, or accepted for this solo-maintainer project.
-- Preserved the visible v108 application runtime and all browser-local data safeguards.
+- Removed a CodeQL finding, tightened CodeQL permissions, updated pinned CodeQL actions, and documented Scorecard dispositions.
 
 ### v108.3 — Security Completion
 
-- Added Dependency Review for vulnerable dependency changes in pull requests.
-- Added a High/Critical `npm audit` merge gate with lifecycle scripts disabled during installation.
-- Added OpenSSF Scorecard supply-chain analysis and code-scanning publication.
-- Pinned every external GitHub Action to a full trusted commit SHA.
-- Added automated action-pinning, workflow-permission, required-file, and security-header drift tests.
-- Added a restrictive Cloudflare Content Security Policy, clickjacking protection, worker blocking, cross-origin policies, and expanded Permissions Policy.
-- Extended the live Cloudflare smoke test to validate deployed security headers.
-- Added an exact manual GitHub settings checklist for rulesets, Actions, security toggles, integrations, and account protection.
+- Added Dependency Review, npm audit, OpenSSF Scorecard, full action pinning, security-drift tests, hardened Cloudflare headers, and the GitHub settings checklist.
 
 ### v108.2 — Public Repository Hardening
 
-- Updated the repository documentation for public visibility and clarified the local-first data boundary.
-- Added a security policy that forbids public disclosure of household financial data.
-- Added a full-history privacy scanner for sensitive filenames and high-confidence financial identifiers.
-- Added Gitleaks full-history secret scanning.
-- Added CodeQL JavaScript security analysis.
-- Added Dependabot for npm and GitHub Actions.
-- Modernized GitHub Actions to Node 24-compatible action versions.
-- Expanded future release gates to include Playwright, privacy-history, Gitleaks, CodeQL, and Cloudflare deployment smoke results.
+- Added full-history privacy and Gitleaks scans, CodeQL, Dependabot, public-data boundaries, and modern Node-compatible workflows.
 
 ### v108.1 — Playwright Testing Infrastructure
 
-- Added locked Playwright dependencies and browser configuration.
-- Added synthetic multi-month test data that never uses real household transactions.
-- Added automated boot, navigation, responsive-layout, month-control, Review Queue, Goals, Reports, Backup, and Restore-safety tests.
-- Added desktop Chromium, Firefox, WebKit, iPad, Android-phone, and iPhone/WebKit projects.
-- Added GitHub Actions local-source testing and a retried post-deployment Cloudflare smoke test.
-- Added failure screenshots, video, traces, HTML reports, and 14-day artifact retention.
-- Established passing local and deployment browser tests as a future release gate.
+- Added synthetic browser tests for Chromium, Firefox, WebKit, iPad, Android, and iPhone/WebKit plus deployment smoke coverage.
 
 ### v108 — Goals & Vault Health
 
-- Added Money → Goals & Health without creating another top-level destination.
-- Added goals and sinking funds with target, current amount, monthly contribution, due date, notes, contribution updates, editing, archiving, and deletion.
-- Added an explainable Vault Health score with visible deductions and actionable next steps.
-- Added explicit Save Snapshot history; no health history is written merely by viewing the page.
-- Added Goals, Vault Health, and Health History sheets to the deeper workbook, expanding it from 17 to 20 sheets.
-- Changed Review Queue category, owner, and account fields to native select controls.
-- Constrained the month selector to a compact desktop toolbar while preserving the compact phone layout.
-- Preserved the persistent-shell performance improvements and parsed-vault cache from v107.
+- Added goals, sinking funds, explicit health snapshots, an explainable Vault Health score, and a 20-sheet workbook.
 
 ### v107 — Review Queue & Performance
 
-- Added a compact phone month control.
-- Replaced full-page shell reconstruction with persistent navigation and main-content-only rendering.
-- Added parsed-vault caching, render coalescing, and debounced ledger searching.
-- Added Activity → Review Queue with backup-first editing and verified transaction saves.
+- Added persistent-shell rendering, vault caching, debounced search, compact mobile month controls, and backup-first Review Queue editing.
 
 ### v106.2 — Reports Export Fix
 
-- Corrected the missing `reportsView` re-export that blocked v106 startup.
+- Corrected the missing `reportsView` re-export.
 
 ### v106.1 — Boot-Safe Hotfix
 
-- Added visible loading, exact module error reporting, Retry, and the stable v105 rescue page.
+- Added visible boot failures, Retry, and the stable v105 rescue page.
 
 ### v106 — Calendar, Cash Flow & UI Consolidation
 
-- Consolidated eleven top-level destinations into Dashboard, Money, Calendar, Reports, Activity, and Tools.
-- Added responsive navigation, calendar day detail, cash-flow pressure warnings, and UI governance.
+- Consolidated navigation into Dashboard, Money, Calendar, Reports, Activity, and Tools.
 
 ### v105 — Bills, Recurring & Budget Intelligence
 
-- Added category budgets, recurring-charge review, amount-change alerts, trends, and the 17-sheet Vault Workbook.
+- Added budgets, recurring review, amount-change alerts, trends, and the 17-sheet workbook.
 
 ### v104 — Household Reporting II
 
-- Fixed month controls, removed informational pills, and added local filling of the preferred annual tracker.
+- Fixed month navigation and added local filling of the preferred annual tracker.
 
 ### v103 — Reports & Month Navigator
 
@@ -156,62 +97,48 @@
 
 ## Next releases
 
-### v114 — Guided Household Planning
-- Add advisor-style planning checklists driven by goals, close status, forecast pressure, debt priorities, and household insights.
-- Keep every recommendation explainable and separate from transaction writes.
-
 ### v115 — Bank Export Import & Mapping
-- Add local import for common bank and credit-card exports, beginning with CSV/delimited files, OFX, QFX, and QBO.
-- Detect source format and schema from both extension and content rather than assuming every bank CSV uses the same columns.
+
+- Add local import for CSV/delimited files, OFX, QFX, and QBO.
+- Detect format and schema from content and extension.
 - Add explicit date, description, amount/debit/credit, account, status, memo, and stable-ID mapping preview.
-- Reuse the v109 overlap, date-coverage, stable-ID, fingerprint, pending-to-posted, and fuzzy duplicate review workflow.
+- Reuse v109 overlap, date coverage, stable-ID, fingerprint, pending-to-posted, and fuzzy duplicate review.
 - Require backup-first guarded writes, acknowledgement, confirmation, read-back verification, and missing-only insertion.
-- Evaluate CAMT.053/CAMT.054, MT940, institution-specific JSON, and XLSX only after synthetic fixture and parser-safety validation.
-- Keep PDF statement extraction outside this release because statements require a separate verification workflow.
-- See `BANK_IMPORT_ROADMAP.md` for format scope, safety boundaries, test fixtures, and definition of done.
+- Add parser termination, malformed-input, size-limit, and fuzz/property-style tests where valuable.
+- Evaluate CAMT.053/CAMT.054, MT940, institution-specific JSON, and XLSX only after parser-safety validation.
+- Keep PDF statement extraction outside this release.
+- See `BANK_IMPORT_ROADMAP.md`.
 
 ### v116 — Planned UI Architecture Review
+
 - Reassess primary and secondary navigation.
-- Audit every page for useful, non-repetitive text.
+- Audit every page for useful, non-repetitive content.
 - Re-test phone portrait, phone landscape, tablet, laptop, and wide desktop layouts.
-- Review accessibility, touch targets, content density, and action placement.
+- Review accessibility, touch targets, density, and action placement.
 - Consolidate or remove features that no longer justify separate surfaces.
-- Perform earlier if the thresholds in `UI_GOVERNANCE.md` are reached.
 
-## UI governance
+## Release governance
 
-Every release includes navigation, content-value, action-placement, responsive-layout, accessibility, and working-control review. Larger UI overhauls should occur about every 10 releases, within a 10–20 release range depending on feature growth.
+Every release follows `RELEASE_PROCESS.md`:
 
-## Testing and security governance
-
-Future releases should pass:
-
-- local Playwright desktop and responsive jobs before merge;
-- axe accessibility and visual-contract quality checks before merge;
-- Lighthouse category, timing, size, and request budgets before merge;
-- repository security-drift tests before merge;
-- full-history privacy and Gitleaks checks before merge;
-- Dependency Review and `npm audit` before merge;
-- CodeQL without an unresolved release-blocking finding;
-- the Cloudflare smoke test after production deployment.
-
-OpenSSF Scorecard is reviewed as a continuing supply-chain improvement signal. Any intentionally unautomated manual checks must be listed explicitly.
+- build and review on a feature branch;
+- use draft PR status for quiet diff review;
+- mark ready once the release candidate is stable;
+- preserve the full final-head browser, accessibility, Lighthouse, privacy, supply-chain, and CodeQL matrix;
+- squash-merge with an expected head SHA;
+- verify production separately.
 
 ## Architecture guardrails
-- Local-first transaction storage, processing, and insight generation.
+
+- Local-first transaction storage, processing, insights, and guided planning.
 - No transaction uploads.
-- Insight generation is read-only and never changes categories, transactions, budgets, rules, recurring preferences, accounts, or planning data.
-- Import history stores metadata only under a separate browser-local key.
-- Report-range settings remain separate and never contain transaction copies.
-- Month-close history stores summaries and deterministic signatures rather than redundant transactions.
-- Forecast and debt planning remain separate browser-local data.
-- Goal and health data remain separate browser-local settings.
-- Health history is explicit, not automatically written by page views.
-- Automated browser and quality tests use synthetic browser-local data only.
+- Guided Plan metadata remains separate and never changes the vault or calculation inputs.
+- Import and close history store metadata/summaries rather than redundant transaction copies.
+- Report-range, forecast, debt, goal, health, and Guided Plan settings remain separate.
 - No committed screenshot baselines containing household data.
 - No service worker, PWA cache, or offline cache.
-- One live ES-module entry runtime only.
+- One live ES-module runtime chain.
 - Best-populated readable vault selection.
 - Never auto-save an empty vault.
 - Backup-first before destructive or broad transaction writes.
-- Report generation remains local and self-contained.
+- Restore destination remains exactly `gringottsBudgetVault.latest`.

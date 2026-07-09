@@ -1,78 +1,60 @@
 # GitHub Settings Checklist
 
-This checklist covers repository settings that cannot be enforced completely from files committed to the repository.
+This checklist covers repository settings that cannot be enforced completely from committed files.
 
-## Current visible repository metadata
+## Current repository profile
 
-At the time v108.3 was prepared:
+- Visibility: Public
+- Default branch: `main`
+- Release method: feature branch → pull request → required checks → squash merge
+- Maintainer profile: solo maintainer
+- Deployment: Cloudflare Pages after merge
 
-- repository visibility: Public;
-- default branch: `main`;
-- squash merge: enabled;
-- merge commits: enabled;
-- rebase merge: enabled;
-- automatic branch updating: disabled;
-- auto-merge: disabled.
-
-The recommended changes below keep the repository easy to maintain as a solo project while preventing untested direct changes to `main`.
+During v114 development, a direct file write to `main` was rejected by repository rules. That confirms a protection rule is active, but the settings below should still be reviewed because OpenSSF Scorecard may evaluate individual rule fields.
 
 ## 1. Main branch ruleset
 
 Open:
 
-**Repository → Settings → Rules → Rulesets → New ruleset → New branch ruleset**
+**Repository → Settings → Rules → Rulesets**
 
-Use:
+Confirm an active ruleset targeting the default branch with:
 
-- Ruleset name: `Protect main`
-- Enforcement status: **Active**
-- Target branches: **Include default branch**
+- Restrict deletions: **On**
+- Require linear history: **On**
+- Require a pull request before merging: **On**
+- Require status checks to pass: **On**
+- Block force pushes: **On**
 
-Enable these rules:
+Pull-request settings for a solo-maintainer repository:
 
-- **Restrict deletions**
-- **Require linear history**
-- **Require a pull request before merging**
-- **Require status checks to pass**
-- **Block force pushes**
-
-Under **Require a pull request before merging**:
-
-- Required approvals: **0** while this remains a solo-maintainer repository
-- Dismiss stale pull request approvals: optional/off with zero approvals
-- Require review from Code Owners: **Off**
-- Require approval of the most recent reviewable push: **Off**
+- Required approvals: **0**
 - Require conversation resolution before merging: **On**
+- Require Code Owner review: **Off** until a genuine independent reviewer exists
+- Require approval of the most recent push: **Off** with zero required approvals
 
-Under **Require status checks to pass**, add these exact PR checks after each has run at least once:
+Required status checks:
 
 1. `Local source — desktop`
 2. `Local source — responsive`
-3. `Full history privacy and secret scan`
-4. `JavaScript security analysis`
-5. `Dependency Review`
-6. `npm audit`
+3. `Accessibility and visual contracts`
+4. `Lighthouse CI budgets`
+5. `Full history privacy and secret scan`
+6. `JavaScript security analysis`
+7. `Dependency Review`
+8. `npm audit`
 
 Also enable:
 
-- **Require branches to be up to date before merging**
-- **Do not allow status checks to be skipped**
+- Require branches to be up to date before merging
+- Do not allow required checks to be skipped
 
-Do not require these as pre-merge checks:
+Do not require before merge:
 
-- `Cloudflare deployment smoke` — runs after a change reaches `main`
-- `OpenSSF Scorecard analysis` — runs on `main` and on a schedule, not on pull requests
+- `Cloudflare deployment smoke` — it runs on `main` after deployment
+- `OpenSSF Scorecard analysis` — it runs on `main`, manually, and weekly
 
-Leave these off for now:
-
-- Require signed commits — GitHub App/API commits may not satisfy this consistently
-- Require merge queue — unnecessary for one maintainer
-- Required deployments before merging — Cloudflare production deployment occurs after merge
-- Required Code Owner review — no independent reviewer is configured
-
-### Bypass recommendation
-
-Prefer no bypass. If an emergency bypass is needed, allow only the repository administrator and select **For pull requests only** when GitHub offers that option. Do not create a bypass that permits force-pushing or deleting `main`.
+Prefer no bypass. An emergency bypass should be limited to the repository administrator and should not permit force pushes or deletion of `main`.
 
 ## 2. Pull request and merge settings
 
@@ -80,16 +62,16 @@ Open:
 
 **Repository → Settings → General → Pull Requests**
 
-Set:
+Recommended:
 
 - Allow squash merging: **On**
 - Allow merge commits: **Off**
 - Allow rebase merging: **Off**
 - Always suggest updating pull request branches: **On**
 - Automatically delete head branches: **On**
-- Allow auto-merge: optional, recommended **On**
+- Allow auto-merge: optional
 
-Squash-only merging keeps the protected branch linear and makes release rollback easier.
+Draft pull requests are used for quiet release diff review. The expensive workflows intentionally skip draft PRs and run when the PR is marked ready for review.
 
 ## 3. GitHub Actions permissions
 
@@ -97,34 +79,24 @@ Open:
 
 **Repository → Settings → Actions → General**
 
-### Actions permissions
+Recommended actions policy:
 
-Recommended restrictive configuration:
+- Allow GitHub-created actions
+- Allow `gitleaks/gitleaks-action@*`
+- Allow `ossf/scorecard-action@*`
 
-- Select **Allow select actions and reusable workflows**
-- Allow actions created by GitHub: **On**
-- Add these additional allowed patterns when GitHub requests them:
-  - `gitleaks/gitleaks-action@*`
-  - `ossf/scorecard-action@*`
+Workflow permissions:
 
-The other workflows use GitHub-owned actions under `actions/*` and `github/codeql-action/*`.
-
-### Workflow permissions
-
-Set:
-
-- Default workflow permissions: **Read repository contents and packages permissions**
+- Default: Read repository contents and packages
 - Allow GitHub Actions to create and approve pull requests: **Off**
 
-### Fork pull request workflows
+Fork pull requests:
 
-Set:
+- Require approval for all outside collaborators
+- Send write tokens: **Off**
+- Send secrets: **Off**
 
-- Require approval for fork pull request workflows: **Require approval for all outside collaborators**
-- Send write tokens to workflows from pull requests: **Off**
-- Send secrets to workflows from pull requests: **Off**
-
-No Gringotts workflow needs a repository write token to test a pull request.
+No Gringotts test workflow requires a repository write token.
 
 ## 4. Code security and analysis
 
@@ -132,19 +104,18 @@ Open:
 
 **Repository → Settings → Security → Code security and analysis**
 
-Confirm these are enabled:
+Confirm:
 
-- Dependency graph
-- Dependabot alerts
-- Dependabot security updates
-- Grouped security updates, when offered
-- Secret scanning
-- Push protection
-- Generic or non-provider secret patterns, when offered
-- Secret validity checks, when offered
-- Code scanning alerts
+- Dependency graph: **On**
+- Dependabot alerts: **On**
+- Dependabot security updates: **On**
+- Secret scanning: **On**
+- Push protection: **On**
+- Generic/non-provider secret patterns: **On** when available
+- Secret validity checks: **On** when available
+- Code scanning alerts: **On**
 
-The repository already has an advanced CodeQL workflow in `.github/workflows/codeql.yml`. Do not enable a second CodeQL default-setup configuration if GitHub warns that it will duplicate the advanced workflow. The interface should show the repository as using advanced setup.
+The repository uses advanced CodeQL setup in `.github/workflows/codeql.yml`. Do not enable a duplicate default CodeQL setup.
 
 ## 5. Private vulnerability reporting
 
@@ -152,68 +123,81 @@ Open:
 
 **Repository → Settings → Security → Code security and analysis → Private vulnerability reporting**
 
-Set:
+Set to **On** and confirm **Report a vulnerability** appears on the Security tab.
 
-- Private vulnerability reporting: **On**
+This helps OpenSSF recognize the repository security policy together with `SECURITY.md`.
 
-Then open the repository **Security** tab and confirm a **Report a vulnerability** option is visible.
+## 6. OpenSSF Scorecard refresh
 
-## 6. Security notifications
+After v114 reaches `main`:
 
-From the repository page:
+1. Open **Actions → OpenSSF Scorecard**.
+2. Dispatch the workflow manually or wait for the next scheduled run.
+3. Confirm the run analyzes the current default branch.
+4. Review the refreshed SARIF alerts.
+5. Close only findings no longer present in the new result.
+
+See `SCORECARD_ALERTS.md` for the disposition of Branch Protection, Code Review, Maintained, SAST, Security Policy, License, Fuzzing, and CII Best Practices.
+
+## 7. Notifications
+
+Repository:
 
 **Watch → Custom**
 
-Enable:
+Enable security alerts.
 
-- Security alerts
+Workflow failure emails may still occur for a genuine final release-candidate defect. v114 reduces avoidable notifications by skipping expensive jobs on drafts and staging browsers/quality checks.
 
-At the account level, confirm GitHub email notifications are enabled for security alerts.
+GitHub notification preferences can also be adjusted at the account level, but do not disable security-alert notifications merely to hide unresolved findings.
 
-## 7. Secrets, deploy keys, webhooks, and collaborators
+## 8. Secrets, deploy keys, webhooks, and collaborators
 
 Review:
 
-- **Settings → Secrets and variables → Actions**
-- **Settings → Deploy keys**
-- **Settings → Webhooks**
-- **Settings → Collaborators**
+- Settings → Secrets and variables → Actions
+- Settings → Deploy keys
+- Settings → Webhooks
+- Settings → Collaborators
 
-Expected state:
+Expected:
 
-- No Actions secrets are required for this static application.
-- No deploy key is required.
-- Only the expected Cloudflare/GitHub integration should have deployment access.
-- Remove any collaborator, webhook, token, key, or integration that is not recognized and required.
+- no Actions secret containing financial data;
+- no unnecessary deploy key;
+- only expected Cloudflare/GitHub deployment integration;
+- only recognized collaborators and applications.
 
-Do not store household financial data, bank exports, vault backups, or Cloudflare credentials as repository secrets.
+## 9. Account protection
 
-## 8. Account protection
+For the repository owner account:
 
-For the GitHub account that owns the repository:
+- enable two-factor authentication;
+- add a passkey or hardware security key when available;
+- store recovery codes outside GitHub;
+- review sessions, OAuth apps, GitHub Apps, SSH keys, and personal access tokens;
+- remove unrecognized credentials.
 
-- Enable two-factor authentication.
-- Add a passkey or hardware security key when available.
-- Save recovery codes somewhere outside GitHub.
-- Review active sessions, authorized OAuth apps, GitHub Apps, SSH keys, and personal access tokens.
-- Remove old or unrecognized credentials.
+## 10. License decision
 
-## 9. License decision
+A public repository without a license remains viewable but does not grant broad reuse permission.
 
-A public repository without a license remains viewable but does not grant broad permission to reuse the code.
+Do not add a license solely to clear a Scorecard alert. The owner should intentionally choose whether to:
 
-Leave the repository without a license when the intent is to retain normal copyright control. Add a license only after intentionally deciding to make the code open source. MIT is simple and permissive; Apache-2.0 is also permissive and includes an explicit patent grant.
+- retain normal copyright control with no open-source license;
+- use MIT for broad permissive reuse;
+- use Apache-2.0 for permissive reuse with an express patent grant;
+- use a reciprocal license when derivative sharing is desired.
 
-This is a project-policy decision, not a security requirement.
+The fan-themed presentation and third-party trademarks should be considered separately from the code-license choice.
 
-## 10. Settings that should remain off
+## Settings that should remain off
 
-Unless the architecture changes, do not enable or add:
+Unless the architecture changes, do not enable:
 
-- GitHub Actions secrets containing real financial data;
-- workflow write permissions for routine tests;
+- workflow secrets containing real financial data;
+- routine workflow write permissions;
 - unapproved fork workflows with write tokens or secrets;
 - direct force pushes to `main`;
-- service-worker or PWA deployment automation;
+- service-worker/PWA deployment automation;
 - production deployment as a pre-merge requirement;
-- signed-commit enforcement until all automated commit paths are confirmed compatible.
+- signed-commit enforcement until every automated commit path is confirmed compatible.

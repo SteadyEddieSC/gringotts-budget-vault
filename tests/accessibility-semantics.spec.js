@@ -16,6 +16,18 @@ test('makes the skip target focusable and secondary navigation a valid tablist',
   await expect(tablist.locator(':scope > [role="tab"][tabindex="-1"]')).toHaveCount(3);
 });
 
+test('normalizes the five Activity subsections including Guided Plan', async ({ app }) => {
+  const { page } = app;
+  await openPrimary(page, 'Activity');
+  const tablist = page.locator('[role="tablist"]').first();
+  const tabs = tablist.locator(':scope > [role="tab"]');
+  await expect(tabs).toHaveCount(5);
+  await expect(page.getByRole('tab', { name: 'Plan', exact: true })).toHaveAttribute('aria-selected', 'false');
+  await page.getByRole('tab', { name: 'Plan', exact: true }).click();
+  await expect(page.getByRole('tab', { name: 'Plan', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
+});
+
 test('moves secondary navigation with arrow keys', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Money');

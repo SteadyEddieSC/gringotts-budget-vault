@@ -66,7 +66,8 @@ test('quality automation stays local and avoids public or binary baseline storag
   const lighthouse = read('lighthouserc.cjs');
   const packageJson = read('package.json');
   expect(workflow).toContain('npm exec --yes --package=@lhci/cli@0.15.1 -- lhci');
-  expect(workflow).toContain('npm run test:quality');
+  expect(workflow).toContain('quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js');
+  expect(workflow).toContain('quality-tests/accessibility.spec.js');
   expect(workflow).toContain('npm ci --ignore-scripts');
   expect(workflow).not.toContain('treosh/lighthouse-ci-action');
   expect(workflow).not.toContain('temporaryPublicStorage: true');
@@ -79,6 +80,24 @@ test('quality automation stays local and avoids public or binary baseline storag
   expect(lighthouse).toContain("http://127.0.0.1:4173/?quality=lighthouse");
 });
 
+test('release workflows skip draft PRs, stage expensive browsers, and upload diagnostics only on failure', () => {
+  const playwright = read('.github/workflows/playwright.yml');
+  const quality = read('.github/workflows/quality.yml');
+  const security = read('.github/workflows/security.yml');
+  const supplyChain = read('.github/workflows/supply-chain.yml');
+  const codeql = read('.github/workflows/codeql.yml');
+  for (const workflow of [playwright, quality, security, supplyChain, codeql]) {
+    expect(workflow).toContain("github.event.pull_request.draft == false");
+    expect(workflow).toContain('ready_for_review');
+  }
+  expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
+  expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
+  expect(playwright.indexOf('Install WebKit after Android Chromium passes')).toBeLessThan(playwright.indexOf('Run iPad and iPhone WebKit gates'));
+  expect(playwright).toMatch(/Upload Playwright failure diagnostics[\s\S]*?if: failure\(\)/);
+  expect(quality).toMatch(/Upload quality failure diagnostics[\s\S]*?if: failure\(\)/);
+  expect(quality).toMatch(/Upload Lighthouse failure reports[\s\S]*?if: failure\(\)/);
+});
+
 test('v113 insight calculation stays read-only and local', () => {
   const engine = read('src/v113/insights.js');
   const views = read('src/v113/views.js');
@@ -89,8 +108,23 @@ test('v113 insight calculation stays read-only and local', () => {
   expect(views).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   expect(reporting).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   expect(engine).toContain('Pending transactions are counted but excluded from unusual-spending comparisons.');
-  expect(read('index.html')).toContain('src/boot-v113.js?v=113insights1');
-  expect(read('app.html')).toContain('src/boot-v113.js?v=113insights1');
+});
+
+test('v114 Guided Planning writes only explicit separate checklist metadata', () => {
+  const engine = read('src/v114/planning.js');
+  const views = read('src/v114/views.js');
+  const release = read('src/v114/release.js');
+  const reporting = read('src/v114/reporting.js');
+  for (const source of [engine, views, release, reporting]) {
+    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+    expect(source).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
+    expect(source).not.toContain('gringottsBudgetVault.latest');
+  }
+  expect(engine).toContain("export const GUIDED_PLAN_KEY = 'gringottsGuidedPlan.v1'");
+  expect(engine).toContain('Only an explicit Save Plan Item action stores checklist status');
+  expect(engine).toContain('Planning-item read-back verification failed.');
+  expect(read('index.html')).toContain('src/boot-v114.js?v=114guided1');
+  expect(read('app.html')).toContain('src/boot-v114.js?v=114guided1');
 });
 
 test('public repository security and quality control files remain present', () => {
@@ -109,12 +143,17 @@ test('public repository security and quality control files remain present', () =
     'quality-tests/accessibility.spec.js',
     'quality-tests/tab-semantics.spec.js',
     'quality-tests/visual-contracts.spec.js',
-    'src/boot-v113.js',
+    'src/boot-v114.js',
     'src/v113/insights.js',
     'src/v113/reporting.js',
     'src/v113/release.js',
     'src/v113/views.js',
+    'src/v114/planning.js',
+    'src/v114/reporting.js',
+    'src/v114/release.js',
+    'src/v114/views.js',
     'styles/v113.css',
+    'styles/v114.css',
     'BANK_IMPORT_ROADMAP.md',
     'scripts/privacy-history-scan.mjs'
   ];

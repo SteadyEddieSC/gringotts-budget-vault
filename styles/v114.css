@@ -1,0 +1,184 @@
+.guided-planning-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.guided-plan-kpis {
+  margin-top: 0;
+}
+
+.guided-plan-overview .summary-box {
+  min-height: 100%;
+}
+
+.guided-action-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.guided-action-card {
+  border-inline-start: 4px solid color-mix(in srgb, var(--accent, #d7b45b) 62%, transparent);
+}
+
+.guided-action-card.priority-urgent {
+  border-inline-start-color: #f06f61;
+}
+
+.guided-action-card.priority-high {
+  border-inline-start-color: #ef9f52;
+}
+
+.guided-action-card.priority-medium {
+  border-inline-start-color: #e2c45f;
+}
+
+.guided-action-card.priority-routine {
+  border-inline-start-color: #72b8d6;
+}
+
+.guided-action-card.resolved {
+  border-inline-start-color: #6fc49a;
+}
+
+.guided-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .3rem;
+  color: var(--muted, #a9b4c5);
+  font-size: .9rem;
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: .2rem .6rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.priority-badge.urgent {
+  color: #ff9b8d;
+}
+
+.priority-badge.high {
+  color: #f4b26d;
+}
+
+.priority-badge.medium {
+  color: #ead477;
+}
+
+.priority-badge.routine {
+  color: #8dcce8;
+}
+
+.guided-action-copy {
+  display: grid;
+  gap: .45rem;
+  margin: .8rem 0;
+}
+
+.guided-action-copy p {
+  margin: 0;
+}
+
+.guided-plan-form {
+  display: grid;
+  grid-template-columns: minmax(10rem, .8fr) minmax(12rem, 1fr) minmax(10rem, .8fr);
+  gap: .75rem;
+  align-items: end;
+}
+
+.guided-plan-form .guided-notes {
+  grid-column: 1 / -1;
+}
+
+.guided-plan-form textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.resolved-plan-items > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.resolved-plan-items[open] > summary {
+  margin-bottom: 1rem;
+}
+
+.guided-plan-report .card,
+.guided-report-list .card {
+  break-inside: avoid;
+}
+
+.guided-report-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.guided-report-list .card {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: .75rem;
+}
+
+.guided-report-number {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent, #d7b45b) 20%, transparent);
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .guided-plan-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .guided-plan-form .guided-notes {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .guided-plan-form {
+    grid-template-columns: 1fr;
+  }
+
+  .guided-plan-form .guided-notes {
+    grid-column: auto;
+  }
+
+  .guided-action-card .button-row {
+    align-items: stretch;
+  }
+
+  .guided-action-card .button-row .btn {
+    width: 100%;
+  }
+
+  .guided-report-list .card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .guided-plan-report {
+    break-before: page;
+  }
+
+  .guided-plan-report .card {
+    box-shadow: none;
+  }
+}

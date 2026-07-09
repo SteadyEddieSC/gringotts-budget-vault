@@ -1,361 +1,223 @@
 # Gringotts Budget Vault Testing
 
-## Browser regression testing
+## Data boundary
 
-Gringotts uses Playwright to test the browser application against a synthetic vault. Automated tests never use or upload a real household transaction file.
+All automated tests use `tests/fixtures/synthetic-vault.json` and additional fictional rows created in isolated browser contexts.
 
-The visible application remains v111 — Household Reporting III. v112 adds accessibility and quality infrastructure around that runtime.
+Tests must never read, commit, upload, or publish a real household vault, bank export, statement, report, screenshot, or account identifier.
 
-## Synthetic data boundary
-
-`tests/fixtures/synthetic-vault.json` contains invented transactions across May, June, and July 2026. Tests place this fixture in an isolated browser context under `gringottsBudgetVault.latest` before the app starts. v109 import cases construct additional fictional rows in test memory. v110 month-close, forecast, and debt cases generate fictional reconciliation values, bills, paydays, balances, and promotional terms in test code. v111 reporting cases generate fictional prior-year rows, goals, forecasts, and debts in browser memory. v112 axe and visual-layout checks reuse the same fictional fixture and never commit generated screenshots. No bank export, filled import file, statement, debt record, generated report, accessibility artifact, or household financial data is committed.
-
-The fixture includes:
-
-- income;
-- household expenses;
-- a transfer;
-- a pending transaction;
-- an Other/unreviewed transaction;
-- a source-review-required transaction;
-- recurring charges with an amount change;
-- multiple fictional accounts and owners.
-
-Each Playwright test receives fresh browser storage. It cannot see or alter the user's normal browser profile.
+The synthetic suite covers income, expenses, transfers, pending rows, review-required rows, recurring amount changes, multiple fictional accounts, goals, forecasts, debt plans, Guided Plan state, and prior-year comparison rows.
 
 ## Local setup
 
 Requirements:
 
 - Node.js 24 or newer;
-- Python 3 for the local static server;
-- Git history available when running the privacy-history scan.
-
-Install the locked dependencies and browsers:
+- Python 3;
+- Git history for the privacy-history scan.
 
 ```bash
-npm ci
-npx playwright install chromium firefox webkit
+npm ci --ignore-scripts
+npx playwright install chromium
 ```
 
-Run the local-source suite:
+## Fast release-candidate preflight
+
+Run before opening or marking a PR ready:
 
 ```bash
-npm run test:local
-```
-
-Run the full-history privacy check:
-
-```bash
+npm run test:preflight
+npm run test:quality
 npm run privacy:history
-```
-
-Run the npm vulnerability gate:
-
-```bash
 npm audit --audit-level=high
 ```
 
-Run with a visible browser:
+`test:preflight` covers:
+
+- v114 startup and consolidated navigation;
+- Activity → Insights and Activity → Plan;
+- Guided Plan generation, explicit local saves, history, and source navigation;
+- repository workflow and security-control drift.
+
+When browser installation is available, run the complete local matrix:
 
 ```bash
+npx playwright install firefox webkit
+npm run test:local
+```
+
+Additional commands:
+
+```bash
+npm run test:a11y
+npm run test:visual
 npm run test:headed
-```
-
-Open Playwright's interactive UI:
-
-```bash
 npm run test:ui
-```
-
-Open the last HTML report:
-
-```bash
 npm run report
 ```
 
-For the v112 axe, visual-contract, and Lighthouse commands, see [`QUALITY_GATES.md`](QUALITY_GATES.md).
-
-## What Playwright tests
+## v114 browser coverage
 
 ### Boot and architecture
 
-- application boots without module or JavaScript errors;
-- v111 and the corrected `Mischief Managed. Money Managed` subtitle are present;
-- six primary destinations remain present;
+- the application boots as v114 without module errors;
+- the corrected `Mischief Managed. Money Managed` subtitle remains visible;
+- Dashboard, Money, Calendar, Reports, Activity, and Tools remain the six primary destinations;
 - no service worker is registered;
-- normal navigation makes no network write requests.
+- normal navigation creates no network write request.
 
-### Navigation and responsive layout
+### Guided Household Planning
 
-- Dashboard, Money, Calendar, Reports, Activity, and Tools open;
-- mobile Menu navigation works;
-- each tested viewport avoids full-page horizontal overflow;
-- the desktop month toolbar remains compact;
-- Previous, Next, native month value changes, and Latest work;
-- Close & Forecast remains consolidated under Money;
-- Household Reporting III remains consolidated under Reports.
+Synthetic tests verify:
 
-### Household Reporting III
+- actions are generated from review items, pending rows, missing bill/payday schedules, goal pace, forecast pressure, debt promotion gaps, and Household Insights;
+- each action shows its reason, evidence, and next step;
+- viewing Activity → Plan does not create `gringottsGuidedPlan.v1`;
+- explicit Save Plan Item stores only status, owner, target date, notes, and history metadata;
+- the populated vault remains byte-for-byte unchanged after a checklist save;
+- the saved checklist record is read back and verified;
+- done and dismissed current items move into the resolved section;
+- source buttons open the relevant Review Queue, Money, Insights, or Reports surface;
+- Guided Plan makes no network write request;
+- desktop, tablet, Android, and iPhone layouts remain inside the viewport.
 
-- the complete family report renders executive, comparison, spending, goal/health, close/forecast/debt, and meeting pages;
-- selected-month, year-to-date, rolling, and custom range controls use native form fields;
-- custom start and end dates persist under `gringottsReportRange.v1`;
-- year-to-date resolves from January 1 through the end of the selected month;
-- prior-year comparisons use the equivalent dates and fictional prior-year rows generated in test memory;
-- goals, Vault Health, forecast, and debt data appear without changing transactions;
-- report-range changes make no network write request;
-- the 28-sheet workbook download starts;
-- the range CSV download starts;
-- print media hides screen-only controls and exposes six report pages;
-- phone, tablet, and desktop layouts remain inside the viewport.
+### Household reports
 
-### Review Queue
+- selected-month, year-to-date, rolling, and custom report ranges persist separately;
+- prior-year comparisons use equivalent fictional dates;
+- goals, Vault Health, close, forecast, debt, insights, and Guided Plan appear in the family report;
+- the 32-sheet workbook contains Guided Plan and Planning History;
+- Guided Plan and family meeting Markdown downloads use v114 filenames;
+- print media hides screen-only controls and exposes eight report pages;
+- report rendering settles without a recursive mutation loop.
 
-- Category, Owner, and Account are native select controls;
-- editing begins locked;
-- Enable Safe Editing initiates a JSON backup download;
-- a reviewed transaction is written and verified in the synthetic vault.
+### Existing safeguards
 
-### Goals and Vault Health
+The established suite continues to cover:
 
-- a synthetic goal can be created;
-- contributions update funded progress;
-- a health snapshot is saved only after the explicit action.
+- Review Queue backup-first verified edits;
+- goals, contributions, and explicit health snapshots;
+- exact and fuzzy duplicate import review;
+- missing-only imports and import-history metadata;
+- malformed and empty import/restore blocking;
+- statement reconciliation, close blockers, verified close, and reasoned reopen;
+- recurring bills/paydays and 30/60/90-day forecasting;
+- debt and promotional APR planning;
+- backup, CSV, XLSX, ICS, Markdown, and diagnostics downloads;
+- service-worker absence and local-only network behavior.
 
-### Import Memory and Duplicate Guard
+## Accessibility and visual quality
 
-- all-new rows are previewed, backed up, written, read back, and verified;
-- exact stable-ID duplicates are skipped;
-- rows without stable IDs use a deterministic date, signed amount, normalized merchant, account, and source fingerprint;
-- fuzzy near-date merchant matches remain unresolved until a native decision select is used;
-- pending-to-posted candidates are explained rather than automatically discarded;
-- mixed new and duplicate files write only the reviewed missing rows;
-- missing-month coverage warnings appear before confirmation;
-- malformed JSON, missing transaction arrays, and empty arrays are blocked;
-- import history records metadata and verification results without full transaction copies;
-- importing makes no network write request;
-- phone, tablet, and desktop layouts remain inside the viewport.
+The quality suite scans all primary destinations and important secondary workflows, including:
 
-### Month Close and Forecasting
+- every Money subsection;
+- Review Queue, Rules, Household Insights, and Guided Plan;
+- every Tools subsection;
+- the Reports Center with Insights and Guided Plan;
+- key mobile Dashboard, Reports, Insights, Plan, and menu states.
 
-- pending transactions and unresolved review items block month close;
-- each represented account can be reconciled against posted count and signed statement activity;
-- explained differences remain visible and unexplained differences block close;
-- reconciliation signatures become stale when selected-month transactions change;
-- closing creates a verified immutable summary revision without storing full transaction copies;
-- closing does not alter the populated vault or transaction count;
-- reopening requires a reason, preserves the prior close revision, and appends a separate reopen event;
-- one-time, weekly, biweekly, and monthly bill or payday schedules remain local;
-- forecast settings persist separately from transactions;
-- the cash forecast displays projected ending cash, low balance, pressure days, and scheduled occurrences;
-- promotional APR planning calculates a simple payoff pace and urgency signal;
-- locally recording a planning payment changes only the debt-planning entry;
-- close, forecast, and debt actions make no network write request;
-- phone, tablet, and desktop layouts remain inside the viewport.
+It blocks serious or critical axe violations associated with the configured WCAG and best-practice tags.
 
-### Reports and safety
+Keyboard tests verify:
 
-- the annual tracker file input is present;
-- the selected-month quick XLSX remains available;
-- Report Range, Range Transactions, Year over Year, and Family Meeting Brief are included in the expanded workbook;
-- an empty JSON restore is blocked;
-- the populated synthetic vault remains intact;
-- Backup is available under Tools and absent from the header.
+- Skip to content;
+- focus visibility;
+- secondary-navigation tab semantics;
+- Arrow Left/Right, Home, and End navigation;
+- keyboard-accessible scroll regions;
+- mobile menu Escape behavior;
+- unique rendered IDs.
 
-## v112 accessibility and quality automation
-
-### Axe accessibility gate
-
-The dedicated quality suite scans eight important workflows with axe-core 4.10.3:
-
-- Dashboard;
-- Money — Budget & Recurring;
-- Money — Goals & Health;
-- Money — Close & Forecast;
-- Calendar;
-- Reports — Household Reporting III;
-- Activity — Review Queue;
-- Tools — Import / Restore.
-
-The suite fails when axe reports a serious or critical violation associated with WCAG 2.0 A/AA, WCAG 2.1 AA, or WCAG 2.2 AA. The complete synthetic result is retained in a short-lived artifact for diagnosis.
-
-Keyboard smoke coverage verifies the skip link and accessible names for all six primary destinations.
-
-### Privacy-safe visual layout snapshots
-
-The quality suite checks committed text-based layout contracts rather than committing PNG screenshots. It covers:
+Privacy-safe visual contracts cover:
 
 - Dashboard desktop at 1440 × 1000;
 - Reports desktop at 1440 × 1000;
-- Reports phone at 390 × 844.
+- Reports phone at 390 × 844;
+- eight report pages;
+- Household Insights and Guided Plan visibility;
+- responsive report-range columns;
+- control height, main width, topbar placement, and horizontal overflow.
 
-The contracts detect changes to required visibility, primary navigation count, report-page count, responsive range-control columns, mobile control height, main-content width, topbar placement, and horizontal overflow. Actual geometry and computed colors are saved as JSON workflow diagnostics.
+No PNG baseline is committed. Screenshots, traces, videos, axe JSON, and Lighthouse files are uploaded only when a job fails.
 
-Playwright captures screenshots, video, and traces only when a quality test fails. Those files remain short-lived workflow artifacts.
+## Lighthouse
 
-### Lighthouse CI budgets
+Lighthouse CI 0.15.1 runs three local desktop audits and enforces the thresholds in `lighthouserc.cjs` and `lighthouse-budget.json`, including:
 
-Lighthouse CI 0.15.1 runs two local static audits. It enforces:
+- Performance at least 0.85;
+- Accessibility at least 0.95;
+- Best Practices at least 0.95;
+- SEO at least 0.90;
+- FCP, LCP, TBT, CLS, size, console-error, request-count, and third-party-resource budgets.
 
-- Performance score at least 0.75;
-- Accessibility score at least 0.95;
-- Best Practices score at least 0.90;
-- SEO score at least 0.90;
-- FCP at most 2.5 seconds;
-- LCP at most 4.0 seconds;
-- interactive at most 5.0 seconds;
-- Total Blocking Time at most 600 milliseconds;
-- Cumulative Layout Shift at most 0.10;
-- explicit resource size and count budgets;
-- no third-party requests;
-- no browser-console errors.
+## Staged GitHub Actions
 
-### Repository security drift
+Draft pull requests skip expensive protected jobs.
 
-`tests/repository-security.spec.js` fails when:
+When a PR is marked ready for review:
 
-- an external GitHub Action is not pinned to a full 40-character commit SHA;
-- a workflow uses `pull_request_target`;
-- a workflow requests `write-all` or repository-content write permission;
-- the CodeQL workflow does not use read-only defaults and narrowly scoped security-event upload permission;
-- the v112 quality workflow loses read-only permissions or exact axe/Lighthouse versions;
-- the quality workflow installs packages without `--ignore-scripts`, `--no-save`, or `--package-lock=false`;
-- quality tests stop using the synthetic Playwright helper;
-- a remote axe script or committed image baseline is introduced;
-- required public security or quality files disappear;
-- the Cloudflare Content Security Policy or local-first browser headers are weakened.
+### Desktop Playwright
 
-## Browser projects
+1. Install Chromium.
+2. Run Chromium.
+3. Install Firefox and WebKit only after Chromium passes.
+4. Run Firefox and WebKit.
 
-The established GitHub Actions suite runs:
+### Responsive Playwright
 
-- desktop Chromium;
-- desktop Firefox;
-- desktop WebKit;
-- iPad emulation;
-- Android phone emulation;
-- iPhone/WebKit emulation.
+1. Install Chromium.
+2. Run Android/Pixel Chromium.
+3. Install WebKit only after Android Chromium passes.
+4. Run the iPad and iPhone WebKit projects together.
 
-The v112 quality suite adds one deterministic desktop Chromium project and explicitly changes the viewport for its selected phone visual contract.
+### Quality
 
-## Public-repository security tests
+1. Run keyboard semantics and visual contracts.
+2. Run the longer axe inventory only after the preflight passes.
+3. Run Lighthouse independently in parallel.
 
-### Privacy-history scanner
+Concurrency cancellation stops superseded runs. Diagnostics are uploaded only on failure.
 
-`scripts/privacy-history-scan.mjs` scans all reachable Git history for:
+See `RELEASE_PROCESS.md` for the complete workflow.
 
-- bank and transaction JSON export filenames;
-- backup and generated-vault JSON filenames;
-- transaction or ledger CSV files;
-- QFX, OFX, QBO, XLSX, XLS, DOCX, and PDF files;
-- SSN-formatted values;
-- labeled routing, ABA, account, and full payment-card numbers.
+## Security gates
 
-The committed synthetic vault fixture is the only allowed vault-shaped data file. v109 import, v110 close/forecast/debt, v111 reporting, and v112 quality scenarios are generated from fictional values in test code and isolated browser memory.
+The final release candidate also runs:
 
-### Gitleaks
+- full-history financial-data path and identifier scanning;
+- full-history Gitleaks;
+- Dependency Review for newly introduced High/Critical vulnerabilities;
+- locked `npm audit --audit-level=high` with lifecycle scripts disabled;
+- CodeQL JavaScript analysis with `security-extended` queries;
+- repository drift checks for action pinning, permissions, browser headers, draft gating, staged browser installs, and local-only v114 behavior.
 
-The security workflow checks full repository history for hardcoded credentials, API keys, tokens, and similar secrets. Public comments and secret-result artifacts are disabled.
+OpenSSF Scorecard runs on `main`, manually, and weekly. Its findings are triaged in `SCORECARD_ALERTS.md` rather than treated automatically as exploitable vulnerabilities.
 
-### Dependency Review
+## Production smoke
 
-Pull requests are checked for newly introduced vulnerable dependencies. The check fails when a new dependency has a High or Critical known vulnerability.
+After merge, the main-branch Cloudflare smoke verifies:
 
-### npm audit
+- v114 startup;
+- all six primary destinations;
+- Activity → Plan;
+- Insights and Guided Plan report pages;
+- hardened CSP, clickjacking, MIME-sniffing, referrer, and cross-origin headers;
+- no page errors.
 
-The locked npm dependency graph is installed without lifecycle scripts and fails CI on High or Critical audit findings.
+If the available connector cannot expose the main-push workflow run, the release handoff must state that limitation.
 
-The two temporary v112 quality packages are installed at exact versions without lifecycle scripts, without saving to `package.json`, and without changing `package-lock.json`.
+## Final merge gate
 
-### CodeQL
+A release is ready to merge only when the final head passes:
 
-CodeQL performs extended JavaScript security analysis and publishes findings to GitHub's Security area. The workflow uses read-only defaults and grants `security-events: write` only to the analysis job that uploads results.
+1. Local source — desktop;
+2. Local source — responsive;
+3. Accessibility and visual contracts;
+4. Lighthouse CI budgets;
+5. Full history privacy and secret scan;
+6. JavaScript security analysis;
+7. Dependency Review;
+8. npm audit;
+9. repository security-drift tests.
 
-### OpenSSF Scorecard
-
-OpenSSF Scorecard evaluates repository supply-chain practices weekly and after changes reach `main`. Results are published to GitHub code scanning and retained as a short-lived SARIF artifact.
-
-### Dependabot
-
-Dependabot checks npm and GitHub Actions dependencies monthly and opens grouped update pull requests.
-
-### Action pinning
-
-Every external GitHub Action is referenced by a full commit SHA. Version comments remain next to the SHA for maintainability, and Dependabot can propose controlled updates.
-
-## GitHub Actions
-
-`.github/workflows/playwright.yml` runs browser tests on:
-
-- pushes to `main`;
-- pull requests targeting `main`;
-- manual workflow dispatch.
-
-`.github/workflows/quality.yml` runs axe, visual contracts, and Lighthouse budgets on:
-
-- pushes to `main`;
-- pull requests targeting `main`;
-- manual workflow dispatch.
-
-`.github/workflows/security.yml` runs full-history privacy and secret scanning on:
-
-- pushes to `main`;
-- pull requests targeting `main`;
-- manual workflow dispatch;
-- a weekly schedule.
-
-`.github/workflows/supply-chain.yml` runs:
-
-- Dependency Review on pull requests;
-- `npm audit` on pull requests and `main`;
-- manual workflow dispatch.
-
-`.github/workflows/codeql.yml` runs JavaScript security analysis on:
-
-- pushes to `main`;
-- pull requests targeting `main`;
-- manual workflow dispatch;
-- a weekly schedule.
-
-`.github/workflows/scorecard.yml` runs OpenSSF Scorecard on:
-
-- pushes to `main`;
-- manual workflow dispatch;
-- a weekly schedule.
-
-Desktop and responsive Playwright projects run as separate jobs. Failure artifacts retain screenshots, video, traces, test results, and HTML reports for 14 days. Quality artifacts use the same 14-day retention.
-
-## Live Cloudflare smoke test
-
-After a successful local Playwright suite on `main`, a Chromium smoke test checks the deployed Cloudflare Pages site. It retries for up to approximately three minutes to allow deployment propagation.
-
-The live test verifies:
-
-- the app boots without a module error;
-- v111 and the corrected subtitle are served;
-- all six primary destinations open;
-- the range-aware family report and report preset control render;
-- Content Security Policy is active;
-- clickjacking protection is active;
-- MIME sniffing is disabled;
-- referrer leakage is disabled;
-- cross-origin opener and resource policies are active.
-
-The live test also uses synthetic localStorage inside an isolated GitHub runner browser.
-
-## Release gate
-
-Future releases should not be described as fully verified until:
-
-1. local Playwright desktop and responsive jobs pass;
-2. axe accessibility and visual-contract checks pass;
-3. Lighthouse category, timing, size, and request budgets pass;
-4. full-history privacy and Gitleaks jobs pass;
-5. Dependency Review and `npm audit` pass;
-6. CodeQL completes without an unresolved release-blocking finding;
-7. repository security-drift tests pass;
-8. the Cloudflare smoke job passes after production deployment;
-9. any intentionally unautomated manual checks are clearly listed.
-
-OpenSSF Scorecard is monitored as a continuing improvement signal. It is not a pull-request merge gate because it runs after changes reach `main` and on a schedule.
+The post-merge Cloudflare smoke is verified separately on `main`.

@@ -86,7 +86,7 @@ function enforceContract(actual, contract) {
 }
 
 for (const [name, contract] of Object.entries(contracts.snapshots)) {
-  test(`matches the v113 ${name} visual layout contract`, async ({ app }, testInfo) => {
+  test(`matches the v114 ${name} visual layout contract`, async ({ app }, testInfo) => {
     test.skip(testInfo.project.name !== 'quality-desktop', 'Each contract sets its own viewport and runs once.');
     const actual = await computedSnapshot(app.page, name, contract);
     enforceContract(actual, contract);
