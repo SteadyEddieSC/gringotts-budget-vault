@@ -91,7 +91,8 @@ test('release workflows skip draft PRs, stage expensive browsers, and upload dia
     expect(workflow).toContain('ready_for_review');
   }
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
-  expect(playwright.indexOf('Run tablet and Android preflight')).toBeLessThan(playwright.indexOf('Install WebKit after responsive Chromium passes'));
+  expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
+  expect(playwright.indexOf('Install WebKit after Android Chromium passes')).toBeLessThan(playwright.indexOf('Run iPad and iPhone WebKit gates'));
   expect(playwright).toMatch(/Upload Playwright failure diagnostics[\s\S]*?if: failure\(\)/);
   expect(quality).toMatch(/Upload quality failure diagnostics[\s\S]*?if: failure\(\)/);
   expect(quality).toMatch(/Upload Lighthouse failure reports[\s\S]*?if: failure\(\)/);
