@@ -2,6 +2,22 @@
 
 ## Shipped
 
+### v115 — Bank Export Import & Mapping
+
+- Added local CSV, TSV, semicolon, pipe, OFX, QFX, QBO, and existing Gringotts JSON inspection.
+- Added content and extension format detection with unsupported PDF, Office, archive, executable, binary, oversized, malformed, and excessive-row blocking.
+- Added explicit date, description, signed amount, debit, credit, status, account, memo, stable-ID, category, and type mapping.
+- Added explicit date-order and signed-amount interpretation rather than silent guessing.
+- Added bank-standard, Gringotts-standard, type-assisted, and separate debit/credit normalization.
+- Added source and normalized previews, ignored-column disclosure, Windows-1252 fallback warnings, masked account handling, and explicit source-category use.
+- Reused stable-ID, deterministic fingerprint, fuzzy, pending-to-posted, date coverage, and overlap review.
+- Added backup-first, acknowledgement, confirmation, missing-only insertion, rollback, read-back count verification, and inserted-transaction token verification.
+- Preserved full vault restore as a separate replacement workflow with destination `gringottsBudgetVault.latest`.
+- Added metadata-only import receipts and an Import Receipts workbook sheet, expanding the Vault Workbook from 32 to 33 sheets.
+- Added browser-free Node parser tests and deterministic malformed-input mutations before any Playwright browser installation.
+- Retained legacy JSON incremental import compatibility through the new v115 workflow.
+- Kept PDF statement extraction, XLSX ingestion, CAMT, MT940, and institution-specific parser expansion outside this release.
+
 ### v114 — Guided Household Planning
 
 - Added Activity → Plan without adding another top-level destination.
@@ -95,19 +111,7 @@
 
 - Added shared month state, executive reporting, meeting packs, and local XLSX generation.
 
-## Next releases
-
-### v115 — Bank Export Import & Mapping
-
-- Add local import for CSV/delimited files, OFX, QFX, and QBO.
-- Detect format and schema from content and extension.
-- Add explicit date, description, amount/debit/credit, account, status, memo, and stable-ID mapping preview.
-- Reuse v109 overlap, date coverage, stable-ID, fingerprint, pending-to-posted, and fuzzy duplicate review.
-- Require backup-first guarded writes, acknowledgement, confirmation, read-back verification, and missing-only insertion.
-- Add parser termination, malformed-input, size-limit, and fuzz/property-style tests where valuable.
-- Evaluate CAMT.053/CAMT.054, MT940, institution-specific JSON, and XLSX only after parser-safety validation.
-- Keep PDF statement extraction outside this release.
-- See `BANK_IMPORT_ROADMAP.md`.
+## Next release
 
 ### v116 — Planned UI Architecture Review
 
@@ -116,13 +120,28 @@
 - Re-test phone portrait, phone landscape, tablet, laptop, and wide desktop layouts.
 - Review accessibility, touch targets, density, and action placement.
 - Consolidate or remove features that no longer justify separate surfaces.
+- Review whether import mapping should remain one long workflow or use progressive steps after real household testing.
+
+## Future import candidates
+
+After v115 field use is validated with real exports, separately evaluate:
+
+- CAMT.053 and CAMT.054;
+- MT940;
+- institution-specific JSON;
+- guarded XLSX transaction exports;
+- dedicated parser fuzz/property libraries if format diversity justifies another dependency.
+
+PDF statement extraction remains outside normal transaction import because OCR and table interpretation require a different review model.
 
 ## Release governance
 
 Every release follows `RELEASE_PROCESS.md`:
 
 - build and review on a feature branch;
+- freeze code, tests, and release documentation before the final matrix;
 - use draft PR status for quiet diff review;
+- run pure parser/static checks before browser installation;
 - mark ready once the release candidate is stable;
 - preserve the full final-head browser, accessibility, Lighthouse, privacy, supply-chain, and CodeQL matrix;
 - squash-merge with an expected head SHA;
@@ -130,8 +149,9 @@ Every release follows `RELEASE_PROCESS.md`:
 
 ## Architecture guardrails
 
-- Local-first transaction storage, processing, insights, and guided planning.
+- Local-first transaction storage, parsing, processing, insights, and guided planning.
 - No transaction uploads.
+- Import source contents remain in-memory and are not copied into receipts.
 - Guided Plan metadata remains separate and never changes the vault or calculation inputs.
 - Import and close history store metadata/summaries rather than redundant transaction copies.
 - Report-range, forecast, debt, goal, health, and Guided Plan settings remain separate.
