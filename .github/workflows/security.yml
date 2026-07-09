@@ -7,6 +7,11 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   workflow_dispatch:
   schedule:
     - cron: '19 4 * * 1'
@@ -21,6 +26,7 @@ concurrency:
 jobs:
   history-and-secrets:
     name: Full history privacy and secret scan
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
