@@ -49,7 +49,7 @@ test.describe('@live Cloudflare deployment', () => {
     await openPrimary(page, 'Reports');
     await expect(page.getByRole('heading', { name: 'Family Financial Report' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Household insights', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+    await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
     await expect(page.locator('#reportPreset')).toBeVisible();
 
     expect(errors, 'Deployed page errors').toEqual([]);
