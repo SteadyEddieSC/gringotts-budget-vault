@@ -110,9 +110,9 @@ Desktop:
 
 Responsive:
 
-1. run iPad and Android with Chromium;
-2. only after those pass, install WebKit;
-3. run iPhone/WebKit.
+1. install and run Android/Pixel Chromium;
+2. only after Android Chromium passes, install WebKit;
+3. run the iPad and iPhone WebKit projects together.
 
 ### Quality preflight
 
