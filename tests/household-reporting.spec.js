@@ -104,7 +104,7 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
   await expect(page.getByText('Synthetic Emergency Fund').first()).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
   await expect(page.getByText(/Vault Health/i).first()).toBeVisible();
-  await expect(page.getByText(/Forecast:/i)).toBeVisible();
+  await expect(page.locator('.summary-box').filter({ hasText: /^Forecast:/i })).toBeVisible();
   await expect(page.getByText(/Current priority: Synthetic Promo Card/i)).toBeVisible();
   await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
 });
