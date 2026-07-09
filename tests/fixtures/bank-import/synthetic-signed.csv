@@ -1,0 +1,5 @@
+Date,Description,Amount,Status,Reference,Memo
+07/10/2026,StreamFlix,-19.99,Posted,jul-sub-1,Existing synthetic subscription
+07/20/2026,Synthetic Fuel,-45.67,Posted,bank-new-1,"Fictional fuel purchase, test only"
+07/21/2026,Synthetic Refund,12.34,Pending,bank-new-2,"Quoted memo with a comma, and a
+second synthetic line"
