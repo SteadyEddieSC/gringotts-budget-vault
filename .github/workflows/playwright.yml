@@ -7,6 +7,11 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   workflow_dispatch:
 
 permissions:
@@ -19,6 +24,7 @@ concurrency:
 jobs:
   local-e2e:
     name: Local source — ${{ matrix.shard }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -40,21 +46,37 @@ jobs:
           cache: npm
 
       - name: Install locked dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
 
-      - name: Run desktop browsers
+      - name: Run Chromium desktop preflight
         if: matrix.shard == 'desktop'
-        run: npx playwright test --grep-invert @live --project=chromium --project=firefox --project=webkit
+        run: npx playwright test --grep-invert @live --project=chromium
 
-      - name: Run tablet and phone projects
+      - name: Install Firefox and WebKit after Chromium passes
+        if: matrix.shard == 'desktop'
+        run: npx playwright install --with-deps firefox webkit
+
+      - name: Run Firefox and WebKit desktop gates
+        if: matrix.shard == 'desktop'
+        run: npx playwright test --grep-invert @live --project=firefox --project=webkit
+
+      - name: Run tablet and Android preflight
         if: matrix.shard == 'responsive'
-        run: npx playwright test --grep-invert @live --project=tablet --project=mobile-chromium --project=mobile-webkit
+        run: npx playwright test --grep-invert @live --project=tablet --project=mobile-chromium
 
-      - name: Upload Playwright diagnostics
-        if: always()
+      - name: Install WebKit after responsive Chromium passes
+        if: matrix.shard == 'responsive'
+        run: npx playwright install --with-deps webkit
+
+      - name: Run iPhone WebKit gate
+        if: matrix.shard == 'responsive'
+        run: npx playwright test --grep-invert @live --project=mobile-webkit
+
+      - name: Upload Playwright failure diagnostics
+        if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-${{ matrix.shard }}-${{ github.run_attempt }}
@@ -86,7 +108,7 @@ jobs:
           cache: npm
 
       - name: Install locked dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -103,8 +125,8 @@ jobs:
           done
           exit 1
 
-      - name: Upload deployment diagnostics
-        if: always()
+      - name: Upload deployment failure diagnostics
+        if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-live-${{ github.run_attempt }}
