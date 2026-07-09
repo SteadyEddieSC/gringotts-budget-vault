@@ -23,13 +23,14 @@ async function scanSurface(page, testInfo, name) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   const report = {
     surface: name,
+    project: testInfo.project.name,
     url: page.url(),
     timestamp: new Date().toISOString(),
     passes: results.passes.length,
     incomplete: summarizeViolations(results.incomplete),
     violations: summarizeViolations(results.violations)
   };
-  await testInfo.attach(`${safeArtifactName(name)}-axe.json`, {
+  await testInfo.attach(`${safeArtifactName(`${testInfo.project.name}-${name}`)}-axe.json`, {
     body: Buffer.from(JSON.stringify(report, null, 2)),
     contentType: 'application/json'
   });
@@ -44,7 +45,12 @@ async function clickSubsection(page, name) {
   await expect(tab).toHaveClass(/active/);
 }
 
+function desktopOnly(testInfo) {
+  test.skip(testInfo.project.name !== 'quality-desktop', 'Full surface inventory runs once in the desktop quality project.');
+}
+
 test('axe scans all primary destinations including the insights report', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Dashboard');
   await openPrimary(page, 'Money');
@@ -61,6 +67,7 @@ test('axe scans all primary destinations including the insights report', async (
 });
 
 test('axe scans every Money subsection', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Money');
   await scanSurface(page, testInfo, 'Money — Budget and Recurring');
@@ -74,6 +81,7 @@ test('axe scans every Money subsection', async ({ page }, testInfo) => {
 });
 
 test('axe scans every Activity subsection including Household Insights', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Activity');
   await scanSurface(page, testInfo, 'Activity — Transactions');
@@ -87,6 +95,7 @@ test('axe scans every Activity subsection including Household Insights', async (
 });
 
 test('axe scans every Tools subsection', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await scanSurface(page, testInfo, 'Tools — Import and Restore');
@@ -100,7 +109,20 @@ test('axe scans every Tools subsection', async ({ page }, testInfo) => {
   await expectNoBrowserErrors(errors);
 });
 
-test('keyboard focus, skip navigation, and identifiers remain usable', async ({ page }) => {
+test('axe scans key phone surfaces including Household Insights', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific axe coverage runs in the mobile quality project.');
+  const errors = await bootQualityPage(page);
+  await scanSurface(page, testInfo, 'Mobile Dashboard');
+  await openPrimary(page, 'Reports');
+  await scanSurface(page, testInfo, 'Mobile Reports with Household Insights');
+  await openPrimary(page, 'Activity');
+  await clickSubsection(page, 'Insights');
+  await scanSurface(page, testInfo, 'Mobile Activity — Household Insights');
+  await expectNoBrowserErrors(errors);
+});
+
+test('keyboard focus, skip navigation, and identifiers remain usable', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await page.keyboard.press('Tab');
   await expect(page.locator('.skip-link')).toBeFocused();
