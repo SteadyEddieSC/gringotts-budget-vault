@@ -5,7 +5,7 @@ test('settles the v114 Reports Center without a recursive mutation loop', async 
   const { page } = app;
   await openPrimary(page, 'Reports');
   await expect(page.getByRole('heading', { name: '32-sheet Vault Workbook', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+  await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
 
   const mutationCount = await page.evaluate(() => new Promise((resolve) => {
     const main = document.getElementById('main');
