@@ -1,6 +1,6 @@
 {
-  "version": "v114",
-  "description": "Privacy-safe visual regression contracts. These compare structure, geometry, visibility, and responsive layout using only the synthetic Playwright vault; no screenshot pixels or household data are committed.",
+  "version": "v115",
+  "description": "Privacy-safe visual regression contracts. These compare structure, geometry, visibility, and responsive layout using only synthetic Playwright data; no screenshot pixels or household data are committed.",
   "snapshots": {
     "dashboard-desktop": {
       "viewport": { "width": 1440, "height": 1000 },
@@ -49,6 +49,19 @@
       "expectedRangeColumns": 1,
       "maximumHorizontalOverflow": 2,
       "minimumControlHeight": 40,
+      "minimumMainWidth": 300
+    },
+    "import-phone": {
+      "viewport": { "width": 390, "height": 844 },
+      "route": "Tools",
+      "requiredVisible": [
+        "#menuToggle",
+        ".v115-import-page",
+        "#bankImportFile",
+        "#restoreFile"
+      ],
+      "minimumCards": 5,
+      "maximumHorizontalOverflow": 2,
       "minimumMainWidth": 300
     }
   }
