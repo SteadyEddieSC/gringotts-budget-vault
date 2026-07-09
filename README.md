@@ -48,8 +48,9 @@ v114 changes how releases are validated without weakening the final merge gate:
 
 - development remains on a feature branch before a PR is opened;
 - draft PRs skip expensive browser, quality, security, supply-chain, and CodeQL jobs;
-- Chromium runs as the browser preflight before Firefox and WebKit are installed;
-- tablet and Android checks run before mobile WebKit is installed;
+- Chromium desktop runs before Firefox and WebKit are installed;
+- Android Chromium runs before WebKit is installed;
+- iPad and iPhone run together after the WebKit installation;
 - keyboard and visual contracts run before the longer axe surface inventory;
 - diagnostics are uploaded only when a job fails;
 - the full required matrix still runs when the PR is marked ready for review.
