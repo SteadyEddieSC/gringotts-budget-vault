@@ -78,11 +78,11 @@ Desktop:
 Responsive:
 
 1. Install Chromium and shared system dependencies.
-2. Run tablet and Android projects.
-3. Only after those pass, install WebKit.
-4. Run iPhone/WebKit.
+2. Run the Android/Pixel Chromium project.
+3. Only after Android Chromium passes, install WebKit.
+4. Run the iPad and iPhone WebKit projects together.
 
-This prevents an obvious Chromium failure from wasting time downloading and running two additional engines.
+This prevents an obvious Chromium failure from wasting time downloading and running additional engines. The iPad and iPhone projects both use WebKit, so they begin only after that browser is installed.
 
 ### Quality staging
 
