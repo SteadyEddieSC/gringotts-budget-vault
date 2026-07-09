@@ -80,7 +80,7 @@ test('quality automation stays local and avoids public or binary baseline storag
   expect(lighthouse).toContain("http://127.0.0.1:4173/?quality=lighthouse");
 });
 
-test('release workflows skip draft PRs, stage expensive browsers, and upload diagnostics only on failure', () => {
+test('parser preflight runs before browser installation and release workflows stay staged', () => {
   const playwright = read('.github/workflows/playwright.yml');
   const quality = read('.github/workflows/quality.yml');
   const security = read('.github/workflows/security.yml');
@@ -90,6 +90,10 @@ test('release workflows skip draft PRs, stage expensive browsers, and upload dia
     expect(workflow).toContain("github.event.pull_request.draft == false");
     expect(workflow).toContain('ready_for_review');
   }
+  expect(playwright).toContain('name: Parser and static preflight');
+  expect(playwright).toContain('run: npm run test:parser');
+  expect(playwright).toContain('needs: parser-preflight');
+  expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
   expect(playwright.indexOf('Install WebKit after Android Chromium passes')).toBeLessThan(playwright.indexOf('Run iPad and iPhone WebKit gates'));
@@ -113,9 +117,8 @@ test('v113 insight calculation stays read-only and local', () => {
 test('v114 Guided Planning writes only explicit separate checklist metadata', () => {
   const engine = read('src/v114/planning.js');
   const views = read('src/v114/views.js');
-  const release = read('src/v114/release.js');
   const reporting = read('src/v114/reporting.js');
-  for (const source of [engine, views, release, reporting]) {
+  for (const source of [engine, views, reporting]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
     expect(source).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
     expect(source).not.toContain('gringottsBudgetVault.latest');
@@ -123,8 +126,28 @@ test('v114 Guided Planning writes only explicit separate checklist metadata', ()
   expect(engine).toContain("export const GUIDED_PLAN_KEY = 'gringottsGuidedPlan.v1'");
   expect(engine).toContain('Only an explicit Save Plan Item action stores checklist status');
   expect(engine).toContain('Planning-item read-back verification failed.');
-  expect(read('index.html')).toContain('src/boot-v114.js?v=114guided1');
-  expect(read('app.html')).toContain('src/boot-v114.js?v=114guided1');
+});
+
+test('v115 parser is pure and the guarded writer preserves explicit backup and verification controls', () => {
+  const parser = read('src/v115/parser.js');
+  const importer = read('src/v115/bank-import.js');
+  const views = read('src/v115/views.js');
+  const release = read('src/v115/release.js');
+  for (const source of [parser, importer, views, release]) {
+    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  }
+  expect(parser).not.toMatch(/localStorage|sessionStorage|\bsave\s*\(/);
+  expect(parser).toContain('MAX_BANK_EXPORT_BYTES');
+  expect(parser).toContain('MAX_BANK_EXPORT_ROWS');
+  expect(importer).toContain('Download the populated destination backup before importing');
+  expect(importer).toContain('Import verification failed: transaction count mismatch.');
+  expect(importer).toContain('localStorage.setItem(destination.key');
+  expect(importer).toContain('localStorage.setItem(destination.key, previousRaw)');
+  expect(importer).toContain("export const IMPORT_HISTORY_KEY = 'gringottsImportHistory.v1'");
+  expect(importer).not.toContain('transactions: incomingRows');
+  expect(read('index.html')).toContain('src/boot-v115.js?v=115bankimport1');
+  expect(read('app.html')).toContain('src/boot-v115.js?v=115bankimport1');
+  expect(read('src/boot-v115.js')).toContain('activateV114({ installDownloads: false })');
 });
 
 test('public repository security and quality control files remain present', () => {
@@ -143,17 +166,23 @@ test('public repository security and quality control files remain present', () =
     'quality-tests/accessibility.spec.js',
     'quality-tests/tab-semantics.spec.js',
     'quality-tests/visual-contracts.spec.js',
-    'src/boot-v114.js',
+    'src/boot-v115.js',
     'src/v113/insights.js',
-    'src/v113/reporting.js',
-    'src/v113/release.js',
-    'src/v113/views.js',
     'src/v114/planning.js',
     'src/v114/reporting.js',
     'src/v114/release.js',
     'src/v114/views.js',
-    'styles/v113.css',
+    'src/v115/parser.js',
+    'src/v115/bank-import.js',
+    'src/v115/reporting.js',
+    'src/v115/release.js',
+    'src/v115/views.js',
     'styles/v114.css',
+    'styles/v115.css',
+    'tests-node/bank-parser.test.mjs',
+    'tests/fixtures/bank-import/synthetic-signed.csv',
+    'tests/fixtures/bank-import/synthetic-debit-credit.csv',
+    'tests/fixtures/bank-import/synthetic.qfx',
     'BANK_IMPORT_ROADMAP.md',
     'scripts/privacy-history-scan.mjs'
   ];
