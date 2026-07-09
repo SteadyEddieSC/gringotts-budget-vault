@@ -57,7 +57,8 @@ function installGuidedPlanningInteractions() {
   });
 }
 
-export function activateV114() {
+let interactionsInstalled = false;
+export function activateV114(options = {}) {
   Object.assign(BUILD, {
     version: 'v114',
     name: 'Guided Household Planning',
@@ -65,7 +66,10 @@ export function activateV114() {
     cacheBust: '114guided1'
   });
   if (window.GringottsCleanRuntime?.BUILD) Object.assign(window.GringottsCleanRuntime.BUILD, BUILD);
-  installV114DownloadOverrides();
-  installGuidedPlanningInteractions();
+  if (options.installDownloads !== false) installV114DownloadOverrides();
+  if (!interactionsInstalled) {
+    interactionsInstalled = true;
+    installGuidedPlanningInteractions();
+  }
   return BUILD;
 }
