@@ -79,6 +79,20 @@ test('quality automation stays local and avoids public or binary baseline storag
   expect(lighthouse).toContain("http://127.0.0.1:4173/?quality=lighthouse");
 });
 
+test('v113 insight calculation stays read-only and local', () => {
+  const engine = read('src/v113/insights.js');
+  const views = read('src/v113/views.js');
+  const reporting = read('src/v113/reporting.js');
+  expect(engine).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(engine).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
+  expect(engine).not.toMatch(/\bsave\s*\(/);
+  expect(views).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(reporting).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(engine).toContain('Pending transactions are counted but excluded from unusual-spending comparisons.');
+  expect(read('index.html')).toContain('src/boot-v113.js?v=113insights1');
+  expect(read('app.html')).toContain('src/boot-v113.js?v=113insights1');
+});
+
 test('public repository security and quality control files remain present', () => {
   const required = [
     'SECURITY.md',
@@ -95,6 +109,13 @@ test('public repository security and quality control files remain present', () =
     'quality-tests/accessibility.spec.js',
     'quality-tests/tab-semantics.spec.js',
     'quality-tests/visual-contracts.spec.js',
+    'src/boot-v113.js',
+    'src/v113/insights.js',
+    'src/v113/reporting.js',
+    'src/v113/release.js',
+    'src/v113/views.js',
+    'styles/v113.css',
+    'BANK_IMPORT_ROADMAP.md',
     'scripts/privacy-history-scan.mjs'
   ];
   const missing = required.filter((relativePath) => !fs.existsSync(path.join(root, relativePath)));
