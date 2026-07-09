@@ -166,9 +166,9 @@ When a PR is marked ready for review:
 ### Responsive Playwright
 
 1. Install Chromium.
-2. Run iPad and Android projects.
-3. Install WebKit only after those pass.
-4. Run iPhone/WebKit.
+2. Run Android/Pixel Chromium.
+3. Install WebKit only after Android Chromium passes.
+4. Run the iPad and iPhone WebKit projects together.
 
 ### Quality
 
