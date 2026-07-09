@@ -1,8 +1,8 @@
 {
   "name": "gringotts-budget-vault-tests",
-  "version": "112.0.0",
+  "version": "114.0.0",
   "private": true,
-  "description": "Playwright, accessibility, visual-contract, and Lighthouse quality tests for Gringotts Budget Vault",
+  "description": "Playwright, accessibility, visual-contract, Lighthouse, and guided-planning quality tests for Gringotts Budget Vault",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -10,6 +10,7 @@
   "scripts": {
     "test": "playwright test",
     "test:local": "playwright test --grep-invert @live",
+    "test:preflight": "playwright test tests/boot-navigation.spec.js tests/guided-planning.spec.js tests/repository-security.spec.js --project=chromium",
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
