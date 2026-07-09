@@ -390,7 +390,7 @@ export function normalizeDelimitedExport(model, options = {}) {
       amount: Math.round((amount + Number.EPSILON) * 100) / 100,
       type: transfer ? 'Transfer' : amount < 0 ? 'Income' : 'Expense',
       category: transfer ? 'Transfer' : useSourceCategory && sourceCategory ? sourceCategory : 'Other',
-      source_category: sourceCategory || '',
+      source_category: useSourceCategory ? sourceCategory : '',
       account: mappedAccount,
       pending,
       reviewed: false,
