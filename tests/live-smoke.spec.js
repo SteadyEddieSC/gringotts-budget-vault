@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v113/);
+    await expect(page.locator('.version-text')).toContainText(/^v114/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -43,12 +43,13 @@ test.describe('@live Cloudflare deployment', () => {
     }
 
     await openPrimary(page, 'Activity');
-    await page.getByRole('tab', { name: 'Insights', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Household Insights', exact: true })).toBeVisible();
+    await page.getByRole('tab', { name: 'Plan', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
 
     await openPrimary(page, 'Reports');
     await expect(page.getByRole('heading', { name: 'Family Financial Report' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Household insights', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
     await expect(page.locator('#reportPreset')).toBeVisible();
 
     expect(errors, 'Deployed page errors').toEqual([]);
