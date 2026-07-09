@@ -63,17 +63,17 @@ jobs:
         if: matrix.shard == 'desktop'
         run: npx playwright test --grep-invert @live --project=firefox --project=webkit
 
-      - name: Run tablet and Android preflight
+      - name: Run Android Chromium preflight
         if: matrix.shard == 'responsive'
-        run: npx playwright test --grep-invert @live --project=tablet --project=mobile-chromium
+        run: npx playwright test --grep-invert @live --project=mobile-chromium
 
-      - name: Install WebKit after responsive Chromium passes
+      - name: Install WebKit after Android Chromium passes
         if: matrix.shard == 'responsive'
         run: npx playwright install --with-deps webkit
 
-      - name: Run iPhone WebKit gate
+      - name: Run iPad and iPhone WebKit gates
         if: matrix.shard == 'responsive'
-        run: npx playwright test --grep-invert @live --project=mobile-webkit
+        run: npx playwright test --grep-invert @live --project=tablet --project=mobile-webkit
 
       - name: Upload Playwright failure diagnostics
         if: failure()
