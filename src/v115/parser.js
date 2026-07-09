@@ -160,7 +160,7 @@ function scoreHeader(header, synonyms) {
   let score = 0;
   synonyms.forEach((synonym) => {
     if (normalized === synonym) score = Math.max(score, 100);
-    else if (normalized.includes(synonym) || synonym.includes(normalized)) score = Math.max(score, 70);
+    else if (normalized.includes(synonym)) score = Math.max(score, 70);
   });
   return score;
 }
