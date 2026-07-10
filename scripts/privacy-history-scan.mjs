@@ -33,6 +33,9 @@ const allowedPaths = new Set([
   'tests/fixtures/synthetic-vault.json',
   'tests/fixtures/bank-import/synthetic-signed.csv',
   'tests/fixtures/bank-import/synthetic-debit-credit.csv',
+  'tests/fixtures/bank-import/synthetic-card-activity.csv',
+  'tests/fixtures/bank-import/synthetic-credit-union-ledger.csv',
+  'tests/fixtures/bank-import/synthetic-digital-wallet.csv',
   'tests/fixtures/bank-import/synthetic.qfx'
 ]);
 
