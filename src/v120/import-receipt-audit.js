@@ -159,7 +159,7 @@ function createRollback(audit) {
   const intro = element('div');
   intro.append(
     element('h4', '', 'Backup and manual rollback guidance'),
-    element('p', '', 'Receipt review never restores, deletes, or rewrites transactions. Full restore remains a separate confirmed workflow.')
+    element('p', '', 'No automatic rollback is available. Receipt review never restores, deletes, or rewrites transactions; full restore remains a separate confirmed workflow.')
   );
   row.append(intro, element('div', 'section-meta', audit.backup.expected ? 'Pre-import backup expected' : 'No-change receipt'));
   article.append(row);
@@ -274,7 +274,7 @@ function selectedAudit() {
 
 async function copyRollbackChecklist(audit) {
   const text = [
-    `Gringotts v120 manual rollback checklist`,
+    'Gringotts v120 manual rollback checklist',
     `Receipt: ${audit.receipt.importId}`,
     `Status: ${auditLabel(audit.status)}`,
     '',
