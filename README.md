@@ -11,49 +11,67 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application release: **v117 — Import Profiles & Field Validation**  
-Current quality-infrastructure release: **v117 — Profile and Field-Validation Contracts**
+Current application release: **v118 — Profile Portability & Institution Patterns**  
+Current quality-infrastructure release: **v118 — Portable Profile and Conflict-Review Contracts**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
+## Profile Portability & Institution Patterns
+
+v118 lets a household move reviewed bank-export mapping definitions between browsers without moving transactions or replacing the household vault.
+
+### Sanitized bundle export
+
+Tools → Import transactions can export the saved profile library as a versioned JSON bundle. Portable definitions contain only:
+
+- profile name;
+- source format, schema, delimiter, and non-reversible ordered-header signature;
+- mapped source header names;
+- date-order and amount-sign interpretation;
+- destination account label and account-handling mode;
+- explicit source-category preference.
+
+Portable files omit local profile IDs and local creation/update timestamps. They never contain transaction rows, source file content, source filenames, source fingerprints, balances, credentials, tokens, or full account numbers.
+
+Bundles are limited to 24 definitions and 256 KB.
+
+### Explicit import review
+
+Selecting a bundle creates an in-memory preview before any profile storage changes. Every definition is classified as:
+
+- exact duplicate;
+- same definition under another name;
+- source-identity conflict;
+- name conflict;
+- new definition.
+
+Every item requires a reviewed **Add**, **Replace**, or **Skip** decision. Exact and same-definition matches default to Skip. Replace is available only for an identity-matched saved profile. No conflict is silently overwritten.
+
+The final metadata write is sanitized and read back. A failed storage or verification attempt restores the prior raw profile-library value.
+
+### Saved profile library
+
+The Import screen now shows profile name, destination label, source pattern, and non-reversible identity. Distinct profile and destination names help households separate multiple cards or accounts that share one export schema.
+
+### Fictional institution-pattern coverage
+
+v118 adds synthetic fixtures for:
+
+- card activity with transaction and post dates;
+- deposit/withdrawal account ledgers;
+- digital-wallet activity with net amount, status, transaction ID, type, and note.
+
+These fixtures exercise the existing v115 parser and normalizer. v118 does not create a parallel transaction parser.
+
 ## Import Profiles & Field Validation
 
-v117 adds reusable browser-local mapping profiles to Tools → Import transactions without replacing the v115 guarded parser or writer.
+v117 remains the mapping-profile layer beneath v118. Profiles are browser-local metadata under `gringottsImportProfiles.v1`, capped at 24 sanitized records and read-back verified.
 
-### Exact-compatible profiles
+A profile applies automatically only when exactly one saved profile matches format, schema, delimiter, ordered headers, and remembered mapped headers. Several exact matches require an explicit choice.
 
-Profiles remember reviewed import metadata only:
-
-- user-supplied profile name;
-- format, schema, and delimiter;
-- a non-reversible ordered-header signature;
-- mapped source header names;
-- date order and amount-sign interpretation;
-- account handling and destination label;
-- explicit source-category preference;
-- timestamps.
-
-Profiles never contain transaction rows, raw records, source file content, source filenames, source fingerprints, balances, credentials, or full unmasked account identifiers.
-
-A profile applies only when format, schema, delimiter, ordered headers, and all remembered mapped headers match exactly. One compatible profile applies automatically. Multiple compatible profiles require an explicit selection.
-
-### Profile controls
-
-The Import task provides:
-
-- Apply Selected Profile;
-- Save New Profile;
-- Update Profile;
-- New Profile;
-- Delete Profile.
-
-Profile writes are bounded to 24 records, sanitized, browser-local, and read-back verified. Applying a profile changes only the in-memory import session and does not write transactions.
-
-### Field-level explanations
-
-v117 explains the current interpretation of:
+The Map stage explains:
 
 - dates and ambiguity handling;
 - signed amounts or debit/credit columns;
@@ -62,9 +80,9 @@ v117 explains the current interpretation of:
 - pending status;
 - source categories;
 - transaction type;
-- profile-remembered field choices.
+- profile-remembered choices.
 
-The normalized preview and all existing unresolved-field blocking remain authoritative.
+Applying, saving, importing, updating, replacing, or deleting profile metadata does not import transactions.
 
 ## UI architecture
 
@@ -77,11 +95,11 @@ The six primary destinations remain:
 - Activity;
 - Tools.
 
-Reports continues to show one of eight report pages at a time on screen while Print / Save PDF includes all eight pages. Tools continues to separate incremental transaction import from full vault restore. Activity secondary navigation remains compact on narrow phones.
+Reports shows one of eight pages at a time on screen while Print / Save PDF includes all eight. Tools separates incremental transaction import from full vault restore. Activity secondary navigation remains compact on narrow phones.
 
 ## Bank Export Import & Mapping
 
-v115 remains the guarded local import engine under the v117 profile and validation layer.
+v115 remains the guarded local transaction engine under the v117 and v118 profile layers.
 
 Supported local sources:
 
@@ -93,7 +111,7 @@ Supported local sources:
 - QBO;
 - existing Gringotts JSON transaction packages.
 
-The workflow provides format and schema inspection, explicit mapping, date-order and signed-amount interpretation, normalized preview, masked accounts, exact and fuzzy duplicate review, coverage warnings, backup-first insertion, rollback, read-back verification, and metadata-only receipts.
+The transaction workflow provides format and schema inspection, explicit mapping, date-order and signed-amount interpretation, normalized preview, masked accounts, exact and fuzzy duplicate review, coverage warnings, backup-first insertion, rollback, read-back verification, and metadata-only receipts.
 
 Imported rows default to `Other`, unreviewed, and review-required unless source-category use is explicitly selected. Incremental import never replaces the destination vault.
 
@@ -105,7 +123,7 @@ Do not commit or attach:
 
 - bank or credit-card exports;
 - Gringotts vault backups;
-- saved household import profiles;
+- saved household profiles or exported profile bundles;
 - account or routing numbers;
 - screenshots containing household financial data;
 - filled spreadsheets or generated reports;
@@ -113,9 +131,10 @@ Do not commit or attach:
 
 The application remains local-first:
 
-- bank exports are parsed in memory inside the browser;
+- bank exports and profile bundles are parsed in browser memory;
 - no transaction upload, parser API, analytics endpoint, or institution credential connection exists;
-- profiles retain mapping metadata only;
+- profile bundles retain mapping metadata only;
+- filenames are displayed for review but are not stored in the profile library;
 - source account identifiers are masked when mapped;
 - raw imported rows are not copied into receipts or profiles;
 - reports and downloads are generated locally;
@@ -125,12 +144,12 @@ The application remains local-first:
 
 ## Performance and staged release process
 
-The initial request budget remains unchanged because profile code and `styles/v117.css` load only after Tools → Import is rendered.
+The initial request budget remains unchanged because v117 profile code, v118 portability code, and their styles load only after Tools → Import is rendered.
 
 The parser/static gate runs before Playwright browser installation:
 
-- v115 and v117 modules are checked with `node --check`;
-- parser, profile, mapping, malformed-input, size-limit, and mutation tests use Node's built-in runner;
+- active v115, v117, and v118 modules are checked with `node --check`;
+- parser, profile, portability, institution-pattern, malformed-input, size-limit, and deterministic mutation tests use Node's built-in runner;
 - desktop and responsive browser jobs cannot begin until preflight passes;
 - Chromium runs before Firefox and WebKit installation;
 - Android Chromium runs before iPad and iPhone WebKit;
@@ -144,11 +163,14 @@ See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 The final merge gate covers:
 
-- browser-free parser and profile-model preflight;
+- browser-free parser, profile, portability, and institution-pattern preflight;
 - Chromium, Firefox, and WebKit desktop behavior;
 - iPad, Android, and iPhone/WebKit layouts;
-- profile save, auto-apply, conflicts, incompatibility, deletion, and vault noninterference;
-- field-validation explanations and profile observer stability;
+- sanitized profile downloads and imported-file rejection;
+- exact, same-definition, identity-conflict, name-conflict, and new-profile review;
+- Add, Replace, Skip, duplicate-name blocking, and invalid-target blocking;
+- vault byte-for-byte noninterference and filename non-retention;
+- field-validation explanations and observer stability;
 - all eight report-preview pages and complete print output;
 - signed CSV, debit/credit, OFX-family, and legacy JSON imports;
 - duplicate, rollback, backup, restore, and verification behavior;
@@ -179,13 +201,13 @@ See [`TESTING.md`](TESTING.md) and [`QUALITY_GATES.md`](QUALITY_GATES.md) for th
 
 ## Unsupported import formats
 
-PDF statements, Office files, archives, executables, unsupported binaries, files above 5 MB, and imports above the configured transaction-row limit remain blocked.
+PDF statements, Office files, archives, executables, unsupported binaries, files above 5 MB, and transaction imports above the configured row limit remain blocked.
 
 CAMT, MT940, XLSX, institution-specific JSON, OCR, and PDF extraction require separate fixtures and safety review.
 
 ## Release documentation
 
-- [`RELEASE_NOTES_v117_IMPORT_PROFILES_FIELD_VALIDATION.md`](RELEASE_NOTES_v117_IMPORT_PROFILES_FIELD_VALIDATION.md)
+- [`RELEASE_NOTES_v118_PROFILE_PORTABILITY_PATTERNS.md`](RELEASE_NOTES_v118_PROFILE_PORTABILITY_PATTERNS.md)
 - [`ROADMAP.md`](ROADMAP.md)
 - [`UI_GOVERNANCE.md`](UI_GOVERNANCE.md)
 - [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md)
