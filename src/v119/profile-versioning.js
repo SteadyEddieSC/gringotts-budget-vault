@@ -1,9 +1,9 @@
 import { downloadJson, stamp } from '../v103/core.js';
-import * as imports from '../v115/bank-import.js?v=119diagnostics1';
+import * as imports from '../v115/bank-import.js?v=115bankimport2';
 import {
   IMPORT_PROFILES_KEY, MAX_IMPORT_PROFILES, profileFromSession, sanitizeStoredProfiles
 } from '../v117/profile-model.js';
-import { importProfileSnapshot } from '../v117/import-profiles.js?v=119diagnostics1';
+import { importProfileSnapshot } from '../v117/import-profiles.js?v=117profiles1';
 import {
   applyProfileImportPlan, inspectProfileBundle, profileDefinitionKey
 } from '../v118/profile-portability-model.js';
@@ -129,8 +129,11 @@ function currentProfileCandidate(profileId, name) {
     options: state.options,
     existingProfile: existing
   });
-  const output = profiles.map((profile) => profile.profileId === existing.profileId ? proposed : profile);
-  return { existing, proposed, profiles: output };
+  return {
+    existing,
+    proposed,
+    profiles: profiles.map((profile) => profile.profileId === existing.profileId ? proposed : profile)
+  };
 }
 
 function revisionItem(before, after, source) {
@@ -159,11 +162,10 @@ export function interceptProfileUpdate({ profileId, name } = {}) {
     };
     lastResult = '';
     rerenderImport();
-    return true;
   } catch (error) {
     toast(error?.message || 'Profile revision comparison could not be prepared');
-    return true;
   }
+  return true;
 }
 
 export async function rememberBundleFile(file) {
@@ -172,10 +174,7 @@ export async function rememberBundleFile(file) {
     return;
   }
   try {
-    rememberedBundle = {
-      name: clean(file.name).slice(0, 160),
-      text: await file.text()
-    };
+    rememberedBundle = { name: clean(file.name).slice(0, 160), text: await file.text() };
   } catch {
     rememberedBundle = null;
   }
@@ -193,6 +192,7 @@ function bundleDecisions(root, preview) {
 export async function interceptBundleReplace(root = document) {
   try {
     if (!rememberedBundle?.text) throw new Error('The selected profile bundle is no longer available in memory. Choose it again.');
+    if (!root.querySelector('#profileBundleAck')?.checked) throw new Error('Acknowledge the reviewed profile bundle before continuing.');
     const existing = readProfiles();
     const preview = inspectProfileBundle(JSON.parse(rememberedBundle.text), existing);
     const result = applyProfileImportPlan(existing, preview, bundleDecisions(root, preview));
@@ -240,11 +240,7 @@ function renderRevisionItem(item, index) {
   const tbody = document.createElement('tbody');
   item.changes.forEach((change) => {
     const row = document.createElement('tr');
-    row.append(
-      element('td', '', change.label),
-      element('td', '', change.before),
-      element('td', '', change.after)
-    );
+    row.append(element('td', '', change.label), element('td', '', change.before), element('td', '', change.after));
     tbody.append(row);
   });
   table.append(thead, tbody);
@@ -339,8 +335,7 @@ function renderDryRunCard() {
       element('div', 'summary-box compact', `Validation\n${validation.requiredComplete ? 'Required mapping complete' : 'Required mapping incomplete'}\n${validation.normalizationErrorCount} errors · ${validation.normalizationWarningCount} warnings`),
       element('div', 'summary-box compact', `Reconciliation\n${duplicate.exact} exact · ${duplicate.fuzzy} review candidates\n${duplicate.wouldInsert} would insert · ${duplicate.unresolved} unresolved`)
     );
-    const note = element('div', 'note good-note', 'Prepared in memory only. Download requires a separate explicit action and no transaction write has occurred.');
-    card.append(summaryGrid, note);
+    card.append(summaryGrid, element('div', 'note good-note', 'Prepared in memory only. Download requires a separate explicit action and no transaction write has occurred.'));
   }
   return card;
 }
@@ -352,10 +347,11 @@ function commitPendingRevision() {
   lastResult = pendingRevision.resultText;
   const wasBundle = pendingRevision.kind === 'bundle-replace';
   pendingRevision = null;
+  if (wasBundle) rememberedBundle = null;
   window.dispatchEvent(new CustomEvent('gringotts:profiles-changed', {
     detail: { revisions: summaries.length, profiles: result.profiles.length }
   }));
-  toast(lastResult);
+  toast('Profile revision saved and verified');
   if (wasBundle) document.getElementById('clearProfileBundlePreview')?.click();
   rerenderImport();
 }
