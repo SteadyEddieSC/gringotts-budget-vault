@@ -133,7 +133,7 @@ export function profileApplication(profile, inspection) {
   if (!result.compatible) throw new Error(result.reasons.join(' '));
   return {
     profileId: profile.profileId,
-    profileName: profile.name,
+    name: profile.name,
     mapping: { ...(profile.mapping || {}) },
     options: sanitizeOptions(profile.options),
     reason: result.reasons[0]
