@@ -2,6 +2,19 @@
 
 ## Shipped
 
+### v117 — Import Profiles & Field Validation
+
+- Added browser-local, metadata-only mapping profiles under Tools → Import transactions.
+- Keyed compatibility to format, schema, delimiter, a non-reversible ordered-header signature, and remembered mapped headers.
+- Automatically applies only one exact-compatible profile and requires an explicit choice when several match.
+- Added explicit Save New, Update, New, Apply, and Delete profile controls.
+- Capped profile storage at 24 sanitized records with read-back verification.
+- Added field-level explanations for dates, amounts, stable IDs, accounts, status, category, and type.
+- Kept profile application in the in-memory import session and profile persistence separate from the household vault.
+- Lazy-loaded profile code and CSS only after Tools → Import opens, preserving the initial request budget.
+- Preserved the v115 parser, duplicate review, backup-first writer, rollback, read-back verification, restore destination, and v105 rescue page.
+- Added pure profile-model tests, browser profile workflows, axe coverage, observer-stability checks, Cloudflare smoke coverage, and privacy/security drift gates.
+
 ### v116 — UI Architecture Review
 
 - Reconfirmed Dashboard, Money, Calendar, Reports, Activity, and Tools as the six durable primary destinations.
@@ -111,14 +124,14 @@
 
 ## Next release
 
-### v117 — Import Profiles & Field Validation
+### v118 — Profile Portability & Institution Patterns
 
-- Store reviewed mapping preferences by local source schema and fingerprint family, not by transaction contents.
-- Reapply prior mapping choices only when headers and format still match.
-- Explain every remembered field choice and allow immediate correction.
-- Improve field-level validation for dates, amount signs, IDs, account handling, status, category, and type.
-- Add more synthetic institution-pattern fixtures without committing real exports.
-- Preserve explicit duplicate review, backup-first writes, and read-back verification.
+- Export sanitized profile definitions without transaction data, source filenames, or source fingerprints.
+- Import profile definitions through explicit conflict review rather than silent replacement.
+- Explain profile identity and compatibility differences before accepting an imported profile.
+- Add additional fictional institution-pattern fixtures based on real-world header categories without committing household exports.
+- Improve profile naming and management when several cards or accounts share the same schema.
+- Preserve exact compatibility, bounded storage, explicit writes, and vault separation.
 
 ## Future import candidates
 
@@ -159,9 +172,10 @@ Every release follows `RELEASE_PROCESS.md`:
 
 ## Architecture guardrails
 
-- Local-first transaction storage, parsing, processing, insights, planning, and UI preferences.
+- Local-first transaction storage, parsing, processing, insights, planning, profiles, and UI preferences.
 - No transaction uploads.
 - Import source contents remain in memory and are not copied into receipts or profiles.
+- Import profiles store mapping metadata only and never alter transactions when saved, applied, or deleted.
 - Guided Plan metadata remains separate and never changes transaction calculations.
 - Import and close history store metadata rather than redundant transaction copies.
 - No committed screenshot baseline containing household data.
