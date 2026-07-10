@@ -133,6 +133,7 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   const importer = read('src/v115/bank-import.js');
   const views = read('src/v115/views.js');
   const release = read('src/v115/release.js');
+  const boot = read('src/boot-v115.js');
   for (const source of [parser, importer, views, release]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   }
@@ -145,9 +146,12 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   expect(importer).toContain('localStorage.setItem(destination.key, previousRaw)');
   expect(importer).toContain("export const IMPORT_HISTORY_KEY = 'gringottsImportHistory.v1'");
   expect(importer).not.toContain('transactions: incomingRows');
-  expect(read('index.html')).toContain('src/boot-v115.js?v=115bankimport1');
-  expect(read('app.html')).toContain('src/boot-v115.js?v=115bankimport1');
-  expect(read('src/boot-v115.js')).toContain('activateV114({ installDownloads: false })');
+  expect(read('index.html')).toContain('src/boot-v115.js?v=115bankimport2');
+  expect(read('app.html')).toContain('src/boot-v115.js?v=115bankimport2');
+  expect(boot).not.toContain('v114/release.js');
+  expect(release).toContain("import('./bank-import.js?v=115bankimport2')");
+  expect(release).toContain("import('../v114/reporting.js?v=115bankimport2')");
+  expect(release).toContain('prepareV115Route');
 });
 
 test('public repository security and quality control files remain present', () => {
