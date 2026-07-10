@@ -2,9 +2,9 @@
 
 ## Purpose
 
-The quality system protects parser correctness, accessibility, performance, responsive layout, and the local-first data boundary across v115 Bank Export Import & Mapping.
+The quality system protects parser correctness, accessibility, performance, responsive layout, and the local-first data boundary across v116 UI Architecture Review.
 
-The final matrix remains comprehensive while pure logic and obvious syntax failures stop before expensive browser installation.
+The final matrix remains comprehensive while syntax and pure parser defects stop before expensive browser installation.
 
 ## Data boundary
 
@@ -21,27 +21,18 @@ The workflows do not:
 - change the restore destination;
 - use a real institution account or identifier.
 
-`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser tests use Node's built-in runner and add no dependency.
+`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser tests use Node's built-in runner.
 
 ## Parser and static preflight
 
-Before either browser matrix job can begin, GitHub runs:
+Before either browser matrix job begins, GitHub runs:
 
-- `node --check` against current v115 parser, import, view, reporting, release, boot, and integrated-view modules;
+- `node --check` against v115 parser/import modules and v116 reporting, presentation, and boot modules;
 - `npm run test:parser` using synthetic text fixtures and deterministic mutations.
 
-The parser gate covers:
+The parser gate covers format and delimiter detection, quoted fields, mapping candidates, date and amount validation, sign normalization, OFX-family data, limits, and expected malformed-input termination.
 
-- format and delimiter detection;
-- quoted and multiline fields;
-- mapping candidates;
-- date and amount validation;
-- signed, debit, and credit normalization;
-- OFX-family blocks, FITIDs, account masking, and signs;
-- unsupported, malformed, oversized, and excessive-row files;
-- mutation termination and expected error handling.
-
-`Local source — desktop` and `Local source — responsive` both depend on this gate. Parser failure therefore prevents `npm ci` and browser downloads in those jobs.
+`Local source — desktop` and `Local source — responsive` depend on this gate, so syntax or parser failure prevents browser downloads.
 
 ## Staged browser execution
 
@@ -50,9 +41,9 @@ Draft PRs skip protected jobs.
 When ready for review:
 
 1. parser/static preflight runs;
-2. Chromium desktop and Android Chromium run after parser success;
+2. Chromium desktop and Android Chromium run after preflight;
 3. Firefox/WebKit install only after desktop Chromium passes;
-4. iPad/iPhone WebKit install and run only after Android passes;
+4. iPad/iPhone WebKit install only after Android passes;
 5. diagnostics upload only on failure.
 
 ## Axe accessibility gate
@@ -62,12 +53,13 @@ Desktop coverage includes:
 - Dashboard;
 - every Money subsection;
 - Calendar;
-- Reports with Household Insights and Guided Plan;
+- all eight report-preview pages;
 - Transactions, Review Queue, Rules, Insights, and Plan;
-- Tools → Bank Export Import / Restore;
+- Tools → Import transactions;
+- Tools → Restore full vault;
 - Exports & Backup, Diagnostics, and Roadmap.
 
-Targeted phone coverage includes Dashboard, Reports, Household Insights, Guided Plan, import layout through the visual contract, and mobile navigation.
+Targeted phone coverage includes Dashboard, report summary, report insights, report Guided Plan, Activity insights, Activity Plan, and responsive navigation.
 
 The gate fails on serious or critical violations associated with WCAG 2.0 A/AA, WCAG 2.1 A/AA, and axe best-practice tags.
 
@@ -82,7 +74,8 @@ The quality and cross-browser suites verify:
 - valid secondary tab semantics;
 - Arrow Left/Right, Home, and End navigation;
 - labeled and focusable scrollable tables;
-- labeled Guided Plan and import mapping controls.
+- native report-page and mapping selects;
+- explicit import/restore task buttons with `aria-pressed` state.
 
 The shared enhancement remains in `src/v112/accessibility.js` and observes main-content rerenders.
 
@@ -115,19 +108,29 @@ Deterministic contracts cover:
 - Dashboard desktop at 1440 × 1000;
 - Reports desktop at 1440 × 1000;
 - Reports phone at 390 × 844;
-- Tools → Bank Export Import / Restore phone at 390 × 844.
+- Tools → Import & Restore phone at 390 × 844;
+- Activity phone at 390 × 844.
 
-The v115 contracts verify:
+The v116 contracts verify:
 
-- required visible and hidden surfaces;
 - six primary destinations;
-- eight report pages;
-- Household Insights and Guided Plan report visibility;
+- eight report pages remain in the document;
+- only Family Summary is visible initially on screen;
+- nonselected comparison, insights, and Guided Plan pages are hidden initially;
+- report-page select and toolbar visibility;
+- bank import is visible initially and full restore is hidden;
+- import progress and task switcher visibility;
+- compact Activity phone navigation;
 - one-column and four-column report controls;
-- initial bank-import and full-restore controls;
-- minimum card counts, main width, topbar placement, and horizontal overflow.
+- minimum card counts, control height, main width, topbar placement, and horizontal overflow.
 
 Actual geometry and computed colors are temporary JSON diagnostics. Screenshots, traces, and video are retained only when a test fails.
+
+## Observer stability
+
+The v116 presentation layer uses one idempotent MutationObserver on `#main`.
+
+Tests require Reports and Import / Restore to settle with zero continuing child-list rewrites after initial enhancement and after explicit page/task changes.
 
 ## Workflow security checks
 
@@ -140,23 +143,16 @@ Actual geometry and computed colors are temporary JSON diagnostics. Screenshots,
 - desktop and responsive engine staging;
 - quality preflight before axe;
 - failure-only diagnostics;
-- parser purity: no browser storage or network path;
-- guarded import backup, rollback, and verification controls;
-- v114 Guided Plan and v113 Insights local-only boundaries;
-- v115 boot entry and stable rescue integration;
+- v115 parser purity and guarded import controls;
+- v113 Insights and v114 Guided Plan local-only boundaries;
+- v116 presentation and reporting add no storage or network channel;
+- v116 boot entry, style, and module chain;
 - Cloudflare security headers.
 
 ## Local execution
 
-Fast pure check:
-
 ```bash
 npm run test:parser
-```
-
-Browser and quality checks:
-
-```bash
 npm ci --ignore-scripts
 npx playwright install chromium
 npm run test:preflight
