@@ -1,6 +1,6 @@
 {
   "name": "gringotts-budget-vault-tests",
-  "version": "118.0.0",
+  "version": "119.0.0",
   "private": true,
   "description": "Parser, Playwright, accessibility, visual-contract, Lighthouse, and local-first security tests for Gringotts Budget Vault",
   "type": "module",
@@ -11,7 +11,7 @@
     "test": "playwright test",
     "test:parser": "node --test tests-node/*.test.mjs",
     "test:local": "playwright test --grep-invert @live",
-    "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
+    "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/profile-versioning-diagnostics.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",

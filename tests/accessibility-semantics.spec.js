@@ -32,11 +32,21 @@ test('moves secondary navigation with arrow keys', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Money');
   const tablist = page.locator('[role="tablist"]').first();
-  const selected = tablist.locator(':scope > [role="tab"][aria-selected="true"]');
   const tabs = tablist.locator(':scope > [role="tab"]');
-  const selectedIndex = await tabs.evaluateAll((elements) => elements.findIndex((element) => element.getAttribute('aria-selected') === 'true'));
-  const nextIndex = (selectedIndex + 1) % await tabs.count();
-  const nextLabel = String(await tabs.nth(nextIndex).textContent()).trim();
+  const selected = tablist.locator(':scope > [role="tab"][aria-selected="true"]');
+  await expect(tablist).toBeVisible();
+  await expect(tabs).toHaveCount(4);
+  await expect(selected).toHaveCount(1);
+  await expect(tablist.locator(':scope > [role="tab"][tabindex="0"]')).toHaveCount(1);
+
+  const state = await tabs.evaluateAll((elements) => ({
+    count: elements.length,
+    selectedIndex: elements.findIndex((element) => element.getAttribute('aria-selected') === 'true'),
+    labels: elements.map((element) => String(element.textContent || '').trim())
+  }));
+  expect(state.selectedIndex).toBeGreaterThanOrEqual(0);
+  const nextIndex = (state.selectedIndex + 1) % state.count;
+  const nextLabel = state.labels[nextIndex];
 
   await selected.focus();
   await page.keyboard.press('ArrowRight');

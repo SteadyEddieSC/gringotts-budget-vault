@@ -24,10 +24,10 @@ async function cleanSelectedMonth(page) {
   });
 }
 
-test('preserves the corrected subtitle and v110 Money features under v118', async ({ app }) => {
+test('preserves the corrected subtitle and v110 Money features under v119', async ({ app }) => {
   const { page } = app;
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
-  await expect(page.locator('.version-text')).toHaveText('v118');
+  await expect(page.locator('.version-text')).toHaveText('v119');
   await openCloseForecast(page);
   await expect(page.getByRole('heading', { name: /Month close — July 2026/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Cash-flow forecast' })).toBeVisible();
@@ -131,14 +131,16 @@ test('adds a promotional APR debt and records a payment without touching the vau
   await openCloseForecast(page);
   await page.locator('#forecastAsOf').fill('2026-07-01');
   await page.locator('#saveForecastSettings').click();
+  await expect(page.locator('#debtBalance')).toBeVisible();
 
-  await page.locator('#debtName').fill('Synthetic Card');
   await page.locator('#debtBalance').fill('1200');
   await page.locator('#debtApr').fill('24');
   await page.locator('#debtMinimum').fill('40');
   await page.locator('#debtTarget').fill('100');
   await page.locator('#debtPromoApr').fill('0');
   await page.locator('#debtPromoEnd').fill('2026-10-01');
+  await page.locator('#debtName').fill('Synthetic Card');
+  await expect(page.locator('#debtName')).toHaveValue('Synthetic Card');
   await page.locator('#saveDebt').click();
   await expect(page.getByRole('heading', { name: /1\. Synthetic Card/i })).toBeVisible();
   await expect(page.getByText(/Promo payoff pace/i)).toBeVisible();

@@ -71,6 +71,7 @@ async function clickSubsection(page, name) {
 }
 
 async function inspectProfileCsv(page) {
+  await expect(page.locator('#bankImportFile')).toBeAttached();
   await page.locator('#bankImportFile').setInputFiles({
     name: 'synthetic-profile-quality.csv',
     mimeType: 'text/csv',
@@ -81,6 +82,7 @@ async function inspectProfileCsv(page) {
 }
 
 async function inspectPortableBundle(page) {
+  await expect(page.locator('#profileBundleFile')).toBeAttached();
   await page.locator('#profileBundleFile').setInputFiles({
     name: 'synthetic-portability-quality.json',
     mimeType: 'application/json',
@@ -88,6 +90,43 @@ async function inspectPortableBundle(page) {
   });
   await expect(page.locator('#profileBundlePreview')).toBeVisible();
   await expect(page.locator('[data-profile-bundle-action]')).toBeVisible();
+}
+
+async function prepareDryRun(page) {
+  await expect(page.locator('#prepareImportDryRun')).toBeEnabled();
+  await page.locator('#prepareImportDryRun').click();
+  await expect(page.getByText(/Prepared in memory only/i)).toBeVisible();
+}
+
+async function fillCurrentProfileName(page, name) {
+  const input = page.locator('#bankImportProfileName');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await expect(input).toBeVisible();
+    await input.fill(name);
+    try {
+      await expect(input).toHaveValue(name, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the form after an earlier option change.
+    }
+  }
+  await expect(input).toHaveValue(name);
+}
+
+async function prepareProfileRevision(page) {
+  await fillCurrentProfileName(page, 'Synthetic accessibility profile');
+  await page.locator('#saveBankImportProfile').click();
+  await expect.poll(async () => page.evaluate(() => {
+    try {
+      return JSON.parse(localStorage.getItem('gringottsImportProfiles.v1') || '{"profiles":[]}').profiles?.length || 0;
+    } catch {
+      return 0;
+    }
+  })).toBe(1);
+  await expect(page.getByText(/Synthetic accessibility profile.*applied/i)).toBeVisible();
+  await page.locator('[data-bank-option="dateOrder"]').selectOption('dmy');
+  await page.locator('#saveBankImportProfile').click();
+  await expect(page.locator('#profileRevisionGate')).toBeVisible();
 }
 
 function desktopOnly(testInfo) {
@@ -153,28 +192,68 @@ test('axe scans every Activity subsection including Guided Plan', async ({ page 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans every Tools subsection, profile portability, both import tasks, and field validation', async ({ page }, testInfo) => {
+test('axe scans Tools profile library and portability conflict review', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await scanSurface(page, testInfo, 'Tools — Profile Library and Bank Import');
   await inspectPortableBundle(page);
   await scanSurface(page, testInfo, 'Tools — Profile Bundle Conflict Review');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools mapping validation, dry run, and revision review', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Tools — Import Profile and Field Validation');
+  await prepareDryRun(page);
+  await scanSurface(page, testInfo, 'Tools — Metadata-Only Import Dry Run');
+  await prepareProfileRevision(page);
+  await scanSurface(page, testInfo, 'Tools — Profile Revision Review');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans the full restore task in isolation', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: /Restore full vault/i }).click();
+  await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Full Restore');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools exports from a fresh render', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Exports & Backup');
   await scanSurface(page, testInfo, 'Tools — Exports and Backup');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools diagnostics from a fresh render', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Diagnostics');
   await expect(page.locator('#diagnosticsMount')).not.toBeEmpty();
   await scanSurface(page, testInfo, 'Tools — Diagnostics');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools roadmap from a fresh render', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Roadmap');
   await scanSurface(page, testInfo, 'Tools — Roadmap');
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans key phone surfaces including reports, Guided Plan, profile portability, and import profiles', async ({ page }, testInfo) => {
+test('axe scans key phone surfaces including dry run and import profiles', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific axe coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Mobile Dashboard');
@@ -192,8 +271,12 @@ test('axe scans key phone surfaces including reports, Guided Plan, profile porta
   await openPrimary(page, 'Tools');
   await inspectPortableBundle(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Profile Bundle Conflict Review');
+  await page.locator('#clearProfileBundlePreview').click();
+  await expect(page.locator('#profileBundlePreview')).toHaveCount(0);
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Import Profile and Field Validation');
+  await prepareDryRun(page);
+  await scanSurface(page, testInfo, 'Mobile Tools — Metadata-Only Import Dry Run');
   await expectNoBrowserErrors(errors);
 });
 
@@ -214,10 +297,10 @@ test('keyboard focus, skip navigation, and identifiers remain usable', async ({ 
   expect(duplicateIds, 'Rendered page must not contain duplicate IDs').toEqual([]);
 
   for (const selector of ['[data-tab="dashboard"]', '#monthPicker', '#openReports']) {
-    const element = page.locator(selector);
-    await element.focus();
-    const focusStyle = await element.evaluate((node) => {
-      const style = getComputedStyle(node);
+    const node = page.locator(selector);
+    await node.focus();
+    const focusStyle = await node.evaluate((element) => {
+      const style = getComputedStyle(element);
       return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth, boxShadow: style.boxShadow };
     });
     const visible = focusStyle.outlineStyle !== 'none' && focusStyle.outlineWidth !== '0px'

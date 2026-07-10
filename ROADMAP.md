@@ -2,6 +2,18 @@
 
 ## Shipped
 
+### v119 — Profile Versioning & Dry-Run Diagnostics
+
+- Added field-by-field comparison before an existing profile Update or portable-bundle Replace.
+- Required explicit acknowledgement and confirmation before revision metadata is written.
+- Added bounded metadata-only revision history under `gringottsImportProfileRevisions.v1`.
+- Limited revision history to 60 total records and 8 per profile.
+- Redacted local destination-account-label values from retained revision summaries.
+- Added a local in-memory dry-run diagnostic before transaction writes.
+- Excluded transaction rows, filenames, fingerprints, account identifiers, destination labels, balances, credentials, and vault contents from dry-run downloads.
+- Added rollback and read-back verification across profile and revision metadata.
+- Preserved the v115 guarded writer, v117 exact profile compatibility, v118 bundle safeguards, six primary destinations, and stable v105 rescue page.
+
 ### v118 — Profile Portability & Institution Patterns
 
 - Added versioned export of sanitized browser-local import-profile definitions.
@@ -134,17 +146,15 @@
 
 ## Next release
 
-### v119 — Profile Versioning & Dry-Run Diagnostics
+### v120 — Import Receipt Audit & Rollback Guidance
 
 Planned scope:
 
-- compare a saved profile with a reviewed proposed revision before Update or Replace;
-- show field-by-field mapping and normalization-option changes;
-- retain a bounded metadata-only revision summary rather than transaction rows;
-- create a local dry-run diagnostic package describing source format, selected profile, mapping, validation, coverage, and duplicate counts;
-- exclude raw transaction rows, filenames, account identifiers, and household vault contents from diagnostics;
-- require explicit user action before any diagnostic download or profile revision write;
-- preserve the v115 backup-first transaction writer, v118 bundle safeguards, and v105 rescue page.
+- provide a clearer local audit view for prior import receipts;
+- relate each receipt to transaction counts, source metadata, and the backup requirement without storing transaction rows;
+- explain which local backup should be used when manual rollback is necessary;
+- add explicit verification guidance rather than automatic destructive rollback;
+- preserve v119 revision history, dry-run privacy, v118 bundle safeguards, the v115 writer, and the stable v105 rescue page.
 
 ## Future import candidates
 

@@ -10,9 +10,23 @@ async function openImport(page) {
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
 }
 
-async function inspectSignedCsv(page) {
-  await page.locator('#bankImportFile').setInputFiles(signedFixture);
+async function setCurrentBankFile(page, file) {
+  const input = page.locator('#bankImportFile');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await expect(input).toBeAttached();
+    await input.setInputFiles(file);
+    try {
+      await expect(page.locator('#importProfileCard')).toBeVisible({ timeout: 2500 });
+      return;
+    } catch {
+      // Reset or option changes may replace the file input before its change event reaches the current form.
+    }
+  }
   await expect(page.locator('#importProfileCard')).toBeVisible();
+}
+
+async function inspectSignedCsv(page) {
+  await setCurrentBankFile(page, signedFixture);
   await page.locator('[data-bank-option="dateOrder"]').selectOption('mdy');
   await page.locator('[data-bank-option="signMode"]').selectOption('bank');
   await page.locator('[data-bank-option="accountLabel"]').fill('Synthetic Household Card');
@@ -21,9 +35,32 @@ async function inspectSignedCsv(page) {
   await expect(page.locator('[data-bank-option="accountLabel"]')).toHaveValue('Synthetic Household Card');
 }
 
+async function fillCurrentProfileName(page, name) {
+  const input = page.locator('#bankImportProfileName');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await expect(input).toBeVisible();
+    await input.fill(name);
+    try {
+      await expect(input).toHaveValue(name, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the form after an earlier option change.
+    }
+  }
+  await expect(input).toHaveValue(name);
+}
+
 async function saveProfile(page, name = 'Synthetic signed CSV profile') {
-  await page.locator('#bankImportProfileName').fill(name);
+  await fillCurrentProfileName(page, name);
   await page.locator('#saveBankImportProfile').click();
+  await expect.poll(async () => page.evaluate((profileName) => {
+    try {
+      const profiles = JSON.parse(localStorage.getItem('gringottsImportProfiles.v1') || '{"profiles":[]}').profiles || [];
+      return profiles.some((profile) => profile.name === profileName);
+    } catch {
+      return false;
+    }
+  }, name)).toBe(true);
   await expect(page.getByText(new RegExp(`Profile “${name}” is applied`, 'i'))).toBeVisible();
 }
 
@@ -62,7 +99,7 @@ test('automatically applies the only exact-compatible profile after a cleared se
 
   await page.locator('#resetBankImport').click();
   await expect(page.locator('#importProfileCard')).toHaveCount(0);
-  await page.locator('#bankImportFile').setInputFiles(signedFixture);
+  await setCurrentBankFile(page, signedFixture);
   await expect(page.getByText(/Profile “Exact household card” is applied/i)).toBeVisible();
   await expect(page.locator('[data-bank-option="dateOrder"]')).toHaveValue('mdy');
   await expect(page.locator('[data-bank-option="signMode"]')).toHaveValue('bank');
@@ -78,7 +115,7 @@ test('does not apply a profile when the ordered header signature changes', async
   await saveProfile(page, 'Original header order');
   await page.locator('#resetBankImport').click();
 
-  await page.locator('#bankImportFile').setInputFiles({
+  await setCurrentBankFile(page, {
     name: 'reordered.csv',
     mimeType: 'text/csv',
     buffer: Buffer.from('Description,Date,Amount,Status,Reference,Memo\nSynthetic Fuel,07/20/2026,-45.67,Posted,bank-new-1,Fictional row')
@@ -96,10 +133,9 @@ test('requires an explicit choice when multiple exact-compatible profiles exist'
   await inspectSignedCsv(page);
   await saveProfile(page, 'First exact profile');
   await page.locator('#newBankImportProfile').click();
-  await page.locator('#bankImportProfileName').fill('Second exact profile');
-  await page.locator('#saveBankImportProfile').click();
+  await saveProfile(page, 'Second exact profile');
   await page.locator('#resetBankImport').click();
-  await page.locator('#bankImportFile').setInputFiles(signedFixture);
+  await setCurrentBankFile(page, signedFixture);
 
   await expect(page.getByText(/More than one exact-compatible profile exists/i)).toBeVisible();
   await expect(page.locator('#bankImportProfileSelect option')).toHaveCount(3);
@@ -129,8 +165,7 @@ test('keeps profile controls and validation inside the phone viewport', async ({
   const { page } = app;
   await page.setViewportSize({ width: 390, height: 844 });
   await openImport(page);
-  await page.locator('#bankImportFile').setInputFiles(signedFixture);
-  await expect(page.locator('#importProfileCard')).toBeVisible();
+  await setCurrentBankFile(page, signedFixture);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
   await expect(page.locator('#saveBankImportProfile')).toBeVisible();

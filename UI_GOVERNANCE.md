@@ -2,30 +2,32 @@
 
 ## Purpose
 
-The interface must evolve with the feature set. New capabilities should not simply add another permanent top-level tab, repeated explanation, or desktop-only layout.
+The interface must evolve with the feature set. New capabilities should not simply add another permanent top-level tab, repeated explanation, decorative status label, or desktop-only layout.
 
 ## Release-level UI quality gate
 
 Every release must review:
 
-1. **Navigation fit** — place new functionality inside an existing destination when that relationship is clear. Add a primary destination only when it represents a durable user goal.
-2. **Content value** — keep text that explains a decision, risk, next action, or data limitation. Remove repeated descriptions, decorative status labels, and text that restates the visible heading.
-3. **Action placement** — put actions where the user needs them. Backup belongs with Exports and guarded write workflows, not in the header or Dashboard hero.
-4. **Responsive behavior** — check phone portrait, phone landscape, tablet, laptop, and wide desktop layouts. Avoid horizontal document overflow, cramped cards, and oversized or undersized controls.
-5. **Feature consolidation** — group related functions under clear primary destinations and use secondary or task navigation where needed.
-6. **Accessibility** — preserve keyboard navigation, visible focus, meaningful labels, adequate contrast, native controls, and screen-reader state.
-7. **No informational pills** — use inline text, headings, lists, or status panels unless a compact badge communicates an actionable state.
-8. **Working-control review** — test every new or moved button, picker, tab, download, and local-storage write.
-9. **Print completeness** — screen simplification must not silently remove content from print or local exports.
-10. **State restraint** — persistent state must create clear user value and must not duplicate transaction contents.
-11. **Explain remembered choices** — automatically restored settings must identify their source and remain immediately editable.
-12. **No silent compatibility guesses** — reusable profiles may apply automatically only when one exact-compatible match exists.
-13. **No silent portable merges** — every imported profile definition must expose a reviewed Add, Replace, or Skip decision.
-14. **Consequence-first destructive controls** — Replace, Delete, Restore, and transaction writes must be visually and textually distinct from ordinary edits.
+1. **Navigation fit** — place new functionality inside an existing destination when that relationship is clear. Add a primary destination only for a durable user goal.
+2. **Content value** — keep text that explains a decision, risk, next action, or data limitation. Remove repeated descriptions and text that restates a visible heading.
+3. **Action placement** — put actions where the user needs them. Backup belongs with Exports and guarded workflows, not in the header or Dashboard hero.
+4. **Responsive behavior** — check phone portrait, phone landscape, tablet, laptop, and wide desktop. Avoid document overflow, cramped cards, and oversized controls.
+5. **Feature consolidation** — group related functions under clear destinations and use secondary/task navigation where needed.
+6. **Accessibility** — preserve keyboard navigation, visible focus, meaningful labels, contrast, native controls, and screen-reader state.
+7. **No informational pills** — use headings, lists, inline text, or status panels unless a compact badge communicates an actionable state.
+8. **Working-control review** — test every button, picker, tab, download, and local-storage write.
+9. **Print completeness** — screen simplification must not remove content from print or local exports.
+10. **State restraint** — persistent state must create clear value and must not duplicate transaction contents.
+11. **Explain remembered choices** — restored settings must identify their source and remain editable.
+12. **No silent compatibility guesses** — profiles may apply automatically only when one exact-compatible match exists.
+13. **No silent portable merges** — every imported definition must expose Add, Replace, or Skip.
+14. **Review profile revisions** — an existing Update or portable Replace must show changed mappings/options before storage.
+15. **Explicit diagnostics** — preparing and downloading a dry-run diagnostic are separate user actions.
+16. **Consequence-first destructive controls** — Replace, Delete, Restore, and transaction writes must be visually and textually distinct from ordinary edits.
 
 ## Current information architecture
 
-The v116 review reconfirmed six primary destinations:
+The six primary destinations remain:
 
 - **Dashboard** — selected-month household overview and report-quality signals.
 - **Money** — budgets, recurring charges, bills, paydays, goals, close, forecast, and debt planning.
@@ -34,144 +36,118 @@ The v116 review reconfirmed six primary destinations:
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
 - **Tools** — Import / Restore, Exports & Backup, Diagnostics, and Roadmap.
 
-v118 does not add or remove a primary destination. Mapping profiles and profile portability belong inside Tools → Import transactions because they configure that existing task rather than representing a new household goal.
+v119 adds no primary destination. Profile revision review and dry-run diagnostics belong inside Tools → Import transactions because they configure and validate that existing task.
 
-## Task navigation decisions
+## Reports
 
-### Reports
+Reports separates choosing the range, previewing the family report, and downloading exports. The eight pages remain one report. A native select and Previous/Next controls are appropriate on screen; print and PDF include every page.
 
-Reports should separate:
+The v118/v119 report layer loads only when Reports is opened so Dashboard performance remains stable.
 
-1. choosing the data range;
-2. previewing the family report;
-3. downloading an export.
+## Import and restore
 
-The eight report pages remain one report, not eight navigation destinations. A native select and Previous / Next controls are appropriate on screen. Print and PDF output must include every page.
-
-### Import and restore
-
-Incremental transaction import and full vault restore share a Tools subsection but are different tasks:
+Incremental import and full restore share a Tools subsection but are different tasks:
 
 - import adds reviewed missing rows;
 - restore replaces the destination vault.
 
-They should not appear as one uninterrupted workflow. Task controls must state the consequence clearly and preserve the existing guarded engines.
+They must not appear as one uninterrupted workflow. Task controls state the consequence and preserve the guarded engines.
 
-### Saved profile library and portability
+## Saved profile library and portability
 
-The saved-profile library is configuration for Import, not another top-level task.
+The saved-profile library is configuration for Import, not another top-level task. It appears before a transaction export is selected so users can review names/labels, export sanitized definitions, inspect a bundle, and resolve conflicts.
 
-It should appear before a transaction export is selected because a user may need to:
+The library distinguishes profile name, destination label, source pattern/schema, and non-reversible header identity. Dense profile data belongs in a labeled, focusable table that scrolls internally.
 
-- review existing profile names and destination labels;
-- export sanitized definitions;
-- inspect and import a profile bundle;
-- resolve naming or identity conflicts.
+A portable-bundle preview must show proposed name, source identity, destination label, classification, differences, native Add/Replace/Skip selection, editable local name, and identity-matched replacement target when applicable.
 
-The library should distinguish:
+Exact and same-definition matches default to Skip. Replace remains unavailable without an identity match. Bundle filenames may appear during review but are not persisted.
 
-- user-facing profile name;
-- destination account label;
-- recognized source pattern or schema;
-- non-reversible header identity.
+## Profile revision review
 
-Dense profile data belongs in a labeled, focusable table container that scrolls internally rather than widening the document.
+Existing-profile Update and portable-bundle Replace must pause before metadata storage.
 
-### Portable profile conflict review
+The review card must:
 
-Selecting a bundle must create a preview rather than immediately writing storage.
+- identify the profile and revision source;
+- show every changed mapping and normalization option in a labeled table;
+- redact destination-account-label values in retained history;
+- state that transactions and the vault are unchanged;
+- require acknowledgement;
+- use an explicit confirmation button;
+- provide a clear Cancel action;
+- keep the comparison table internally scrollable on phones.
 
-Each imported definition must show:
+Revision history belongs below the profile library as collapsible metadata summaries. It must not become another primary or secondary navigation destination.
 
-- its proposed name;
-- source format, pattern, and non-reversible identity;
-- destination label;
-- classification and explanation;
-- mapping or option differences when a saved comparison exists;
-- a native Add, Replace, or Skip select;
-- an editable local name;
-- a replacement-target select only when identity-matched candidates exist.
+## Local import dry run
 
-Exact and same-definition matches should default to Skip. Replace must remain unavailable when no identity-matched target exists. Acknowledgement and final confirmation must state that only profile metadata changes.
+The dry-run card belongs in Tools → Import transactions near the profile and mapping controls.
 
-Bundle filenames may be displayed during review but must not be persisted.
+Before source selection it explains what the diagnostic excludes. After inspection it can prepare an in-memory summary showing schema, mapping readiness, validation counts, coverage, duplicate counts, and write readiness.
 
-### Mapping profiles
+Prepare/Refresh and Download are separate controls. Download is unavailable until a current dry run exists. Mapping or reconciliation changes invalidate the prepared result.
 
-The mapping-profile UI appears after a supported export is inspected.
+The UI must state that preparation performs no transaction write and that downloaded diagnostics exclude rows, filenames, fingerprints, account identifiers, destination labels, balances, credentials, and vault contents.
 
-It must:
+## Mapping profiles and field explanations
 
-- keep the current mapping controls visible and editable;
-- use native selects and inputs;
-- state that profiles contain metadata only;
-- show how many profiles are compatible and saved;
-- identify when a profile is applied;
-- warn when current settings differ from the applied profile;
-- require an explicit choice when multiple profiles match;
-- explain incompatibility rather than approximating a match;
-- keep Save, Update, New, Apply, Delete, and Clear consequences distinct.
+The mapping-profile UI appears after a supported export is inspected. It keeps mapping controls visible/editable, uses native selects/inputs, identifies applied/compatible profiles, explains incompatibility, warns when current settings differ, and distinguishes Save New, Update, New, Apply, Delete, and Clear consequences.
 
-Profile deletion must explicitly state that transaction data is not changed.
-
-### Field explanations
-
-Field-level text should explain validation or downstream meaning without duplicating the normalized preview. It should remain adjacent to the mapped field and use text rather than color alone for good, warning, error, informational, and optional states.
+Field-level text explains validation or downstream meaning without duplicating the normalized preview. Text, not color alone, communicates good, warning, error, informational, and optional states.
 
 ## Responsive navigation and density
 
-- Desktop uses a six-destination navigation row.
-- Phone and tablet use a compact menu opened from the header.
+- Desktop uses six primary destinations.
+- Phone/tablet use a compact header menu.
 - Secondary sections use rectangular controls, not decorative pills.
-- A secondary row may scroll horizontally on a narrow phone when stacking would create oversized navigation.
-- Dense tables remain scrollable inside their own containers instead of forcing the page to overflow.
+- Narrow-phone secondary navigation may scroll horizontally.
+- Dense tables scroll within their own containers.
 - Calendar detail stacks below the month grid on smaller screens.
-- Report-download cards use three, two, or one columns according to available width.
-- Mapping-profile and portable-bundle fields use multiple columns when space permits and one column on phones.
-- Profile action buttons may wrap on larger screens and must become full-width stacked controls on narrow phones.
-- Portable comparison details should collapse in a native `details` element rather than permanently expanding long difference lists.
-- Destructive confirmation controls should remain easy to distinguish without becoming oversized page-dominating banners.
+- Report-download cards use three, two, or one columns.
+- Mapping, bundle, revision, and dry-run fields use multiple columns when space permits and one column on phones.
+- Profile/revision action buttons wrap on larger screens and become full-width on narrow phones.
+- Long comparisons use native `details` or scrollable tables.
+- Destructive confirmations remain distinct without becoming page-dominating banners.
 
-## Architecture review result
+## Architecture result
 
-The v116 review concluded:
+The v116 architecture review remains authoritative:
 
-- six primary destinations remain the correct number;
-- the persistent shell should remain unchanged;
-- Reports needed progressive presentation, not another tab;
-- Import / Restore needed explicit task separation, not another primary destination;
-- Activity phone subnavigation needed compact overflow behavior;
-- the v115 import engine and v111 runtime should remain authoritative;
-- a small idempotent presentation layer is preferable to another whole-page runtime.
+- six primary destinations are correct;
+- the persistent shell remains;
+- Reports uses progressive presentation, not another tab;
+- Import/Restore uses task separation, not another destination;
+- Activity phone subnavigation uses compact overflow;
+- the v115 import engine and v111 runtime remain authoritative;
+- small idempotent presentation layers are preferable to another whole-page runtime.
 
-v118 follows that decision by replacing the v117 release layer, retaining the v117 mapping controller as a lazy subfeature, lazy-loading portability only on the Import route, and keeping the v115 parser and writer authoritative.
+v119 follows this decision by identifying the app at boot while lazy-loading v118 portability and v119 revision/diagnostic route layers only when Tools or Reports opens. The v117 mapping controller remains a lazy subfeature, and the v115 parser/writer remains authoritative.
 
 ## Larger overhaul cadence
 
-A deeper UI architecture review should occur approximately every **10 releases**, with an acceptable range of **10–20 releases** depending on feature growth.
-
-The review should happen earlier when any threshold is reached:
+A deeper UI architecture review should occur every 10–20 releases, or earlier if any threshold is reached:
 
 - more than 7 primary destinations;
-- repeated horizontal overflow or mobile usability defects;
-- two or more pages serving the same user goal;
+- repeated mobile overflow/usability defects;
+- two or more pages serving the same goal;
 - major actions appearing in three or more unrelated locations;
-- page copy requiring repeated explanation;
-- new features being placed under Tools because no appropriate destination exists;
-- navigation or layout regressions becoming recurring release issues.
+- repeated explanatory copy;
+- new features placed under Tools because no appropriate destination exists;
+- recurring navigation or layout regressions.
 
-The next scheduled deeper review is approximately v126, with an acceptable v126–v136 range. It should occur earlier if these thresholds are met.
+The next scheduled deeper review is approximately v126, with an acceptable v126–v136 range.
 
 ## Architecture boundaries
 
-- Local-first transaction and profile processing.
+- Local-first transaction, profile, revision, and diagnostic processing.
 - No transaction or profile uploads.
-- Mapping profiles and portable bundles contain bounded metadata only.
-- No source rows, filenames, source fingerprints, credentials, tokens, balances, or full account identifiers in saved profiles or portable bundles.
+- Profiles, portable bundles, revision history, and dry-run diagnostics contain bounded metadata only.
+- No source rows, filenames, fingerprints, credentials, tokens, balances, full account identifiers, or destination-label values in revision history or diagnostics.
 - No service-worker registration or offline cache.
 - One live ES-module runtime chain.
 - Never auto-save an empty vault.
-- Preserve best-populated readable vault selection.
+- Preserve best-populated readable-vault selection.
 - Preserve `gringottsBudgetVault.latest` as restore destination.
 - Keep backup-first broad-write and restore safeguards.
 - Preserve the stable v105 rescue page.
