@@ -90,6 +90,21 @@ async function inspectPortableBundle(page) {
   await expect(page.locator('[data-profile-bundle-action]')).toBeVisible();
 }
 
+async function prepareDryRun(page) {
+  await expect(page.locator('#prepareImportDryRun')).toBeEnabled();
+  await page.locator('#prepareImportDryRun').click();
+  await expect(page.getByText(/Prepared in memory only/i)).toBeVisible();
+}
+
+async function prepareProfileRevision(page) {
+  await page.locator('#bankImportProfileName').fill('Synthetic accessibility profile');
+  await page.locator('#saveBankImportProfile').click();
+  await expect(page.getByText(/Synthetic accessibility profile.*applied/i)).toBeVisible();
+  await page.locator('[data-bank-option="dateOrder"]').selectOption('dmy');
+  await page.locator('#saveBankImportProfile').click();
+  await expect(page.locator('#profileRevisionGate')).toBeVisible();
+}
+
 function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'Full surface inventory runs once in the desktop quality project.');
 }
@@ -153,15 +168,21 @@ test('axe scans every Activity subsection including Guided Plan', async ({ page 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans every Tools subsection, profile portability, both import tasks, and field validation', async ({ page }, testInfo) => {
+test('axe scans every Tools subsection, portability, dry run, revision review, restore, and validation', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await scanSurface(page, testInfo, 'Tools — Profile Library and Bank Import');
   await inspectPortableBundle(page);
   await scanSurface(page, testInfo, 'Tools — Profile Bundle Conflict Review');
+  await page.locator('#clearProfileBundlePreview').click();
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Tools — Import Profile and Field Validation');
+  await prepareDryRun(page);
+  await scanSurface(page, testInfo, 'Tools — Metadata-Only Import Dry Run');
+  await prepareProfileRevision(page);
+  await scanSurface(page, testInfo, 'Tools — Profile Revision Review');
+  await page.locator('#cancelProfileRevision').click();
   await page.getByRole('button', { name: /Restore full vault/i }).click();
   await scanSurface(page, testInfo, 'Tools — Full Restore');
   await clickSubsection(page, 'Exports & Backup');
@@ -174,7 +195,7 @@ test('axe scans every Tools subsection, profile portability, both import tasks, 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans key phone surfaces including reports, Guided Plan, profile portability, and import profiles', async ({ page }, testInfo) => {
+test('axe scans key phone surfaces including dry run and import profiles', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific axe coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Mobile Dashboard');
@@ -192,8 +213,11 @@ test('axe scans key phone surfaces including reports, Guided Plan, profile porta
   await openPrimary(page, 'Tools');
   await inspectPortableBundle(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Profile Bundle Conflict Review');
+  await page.locator('#clearProfileBundlePreview').click();
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Import Profile and Field Validation');
+  await prepareDryRun(page);
+  await scanSurface(page, testInfo, 'Mobile Tools — Metadata-Only Import Dry Run');
   await expectNoBrowserErrors(errors);
 });
 
@@ -214,10 +238,10 @@ test('keyboard focus, skip navigation, and identifiers remain usable', async ({ 
   expect(duplicateIds, 'Rendered page must not contain duplicate IDs').toEqual([]);
 
   for (const selector of ['[data-tab="dashboard"]', '#monthPicker', '#openReports']) {
-    const element = page.locator(selector);
-    await element.focus();
-    const focusStyle = await element.evaluate((node) => {
-      const style = getComputedStyle(node);
+    const node = page.locator(selector);
+    await node.focus();
+    const focusStyle = await node.evaluate((element) => {
+      const style = getComputedStyle(element);
       return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth, boxShadow: style.boxShadow };
     });
     const visible = focusStyle.outlineStyle !== 'none' && focusStyle.outlineWidth !== '0px'
