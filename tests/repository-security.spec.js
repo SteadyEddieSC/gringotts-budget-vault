@@ -48,15 +48,9 @@ test('CodeQL keeps read-only defaults and grants write access only to security e
 test('Cloudflare headers preserve the local-first browser boundary', () => {
   const headers = read('_headers');
   const required = [
-    "default-src 'self'",
-    "frame-ancestors 'none'",
-    "connect-src 'self'",
-    "worker-src 'none'",
-    'X-Content-Type-Options: nosniff',
-    'X-Frame-Options: DENY',
-    'Referrer-Policy: no-referrer',
-    'Cross-Origin-Opener-Policy: same-origin',
-    'Cross-Origin-Resource-Policy: same-origin'
+    "default-src 'self'", "frame-ancestors 'none'", "connect-src 'self'", "worker-src 'none'",
+    'X-Content-Type-Options: nosniff', 'X-Frame-Options: DENY', 'Referrer-Policy: no-referrer',
+    'Cross-Origin-Opener-Policy: same-origin', 'Cross-Origin-Resource-Policy: same-origin'
   ];
   for (const value of required) expect(headers).toContain(value);
 });
@@ -93,9 +87,10 @@ test('parser preflight runs before browser installation and release workflows st
   expect(playwright).toContain('name: Parser and static preflight');
   expect(playwright).toContain('run: npm run test:parser');
   expect(playwright).toContain('needs: parser-preflight');
-  expect(playwright).toContain('node --check src/v116/release.js');
-  expect(playwright).toContain('node --check src/boot-v116.js');
-  expect(playwright).not.toContain('src/v116/reporting.js');
+  expect(playwright).toContain('node --check src/v117/profile-model.js');
+  expect(playwright).toContain('node --check src/v117/import-profiles.js');
+  expect(playwright).toContain('node --check src/v117/release.js');
+  expect(playwright).toContain('node --check src/boot-v117.js');
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
@@ -136,9 +131,7 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   const importer = read('src/v115/bank-import.js');
   const views = read('src/v115/views.js');
   const release = read('src/v115/release.js');
-  for (const source of [parser, importer, views, release]) {
-    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
-  }
+  for (const source of [parser, importer, views, release]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   expect(parser).not.toMatch(/localStorage|sessionStorage|\bsave\s*\(/);
   expect(parser).toContain('MAX_BANK_EXPORT_BYTES');
   expect(parser).toContain('MAX_BANK_EXPORT_ROWS');
@@ -153,68 +146,58 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   expect(release).toContain('prepareV115Route');
 });
 
-test('v116 changes presentation and export naming without adding storage or network channels', () => {
-  const release = read('src/v116/release.js');
-  const boot = read('src/boot-v116.js');
+test('v117 profiles are bounded metadata and cannot write the vault or use the network', () => {
+  const model = read('src/v117/profile-model.js');
+  const controller = read('src/v117/import-profiles.js');
+  const release = read('src/v117/release.js');
+  const boot = read('src/boot-v117.js');
   const index = read('index.html');
   const app = read('app.html');
-  expect(release).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+
+  for (const source of [model, controller, release]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(model).not.toMatch(/localStorage|sessionStorage/);
+  expect(model).toContain("IMPORT_PROFILES_KEY = 'gringottsImportProfiles.v1'");
+  expect(model).toContain('MAX_IMPORT_PROFILES = 24');
+  expect(model).not.toContain('sourceFingerprint');
+  expect(model).not.toContain('fileName');
+  expect(controller).toContain('localStorage.setItem(IMPORT_PROFILES_KEY');
+  expect(controller).toContain('Import profile verification failed');
+  expect(controller).not.toContain('gringottsBudgetVault.latest');
+  expect(controller).not.toContain('localStorage.setItem(destination');
+  expect(controller).not.toContain('transactions:');
   expect(release).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
   expect(release).not.toContain('gringottsBudgetVault.latest');
-  expect(release).toContain("version: 'v116'");
-  expect(release).toContain('REPORT_PAGE_ORDER');
-  expect(release).toContain('data-import-task-panel');
+  expect(release).toContain("version: 'v117'");
+  expect(release).toContain("import('./import-profiles.js?v=117profiles1')");
   expect(release).toContain('expandedWorkbookSheetsV115');
-  expect(release).toContain('installV116DownloadOverrides');
-  expect(index).toContain('src/boot-v116.js?v=116ui1');
-  expect(app).toContain('src/boot-v116.js?v=116ui1');
-  expect(index).toContain('styles/v116.css');
-  expect(app).toContain('styles/v116.css');
-  expect(index).not.toContain('styles/v114.css');
-  expect(app).not.toContain('styles/v114.css');
-  expect(boot).toContain("import('./v115/release.js?v=116ui1')");
-  expect(boot).toContain("import('./v116/release.js?v=116ui1')");
-  expect(boot).not.toContain('v114/release.js');
+  expect(index).toContain('src/boot-v117.js?v=117profiles1');
+  expect(app).toContain('src/boot-v117.js?v=117profiles1');
+  expect(index).not.toContain('styles/v117.css');
+  expect(app).not.toContain('styles/v117.css');
+  expect(boot).toContain("import('./v115/release.js?v=117profiles1')");
+  expect(boot).toContain("import('./v117/release.js?v=117profiles1')");
   expect(boot).not.toContain('serviceWorker');
 });
 
 test('public repository security and quality control files remain present', () => {
   const required = [
-    'SECURITY.md',
-    '.github/dependabot.yml',
-    '.github/workflows/codeql.yml',
-    '.github/workflows/playwright.yml',
-    '.github/workflows/quality.yml',
-    '.github/workflows/security.yml',
-    '.github/workflows/supply-chain.yml',
-    '.github/workflows/scorecard.yml',
-    'playwright.quality.config.js',
-    'lighthouserc.cjs',
-    'quality-baselines/v112-layout-contracts.json',
-    'quality-tests/accessibility.spec.js',
-    'quality-tests/tab-semantics.spec.js',
-    'quality-tests/visual-contracts.spec.js',
-    'src/boot-v116.js',
-    'src/v113/insights.js',
-    'src/v114/planning.js',
-    'src/v114/reporting.js',
-    'src/v114/release.js',
-    'src/v114/views.js',
-    'src/v115/parser.js',
-    'src/v115/bank-import.js',
-    'src/v115/reporting.js',
-    'src/v115/release.js',
-    'src/v115/views.js',
-    'src/v116/release.js',
-    'styles/v114.css',
-    'styles/v115.css',
-    'styles/v116.css',
-    'tests-node/bank-parser.test.mjs',
-    'tests/v116-ui-architecture.spec.js',
+    'SECURITY.md', '.github/dependabot.yml', '.github/workflows/codeql.yml',
+    '.github/workflows/playwright.yml', '.github/workflows/quality.yml',
+    '.github/workflows/security.yml', '.github/workflows/supply-chain.yml',
+    '.github/workflows/scorecard.yml', 'playwright.quality.config.js', 'lighthouserc.cjs',
+    'quality-baselines/v112-layout-contracts.json', 'quality-tests/accessibility.spec.js',
+    'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
+    'src/boot-v117.js', 'src/v113/insights.js', 'src/v114/planning.js',
+    'src/v114/reporting.js', 'src/v114/release.js', 'src/v114/views.js',
+    'src/v115/parser.js', 'src/v115/bank-import.js', 'src/v115/reporting.js',
+    'src/v115/release.js', 'src/v115/views.js', 'src/v116/release.js',
+    'src/v117/profile-model.js', 'src/v117/import-profiles.js', 'src/v117/release.js',
+    'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css',
+    'tests-node/bank-parser.test.mjs', 'tests-node/import-profile-model.test.mjs',
+    'tests/import-profiles.spec.js', 'tests/v116-ui-architecture.spec.js',
     'tests/fixtures/bank-import/synthetic-signed.csv',
     'tests/fixtures/bank-import/synthetic-debit-credit.csv',
-    'tests/fixtures/bank-import/synthetic.qfx',
-    'BANK_IMPORT_ROADMAP.md',
+    'tests/fixtures/bank-import/synthetic.qfx', 'BANK_IMPORT_ROADMAP.md',
     'scripts/privacy-history-scan.mjs'
   ];
   const missing = required.filter((relativePath) => !fs.existsSync(path.join(root, relativePath)));

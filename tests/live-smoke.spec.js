@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v116/);
+    await expect(page.locator('.version-text')).toContainText(/^v117/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -45,6 +45,14 @@ test.describe('@live Cloudflare deployment', () => {
     await openPrimary(page, 'Tools');
     await expect(page.locator('#bankImportFile')).toBeAttached();
     await expect(page.getByText(/Supported: CSV, TSV, delimited text, OFX, QFX, QBO/i)).toBeVisible();
+    await page.locator('#bankImportFile').setInputFiles({
+      name: 'live-profile-smoke.csv',
+      mimeType: 'text/csv',
+      buffer: Buffer.from('Date,Description,Amount,Status,Reference,Memo\n07/10/2026,Synthetic Smoke,-10.00,Posted,live-smoke-1,Fictional deployment row')
+    });
+    await expect(page.locator('#importProfileCard')).toBeVisible();
+    await expect(page.locator('.field-validation')).toHaveCount(11);
+    await expect(page.getByText(/Profiles remember reviewed field mappings/i)).toBeVisible();
     await page.getByRole('button', { name: /Restore full vault/i }).click();
     await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
 

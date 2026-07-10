@@ -17,7 +17,9 @@ Every release must review:
 7. **No informational pills** — use inline text, headings, lists, or status panels unless a compact badge communicates an actionable state.
 8. **Working-control review** — test every new or moved button, picker, tab, download, and local-storage write.
 9. **Print completeness** — screen simplification must not silently remove content from print or local exports.
-10. **State restraint** — presentation preferences should stay in memory unless persistence creates clear user value; never create redundant transaction storage.
+10. **State restraint** — persistent state must create clear user value and must not duplicate transaction contents.
+11. **Explain remembered choices** — automatically restored settings must identify their source and remain immediately editable.
+12. **No silent compatibility guesses** — reusable profiles may apply automatically only when one exact-compatible match exists.
 
 ## Current information architecture
 
@@ -30,7 +32,7 @@ The v116 review reconfirmed six primary destinations:
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
 - **Tools** — Import / Restore, Exports & Backup, Diagnostics, and Roadmap.
 
-No primary destination was added or removed in v116.
+v117 does not add or remove a primary destination. Import profiles belong inside Tools → Import transactions because they configure that existing task rather than representing a new household goal.
 
 ## Task navigation decisions
 
@@ -53,7 +55,30 @@ Incremental transaction import and full vault restore share a Tools subsection b
 
 They should not appear as one uninterrupted workflow. Task controls must state the consequence clearly and preserve the existing guarded engines.
 
-## Responsive navigation
+### Import profiles
+
+Profiles are configuration for the Map stage, not another task or top-level page.
+
+The profile UI must:
+
+- appear only after a supported export is inspected;
+- keep the current mapping controls visible and editable;
+- use native selects and inputs;
+- state that profiles contain metadata only;
+- show how many profiles are compatible and saved;
+- identify when a profile is applied;
+- warn when current settings differ from the applied profile;
+- require an explicit choice when multiple profiles match;
+- explain incompatibility rather than approximating a match;
+- keep Save, Update, New, Apply, and Delete consequences distinct.
+
+Profile deletion must explicitly state that transaction data is not changed.
+
+### Field explanations
+
+Field-level text should explain validation or downstream meaning without duplicating the normalized preview. It should remain adjacent to the mapped field and use text rather than color alone for good, warning, error, informational, and optional states.
+
+## Responsive navigation and density
 
 - Desktop uses a six-destination navigation row.
 - Phone and tablet use a compact menu opened from the header.
@@ -62,10 +87,12 @@ They should not appear as one uninterrupted workflow. Task controls must state t
 - Dense tables remain scrollable inside their own containers instead of forcing the page to overflow.
 - Calendar detail stacks below the month grid on smaller screens.
 - Report-download cards use three, two, or one columns according to available width.
+- Import-profile fields use two columns when space permits and one column on phones.
+- Profile action buttons may wrap on larger screens and must become full-width stacked controls on narrow phones.
 
-## v116 architecture review result
+## Architecture review result
 
-The review concluded:
+The v116 review concluded:
 
 - six primary destinations remain the correct number;
 - the persistent shell should remain unchanged;
@@ -74,6 +101,8 @@ The review concluded:
 - Activity phone subnavigation needed compact overflow behavior;
 - the v115 import engine and v111 runtime should remain authoritative;
 - a small idempotent presentation layer is preferable to another whole-page runtime.
+
+v117 follows that decision by replacing the v116 release layer, lazy-loading the profile controller only on the Import route, and keeping the v115 parser and writer authoritative.
 
 ## Larger overhaul cadence
 
@@ -95,6 +124,8 @@ The next scheduled deeper review is approximately v126, with an acceptable v126�
 
 - Local-first transaction processing.
 - No transaction uploads.
+- Import profiles store bounded mapping metadata only.
+- No source rows, filenames, source fingerprints, credentials, or full account identifiers in profiles.
 - No service-worker registration or offline cache.
 - One live ES-module runtime chain.
 - Never auto-save an empty vault.

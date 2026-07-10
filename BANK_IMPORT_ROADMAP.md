@@ -2,6 +2,28 @@
 
 ## Current architecture
 
+### v117 — Import Profiles & Field Validation
+
+v117 adds reusable browser-local mapping metadata above the v115 parser and guarded writer.
+
+Profiles may store:
+
+- a user-provided name;
+- format and detected schema;
+- delimiter metadata;
+- a non-reversible ordered-header signature;
+- selected source header names;
+- date-order and amount-sign options;
+- account handling and destination label;
+- explicit source-category preference;
+- timestamps.
+
+Profiles never store transaction rows, raw records, file content, filenames, source fingerprints, balances, credentials, or full unmasked source account identifiers.
+
+Compatibility is exact. Format, schema, delimiter, ordered headers, and all remembered mapped headers must match. One compatible profile applies automatically. Several compatible profiles require an explicit choice. No match falls back to normal manual mapping with a visible explanation.
+
+Profile persistence is capped at 24 sanitized records and read-back verified. Applying a profile changes only the in-memory import session.
+
 ### v116 — Import and Restore Task Separation
 
 v116 keeps the v115 parser and guarded writer unchanged while presenting two distinct Tools tasks:
@@ -9,9 +31,7 @@ v116 keeps the v115 parser and guarded writer unchanged while presenting two dis
 - **Import transactions** adds reviewed missing rows from a supported export;
 - **Restore full vault** replaces the destination only through guarded restore.
 
-The bank import path now shows Inspect, Map, and Reconcile progress. This progress is derived from the in-memory import session and creates no new transaction or metadata storage.
-
-The restore panel is hidden until explicitly selected. Its destination remains exactly `gringottsBudgetVault.latest`.
+The bank import path shows Inspect, Map, and Reconcile progress. The restore panel remains hidden until explicitly selected. Its destination remains exactly `gringottsBudgetVault.latest`.
 
 ### v115 — Bank Export Import & Mapping
 
@@ -56,9 +76,12 @@ PDF statements require a separate extraction and verification workflow because v
    - Shows format, schema, confidence, institution, encoding, row count, and source fingerprint.
    - Does not silently accept an ambiguous date or amount convention.
 
-3. **Mapping preview**
+3. **Profile and mapping review**
+   - Checks exact-compatible local profiles without retaining source rows.
+   - Applies one exact match automatically or requires an explicit selection for several.
    - Maps date, description/payee, signed amount, debit, credit, status, account, memo, stable ID, category, and type.
-   - Allows explicit correction before duplicate analysis.
+   - Explains date, amount, ID, account, status, category, and type behavior.
+   - Allows immediate correction before duplicate analysis.
    - Displays ignored source columns.
 
 4. **Normalization preview**
@@ -102,6 +125,8 @@ Full restore:
 
 - No export or transaction content leaves the browser.
 - No remote parser, analytics endpoint, or institution credential connection.
+- No raw source rows, filenames, or source fingerprints in profiles.
+- No automatic profile application unless exactly one profile matches.
 - No automatic source-category use.
 - No unmasked source account identifier stored from mapped data.
 - No automatic account merge based only on a similar name.
@@ -114,6 +139,9 @@ Full restore:
 
 Synthetic fixtures cover:
 
+- profile identity, sanitization, exact compatibility, conflicts, and deletion;
+- metadata-only profile persistence and vault noninterference;
+- field-validation explanations and remembered choices;
 - signed and separate debit/credit CSV values;
 - quoted and multiline fields;
 - BOM and multiple delimiters;
@@ -127,25 +155,24 @@ Synthetic fixtures cover:
 - legacy JSON compatibility;
 - separated import and restore tasks;
 - phone, tablet, Android, iPhone, and desktop layouts;
+- axe and observer-stability profile coverage;
 - no network writes;
 - backup, rollback, and verification receipts.
 
-Real household exports must never be committed to the public repository or CI artifacts.
+Real household exports and saved profiles must never be committed to the public repository or CI artifacts.
 
 ## Next release
 
-### v117 — Import Profiles & Field Validation
+### v118 — Profile Portability & Institution Patterns
 
 Planned scope:
 
-- remember reviewed mapping choices by local schema and header signature;
-- store mappings and options only, never transaction copies;
-- reapply a profile only when format and headers still match;
-- show why every field was remembered;
-- allow correction before normalization;
-- expand synthetic institution-pattern fixtures;
-- strengthen field-level validation messages;
-- preserve explicit duplicate review and backup-first verified writes.
+- export sanitized profile definitions without source rows or household identifiers;
+- import profiles only through explicit preview and conflict decisions;
+- explain identity and compatibility differences before accepting a profile;
+- add fictional institution-pattern fixtures for additional common header families;
+- improve naming and selection when multiple cards share one schema;
+- preserve exact compatibility, bounded profile storage, guarded transaction writes, and vault separation.
 
 ## Candidate future formats
 

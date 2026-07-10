@@ -4,6 +4,7 @@ import { bootQualityPage, expectNoBrowserErrors, openPrimary, safeArtifactName }
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
+const profileCsv = 'Date,Description,Amount,Status,Reference,Memo\n07/10/2026,Synthetic Fuel,-45.67,Posted,profile-test-1,Fictional quality row';
 
 function summarizeViolations(violations) {
   return violations.map((violation) => ({
@@ -43,6 +44,16 @@ async function clickSubsection(page, name) {
   await tab.click();
   await expect(tab).toHaveAttribute('aria-selected', 'true');
   await expect(tab).toHaveClass(/active/);
+}
+
+async function inspectProfileCsv(page) {
+  await page.locator('#bankImportFile').setInputFiles({
+    name: 'synthetic-profile-quality.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(profileCsv)
+  });
+  await expect(page.locator('#importProfileCard')).toBeVisible();
+  await expect(page.locator('.field-validation')).toHaveCount(11);
 }
 
 function desktopOnly(testInfo) {
@@ -108,11 +119,13 @@ test('axe scans every Activity subsection including Guided Plan', async ({ page 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans every Tools subsection and both import tasks', async ({ page }, testInfo) => {
+test('axe scans every Tools subsection, both import tasks, and profile validation', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await scanSurface(page, testInfo, 'Tools — Bank Import');
+  await inspectProfileCsv(page);
+  await scanSurface(page, testInfo, 'Tools — Import Profile and Field Validation');
   await page.getByRole('button', { name: /Restore full vault/i }).click();
   await scanSurface(page, testInfo, 'Tools — Full Restore');
   await clickSubsection(page, 'Exports & Backup');
@@ -125,7 +138,7 @@ test('axe scans every Tools subsection and both import tasks', async ({ page }, 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans key phone surfaces including report selection and Guided Plan', async ({ page }, testInfo) => {
+test('axe scans key phone surfaces including reports, Guided Plan, and import profiles', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific axe coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Mobile Dashboard');
@@ -140,6 +153,9 @@ test('axe scans key phone surfaces including report selection and Guided Plan', 
   await scanSurface(page, testInfo, 'Mobile Activity — Household Insights');
   await clickSubsection(page, 'Plan');
   await scanSurface(page, testInfo, 'Mobile Activity — Guided Household Plan');
+  await openPrimary(page, 'Tools');
+  await inspectProfileCsv(page);
+  await scanSurface(page, testInfo, 'Mobile Tools — Import Profile and Field Validation');
   await expectNoBrowserErrors(errors);
 });
 
