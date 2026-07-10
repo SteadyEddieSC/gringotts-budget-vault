@@ -2,7 +2,12 @@ import { test, expect, openPrimary } from './helpers/app.js';
 
 async function openReports(page) {
   await openPrimary(page, 'Reports');
-  await expect(page.getByRole('heading', { name: 'Reports Center' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Reports', exact: true })).toBeVisible();
+  await expect(page.locator('#reportPreviewPage')).toBeVisible();
+}
+
+async function selectReportPage(page, value) {
+  await page.locator('#reportPreviewPage').selectOption(value);
 }
 
 async function addPriorYearRows(page) {
@@ -24,15 +29,25 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v115 and renders the complete household report preview', async ({ app }) => {
+test('boots v116 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v115/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v116/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
-  for (const heading of ['Family Financial Report', 'Year-over-year comparison', 'Goals and Vault Health', 'Month close, forecast, and debt', 'Household insights', 'Family meeting brief']) {
+  const pages = [
+    ['summary', 'Family Financial Report'],
+    ['comparison', 'Year-over-year comparison'],
+    ['spending', 'Spending by category'],
+    ['goals', 'Goals and Vault Health'],
+    ['planning', 'Month close, forecast, and debt'],
+    ['insights', 'Household insights'],
+    ['plan', 'Guided household plan'],
+    ['meeting', 'Family meeting brief']
+  ];
+  for (const [value, heading] of pages) {
+    await selectReportPage(page, value);
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
-  await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
   await expect(page.getByText(/33 sheets/i)).toBeVisible();
   await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Planning History', { exact: true }).last()).toBeVisible();
@@ -58,8 +73,10 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   await expect(page.locator('#reportPreset')).toHaveValue('custom');
   await expect(page.locator('#reportStart')).toHaveValue('2026-05-01');
   await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
+  await selectReportPage(page, 'comparison');
   await expect(page.locator('.comparison-table tbody tr')).toHaveCount(6);
   await expect(page.getByText(/equivalent prior-year range/i).first()).toBeVisible();
+  await selectReportPage(page, 'plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
@@ -102,11 +119,14 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
     }], monthlyExtra: 50 }));
   });
   await openReports(page);
+  await selectReportPage(page, 'goals');
   await expect(page.getByText('Synthetic Emergency Fund').first()).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
   await expect(page.getByText(/Vault Health/i).first()).toBeVisible();
+  await selectReportPage(page, 'planning');
+  await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
   await expect(page.locator('.summary-box').filter({ hasText: /^Forecast:/i })).toBeVisible();
   await expect(page.getByText(/Current priority: Synthetic Promo Card/i)).toBeVisible();
+  await selectReportPage(page, 'plan');
   await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
 });
 
@@ -115,10 +135,10 @@ test('downloads the 33-sheet workbook, guided plan, and range CSV', async ({ app
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v115_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v116_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v115_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v116_2026-07_.*\.md/i);
 
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
@@ -129,7 +149,9 @@ test('uses eight report pages for print and hides screen-only controls', async (
   await openReports(page);
   await page.emulateMedia({ media: 'print' });
   await expect(page.locator('.range-controls')).toBeHidden();
+  await expect(page.locator('.report-preview-toolbar')).toBeHidden();
   await expect(page.locator('.report-page')).toHaveCount(8);
+  for (let index = 0; index < 8; index += 1) await expect(page.locator('.report-page').nth(index)).toBeVisible();
   await expect(page.locator('.guided-plan-report')).toBeVisible();
 });
 
@@ -139,6 +161,7 @@ test('keeps reporting inside every configured viewport', async ({ app }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
   await expect(page.locator('#reportPreset')).toHaveJSProperty('tagName', 'SELECT');
+  await expect(page.locator('#reportPreviewPage')).toHaveJSProperty('tagName', 'SELECT');
   await expect(page.locator('#reportStart')).toHaveAttribute('type', 'date');
   await expect(page.locator('#reportEnd')).toHaveAttribute('type', 'date');
 });
