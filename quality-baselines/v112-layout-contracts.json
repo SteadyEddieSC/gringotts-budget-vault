@@ -1,5 +1,5 @@
 {
-  "version": "v115",
+  "version": "v116",
   "description": "Privacy-safe visual regression contracts. These compare structure, geometry, visibility, and responsive layout using only synthetic Playwright data; no screenshot pixels or household data are committed.",
   "snapshots": {
     "dashboard-desktop": {
@@ -24,10 +24,14 @@
       "requiredVisible": [
         ".range-controls",
         ".report-range-grid",
-        ".report-page",
-        ".comparison-table",
-        ".household-insights-report",
-        ".guided-plan-report"
+        ".report-preview-toolbar",
+        "#reportPreviewPage",
+        ".report-page[data-report-page=\"summary\"]"
+      ],
+      "requiredHidden": [
+        ".report-page[data-report-page=\"comparison\"]",
+        ".report-page[data-report-page=\"insights\"]",
+        ".report-page[data-report-page=\"plan\"]"
       ],
       "minimumReportPages": 8,
       "expectedRangeColumns": 4,
@@ -41,9 +45,14 @@
         "#menuToggle",
         ".range-controls",
         ".report-range-grid",
-        ".report-page",
-        ".household-insights-report",
-        ".guided-plan-report"
+        ".report-preview-toolbar",
+        "#reportPreviewPage",
+        ".report-page[data-report-page=\"summary\"]"
+      ],
+      "requiredHidden": [
+        ".report-page[data-report-page=\"comparison\"]",
+        ".report-page[data-report-page=\"insights\"]",
+        ".report-page[data-report-page=\"plan\"]"
       ],
       "minimumReportPages": 8,
       "expectedRangeColumns": 1,
@@ -56,11 +65,29 @@
       "route": "Tools",
       "requiredVisible": [
         "#menuToggle",
-        ".v115-import-page",
+        ".v116-import-page",
+        ".v116-task-switcher",
+        ".bank-import-progress",
         "#bankImportFile",
-        "#restoreFile"
+        "[data-import-task-panel=\"bank\"]"
       ],
-      "minimumCards": 5,
+      "requiredHidden": [
+        "#restoreFile",
+        "[data-import-task-panel=\"restore\"]"
+      ],
+      "minimumCards": 2,
+      "maximumHorizontalOverflow": 2,
+      "minimumMainWidth": 300
+    },
+    "activity-phone": {
+      "viewport": { "width": 390, "height": 844 },
+      "route": "Activity",
+      "requiredVisible": [
+        "#menuToggle",
+        ".activity-subnav",
+        "[data-activity-section=\"ledger\"]",
+        "[data-activity-section=\"plan\"]"
+      ],
       "maximumHorizontalOverflow": 2,
       "minimumMainWidth": 300
     }
