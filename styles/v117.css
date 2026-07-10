@@ -1,0 +1,79 @@
+/* v117 Import Profiles & Field Validation — loaded only with Tools → Import */
+.import-profile-card {
+  display: grid;
+  gap: 1rem;
+  border-inline-start: 4px solid var(--gold);
+}
+
+.import-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+}
+
+.import-profile-grid label,
+.import-profile-grid input,
+.import-profile-grid select {
+  min-width: 0;
+  width: 100%;
+}
+
+.import-profile-actions {
+  align-items: stretch;
+}
+
+.import-profile-actions .btn {
+  flex: 1 1 12rem;
+}
+
+.import-profile-status:empty {
+  display: none;
+}
+
+.field-validation {
+  display: block;
+  margin-top: .38rem;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.field-validation.good {
+  color: #8bd3ad;
+}
+
+.field-validation.warning {
+  color: #f2c86f;
+}
+
+.field-validation.error {
+  color: #ff9b8d;
+}
+
+.field-validation.optional,
+.field-validation.info {
+  color: var(--muted);
+}
+
+@media (max-width: 700px) {
+  .import-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .import-profile-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .import-profile-actions .btn {
+    width: 100%;
+  }
+}
+
+@media print {
+  .import-profile-card,
+  .field-validation {
+    display: none !important;
+  }
+}
