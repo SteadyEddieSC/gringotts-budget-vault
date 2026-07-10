@@ -96,6 +96,7 @@ function enhanceReportCenter(center) {
         page.dataset.reportPage = id;
         const heading = page.querySelector('h2');
         if (heading && !heading.id) heading.id = `reportPreviewHeading-${id}`;
+        if (heading) heading.tabIndex = -1;
         if (heading?.id) page.setAttribute('aria-labelledby', heading.id);
       });
       const toolbar = createReportToolbar(pages);
@@ -209,8 +210,8 @@ function enhanceRoadmap(root) {
   setText(titleRow?.querySelector('.section-meta'), 'Next: v117');
   const shipped = section.querySelector('.roadmap-item.shipped');
   if (shipped) shipped.innerHTML = '<h3>v116 — UI Architecture Review</h3><p>Task-based report previews, separated import and restore paths, clearer workflow progress, compact mobile subnavigation, and retained print/export completeness.</p>';
-  const planned = section.querySelector('.roadmap .roadmap-item');
-  if (planned) planned.innerHTML = '<h3>v117 — Import Profiles & Field Validation</h3><p>Locally remember reviewed mapping choices by source schema, strengthen field-level explanations, and expand synthetic institution-pattern coverage without storing transaction copies.</p>';
+  const roadmap = section.querySelector('.roadmap');
+  if (roadmap) roadmap.innerHTML = '<article class="roadmap-item"><h3>v117 — Import Profiles & Field Validation</h3><p>Locally remember reviewed mapping choices by source schema, strengthen field-level explanations, and expand synthetic institution-pattern coverage without storing transaction copies.</p></article><article class="roadmap-item"><h3>Future household planning</h3><p>Scenario comparisons, recurring-cost decisions, account cleanup, and close-history analysis remain candidates only after actual household use shows clear value.</p></article>';
 }
 
 function enhanceMain(root = document.getElementById('main')) {
@@ -256,11 +257,11 @@ function installUiHandlers() {
     const center = event.target.closest('.v116-report-center');
     const pages = [...(center?.querySelectorAll('.report-preview-deck > .report-page') || [])];
     const index = pages.findIndex((page) => page.dataset.reportPage === selectedReportPage);
-    const target = previous ? index - 1 : index + 1;
-    if (target < 0 || target >= pages.length) return;
-    selectedReportPage = pages[target].dataset.reportPage;
+    const targetIndex = previous ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= pages.length) return;
+    selectedReportPage = pages[targetIndex].dataset.reportPage;
     applyReportSelection(center);
-    pages[target].querySelector('h2')?.focus?.({ preventScroll: true });
+    pages[targetIndex].querySelector('h2')?.focus({ preventScroll: true });
   });
 }
 
