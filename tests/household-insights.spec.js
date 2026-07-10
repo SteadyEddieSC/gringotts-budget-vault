@@ -61,7 +61,7 @@ test('excludes pending charges from anomaly comparisons and performs no writes',
   expect(networkWrites).toEqual([]);
 });
 
-test('feeds insights into v119 reports, the 33-sheet workbook, and the meeting pack', async ({ app }, testInfo) => {
+test('feeds insights into v120 reports, the 33-sheet workbook, and the meeting pack', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file insight coverage.');
   const { page } = app;
   await addInsightFixtureRows(page);
@@ -80,10 +80,10 @@ test('feeds insights into v119 reports, the 33-sheet workbook, and the meeting p
   await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
 
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v119_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v120_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [meeting] = await Promise.all([page.waitForEvent('download'), page.locator('#meetingMd').click()]);
-  expect(meeting.suggestedFilename()).toMatch(/Gringotts_Family_Meeting_Pack_v119_2026-07-01_to_2026-07-31_.*\.md/i);
+  expect(meeting.suggestedFilename()).toMatch(/Gringotts_Family_Meeting_Pack_v120_2026-07-01_to_2026-07-31_.*\.md/i);
 });
 
 test('keeps the Insights activity surface within every configured viewport', async ({ app }) => {
