@@ -15,7 +15,26 @@ async function settledMutationCount(page) {
   }));
 }
 
-test('settles the v117 Reports architecture without a recursive mutation loop', async ({ app }, testInfo) => {
+const portableBundle = {
+  kind: 'gringotts-import-profile-bundle',
+  version: 1,
+  generator: 'Synthetic observer fixture',
+  exportedAt: '2026-07-10T12:00:00.000Z',
+  profileCount: 1,
+  profiles: [{
+    name: 'Observer Wallet',
+    format: 'delimited',
+    schemaId: 'generic-signed',
+    schemaLabel: 'Generic signed-amount CSV',
+    delimiter: ',',
+    headerSignature: 'fnv1a-abcdef12',
+    headerCount: 5,
+    mapping: { date: 'Date', description: 'Name', amount: 'Amount', status: 'Status', id: 'ID' },
+    options: { dateOrder: 'auto', signMode: 'bank', accountLabel: 'Observer Wallet', accountMode: 'label', useSourceCategory: false }
+  }]
+};
+
+test('settles the v118 Reports architecture without a recursive mutation loop', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Reports');
@@ -29,12 +48,21 @@ test('settles the v117 Reports architecture without a recursive mutation loop', 
   expect(await settledMutationCount(page), 'Changing the report preview must settle after the explicit selection.').toBe(0);
 });
 
-test('settles import, restore, profiles, and field validation without a recursive mutation loop', async ({ app }, testInfo) => {
+test('settles portability, import, restore, profiles, and field validation without a recursive mutation loop', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Tools');
   await expect(page.locator('.v116-task-switcher')).toBeVisible();
-  expect(await settledMutationCount(page)).toBe(0);
+  await expect(page.locator('#profilePortabilityCard')).toBeVisible();
+  expect(await settledMutationCount(page), 'The initial portability and import enhancement must settle.').toBe(0);
+
+  await page.locator('#profileBundleFile').setInputFiles({
+    name: 'observer-profile-bundle.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(portableBundle))
+  });
+  await expect(page.locator('#profileBundlePreview')).toBeVisible();
+  expect(await settledMutationCount(page), 'The portability conflict preview must settle after insertion.').toBe(0);
 
   await page.locator('#bankImportFile').setInputFiles({
     name: 'observer-profile.csv',
