@@ -59,7 +59,12 @@ jobs:
           node --check src/v120/import-receipt-audit.js
           node --check src/v120/roadmap-horizon.js
           node --check src/v120/release.js
-          node --check src/boot-v120.js
+          node --check src/v121/receipt-integrity-model.js
+          node --check src/v121/receipt-integrity.js
+          node --check src/v121/roadmap-horizon.js
+          node --check src/v121/reporting.js
+          node --check src/v121/release.js
+          node --check src/boot-v121.js
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests

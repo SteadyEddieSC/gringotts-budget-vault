@@ -40,7 +40,10 @@ jobs:
           cache: npm
 
       - name: Install locked dependencies
-        run: npm ci --ignore-scripts
+        shell: bash
+        run: |
+          set -o pipefail
+          npm ci --ignore-scripts 2>&1 | tee npm-ci.log
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -49,7 +52,7 @@ jobs:
         run: npx playwright test --config=playwright.quality.config.js quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js
 
       - name: Run axe surface gates
-        run: npx playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js
+        run: npx playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/v121-accessibility.spec.js
 
       - name: Upload quality failure diagnostics
         if: failure()
@@ -57,6 +60,7 @@ jobs:
         with:
           name: accessibility-visual-${{ github.run_attempt }}
           path: |
+            npm-ci.log
             quality-report/
             quality-results/
             test-results/

@@ -29,9 +29,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v120 and navigates the complete household report preview', async ({ app }) => {
+test('boots v121 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v120/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v121/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
@@ -49,10 +49,12 @@ test('boots v120 and navigates the complete household report preview', async ({ 
     const visiblePage = page.locator('.report-preview-deck > .report-page:not([hidden])');
     await expect(visiblePage.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
-  await expect(page.getByText(/33 sheets/i)).toBeVisible();
+  await expect(page.getByText(/35-sheet Vault Workbook/i)).toBeVisible();
   await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Planning History', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Receipt Integrity', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
 });
 
 test('saves a custom range and compares equivalent prior-year dates without network writes', async ({ app }, testInfo) => {
@@ -131,15 +133,15 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
   await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
 });
 
-test('downloads the 33-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
+test('downloads the 35-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v120_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v121_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v120_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v121_2026-07_.*\.md/i);
 
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);

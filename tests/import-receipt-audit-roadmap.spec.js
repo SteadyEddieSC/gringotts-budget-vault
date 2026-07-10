@@ -7,7 +7,7 @@ async function seedReceipts(page) {
     const after = vault.transactions.length;
     const receipts = [
       {
-        importId: 'import_v120_verified', timestamp: '2026-07-10T12:00:00.000Z',
+        importId: 'import_v121_verified', timestamp: '2026-07-10T12:00:00.000Z',
         sourceFilename: 'SECRET-household-card.csv', sourceFingerprint: 'SECRET-FINGERPRINT-123456789',
         source: 'Synthetic card activity', format: 'delimited', detectedSchema: 'Card activity export',
         schemaConfidence: 'high', encoding: 'UTF-8', mappingSummary: 'date:Date; description:SECRET MERCHANT; amount:Amount',
@@ -17,7 +17,7 @@ async function seedReceipts(page) {
         destinationBeforeCount: after - 2, destinationAfterCount: after, verificationResult: 'verified'
       },
       {
-        importId: 'import_v120_no_change', timestamp: '2026-07-10T13:00:00.000Z',
+        importId: 'import_v121_no_change', timestamp: '2026-07-10T13:00:00.000Z',
         sourceFilename: 'SECRET-no-change.csv', sourceFingerprint: 'SECRET-NO-CHANGE-FINGERPRINT',
         source: 'Synthetic deposit ledger', format: 'delimited', detectedSchema: 'Deposit and withdrawal ledger',
         schemaConfidence: 'high', encoding: 'UTF-8', mappingSummary: 'date:Date; debit:Withdrawal; credit:Deposit',
@@ -35,19 +35,19 @@ async function openImportWithReceipts(page) {
   await seedReceipts(page);
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Import receipt audit', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
 }
 
-test('audits retained receipts without changing the vault', async ({ app }) => {
+test('preserves receipt arithmetic and manual rollback guidance without changing the vault', async ({ app }) => {
   const { page } = app;
   const vaultBefore = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   await openImportWithReceipts(page);
 
-  await expect(page.locator('.receipt-audit-table tbody tr')).toHaveCount(2);
+  await expect(page.locator('.receipt-timeline-table tbody tr')).toHaveCount(2);
   await expect(page.getByText('Verified', { exact: true }).first()).toBeVisible();
-  await page.locator('[data-receipt-audit-select="import_v120_verified"]').click();
-  await expect(page.locator('#importReceiptAuditDetail')).toBeVisible();
-  await expect(page.locator('.receipt-rollback-guidance .summary-box')).toContainText('Gringotts_v115_pre_import_');
+  await page.locator('[data-v121-batch-select]').last().click();
+  await expect(page.locator('#receiptTimelineDetail')).toBeVisible();
+  await expect(page.locator('.receipt-lineage-rollback .summary-box')).toContainText('Gringotts_v115_pre_import_');
   await expect(page.getByText(/No automatic rollback/i)).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Destination count arithmetic', exact: true })).toBeVisible();
 
@@ -55,23 +55,19 @@ test('audits retained receipts without changing the vault', async ({ app }) => {
   expect(vaultAfter).toBe(vaultBefore);
 });
 
-test('downloads a sanitized receipt audit and opens only the separate restore task', async ({ app }) => {
+test('downloads a sanitized selected batch and opens only the separate restore task', async ({ app }) => {
   const { page } = app;
   await openImportWithReceipts(page);
-  await page.locator('[data-receipt-audit-select="import_v120_verified"]').click();
+  await page.locator('[data-v121-batch-select]').last().click();
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.locator('#downloadReceiptAudit').click()
+    page.locator('#downloadSelectedReceiptBatch').click()
   ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_v120_import_receipt_audit_.*\.json/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_v121_import_batch_.*\.json/i);
   const payload = JSON.parse(await fs.readFile(await download.path(), 'utf8'));
-  expect(payload.kind).toBe('gringotts-import-receipt-audit');
-  expect(payload.rollback).toMatchObject({
-    automaticRollbackAvailable: false,
-    destructiveActionPerformed: false,
-    restoreDestination: 'gringottsBudgetVault.latest'
-  });
+  expect(payload.kind).toBe('gringotts-import-receipt-timeline');
+  expect(payload.batches).toHaveLength(1);
   expect(payload.dataBoundary).toMatchObject({
     transactionRowsIncluded: false,
     sourceFileNameIncluded: false,
@@ -84,30 +80,30 @@ test('downloads a sanitized receipt audit and opens only the separate restore ta
   const text = JSON.stringify(payload);
   expect(text).not.toMatch(/SECRET-household-card|SECRET-FINGERPRINT|SECRET MERCHANT|"transactions"\s*:|"records"\s*:|"rows"\s*:/i);
 
-  await page.locator('#openReceiptRestore').click();
+  await page.locator('#openReceiptTimelineRestore').click();
   await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
   await expect(page.locator('#restoreVault')).toBeDisabled();
 });
 
-test('shows a detailed seven-release roadmap horizon', async ({ app }) => {
+test('shows the detailed v121 through v127 roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Roadmap', exact: true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v120 — Import Receipt Audit/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v126 — Data Portability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v121 — Receipt Integrity/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v127 — Family Review Cadence/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(7);
   await expect(page.getByRole('heading', { name: 'Depends on', exact: true })).toHaveCount(7);
   await expect(page.getByRole('heading', { name: 'Safety boundaries', exact: true })).toHaveCount(7);
   await expect(page.getByText(/Later releases are a planning horizon/i)).toBeVisible();
 });
 
-test('keeps receipt audit and roadmap notes inside a phone viewport', async ({ app }) => {
+test('keeps timeline and roadmap notes inside a phone viewport', async ({ app }) => {
   const { page } = app;
   await page.setViewportSize({ width: 390, height: 844 });
   await openImportWithReceipts(page);
-  await page.locator('[data-receipt-audit-select="import_v120_verified"]').click();
+  await page.locator('[data-v121-batch-select]').first().click();
   let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 

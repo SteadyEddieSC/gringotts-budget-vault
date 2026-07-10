@@ -11,9 +11,9 @@ const destinations = [
 
 test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v120/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v121/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v120');
+  await expect(page.locator('.version-text')).toHaveText('v121');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];

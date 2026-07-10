@@ -1,0 +1,126 @@
+.receipt-timeline-card,
+.receipt-timeline-detail,
+.v121-roadmap-page {
+  scroll-margin-top: 6rem;
+}
+
+.receipt-timeline-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.receipt-timeline-filters {
+  margin: .75rem 0 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-2);
+}
+
+.receipt-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .85rem;
+}
+
+.receipt-filter-control {
+  display: grid;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.receipt-filter-control > span {
+  font-weight: 700;
+}
+
+.receipt-filter-search {
+  grid-column: span 2;
+}
+
+.receipt-filter-actions {
+  margin-top: .85rem;
+}
+
+.receipt-timeline-table-wrap {
+  margin-top: .5rem;
+}
+
+.receipt-timeline-table td {
+  vertical-align: top;
+  white-space: pre-line;
+}
+
+.receipt-timeline-table td:nth-child(2),
+.receipt-timeline-table td:nth-child(3),
+.receipt-timeline-table td:nth-child(4) {
+  min-width: 12rem;
+}
+
+.receipt-timeline-detail {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.receipt-timeline-overview .summary-box,
+.receipt-lineage-card .summary-box,
+.receipt-dry-run-lineage .summary-box,
+.receipt-lineage-rollback .summary-box {
+  white-space: pre-line;
+}
+
+.receipt-integrity-checks,
+.receipt-lineage-card,
+.receipt-dry-run-lineage,
+.receipt-lineage-rollback {
+  margin: 0;
+}
+
+.receipt-integrity-checks td:first-child {
+  min-width: 12rem;
+  font-weight: 700;
+}
+
+.receipt-integrity-checks td:nth-child(2) {
+  min-width: 8rem;
+}
+
+@media (max-width: 1100px) {
+  .receipt-timeline-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .receipt-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .receipt-timeline-summary,
+  .receipt-filter-grid,
+  .receipt-timeline-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .receipt-filter-search {
+    grid-column: auto;
+  }
+
+  .receipt-timeline-table-wrap,
+  .receipt-integrity-checks .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .receipt-timeline-filters .button-row,
+  .receipt-lineage-rollback .button-row {
+    align-items: stretch;
+  }
+
+  .receipt-timeline-filters .button-row > *,
+  .receipt-lineage-rollback .button-row > * {
+    width: 100%;
+  }
+}
