@@ -148,6 +148,7 @@ export function prepareV115Route() {
     Object.assign(registry, {
       featuresReady: true,
       bankSnapshot: imports.snapshot,
+      updateBankOption: imports.updateBankOption,
       importHistory: imports.importHistory,
       expandedWorkbookSheetsV114: legacyReporting.expandedWorkbookSheetsV114,
       familyMeetingMarkdownV114: legacyReporting.familyMeetingMarkdownV114,
