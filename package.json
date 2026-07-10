@@ -15,8 +15,8 @@
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "test:quality": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js",
-    "test:a11y": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/tab-semantics.spec.js",
+    "test:quality": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js",
+    "test:a11y": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/tab-semantics.spec.js",
     "test:visual": "playwright test --config=playwright.quality.config.js quality-tests/visual-contracts.spec.js",
     "report": "playwright show-report",
     "privacy:history": "node scripts/privacy-history-scan.mjs"
