@@ -1,6 +1,5 @@
 import { BUILD, best, esc, money } from '../v103/core.js';
 import { snapshot as restoreSnapshot } from '../v103/restore.js';
-import { snapshot as bankSnapshot } from './bank-import.js';
 
 const FIELD_LABELS = {
   date: 'Transaction date',
@@ -15,6 +14,19 @@ const FIELD_LABELS = {
   category: 'Source category',
   type: 'Transaction type'
 };
+
+function bankSnapshot() {
+  const snapshot = window.GringottsV115?.bankSnapshot;
+  if (typeof snapshot === 'function') return snapshot();
+  return {
+    fileName: '', fileSize: 0, encoding: '', sourceFingerprint: '', inspection: null,
+    options: { mapping: {}, dateOrder: 'auto', signMode: '', accountLabel: 'Imported account', accountMode: 'label', useSourceCategory: false },
+    normalization: null, destinationKey: '', analysis: null, decisions: {}, error: '',
+    acknowledged: false, backupPrepared: false, backupTransactionCount: 0, result: null,
+    valid: false, ready: false, counts: { exact: 0, fuzzy: 0, fresh: 0, inserted: 0, skipped: 0, unresolved: 0 },
+    destinations: [], ignoredColumns: [], history: []
+  };
+}
 
 function transactionLine(transaction) {
   return `${esc(transaction.date)} · ${esc(transaction.name)} · ${money(transaction.amount)} · ${esc(transaction.account)}`;
