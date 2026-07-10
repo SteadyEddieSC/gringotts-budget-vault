@@ -3,11 +3,29 @@ import {
 } from '../v103/core.js';
 import { xlsxBlob } from '../v103/reports.js';
 import { householdReportModel } from '../v111/reporting.js';
-import {
-  expandedWorkbookSheetsV114, familyMeetingMarkdownV114, guidedPlanMarkdownV114
-} from '../v114/reporting.js';
 import { guidedPlanModel } from '../v114/planning.js';
-import { importHistory } from './bank-import.js';
+
+function requiredFeature(name) {
+  const value = window.GringottsV115?.[name];
+  if (typeof value !== 'function') throw new Error(`v115 feature dependency is not ready: ${name}`);
+  return value;
+}
+
+function importHistory() {
+  return requiredFeature('importHistory')();
+}
+
+function expandedWorkbookSheetsV114(month, model) {
+  return requiredFeature('expandedWorkbookSheetsV114')(month, model);
+}
+
+function familyMeetingMarkdownV114(model) {
+  return requiredFeature('familyMeetingMarkdownV114')(model);
+}
+
+function guidedPlanMarkdownV114(plan) {
+  return requiredFeature('guidedPlanMarkdownV114')(plan);
+}
 
 function reportSlug(model) {
   return `${model.settings.start}_to_${model.settings.end}`;
