@@ -93,7 +93,6 @@ test('links an explicit current dry run to the verified receipt without changing
 
   page.once('dialog', (dialog) => dialog.accept());
   await page.locator('#commitBankImport').click();
-  await expect(page.getByText(/Import verified: 2 new transactions added/i)).toBeVisible();
   await expect.poll(async () => page.evaluate(() => {
     const value = JSON.parse(localStorage.getItem('gringottsImportBatchIndex.v1') || '{"links":[]}');
     return value.links?.length || 0;
@@ -105,6 +104,14 @@ test('links an explicit current dry run to the verified receipt without changing
     receipt: JSON.parse(localStorage.getItem('gringottsImportHistory.v1')).imports[0]
   }));
   expect(result.vaultCount).toBe(14);
+  expect(result.receipt).toMatchObject({
+    transactionCount: 3,
+    insertedCount: 2,
+    skippedCount: 1,
+    destinationBeforeCount: 12,
+    destinationAfterCount: 14,
+    verificationResult: 'verified'
+  });
   expect(result.index.links[0]).toMatchObject({
     receiptImportId: result.receipt.importId,
     normalizedRowCount: 3,
