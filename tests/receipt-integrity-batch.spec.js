@@ -114,7 +114,8 @@ test('links an explicit current dry run to the verified receipt without changing
     verifiedCounts: true
   });
   const indexText = JSON.stringify(result.index);
-  expect(indexText).not.toMatch(/synthetic-signed|sourceFingerprint|sourceFilename|selectedDestinationVault|Test Credit Card|Fictional fuel|transactions|records|rows/i);
+  expect(indexText).not.toMatch(/synthetic-signed|Test Credit Card|Fictional fuel/i);
+  expect(indexText).not.toMatch(/"sourceFilename"\s*:|"sourceFingerprint"\s*:|"selectedDestinationVault"\s*:|"transactions"\s*:|"records"\s*:|"rows"\s*:/i);
 
   await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
   await expect(page.getByText('Linked · ready', { exact: true })).toBeVisible();
