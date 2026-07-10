@@ -2,9 +2,9 @@
 
 ## Purpose
 
-The quality system protects parser, mapping-profile, portability, accessibility, performance, responsive layout, and local-first data boundaries across v118 Profile Portability & Institution Patterns.
+The quality system protects parser, mapping-profile, portability, revision-history, dry-run diagnostic, accessibility, performance, responsive-layout, and local-first data boundaries across v119 Profile Versioning & Dry-Run Diagnostics.
 
-The final matrix remains comprehensive while syntax and pure-model defects stop before expensive browser installation.
+Syntax and pure-model defects stop before expensive browser installation. Draft pull requests skip protected jobs.
 
 ## Data boundary
 
@@ -13,191 +13,147 @@ All checks use fictional fixtures in isolated Node or Playwright contexts.
 The workflows do not:
 
 - read a normal user browser profile;
-- upload a household vault, bank export, saved household profile, exported profile bundle, Guided Plan, or report;
-- commit screenshots containing transaction data;
+- upload a household vault, bank export, saved profile, revision history, exported bundle, dry-run diagnostic, Guided Plan, or report;
+- commit financial screenshots;
 - load remote parser or axe code at application runtime;
 - publish Lighthouse reports to public temporary storage;
 - add a service worker or offline cache;
 - change the restore destination;
 - use a real institution account or identifier.
 
-`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser, profile, portability, and pattern tests use Node's built-in runner.
+`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser, profile, portability, revision, diagnostic, and institution-pattern tests use Node's built-in runner.
 
-## Parser, profile, portability, and static preflight
+## Parser, profile, portability, revision, diagnostic, and static preflight
 
 Before either browser matrix job begins, GitHub runs:
 
-- `node --check` against active v115 parser/import modules, v117 profile modules, and v118 portability, pattern, release, and boot modules;
-- `npm run test:parser` using synthetic text fixtures, deterministic mutations, pure profile-model cases, portable bundle cases, and fictional institution-pattern cases.
+- `node --check` against active v115–v119 modules and `src/boot-v119.js`;
+- `npm run test:parser` using synthetic text fixtures, deterministic mutations, profile models, portable bundles, revision histories, dry-run diagnostics, and fictional institution patterns.
 
-The gate covers:
+The gate covers format/delimiter detection, quoted fields, mapping candidates, date/amount/sign validation, OFX-family data, limits, malformed-input termination, exact profile compatibility, portable bundle sanitization/classification, Add/Replace/Skip planning, revision comparison/redaction/bounds, diagnostic privacy/signatures, and fictional institution patterns.
 
-- format and delimiter detection;
-- quoted and multiline fields;
-- mapping candidates;
-- date and amount validation;
-- sign normalization;
-- OFX-family data and entities;
-- size and row limits;
-- malformed-input termination;
-- profile identity and exact compatibility;
-- portable bundle sanitization and forbidden-key rejection;
-- exact, same-definition, identity-conflict, name-conflict, and new classifications;
-- reviewed Add, Replace, and Skip planning;
-- duplicate-name and invalid-replacement blocking;
-- card-activity, deposit/withdrawal, and digital-wallet patterns.
-
-`Local source — desktop` and `Local source — responsive` depend on this gate, so syntax or pure-model failure prevents browser downloads.
+Desktop and responsive browser jobs depend on this gate.
 
 ## Staged browser execution
 
-Draft PRs skip protected jobs.
-
 When ready for review:
 
-1. parser/profile/portability/static preflight runs;
-2. Chromium desktop and Android Chromium run after preflight;
+1. parser/profile/portability/revision/diagnostic preflight runs;
+2. Chromium desktop and Android Chromium run;
 3. Firefox/WebKit install only after desktop Chromium passes;
 4. iPad/iPhone WebKit install only after Android passes;
 5. diagnostics upload only on failure.
 
 ## Axe accessibility gate
 
-Desktop coverage includes:
+Desktop inventory includes every primary destination, all Money and Activity subsections, all eight report pages, Tools before source selection, profile library, portability conflicts, profile field validation, prepared dry runs, profile revision comparison, full restore, Exports & Backup, Diagnostics, and Roadmap.
 
-- Dashboard;
-- every Money subsection;
-- Calendar;
-- all eight report-preview pages;
-- Transactions, Review Queue, Rules, Insights, and Plan;
-- Tools → profile library and bank import before source selection;
-- Tools → portable bundle conflict review;
-- Tools → mapping profile and field validation after a synthetic export;
-- Tools → Restore full vault;
-- Exports & Backup, Diagnostics, and Roadmap.
-
-Targeted phone coverage includes Dashboard, report summary, report insights, report Guided Plan, Activity insights, Activity Plan, responsive navigation, portable bundle conflict review, and the mapping-profile/field-validation surface.
+Phone inventory includes Dashboard, Reports summary/insights/Guided Plan, Activity Insights/Plan, portable bundle review, profile field validation, prepared dry run, and revision review.
 
 The gate fails on serious or critical violations associated with WCAG 2.0 A/AA, WCAG 2.1 A/AA, and axe best-practice tags.
 
-## Keyboard and semantic gate
+## Keyboard and semantics
 
-The quality and cross-browser suites verify:
+The suite verifies:
 
-- Skip to content;
-- visible focus treatment;
-- unique rendered IDs;
-- mobile menu state and Escape behavior;
-- valid secondary tab semantics;
-- Arrow Left/Right, Home, and End navigation;
+- Skip to content and visible focus;
+- unique IDs;
+- secondary tab semantics and Arrow Left/Right/Home/End navigation;
 - labeled and focusable scrollable tables;
-- native report-page, mapping, profile, bundle-action, and replacement-target selects;
-- explicit import/restore task buttons with `aria-pressed` state;
-- usable profile Save, Update, New, Apply, Delete, Export, Add, Replace, Skip, and Clear controls;
-- explicit bundle acknowledgement before storage.
+- native report, mapping, profile, bundle-action, replacement-target, and revision controls;
+- explicit import/restore task buttons;
+- explicit revision and dry-run actions;
+- mobile-menu Escape behavior.
 
-The shared enhancement remains in `src/v112/accessibility.js` and observes main-content rerenders.
+## Lighthouse CI
 
-## Lighthouse CI gate
-
-`lighthouserc.cjs` runs three local desktop audits.
-
-Minimum median scores:
+Three local desktop runs enforce median thresholds:
 
 - Performance: 0.85;
 - Accessibility: 0.95;
 - Best Practices: 0.95;
-- SEO: 0.90.
+- SEO: 0.90;
+- FCP: 2,000 ms;
+- LCP: 2,500 ms;
+- TBT: 250 ms;
+- CLS: 0.10;
+- total byte weight: 750 KB;
+- scripts: 500 KB;
+- stylesheets: 150 KB;
+- images: 250 KB;
+- console errors: zero;
+- network requests: maximum 45.
 
-Maximum median timing assertions:
-
-- FCP: 2.0 seconds;
-- LCP: 2.5 seconds;
-- TBT: 250 milliseconds;
-- CLS: 0.10.
-
-The gate also enforces page-weight, script, stylesheet, image, console-error, request-count, and zero-third-party-resource budgets. v117 mapping-profile JavaScript, v118 portability JavaScript, and their CSS load only after Tools → Import opens, so the initial Dashboard request budget is unchanged. Reports upload only on failure.
+The v118 portability and v119 revision/diagnostic route layers and their CSS load only when Tools or Reports is opened. The initial Dashboard request budget is not increased.
 
 ## Privacy-safe visual contracts
 
 No binary screenshot baseline is committed.
 
-Deterministic v118 contracts cover:
+Deterministic contracts cover Dashboard desktop, Reports desktop and phone, Tools → Import phone, and Activity phone. Contracts verify six primary destinations, eight report pages, one visible report preview, Import visible/Restore hidden initially, profile portability, revision history, dry-run controls, compact phone navigation, control height, main width, topbar placement, and horizontal overflow.
 
-- Dashboard desktop at 1440 × 1000;
-- Reports desktop at 1440 × 1000;
-- Reports phone at 390 × 844;
-- Tools → Import & Restore phone at 390 × 844;
-- Activity phone at 390 × 844.
-
-The contracts verify six primary destinations, eight report pages in the document, one visible report preview, Import visible and Restore hidden initially, the portability card and bundle picker visible on Import, compact phone Activity navigation, responsive report controls, minimum card counts, control height, main width, topbar placement, and horizontal overflow.
-
-Targeted browser tests separately verify bundle action/name/target controls, library containment, and field validation after synthetic files are inspected.
-
-Actual geometry and computed colors are temporary JSON diagnostics. Screenshots, traces, and video are retained only when a test fails.
+Geometry and computed-color JSON is temporary. Screenshots, traces, video, axe JSON, and Lighthouse reports upload only on failure.
 
 ## Observer stability
 
-The v118 release layer uses one idempotent MutationObserver on `#main`. The lazy v117 profile controller and v118 portability controller each mark the current Import page and do not rebuild it on observer callbacks.
+The v118 and v119 route layers use idempotent enhancement markers and one observer per release layer. Tests require Reports, profile library, bundle preview, mapping controls, revision gate, revision history, dry-run summary, and import/restore changes to settle with zero continuing child-list rewrites.
 
-Tests require Reports, the initial profile library, portable bundle preview, mapping profile controls, field explanations, Import / Restore task changes, and explicit report selections to settle with zero continuing child-list rewrites.
-
-## Portability safety contracts
+## v119 revision safety contracts
 
 Browser and pure-model tests require:
 
-- exported bundles omit local profile IDs and local timestamps;
-- files containing transaction-shaped or credential-shaped keys are rejected before preview;
-- selected filenames are not stored in the profile library;
-- exact and same-definition imports default to Skip;
-- replacements target only identity-matched saved profiles;
-- replacements preserve local profile ID and original creation time;
-- reviewed Add/Replace/Skip writes leave the household vault byte-for-byte unchanged;
-- profile writes are sanitized, capped, read back, and rolled back on failure.
+- existing Update and portable Replace are intercepted before metadata writes;
+- every changed mapping and option is shown;
+- destination-label values are redacted in retained history;
+- acknowledgement and confirmation are required;
+- history remains capped at 60 total and 8 per profile;
+- profile and revision writes are jointly read back;
+- both prior raw metadata values are restored after failure;
+- the household vault is unchanged.
 
-## Workflow security checks
+## v119 dry-run safety contracts
 
-`tests/repository-security.spec.js` verifies:
+Tests require:
 
-- every external Action is pinned to a full commit SHA;
-- no privileged PR trigger or broad content-write permission;
-- CodeQL least privilege;
-- parser/profile/portability/static preflight before browser installation;
-- desktop and responsive engine staging;
-- quality preflight before axe;
-- failure-only diagnostics;
-- v115 parser purity and guarded transaction controls;
-- v113 Insights and v114 Guided Plan local-only boundaries;
-- the v117 pure profile model has no storage or network channel;
-- the v117 controller writes only the bounded profile key and never the vault;
-- v118 pure portability and institution-pattern models have no storage or network channel;
-- the v118 controller writes only the profile key and includes rollback/read-back verification;
-- v118 profile and portability code/CSS are absent from initial HTML;
-- v118 release and exports add no transaction-storage channel;
-- Cloudflare security headers.
+- source inspection before preparation;
+- preparation in memory only;
+- no transaction write;
+- explicit separate download;
+- stale diagnostic rejection after mapping/reconciliation changes;
+- no transaction rows, merchants, filenames, fingerprints, account identifiers, destination labels, balances, credentials, or vault contents;
+- explicit false data-boundary declarations.
 
-## Local execution
+## Preserved v118 and v117 contracts
 
-```bash
-npm run test:parser
-npm ci --ignore-scripts
-npx playwright install chromium
-npm run test:preflight
-npm run test:quality
-```
+The suite retains sanitized bundle export/import, forbidden-key rejection, exact/same-definition/identity-conflict/name-conflict/new classification, reviewed Add/Replace/Skip decisions, identity-matched replacement, profile-ID preservation, exact-compatible application, bounded profile storage, field explanations, rollback, and vault noninterference.
 
-Individual commands:
+## Repository security and supply chain
 
-```bash
-npm run test:a11y
-npm run test:visual
-```
+Protected workflows verify:
 
-Lighthouse:
+- full-history privacy and financial-identifier scanning;
+- Gitleaks;
+- action SHA pinning and least-privilege permissions;
+- Dependency Review;
+- high/critical npm audit with scripts disabled;
+- CodeQL `security-extended` analysis;
+- CSP and local-first boundary headers;
+- parser purity and storage-key separation;
+- required files and staged workflow ordering.
 
-```bash
-python3 -m http.server 4173 --bind 127.0.0.1
-npm exec --yes --package=@lhci/cli@0.15.1 -- lhci autorun --config=lighthouserc.cjs
-```
+## Merge criteria
 
-Generated parser output, quality reports, test results, Playwright reports, and Lighthouse reports must not be committed.
+A final head may merge only after:
+
+1. Parser and static preflight;
+2. Local source — desktop;
+3. Local source — responsive;
+4. Accessibility and visual contracts;
+5. Lighthouse CI budgets;
+6. Full-history privacy and secret scan;
+7. CodeQL;
+8. Dependency Review;
+9. npm audit;
+10. repository drift checks;
+11. exact-head Cloudflare preview deployment;
+12. no unresolved review threads.
