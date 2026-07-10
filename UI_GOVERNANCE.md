@@ -20,6 +20,8 @@ Every release must review:
 10. **State restraint** — persistent state must create clear user value and must not duplicate transaction contents.
 11. **Explain remembered choices** — automatically restored settings must identify their source and remain immediately editable.
 12. **No silent compatibility guesses** — reusable profiles may apply automatically only when one exact-compatible match exists.
+13. **No silent portable merges** — every imported profile definition must expose a reviewed Add, Replace, or Skip decision.
+14. **Consequence-first destructive controls** — Replace, Delete, Restore, and transaction writes must be visually and textually distinct from ordinary edits.
 
 ## Current information architecture
 
@@ -32,7 +34,7 @@ The v116 review reconfirmed six primary destinations:
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
 - **Tools** — Import / Restore, Exports & Backup, Diagnostics, and Roadmap.
 
-v117 does not add or remove a primary destination. Import profiles belong inside Tools → Import transactions because they configure that existing task rather than representing a new household goal.
+v118 does not add or remove a primary destination. Mapping profiles and profile portability belong inside Tools → Import transactions because they configure that existing task rather than representing a new household goal.
 
 ## Task navigation decisions
 
@@ -55,13 +57,51 @@ Incremental transaction import and full vault restore share a Tools subsection b
 
 They should not appear as one uninterrupted workflow. Task controls must state the consequence clearly and preserve the existing guarded engines.
 
-### Import profiles
+### Saved profile library and portability
 
-Profiles are configuration for the Map stage, not another task or top-level page.
+The saved-profile library is configuration for Import, not another top-level task.
 
-The profile UI must:
+It should appear before a transaction export is selected because a user may need to:
 
-- appear only after a supported export is inspected;
+- review existing profile names and destination labels;
+- export sanitized definitions;
+- inspect and import a profile bundle;
+- resolve naming or identity conflicts.
+
+The library should distinguish:
+
+- user-facing profile name;
+- destination account label;
+- recognized source pattern or schema;
+- non-reversible header identity.
+
+Dense profile data belongs in a labeled, focusable table container that scrolls internally rather than widening the document.
+
+### Portable profile conflict review
+
+Selecting a bundle must create a preview rather than immediately writing storage.
+
+Each imported definition must show:
+
+- its proposed name;
+- source format, pattern, and non-reversible identity;
+- destination label;
+- classification and explanation;
+- mapping or option differences when a saved comparison exists;
+- a native Add, Replace, or Skip select;
+- an editable local name;
+- a replacement-target select only when identity-matched candidates exist.
+
+Exact and same-definition matches should default to Skip. Replace must remain unavailable when no identity-matched target exists. Acknowledgement and final confirmation must state that only profile metadata changes.
+
+Bundle filenames may be displayed during review but must not be persisted.
+
+### Mapping profiles
+
+The mapping-profile UI appears after a supported export is inspected.
+
+It must:
+
 - keep the current mapping controls visible and editable;
 - use native selects and inputs;
 - state that profiles contain metadata only;
@@ -70,7 +110,7 @@ The profile UI must:
 - warn when current settings differ from the applied profile;
 - require an explicit choice when multiple profiles match;
 - explain incompatibility rather than approximating a match;
-- keep Save, Update, New, Apply, and Delete consequences distinct.
+- keep Save, Update, New, Apply, Delete, and Clear consequences distinct.
 
 Profile deletion must explicitly state that transaction data is not changed.
 
@@ -87,8 +127,10 @@ Field-level text should explain validation or downstream meaning without duplica
 - Dense tables remain scrollable inside their own containers instead of forcing the page to overflow.
 - Calendar detail stacks below the month grid on smaller screens.
 - Report-download cards use three, two, or one columns according to available width.
-- Import-profile fields use two columns when space permits and one column on phones.
+- Mapping-profile and portable-bundle fields use multiple columns when space permits and one column on phones.
 - Profile action buttons may wrap on larger screens and must become full-width stacked controls on narrow phones.
+- Portable comparison details should collapse in a native `details` element rather than permanently expanding long difference lists.
+- Destructive confirmation controls should remain easy to distinguish without becoming oversized page-dominating banners.
 
 ## Architecture review result
 
@@ -102,7 +144,7 @@ The v116 review concluded:
 - the v115 import engine and v111 runtime should remain authoritative;
 - a small idempotent presentation layer is preferable to another whole-page runtime.
 
-v117 follows that decision by replacing the v116 release layer, lazy-loading the profile controller only on the Import route, and keeping the v115 parser and writer authoritative.
+v118 follows that decision by replacing the v117 release layer, retaining the v117 mapping controller as a lazy subfeature, lazy-loading portability only on the Import route, and keeping the v115 parser and writer authoritative.
 
 ## Larger overhaul cadence
 
@@ -122,10 +164,10 @@ The next scheduled deeper review is approximately v126, with an acceptable v126�
 
 ## Architecture boundaries
 
-- Local-first transaction processing.
-- No transaction uploads.
-- Import profiles store bounded mapping metadata only.
-- No source rows, filenames, source fingerprints, credentials, or full account identifiers in profiles.
+- Local-first transaction and profile processing.
+- No transaction or profile uploads.
+- Mapping profiles and portable bundles contain bounded metadata only.
+- No source rows, filenames, source fingerprints, credentials, tokens, balances, or full account identifiers in saved profiles or portable bundles.
 - No service-worker registration or offline cache.
 - One live ES-module runtime chain.
 - Never auto-save an empty vault.

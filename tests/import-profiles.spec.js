@@ -18,6 +18,7 @@ async function inspectSignedCsv(page) {
   await page.locator('[data-bank-option="accountLabel"]').fill('Synthetic Household Card');
   await page.locator('[data-bank-option="accountLabel"]').press('Tab');
   await expect(page.locator('.field-validation')).toHaveCount(11);
+  await expect(page.locator('[data-bank-option="accountLabel"]')).toHaveValue('Synthetic Household Card');
 }
 
 async function saveProfile(page, name = 'Synthetic signed CSV profile') {

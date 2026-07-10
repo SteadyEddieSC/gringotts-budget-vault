@@ -89,8 +89,11 @@ test('parser preflight runs before browser installation and release workflows st
   expect(playwright).toContain('needs: parser-preflight');
   expect(playwright).toContain('node --check src/v117/profile-model.js');
   expect(playwright).toContain('node --check src/v117/import-profiles.js');
-  expect(playwright).toContain('node --check src/v117/release.js');
-  expect(playwright).toContain('node --check src/boot-v117.js');
+  expect(playwright).toContain('node --check src/v118/profile-portability-model.js');
+  expect(playwright).toContain('node --check src/v118/institution-patterns.js');
+  expect(playwright).toContain('node --check src/v118/profile-portability.js');
+  expect(playwright).toContain('node --check src/v118/release.js');
+  expect(playwright).toContain('node --check src/boot-v118.js');
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
@@ -146,15 +149,10 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   expect(release).toContain('prepareV115Route');
 });
 
-test('v117 profiles are bounded metadata and cannot write the vault or use the network', () => {
+test('v117 mapping profiles remain bounded metadata and cannot write the vault or use the network', () => {
   const model = read('src/v117/profile-model.js');
   const controller = read('src/v117/import-profiles.js');
-  const release = read('src/v117/release.js');
-  const boot = read('src/boot-v117.js');
-  const index = read('index.html');
-  const app = read('app.html');
-
-  for (const source of [model, controller, release]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  for (const source of [model, controller]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   expect(model).not.toMatch(/localStorage|sessionStorage/);
   expect(model).toContain("IMPORT_PROFILES_KEY = 'gringottsImportProfiles.v1'");
   expect(model).toContain('MAX_IMPORT_PROFILES = 24');
@@ -164,18 +162,41 @@ test('v117 profiles are bounded metadata and cannot write the vault or use the n
   expect(controller).toContain('Import profile verification failed');
   expect(controller).not.toContain('gringottsBudgetVault.latest');
   expect(controller).not.toContain('localStorage.setItem(destination');
-  expect(controller).not.toContain('transactions:');
+});
+
+test('v118 portability is metadata-only, rollback-verified, lazy, and separate from the household vault', () => {
+  const model = read('src/v118/profile-portability-model.js');
+  const patterns = read('src/v118/institution-patterns.js');
+  const controller = read('src/v118/profile-portability.js');
+  const release = read('src/v118/release.js');
+  const boot = read('src/boot-v118.js');
+  const index = read('index.html');
+  const app = read('app.html');
+
+  for (const source of [model, patterns, controller, release]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(model).not.toMatch(/localStorage|sessionStorage/);
+  expect(patterns).not.toMatch(/localStorage|sessionStorage/);
+  expect(model).toContain("PROFILE_BUNDLE_KIND = 'gringotts-import-profile-bundle'");
+  expect(model).toContain('MAX_PROFILE_BUNDLE_BYTES = 256 * 1024');
+  expect(model).toContain('Replace an identity-matched');
+  expect(controller).toContain('localStorage.setItem(IMPORT_PROFILES_KEY');
+  expect(controller).toContain('The previous local profile library was restored.');
+  expect(controller).not.toContain('gringottsBudgetVault.latest');
+  expect(controller).not.toContain('localStorage.setItem(destination');
   expect(release).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
   expect(release).not.toContain('gringottsBudgetVault.latest');
-  expect(release).toContain("version: 'v117'");
-  expect(release).toContain("import('./import-profiles.js?v=117profiles1')");
+  expect(release).toContain("version: 'v118'");
+  expect(release).toContain("import('../v117/import-profiles.js?v=118portable1')");
+  expect(release).toContain("import('./profile-portability.js?v=118portable1')");
   expect(release).toContain('expandedWorkbookSheetsV115');
-  expect(index).toContain('src/boot-v117.js?v=117profiles1');
-  expect(app).toContain('src/boot-v117.js?v=117profiles1');
+  expect(index).toContain('src/boot-v118.js?v=118portable1');
+  expect(app).toContain('src/boot-v118.js?v=118portable1');
   expect(index).not.toContain('styles/v117.css');
+  expect(index).not.toContain('styles/v118.css');
   expect(app).not.toContain('styles/v117.css');
-  expect(boot).toContain("import('./v115/release.js?v=117profiles1')");
-  expect(boot).toContain("import('./v117/release.js?v=117profiles1')");
+  expect(app).not.toContain('styles/v118.css');
+  expect(boot).toContain("import('./v115/release.js?v=118portable1')");
+  expect(boot).toContain("import('./v118/release.js?v=118portable1')");
   expect(boot).not.toContain('serviceWorker');
 });
 
@@ -187,16 +208,22 @@ test('public repository security and quality control files remain present', () =
     '.github/workflows/scorecard.yml', 'playwright.quality.config.js', 'lighthouserc.cjs',
     'quality-baselines/v112-layout-contracts.json', 'quality-tests/accessibility.spec.js',
     'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
-    'src/boot-v117.js', 'src/v113/insights.js', 'src/v114/planning.js',
+    'src/boot-v118.js', 'src/v113/insights.js', 'src/v114/planning.js',
     'src/v114/reporting.js', 'src/v114/release.js', 'src/v114/views.js',
     'src/v115/parser.js', 'src/v115/bank-import.js', 'src/v115/reporting.js',
     'src/v115/release.js', 'src/v115/views.js', 'src/v116/release.js',
-    'src/v117/profile-model.js', 'src/v117/import-profiles.js', 'src/v117/release.js',
-    'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css',
+    'src/v117/profile-model.js', 'src/v117/import-profiles.js',
+    'src/v118/profile-portability-model.js', 'src/v118/institution-patterns.js',
+    'src/v118/profile-portability.js', 'src/v118/release.js',
+    'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css', 'styles/v118.css',
     'tests-node/bank-parser.test.mjs', 'tests-node/import-profile-model.test.mjs',
-    'tests/import-profiles.spec.js', 'tests/v116-ui-architecture.spec.js',
+    'tests-node/profile-portability-model.test.mjs', 'tests-node/institution-patterns.test.mjs',
+    'tests/import-profiles.spec.js', 'tests/profile-portability.spec.js', 'tests/v116-ui-architecture.spec.js',
     'tests/fixtures/bank-import/synthetic-signed.csv',
     'tests/fixtures/bank-import/synthetic-debit-credit.csv',
+    'tests/fixtures/bank-import/synthetic-card-activity.csv',
+    'tests/fixtures/bank-import/synthetic-credit-union-ledger.csv',
+    'tests/fixtures/bank-import/synthetic-digital-wallet.csv',
     'tests/fixtures/bank-import/synthetic.qfx', 'BANK_IMPORT_ROADMAP.md',
     'scripts/privacy-history-scan.mjs'
   ];

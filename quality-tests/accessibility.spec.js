@@ -5,6 +5,30 @@ import { bootQualityPage, expectNoBrowserErrors, openPrimary, safeArtifactName }
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 const profileCsv = 'Date,Description,Amount,Status,Reference,Memo\n07/10/2026,Synthetic Fuel,-45.67,Posted,profile-test-1,Fictional quality row';
+const portableBundle = {
+  kind: 'gringotts-import-profile-bundle',
+  version: 1,
+  generator: 'Synthetic accessibility fixture',
+  exportedAt: '2026-07-10T12:00:00.000Z',
+  profileCount: 1,
+  profiles: [{
+    name: 'Fictional Wallet',
+    format: 'delimited',
+    schemaId: 'generic-signed',
+    schemaLabel: 'Generic signed-amount CSV',
+    delimiter: ',',
+    headerSignature: 'fnv1a-87654321',
+    headerCount: 7,
+    mapping: {
+      date: 'Activity Date', description: 'Name', amount: 'Net Amount', debit: '', credit: '',
+      status: 'Status', account: '', memo: 'Note', id: 'Transaction ID', category: '', type: 'Type'
+    },
+    options: {
+      dateOrder: 'auto', signMode: 'bank', accountLabel: 'Fictional Wallet',
+      accountMode: 'label', useSourceCategory: false
+    }
+  }]
+};
 
 function summarizeViolations(violations) {
   return violations.map((violation) => ({
@@ -56,6 +80,16 @@ async function inspectProfileCsv(page) {
   await expect(page.locator('.field-validation')).toHaveCount(11);
 }
 
+async function inspectPortableBundle(page) {
+  await page.locator('#profileBundleFile').setInputFiles({
+    name: 'synthetic-portability-quality.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(portableBundle))
+  });
+  await expect(page.locator('#profileBundlePreview')).toBeVisible();
+  await expect(page.locator('[data-profile-bundle-action]')).toBeVisible();
+}
+
 function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'Full surface inventory runs once in the desktop quality project.');
 }
@@ -73,7 +107,7 @@ test('axe scans all primary destinations', async ({ page }, testInfo) => {
   await openPrimary(page, 'Activity');
   await scanSurface(page, testInfo, 'Activity — Transactions');
   await openPrimary(page, 'Tools');
-  await scanSurface(page, testInfo, 'Tools — Bank Import');
+  await scanSurface(page, testInfo, 'Tools — Profile Library and Bank Import');
   await expectNoBrowserErrors(errors);
 });
 
@@ -119,11 +153,13 @@ test('axe scans every Activity subsection including Guided Plan', async ({ page 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans every Tools subsection, both import tasks, and profile validation', async ({ page }, testInfo) => {
+test('axe scans every Tools subsection, profile portability, both import tasks, and field validation', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
-  await scanSurface(page, testInfo, 'Tools — Bank Import');
+  await scanSurface(page, testInfo, 'Tools — Profile Library and Bank Import');
+  await inspectPortableBundle(page);
+  await scanSurface(page, testInfo, 'Tools — Profile Bundle Conflict Review');
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Tools — Import Profile and Field Validation');
   await page.getByRole('button', { name: /Restore full vault/i }).click();
@@ -138,7 +174,7 @@ test('axe scans every Tools subsection, both import tasks, and profile validatio
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans key phone surfaces including reports, Guided Plan, and import profiles', async ({ page }, testInfo) => {
+test('axe scans key phone surfaces including reports, Guided Plan, profile portability, and import profiles', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific axe coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await scanSurface(page, testInfo, 'Mobile Dashboard');
@@ -154,6 +190,8 @@ test('axe scans key phone surfaces including reports, Guided Plan, and import pr
   await clickSubsection(page, 'Plan');
   await scanSurface(page, testInfo, 'Mobile Activity — Guided Household Plan');
   await openPrimary(page, 'Tools');
+  await inspectPortableBundle(page);
+  await scanSurface(page, testInfo, 'Mobile Tools — Profile Bundle Conflict Review');
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Import Profile and Field Validation');
   await expectNoBrowserErrors(errors);

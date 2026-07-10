@@ -1,0 +1,132 @@
+/* v118 Profile Portability & Institution Patterns — lazy Tools → Import styles */
+.profile-portability-card {
+  display: grid;
+  gap: 1rem;
+  border-inline-start: 4px solid var(--gold);
+}
+
+.profile-portability-actions {
+  align-items: stretch;
+}
+
+.profile-portability-actions > * {
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+
+.compact-file-drop {
+  min-height: 3rem;
+  padding: .7rem .85rem;
+}
+
+.profile-library {
+  display: grid;
+  gap: .55rem;
+}
+
+.profile-library h4,
+.profile-bundle-preview h4 {
+  margin: 0;
+}
+
+.profile-library-table-wrap {
+  max-width: 100%;
+}
+
+.profile-library-table {
+  min-width: 760px;
+}
+
+.profile-identity-cell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .78rem;
+  overflow-wrap: anywhere;
+}
+
+.profile-bundle-preview {
+  display: grid;
+  gap: 1rem;
+  padding-top: .3rem;
+  border-top: 1px solid var(--line);
+}
+
+.profile-bundle-item {
+  display: grid;
+  gap: .8rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.profile-bundle-item.status-new {
+  border-inline-start: 4px solid var(--green);
+}
+
+.profile-bundle-item.status-identity-conflict,
+.profile-bundle-item.status-name-conflict {
+  border-inline-start: 4px solid var(--gold);
+}
+
+.profile-bundle-item.status-exact,
+.profile-bundle-item.status-same-definition {
+  border-inline-start: 4px solid var(--muted);
+}
+
+.profile-bundle-identity {
+  white-space: pre-wrap;
+}
+
+.profile-bundle-differences summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.profile-bundle-differences ul {
+  margin: .65rem 0 0;
+  padding-inline-start: 1.25rem;
+}
+
+.profile-bundle-controls {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.profile-bundle-controls label,
+.profile-bundle-controls input,
+.profile-bundle-controls select {
+  min-width: 0;
+  width: 100%;
+}
+
+.profile-bundle-confirmation {
+  display: grid;
+  gap: .8rem;
+}
+
+@media (max-width: 860px) {
+  .profile-bundle-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .profile-portability-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .profile-portability-actions > *,
+  .profile-portability-actions .btn {
+    width: 100%;
+  }
+
+  .profile-bundle-item {
+    padding: .8rem;
+  }
+}
+
+@media print {
+  .profile-portability-card {
+    display: none !important;
+  }
+}
