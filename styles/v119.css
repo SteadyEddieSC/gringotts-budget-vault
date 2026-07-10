@@ -1,0 +1,85 @@
+.profile-revision-gate,
+.profile-revision-history,
+.import-dry-run-card {
+  scroll-margin-top: 6rem;
+}
+
+.profile-revision-item {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem;
+  background: var(--panel-2);
+}
+
+.profile-revision-item + .profile-revision-item {
+  margin-top: 1rem;
+}
+
+.profile-revision-table-wrap {
+  margin-top: .75rem;
+}
+
+.profile-revision-table td:first-child {
+  min-width: 11rem;
+  font-weight: 700;
+}
+
+.profile-revision-table td:nth-child(2),
+.profile-revision-table td:nth-child(3) {
+  min-width: 12rem;
+  overflow-wrap: anywhere;
+}
+
+.profile-revision-history-list {
+  display: grid;
+  gap: .65rem;
+}
+
+.profile-revision-history-entry {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: .8rem 1rem;
+  background: var(--panel-2);
+}
+
+.profile-revision-history-entry summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.profile-revision-history-entry ul {
+  margin-bottom: 0;
+}
+
+.import-dry-run-summary {
+  margin-top: 1rem;
+}
+
+.import-dry-run-summary .summary-box {
+  white-space: pre-line;
+}
+
+.v119-result-note {
+  margin-top: 1rem;
+}
+
+@media (max-width: 760px) {
+  .profile-revision-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .import-dry-run-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-revision-gate .button-row,
+  .import-dry-run-card .button-row {
+    align-items: stretch;
+  }
+
+  .profile-revision-gate .button-row > *,
+  .import-dry-run-card .button-row > * {
+    width: 100%;
+  }
+}
