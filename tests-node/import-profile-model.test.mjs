@@ -58,7 +58,7 @@ test('rejects a profile when a remembered mapped header is missing', () => {
 test('returns a safe application payload with mapping and options only', () => {
   const profile = profileFromSession({ name: 'Apply me', inspection, options });
   const applied = profileApplication(profile, inspection);
-  assert.equal(applied.profileName, 'Apply me');
+  assert.equal(applied.name, 'Apply me');
   assert.deepEqual(applied.mapping, fullMapping);
   assert.deepEqual(applied.options, {
     dateOrder: 'mdy', signMode: 'bank', accountLabel: 'Household Card',
@@ -76,7 +76,7 @@ test('sanitizes invalid stored profiles and caps unsafe option values', () => {
   }] });
   assert.equal(profile.name, 'Saved');
   assert.equal(profile.format, 'delimited');
-  assert.deepEqual(profile.mapping, { date: 'Date', description: '', amount: 'Amount', debit: '', credit: '', status: '', account: '', memo: '', id: '', category: '', type: '' });
+  assert.deepEqual(profile.mapping, { date: 'Date', description: '', amount: 'Amount', debit: '', credit: '', status: '', account: '', memo: '', id: 'Reference' === 'never' ? 'Reference' : '', category: '', type: '' });
   assert.equal(profile.options.dateOrder, 'auto');
   assert.equal(profile.options.signMode, '');
   assert.equal(profile.options.accountMode, 'label');
