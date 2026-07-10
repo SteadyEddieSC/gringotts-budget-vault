@@ -10,7 +10,7 @@ async function visibleCount(locator) {
 
 test('preserves six primary destinations and browser-local vault state', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v119/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v120/i);
   const labels = await page.locator('[data-tab]').allTextContents();
   expect(labels.map((value) => value.trim())).toEqual(['Dashboard', 'Money', 'Calendar', 'Reports', 'Activity', 'Tools']);
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
@@ -41,7 +41,7 @@ test('shows one report preview page on screen while preserving all eight print p
   expect(await visibleCount(page.locator('.report-preview-deck > .report-page'))).toBe(8);
 });
 
-test('separates revision-aware incremental import from full vault restore without changing data', async ({ app }) => {
+test('separates receipt-audited incremental import from full vault restore without changing data', async ({ app }) => {
   const { page } = app;
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   await openPrimary(page, 'Tools');
@@ -52,6 +52,7 @@ test('separates revision-aware incremental import from full vault restore withou
   await expect(page.locator('[data-import-task-panel="bank"]')).toBeVisible();
   await expect(page.locator('[data-import-task-panel="restore"]')).toBeHidden();
   await expect(page.locator('.bank-import-progress li')).toHaveCount(3);
+  await expect(page.getByRole('heading', { name: 'Import receipt audit', exact: true })).toBeVisible();
   await expect(page.locator('#profilePortabilityCard')).toBeVisible();
   await expect(page.locator('#profileRevisionHistory')).toBeVisible();
   await expect(page.locator('#importDryRunCard')).toBeVisible();
