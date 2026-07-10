@@ -21,9 +21,32 @@ async function inspectSignedCsv(page) {
   await expect(page.locator('[data-bank-option="accountLabel"]')).toHaveValue('Synthetic Household Card');
 }
 
+async function fillCurrentProfileName(page, name) {
+  const input = page.locator('#bankImportProfileName');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await expect(input).toBeVisible();
+    await input.fill(name);
+    try {
+      await expect(input).toHaveValue(name, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the form after an earlier option change.
+    }
+  }
+  await expect(input).toHaveValue(name);
+}
+
 async function saveProfile(page, name = 'Synthetic signed CSV profile') {
-  await page.locator('#bankImportProfileName').fill(name);
+  await fillCurrentProfileName(page, name);
   await page.locator('#saveBankImportProfile').click();
+  await expect.poll(async () => page.evaluate((profileName) => {
+    try {
+      const profiles = JSON.parse(localStorage.getItem('gringottsImportProfiles.v1') || '{"profiles":[]}').profiles || [];
+      return profiles.some((profile) => profile.name === profileName);
+    } catch {
+      return false;
+    }
+  }, name)).toBe(true);
   await expect(page.getByText(new RegExp(`Profile “${name}” is applied`, 'i'))).toBeVisible();
 }
 
@@ -83,6 +106,7 @@ test('does not apply a profile when the ordered header signature changes', async
     mimeType: 'text/csv',
     buffer: Buffer.from('Description,Date,Amount,Status,Reference,Memo\nSynthetic Fuel,07/20/2026,-45.67,Posted,bank-new-1,Fictional row')
   });
+  await expect(page.locator('#importProfileCard')).toBeVisible();
   await expect(page.locator('#bankImportProfileSelect')).toHaveValue('');
   await expect(page.locator('#bankImportProfileSelect option')).toHaveCount(1);
   await expect(page.getByText(/No profile was applied because compatibility is exact-only/i)).toBeVisible();
@@ -96,8 +120,7 @@ test('requires an explicit choice when multiple exact-compatible profiles exist'
   await inspectSignedCsv(page);
   await saveProfile(page, 'First exact profile');
   await page.locator('#newBankImportProfile').click();
-  await page.locator('#bankImportProfileName').fill('Second exact profile');
-  await page.locator('#saveBankImportProfile').click();
+  await saveProfile(page, 'Second exact profile');
   await page.locator('#resetBankImport').click();
   await page.locator('#bankImportFile').setInputFiles(signedFixture);
 
