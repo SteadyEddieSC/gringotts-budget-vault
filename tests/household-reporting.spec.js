@@ -29,9 +29,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v119 and navigates the complete household report preview', async ({ app }) => {
+test('boots v120 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v119/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v120/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
@@ -74,10 +74,10 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   await expect(page.locator('#reportPreset')).toHaveValue('custom');
   await expect(page.locator('#reportStart')).toHaveValue('2026-05-01');
   await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
-  await selectReportPage(page, 'comparison');
+  await page.locator('#reportPreviewPage').selectOption('comparison');
   await expect(page.locator('.comparison-table tbody tr')).toHaveCount(6);
   await expect(page.getByText(/equivalent prior-year range/i).first()).toBeVisible();
-  await selectReportPage(page, 'plan');
+  await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
@@ -120,14 +120,14 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
     }], monthlyExtra: 50 }));
   });
   await openReports(page);
-  await selectReportPage(page, 'goals');
+  await page.locator('#reportPreviewPage').selectOption('goals');
   await expect(page.getByText('Synthetic Emergency Fund').first()).toBeVisible();
   await expect(page.getByText(/Vault Health/i).first()).toBeVisible();
-  await selectReportPage(page, 'planning');
+  await page.locator('#reportPreviewPage').selectOption('planning');
   await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
   await expect(page.locator('.summary-box').filter({ hasText: /^Forecast:/i })).toBeVisible();
   await expect(page.getByText(/Current priority: Synthetic Promo Card/i)).toBeVisible();
-  await selectReportPage(page, 'plan');
+  await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
 });
 
@@ -136,10 +136,10 @@ test('downloads the 33-sheet workbook, guided plan, and range CSV', async ({ app
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v119_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v120_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v119_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v120_2026-07_.*\.md/i);
 
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);

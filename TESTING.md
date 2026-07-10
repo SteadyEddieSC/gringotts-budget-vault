@@ -4,7 +4,7 @@
 
 All automated tests use fictional fixtures and isolated browser contexts.
 
-Tests must never read, commit, upload, or publish a real household vault, bank export, statement, saved household profile, profile revision history, exported profile bundle, dry-run diagnostic, report, screenshot, account identifier, or generated financial artifact.
+Tests must never read, commit, upload, or publish a real household vault, bank export, statement, profile, profile revision history, profile bundle, dry-run diagnostic, import receipt, receipt-audit package, backup, report, screenshot, account identifier, or generated financial artifact.
 
 Synthetic sources include:
 
@@ -13,7 +13,7 @@ Synthetic sources include:
 - card-activity, deposit/withdrawal-ledger, and digital-wallet CSV;
 - QFX/OFX-family data;
 - fictional legacy Gringotts JSON packages;
-- inline fictional mapping-profile, revision, diagnostic, and portable-bundle fixtures;
+- inline fictional profile, revision, dry-run, bundle, receipt, and audit fixtures;
 - deterministic malformed-input mutations.
 
 ## Requirements
@@ -22,7 +22,7 @@ Synthetic sources include:
 - Python 3 for the local static server;
 - Git history for privacy scanning.
 
-## Browser-free parser, profile, portability, revision, and diagnostic gate
+## Browser-free preflight
 
 Run first:
 
@@ -37,17 +37,19 @@ Node's built-in runner covers:
 - OFX-family parsing and entity decoding;
 - size and row limits;
 - deterministic malformed-input mutations;
-- profile identities, exact compatibility, sanitization, and safe application payloads;
-- portable bundle export, parsing, forbidden-key rejection, and classifications;
-- reviewed Add, Replace, and Skip plans;
-- duplicate-name and invalid-target blocking;
+- profile identity, exact compatibility, sanitization, and safe application;
+- portable bundle parsing, classification, and reviewed Add/Replace/Skip plans;
 - fictional institution-pattern recognition through the v115 parser;
-- field-by-field profile revision comparison;
-- destination-label redaction in revision summaries;
-- 60-total and 8-per-profile revision-history bounds;
-- dry-run diagnostic privacy, safety declarations, and stale-signature detection.
+- field-by-field profile revisions, redaction, and bounded history;
+- dry-run privacy, safety declarations, and stale-signature detection;
+- receipt normalization and verified/no-change handling;
+- incoming and destination count reconciliation;
+- backup filename expectations and manual rollback guidance;
+- receipt-audit download privacy;
+- the detailed v120–v126 roadmap structure;
+- module-instance contracts preventing a second import session.
 
-GitHub also runs `node --check` against active v115–v119 modules before installing browsers.
+GitHub also runs `node --check` against active v115–v120 modules before installing browsers.
 
 ## Local browser setup
 
@@ -82,83 +84,90 @@ npm run test:ui
 npm run report
 ```
 
-## v119 profile-versioning coverage
+## v120 receipt-audit coverage
 
 Tests verify:
 
-- an existing profile Update cannot write before the comparison gate;
-- an identity-matched portable Replace cannot write before the comparison gate;
-- changed mappings and normalization options are displayed field by field;
-- destination-account-label values are displayed and retained only as redacted indicators;
-- acknowledgement and explicit confirmation are required;
-- profile and revision metadata are read back together;
-- failed writes restore both previous raw metadata values;
-- revision history is stored only under `gringottsImportProfileRevisions.v1`;
-- history is capped at 60 records total and 8 per profile;
-- profile revision operations leave `gringottsBudgetVault.latest` byte-for-byte unchanged.
+- existing metadata-only receipts are normalized without copying transaction rows;
+- verified and verified-no-change receipts produce the correct audit state;
+- incoming rows reconcile as inserted plus skipped;
+- destination before plus inserted reconciles to destination after;
+- inconsistent arithmetic is labeled Needs review;
+- current destination differences are explanatory notes rather than automatic rollback triggers;
+- insertion receipts derive the expected `Gringotts_v115_pre_import_<count>_*.json` pattern;
+- no-change receipts do not invent a backup requirement;
+- receipt review leaves `gringottsBudgetVault.latest` byte-for-byte unchanged;
+- downloaded audits exclude filenames, fingerprints, mappings, destination keys, identifiers, merchants, rows, and vault contents;
+- the restore button only opens the separate guarded Full vault restore task;
+- no automatic rollback action exists;
+- receipt audit fits phone, tablet, and desktop layouts;
+- fresh-render desktop and phone axe tests scan the selected audit state.
 
-## v119 dry-run coverage
+## v120 detailed-roadmap coverage
 
 Tests verify:
 
-- a dry run requires an inspected supported export;
-- preparation occurs in memory and performs no transaction write;
-- the summary includes source schema, mapping, non-sensitive options, validation, coverage, duplicate counts, and readiness;
-- a separate explicit action is required for download;
-- a dry run becomes stale after mapping or reconciliation changes;
-- downloaded JSON excludes transaction rows, merchant names, filenames, fingerprints, account identifiers, destination labels, balances, credentials, and vault contents;
-- declared data-boundary fields remain false;
-- phone layouts do not create document-level horizontal overflow.
+- the Roadmap displays seven releases from v120 through v126;
+- every release contains purpose, capabilities, dependencies, safety boundaries, and an expected outcome;
+- v120 is marked current and later releases are marked planned;
+- the page explains that later releases are directional;
+- roadmap enhancement is idempotent and does not create mutation loops;
+- desktop and phone layouts remain inside the document viewport;
+- fresh-render desktop and phone axe scans cover the complete horizon.
 
-## v118 portability coverage
+## v119 revision and dry-run coverage
 
 Tests continue to verify:
 
-- versioned sanitized bundle export;
-- omission of local profile IDs and timestamps;
-- rejection of transaction-shaped, credential-shaped, oversized, and wrong-version files;
+- existing profile Update and identity-matched portable Replace cannot write before comparison;
+- mappings and normalization changes are displayed field by field;
+- destination-account-label changes are retained only as redacted indicators;
+- acknowledgement and confirmation are required;
+- profile and revision metadata are read back together;
+- failed writes restore prior metadata;
+- revision history remains capped at 60 records total and 8 per profile;
+- dry-run preparation performs no transaction write;
+- dry-run downloads exclude rows, merchants, filenames, fingerprints, identifiers, labels, balances, credentials, and vault contents;
+- profile and dry-run operations leave the vault unchanged.
+
+## v118 and v117 profile coverage
+
+Tests continue to verify:
+
+- sanitized portable bundle export;
+- omission of local IDs, timestamps, filenames, source rows, credentials, and full account numbers;
 - exact, same-definition, identity-conflict, name-conflict, and new classifications;
 - reviewed Add, Replace, and Skip decisions;
-- unique-name and identity-matched replacement rules;
-- profile-ID and original-creation-time preservation;
-- filename non-retention;
+- unique names and identity-matched replacement;
 - read-back verification and rollback;
-- saved-profile library columns and phone containment;
-- fictional institution-pattern handling through the existing v115 parser.
-
-Replace proceeds through the v119 revision gate. Add and Skip remain on the established v118 path.
-
-## v117 profile coverage
-
-Tests continue to verify metadata-only persistence under `gringottsImportProfiles.v1`, exact compatibility, one-match automatic application, several-match explicit selection, reordered-header rejection, editable remembered settings, field explanations, native controls, deletion, phone containment, and vault noninterference.
+- exact-compatible mapping profiles, one-match automatic application, several-match selection, deletion, field explanations, phone containment, and vault noninterference.
 
 ## Lazy loading and stability
 
 Tests verify:
 
-- v118 portability and v119 revision/diagnostic modules and CSS are absent from the initial Dashboard request set;
+- v118 portability, v119 revision/dry-run, and v120 receipt/roadmap CSS and controllers are absent from the initial Dashboard request set;
 - route-specific layers load before Tools or Reports renders;
 - the initial Lighthouse request budget remains at 45;
-- handler registration order preserves v119 Update/Replace interception;
-- library, bundle preview, revision gate, revision history, dry run, mapping controls, report preview, and import/restore tasks settle without recursive mutation loops.
+- v120 reads the active v115 registry rather than importing another bank session;
+- handler ordering preserves v119 Update/Replace interception;
+- receipt cards, roadmap cards, profile libraries, previews, revision gates, dry runs, mappings, reports, and Import/Restore tasks settle without recursive mutation loops.
 
-## Preserved architecture and functional coverage
+## Preserved functional coverage
 
 The established synthetic suite continues to verify:
 
 - six primary destinations and persistent shell;
 - one-page-at-a-time report preview and all eight print pages;
 - separate transaction import and full restore tasks;
-- signed CSV, separate debit/credit, QFX/OFX, and legacy JSON imports;
-- stable-ID, deterministic fingerprint, fuzzy, and pending-to-posted duplicate handling;
+- signed CSV, debit/credit, QFX/OFX, and legacy JSON imports;
+- stable-ID, fingerprint, fuzzy, and pending-to-posted duplicate handling;
 - missing-only insertion, metadata-only receipts, populated backups, rollback, and read-back verification;
 - restore destination `gringottsBudgetVault.latest` and empty-restore blocking;
 - Review Queue backup-first edits;
-- goals and Vault Health;
-- reconciliation, close, reopen, forecast, bills, paydays, debt, and promotional APR planning;
-- Household Insights and Guided Household Planning;
+- goals, Vault Health, close, reopen, forecast, bills, paydays, debt, Insights, and Guided Plan;
 - annual tracker filling;
-- backup, CSV, XLSX, ICS, Markdown, diagnostics, profile-bundle, and dry-run downloads;
+- backup, CSV, XLSX, ICS, Markdown, diagnostics, profile-bundle, dry-run, and receipt-audit downloads;
 - phone navigation and no document-level horizontal overflow.
 
 ## Accessibility and visual quality
@@ -170,15 +179,13 @@ Axe inventory includes:
 - all primary destinations and secondary sections;
 - every report-preview page;
 - both Import and Restore tasks;
-- saved profile library and dry-run card before source selection;
-- portable bundle conflict review on desktop and phone;
-- mapping profile controls and field explanations on desktop and phone;
-- prepared dry-run summaries;
-- profile revision comparison and confirmation controls.
+- saved profiles, portability conflict review, mappings, dry run, and profile revision review;
+- selected receipt audit on desktop and phone;
+- the detailed seven-release roadmap on desktop and phone.
 
-Keyboard coverage includes Skip to content, visible focus, secondary tab semantics, arrow navigation, accessible table regions, mobile-menu Escape, unique IDs, native report/mapping/profile/action/target selects, revision acknowledgement, and explicit profile controls.
+Keyboard coverage includes Skip to content, visible focus, secondary tab semantics, arrow navigation, accessible table regions, mobile-menu Escape, unique IDs, native selects, acknowledgement controls, and explicit profile actions.
 
-Privacy-safe visual contracts cover Dashboard desktop, Reports desktop and phone, Import phone, Activity phone, control columns, main width, topbar placement, control height, portability/revision/dry-run visibility, and horizontal overflow.
+Privacy-safe visual contracts cover Dashboard, Reports, Import, Activity, control columns, main width, topbar placement, control height, route-specific surfaces, and horizontal overflow.
 
 No PNG baseline is committed. Screenshots, traces, video, axe JSON, Playwright reports, and Lighthouse files upload only on failure.
 
@@ -190,7 +197,7 @@ Draft pull requests skip protected jobs. When marked ready:
 2. Desktop runs Chromium before Firefox/WebKit installation.
 3. Responsive runs Android Chromium before iPad/iPhone WebKit installation.
 4. Quality runs keyboard and visual contracts before axe.
-5. Lighthouse runs independently in parallel.
+5. Lighthouse runs independently with unchanged budgets.
 6. Privacy, supply-chain, and CodeQL jobs run in parallel.
 
 Concurrency cancellation stops superseded runs. Diagnostics upload only on failure.
@@ -204,36 +211,35 @@ The final candidate runs:
 - Dependency Review;
 - locked `npm audit --audit-level=high` with lifecycle scripts disabled;
 - CodeQL with `security-extended` queries;
-- repository drift checks for action pinning, permissions, headers, parser purity, profile-only storage, portability rollback, revision/dry-run boundaries, guarded transaction writes, lazy loading, staged installs, and required files.
+- repository drift checks for action pinning, permissions, headers, parser purity, profile-only storage, receipt-audit read-only behavior, manual rollback, guarded writes, lazy loading, staged installs, and required files.
 
 ## Production smoke
 
 After merge, the main-branch smoke verifies:
 
-- v119 startup and hardened headers;
+- v120 startup and hardened headers;
 - all six primary destinations;
-- profile library, revision history, dry-run card, and bundle picker;
-- supported-format import text;
-- a synthetic export displays mapping controls, 11 field explanations, and an enabled dry-run action;
+- receipt audit, profile library, revision history, dry-run card, and bundle picker;
+- supported-format text and synthetic mapping controls;
 - full restore remains separate;
+- the seven-release roadmap;
 - Activity → Plan;
-- report summary, insights, and Guided Plan;
-- Import Receipts and report-range controls;
+- report summary, insights, Guided Plan, Import Receipts, and report ranges;
 - no page errors.
 
 ## Final merge gate
 
-A release is ready only when the final head passes:
+A release is ready only when the exact final head passes:
 
 1. Parser and static preflight;
 2. Local source — desktop;
 3. Local source — responsive;
 4. Accessibility and visual contracts;
 5. Lighthouse CI budgets;
-6. Full history privacy and secret scan;
-7. JavaScript security analysis;
+6. Full-history privacy and secret scan;
+7. CodeQL;
 8. Dependency Review;
 9. npm audit;
 10. repository security-drift tests.
 
-The Cloudflare production smoke is verified separately after merge when available through the connected workflow tools.
+The Cloudflare production smoke is verified separately after merge when available through connected workflow tools.

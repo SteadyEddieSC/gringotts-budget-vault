@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v119/);
+    await expect(page.locator('.version-text')).toContainText(/^v120/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -43,6 +43,7 @@ test.describe('@live Cloudflare deployment', () => {
     }
 
     await openPrimary(page, 'Tools');
+    await expect(page.getByRole('heading', { name: 'Import receipt audit', exact: true })).toBeVisible();
     await expect(page.locator('#profilePortabilityCard')).toBeVisible();
     await expect(page.locator('#profileRevisionHistory')).toBeVisible();
     await expect(page.locator('#importDryRunCard')).toBeVisible();
@@ -60,6 +61,9 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByText(/Profiles remember reviewed field mappings/i)).toBeVisible();
     await page.getByRole('button', { name: /Restore full vault/i }).click();
     await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
+    await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();

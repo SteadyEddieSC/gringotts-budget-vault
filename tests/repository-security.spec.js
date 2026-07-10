@@ -93,7 +93,9 @@ test('parser preflight runs before browser installation and release workflows st
     'src/v118/profile-portability-model.js', 'src/v118/institution-patterns.js',
     'src/v118/profile-portability.js', 'src/v118/release.js',
     'src/v119/profile-versioning-model.js', 'src/v119/profile-versioning.js',
-    'src/v119/release.js', 'src/boot-v119.js'
+    'src/v119/release.js', 'src/v120/import-receipt-audit-model.js',
+    'src/v120/import-receipt-audit.js', 'src/v120/roadmap-horizon.js',
+    'src/v120/release.js', 'src/boot-v120.js'
   ]) expect(playwright).toContain(`node --check ${module}`);
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
@@ -178,9 +180,6 @@ test('v119 revision history and dry-run diagnostics remain bounded metadata-only
   const model = read('src/v119/profile-versioning-model.js');
   const controller = read('src/v119/profile-versioning.js');
   const release = read('src/v119/release.js');
-  const boot = read('src/boot-v119.js');
-  const index = read('index.html');
-  const app = read('app.html');
   for (const source of [model, controller, release]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   expect(model).not.toMatch(/localStorage|sessionStorage/);
   expect(model).toContain("PROFILE_REVISIONS_KEY = 'gringottsImportProfileRevisions.v1'");
@@ -192,14 +191,40 @@ test('v119 revision history and dry-run diagnostics remain bounded metadata-only
   expect(controller).toContain('Previous profile and revision metadata were restored.');
   expect(controller).not.toContain('gringottsBudgetVault.latest');
   expect(controller).not.toContain('localStorage.setItem(destination');
-  expect(release).not.toContain('gringottsBudgetVault.latest');
+  expect(release).not.toContain('localStorage.setItem');
   expect(release).toContain("version: 'v119'");
-  expect(index).toContain('src/boot-v119.js?v=119diagnostics1');
-  expect(app).toContain('src/boot-v119.js?v=119diagnostics1');
-  expect(index).not.toContain('styles/v119.css');
-  expect(app).not.toContain('styles/v119.css');
-  expect(boot).toContain("import('./v118/release.js?v=119diagnostics2')");
-  expect(boot).toContain("import('./v119/release.js?v=119diagnostics2')");
+});
+
+test('v120 receipt audit is read-only, privacy-bounded, and keeps rollback manual', () => {
+  const model = read('src/v120/import-receipt-audit-model.js');
+  const controller = read('src/v120/import-receipt-audit.js');
+  const roadmap = read('src/v120/roadmap-horizon.js');
+  const release = read('src/v120/release.js');
+  const boot = read('src/boot-v120.js');
+  const index = read('index.html');
+  const app = read('app.html');
+  for (const source of [model, controller, roadmap, release]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(model).not.toMatch(/localStorage|sessionStorage/);
+  expect(controller).not.toMatch(/localStorage\.setItem|localStorage\.removeItem|sessionStorage\.setItem/);
+  expect(controller).not.toContain('executeImport');
+  expect(controller).not.toContain('restoreVault(');
+  expect(model).toContain("RECEIPT_AUDIT_KIND = 'gringotts-import-receipt-audit'");
+  expect(model).toContain('automaticRollbackAvailable: false');
+  expect(model).toContain('destructiveActionPerformed: false');
+  expect(model).toContain('sourceFileNameIncluded: false');
+  expect(model).toContain('sourceFingerprintIncluded: false');
+  expect(model).toContain('destinationStorageKeyIncluded: false');
+  expect(model).toContain('vaultContentsIncluded: false');
+  expect(roadmap).toContain("version: 'v126'");
+  expect(roadmap).toContain('Roadmap horizon must contain at least six releases.');
+  expect(release).toContain("version: 'v120'");
+  expect(index).toContain('src/boot-v120.js?v=120receipts1');
+  expect(app).toContain('src/boot-v120.js?v=120receipts1');
+  expect(index).not.toContain('styles/v120.css');
+  expect(app).not.toContain('styles/v120.css');
+  expect(boot).toContain("import('./v118/release.js?v=120receipts1')");
+  expect(boot).toContain("import('./v119/release.js?v=120receipts1')");
+  expect(boot).toContain("import('./v120/release.js?v=120receipts1')");
   expect(boot).toContain("['tools', 'reports'].includes(route)");
   expect(boot).not.toContain('serviceWorker');
 });
@@ -212,19 +237,23 @@ test('public repository security and quality control files remain present', () =
     '.github/workflows/scorecard.yml', 'playwright.quality.config.js', 'lighthouserc.cjs',
     'quality-baselines/v112-layout-contracts.json', 'quality-tests/accessibility.spec.js',
     'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
-    'src/boot-v119.js', 'src/v113/insights.js', 'src/v114/planning.js',
+    'src/boot-v120.js', 'src/v113/insights.js', 'src/v114/planning.js',
     'src/v115/parser.js', 'src/v115/bank-import.js', 'src/v115/reporting.js',
     'src/v115/release.js', 'src/v115/views.js', 'src/v116/release.js',
     'src/v117/profile-model.js', 'src/v117/import-profiles.js',
     'src/v118/profile-portability-model.js', 'src/v118/institution-patterns.js',
     'src/v118/profile-portability.js', 'src/v118/release.js',
     'src/v119/profile-versioning-model.js', 'src/v119/profile-versioning.js', 'src/v119/release.js',
-    'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css', 'styles/v118.css', 'styles/v119.css',
+    'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js',
+    'src/v120/roadmap-horizon.js', 'src/v120/release.js',
+    'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css',
+    'styles/v118.css', 'styles/v119.css', 'styles/v120.css',
     'tests-node/bank-parser.test.mjs', 'tests-node/import-profile-model.test.mjs',
     'tests-node/profile-portability-model.test.mjs', 'tests-node/institution-patterns.test.mjs',
-    'tests-node/profile-versioning-diagnostics.test.mjs',
+    'tests-node/profile-versioning-diagnostics.test.mjs', 'tests-node/import-receipt-audit.test.mjs',
     'tests/import-profiles.spec.js', 'tests/profile-portability.spec.js',
-    'tests/profile-versioning-diagnostics.spec.js', 'tests/v116-ui-architecture.spec.js',
+    'tests/profile-versioning-diagnostics.spec.js', 'tests/import-receipt-audit-roadmap.spec.js',
+    'tests/v116-ui-architecture.spec.js',
     'tests/fixtures/bank-import/synthetic-signed.csv',
     'tests/fixtures/bank-import/synthetic-debit-credit.csv',
     'tests/fixtures/bank-import/synthetic-card-activity.csv',

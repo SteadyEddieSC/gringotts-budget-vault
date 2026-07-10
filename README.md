@@ -11,68 +11,80 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application release: **v119 — Profile Versioning & Dry-Run Diagnostics**  
-Current quality-infrastructure release: **v119 — Revision, Diagnostic, and Lazy-Route Contracts**
+Current application release: **v120 — Import Receipt Audit & Rollback Guidance**  
+Current quality-infrastructure release: **v120 — Receipt Audit, Detailed Roadmap, and Lazy-Route Contracts**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
+## Import Receipt Audit & Rollback Guidance
+
+v120 turns the existing metadata-only import receipts into a practical local audit view.
+
+For each completed or reviewed no-change import, Tools → Import & Restore now explains:
+
+- source format, schema, encoding, and retained date coverage;
+- incoming, inserted, skipped, exact-duplicate, fuzzy-candidate, and warning counts;
+- destination count before and after the import;
+- whether the guarded writer recorded a verified or verified-no-change result;
+- whether count arithmetic is internally coherent;
+- whether the current readable destination still matches the receipt's after-count;
+- whether a pre-import backup was expected;
+- the expected backup filename pattern and pre-import transaction count.
+
+A current-vault count difference is a review note rather than an automatic failure because legitimate household activity may have occurred after the import.
+
+### Manual rollback only
+
+No automatic rollback is available.
+
+v120 never scans a backup directory, restores a vault, deletes rows, or rewrites transactions from the receipt-audit screen. It provides a manual checklist and links to the separate Full vault restore task, which still requires a populated preview, acknowledgement, confirmation, and read-back verification.
+
+### Sanitized receipt-audit download
+
+A selected receipt can be downloaded as a metadata-only JSON audit. The download contains source format/schema metadata, counts, verification state, audit checks, backup expectations, and manual guidance.
+
+It excludes transaction rows, source filenames, source fingerprints, mappings, destination storage keys, account identifiers, merchant names, and vault contents.
+
+## Detailed roadmap horizon
+
+Tools → Roadmap now shows a detailed horizon from v120 through v126 instead of only the next release.
+
+Every release card includes:
+
+- purpose;
+- planned capabilities;
+- dependencies;
+- safety boundaries;
+- expected household outcome.
+
+The same horizon is maintained in [`ROADMAP.md`](ROADMAP.md). The next release is the strongest commitment; later releases are directional and may move as real use, testing, or safety findings change priorities.
+
+Current horizon:
+
+- **v121:** Receipt Integrity & Import Batch Reconciliation
+- **v122:** Account Cleanup & Merge Planning
+- **v123:** Recurring Cost Decisions & Subscription Review
+- **v124:** Household Scenario Comparison
+- **v125:** Close History & Trend Explainability
+- **v126:** Data Portability & Long-Term Maintenance
+
 ## Profile Versioning & Dry-Run Diagnostics
 
-v119 adds two explicit metadata-only safety boundaries to Tools → Import transactions.
+v119 remains the revision and readiness layer below v120.
 
-### Revision-gated profile updates
+Updating an existing mapping profile or replacing one through a portable bundle pauses before storage and shows every changed mapping and normalization option. Revision history is stored separately under `gringottsImportProfileRevisions.v1`, capped at 60 summaries total and 8 per profile, with destination-account-label values redacted.
 
-Updating an existing mapping profile or replacing one through a portable bundle now pauses before storage and shows every changed mapping and normalization option.
+The local import dry run summarizes source format/schema, mappings, non-sensitive options, validation counts, date coverage, duplicate counts, and readiness without writing transactions. Its download excludes rows, filenames, fingerprints, account identifiers, destination labels, balances, credentials, and vault contents.
 
-The user must acknowledge and confirm the comparison before metadata is written. Profile and revision-history values are then read back together. A failed write restores both previous raw values.
+## Profile Portability & Field Validation
 
-Revision history is stored separately under `gringottsImportProfileRevisions.v1` and is limited to:
+v118 and v117 remain the portable-definition and mapping-profile layers.
 
-- 60 revision summaries total;
-- 8 revision summaries per local profile.
+Portable profile bundles omit local profile IDs, local timestamps, transaction rows, source files, filenames, fingerprints, balances, credentials, tokens, and full account numbers. Imported definitions require explicit Add, Replace, or Skip decisions, and Replace is limited to an identity-matched profile and revision-gated by v119.
 
-The history stores definition hashes, source, time, and sanitized changed-field descriptions. Local destination-account-label values are represented only as a redacted change indicator. Transaction rows, source files, filenames, fingerprints, balances, credentials, and vault contents are never copied into revision history.
-
-### Explicit local import dry run
-
-After inspecting a supported bank export, the user can prepare an in-memory dry run showing:
-
-- source format and schema;
-- selected header mappings;
-- non-sensitive normalization options;
-- required-field readiness;
-- normalization error and warning counts;
-- date coverage and overlap;
-- exact, fuzzy, fresh, unresolved, insert, and skip counts;
-- acknowledgement, backup, and transaction-write readiness.
-
-Preparing the dry run performs no transaction write. A second explicit action downloads the JSON diagnostic.
-
-The diagnostic excludes transaction rows, merchant names, source filenames, source fingerprints, account identifiers, destination account labels, balances, credentials, and household vault contents.
-
-## Profile Portability & Institution Patterns
-
-v118 remains the portable-definition layer below v119.
-
-Tools → Import transactions can export the saved profile library as a versioned JSON bundle. Portable definitions contain profile names, source schema and delimiter metadata, a non-reversible ordered-header signature, mapped source-header names, normalization choices, and destination handling metadata.
-
-Portable files omit local profile IDs and local creation/update timestamps. They never contain transaction rows, source file content, source filenames, source fingerprints, balances, credentials, tokens, or full account numbers. Bundles are limited to 24 definitions and 256 KB.
-
-Selecting a bundle creates an in-memory preview. Every definition is classified as an exact duplicate, same definition under another name, source-identity conflict, name conflict, or new definition. Every item requires Add, Replace, or Skip. Replace is available only for an identity-matched saved profile and is revision-gated by v119.
-
-Synthetic fixtures cover card activity, deposit/withdrawal account ledgers, and digital-wallet activity through the existing v115 parser.
-
-## Import Profiles & Field Validation
-
-v117 remains the mapping-profile layer. Profiles are browser-local metadata under `gringottsImportProfiles.v1`, capped at 24 sanitized records and read-back verified.
-
-A profile applies automatically only when exactly one saved profile matches format, schema, delimiter, ordered headers, and remembered mapped headers. Several exact matches require an explicit choice.
-
-The Map stage explains dates, signed amounts or debit/credit columns, stable transaction IDs, account mapping and masking, pending status, source categories, transaction type, and profile-remembered choices.
-
-Applying, saving, importing, updating, replacing, or deleting profile metadata does not import transactions.
+Browser-local profiles remain capped at 24 sanitized records and apply automatically only when exactly one saved profile matches the source format, schema, delimiter, ordered headers, and remembered mapped headers.
 
 ## UI architecture
 
@@ -87,11 +99,11 @@ The six primary destinations remain:
 
 Reports shows one of eight pages at a time on screen while Print / Save PDF includes all eight. Tools separates incremental transaction import from full vault restore. Activity secondary navigation remains compact on narrow phones.
 
-The initial Dashboard request budget remains protected: v118 portability and v119 revision/diagnostic layers load only when Tools or Reports is opened.
+The initial Dashboard request budget remains protected: portability, revision, dry-run, receipt-audit, and detailed-roadmap layers load only when Tools or Reports is opened.
 
 ## Bank Export Import & Mapping
 
-v115 remains the guarded local transaction engine under the v117–v119 metadata layers.
+v115 remains the guarded local transaction engine beneath the v117–v120 metadata and audit layers.
 
 Supported local sources:
 
@@ -103,7 +115,7 @@ Supported local sources:
 - QBO;
 - existing Gringotts JSON transaction packages.
 
-The transaction workflow provides format and schema inspection, explicit mapping, date-order and signed-amount interpretation, normalized preview, masked accounts, exact and fuzzy duplicate review, coverage warnings, backup-first insertion, rollback, read-back verification, and metadata-only receipts.
+The workflow provides format/schema inspection, explicit mapping, date-order and signed-amount interpretation, normalized preview, masked accounts, exact and fuzzy duplicate review, coverage warnings, backup-first insertion, rollback, count/token verification, and metadata-only receipts.
 
 Imported rows default to `Other`, unreviewed, and review-required unless source-category use is explicitly selected. Incremental import never replaces the destination vault.
 
@@ -115,7 +127,7 @@ Do not commit or attach:
 
 - bank or credit-card exports;
 - Gringotts vault backups;
-- saved household profiles, revision-history exports, or exported profile bundles;
+- saved household profiles, revision-history exports, profile bundles, dry-run diagnostics, or receipt-audit downloads;
 - account or routing numbers;
 - screenshots containing household financial data;
 - filled spreadsheets or generated reports;
@@ -125,10 +137,9 @@ The application remains local-first:
 
 - bank exports and profile bundles are parsed in browser memory;
 - no transaction upload, parser API, analytics endpoint, or institution credential connection exists;
-- profile bundles, revision history, and dry-run diagnostics retain metadata only;
-- filenames are displayed for review but are not stored in the profile library or diagnostic;
-- source account identifiers are masked when mapped;
-- raw imported rows are not copied into receipts, profiles, revision history, or diagnostics;
+- profiles, bundles, revision history, dry runs, receipts, and receipt audits retain metadata only;
+- raw imported rows are not copied into receipts, profiles, revisions, diagnostics, or audits;
+- audit downloads omit filenames, fingerprints, mappings, destination keys, identifiers, merchants, and vault contents;
 - reports and downloads are generated locally;
 - no service worker or offline application cache is registered;
 - an empty vault is never automatically saved over a populated vault;
@@ -138,12 +149,13 @@ The application remains local-first:
 
 The parser/static gate runs before Playwright browser installation:
 
-- active v115–v119 modules are checked with `node --check`;
-- parser, profile, portability, revision, diagnostic, malformed-input, size-limit, and deterministic mutation tests use Node's built-in runner;
-- desktop and responsive browser jobs cannot begin until preflight passes;
+- active v115–v120 modules are checked with `node --check`;
+- parser, profile, portability, revision, diagnostic, receipt-audit, roadmap, malformed-input, size-limit, and mutation tests use Node's built-in runner;
+- desktop and responsive jobs cannot begin until preflight passes;
 - Chromium runs before Firefox and WebKit installation;
 - Android Chromium runs before iPad and iPhone WebKit;
-- keyboard and visual contracts run before the longer axe inventory;
+- keyboard and visual contracts run before axe inventories;
+- focused v120 receipt-audit and roadmap axe tests start from fresh renders;
 - diagnostics upload only on failure;
 - draft pull requests skip expensive protected jobs.
 
@@ -153,23 +165,20 @@ See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 The final merge gate covers:
 
-- browser-free parser, profile, portability, revision, and diagnostic preflight;
+- browser-free parser, profile, portability, revision, diagnostic, receipt-audit, and roadmap preflight;
 - Chromium, Firefox, and WebKit desktop behavior;
-- iPad, Android, and iPhone/WebKit layouts;
-- sanitized profile and dry-run downloads;
-- Update and Replace revision gates;
-- exact, same-definition, identity-conflict, name-conflict, and new-profile review;
-- Add, Replace, Skip, duplicate-name blocking, and invalid-target blocking;
-- vault byte-for-byte noninterference and filename non-retention;
-- field-validation explanations and observer stability;
-- all eight report-preview pages and complete print output;
-- signed CSV, debit/credit, OFX-family, and legacy JSON imports;
-- duplicate, rollback, backup, restore, and verification behavior;
+- Android Chromium, iPad WebKit, and iPhone WebKit layouts;
+- sanitized profile, dry-run, and receipt-audit downloads;
+- vault byte-for-byte noninterference;
+- explicit manual-only rollback guidance;
+- the seven-release roadmap horizon;
+- field validation and observer stability;
+- all eight report-preview pages and print completeness;
+- duplicate, backup, restore, rollback, and verification behavior;
 - month close, forecast, debt, goals, Guided Plan, Insights, and Review Queue safeguards;
 - axe, keyboard, visual contracts, and Lighthouse budgets;
 - full-history privacy and Gitleaks scans;
-- Dependency Review, high/critical npm audit, and CodeQL;
-- pinned Actions and least-privilege permissions.
+- Dependency Review, npm audit, CodeQL, pinned Actions, and least-privilege permissions.
 
 OpenSSF Scorecard findings are triaged in [`SCORECARD_ALERTS.md`](SCORECARD_ALERTS.md).
 
@@ -194,10 +203,11 @@ See [`TESTING.md`](TESTING.md) and [`QUALITY_GATES.md`](QUALITY_GATES.md) for th
 
 PDF statements, Office files, archives, executables, unsupported binaries, files above 5 MB, and transaction imports above the configured row limit remain blocked.
 
-CAMT, MT940, XLSX, institution-specific JSON, OCR, and PDF extraction require separate fixtures and safety review.
+CAMT, MT940, guarded XLSX, institution-specific JSON, OCR, and PDF extraction require separate representative fixtures and safety review.
 
 ## Release documentation
 
+- [`RELEASE_NOTES_v120_IMPORT_RECEIPT_AUDIT.md`](RELEASE_NOTES_v120_IMPORT_RECEIPT_AUDIT.md)
 - [`RELEASE_NOTES_v119_PROFILE_VERSIONING_DIAGNOSTICS.md`](RELEASE_NOTES_v119_PROFILE_VERSIONING_DIAGNOSTICS.md)
 - [`RELEASE_NOTES_v118_PROFILE_PORTABILITY_PATTERNS.md`](RELEASE_NOTES_v118_PROFILE_PORTABILITY_PATTERNS.md)
 - [`ROADMAP.md`](ROADMAP.md)

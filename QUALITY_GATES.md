@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The quality system protects parser, mapping-profile, portability, revision-history, dry-run diagnostic, accessibility, performance, responsive-layout, and local-first data boundaries across v119 Profile Versioning & Dry-Run Diagnostics.
+The quality system protects parser, mapping-profile, portability, revision-history, dry-run diagnostic, receipt-audit, detailed-roadmap, accessibility, performance, responsive-layout, and local-first data boundaries across v120 Import Receipt Audit & Rollback Guidance.
 
 Syntax and pure-model defects stop before expensive browser installation. Draft pull requests skip protected jobs.
 
@@ -13,7 +13,7 @@ All checks use fictional fixtures in isolated Node or Playwright contexts.
 The workflows do not:
 
 - read a normal user browser profile;
-- upload a household vault, bank export, saved profile, revision history, exported bundle, dry-run diagnostic, Guided Plan, or report;
+- upload a household vault, bank export, profile, revision history, bundle, dry run, receipt, receipt audit, Guided Plan, backup, or report;
 - commit financial screenshots;
 - load remote parser or axe code at application runtime;
 - publish Lighthouse reports to public temporary storage;
@@ -21,16 +21,16 @@ The workflows do not:
 - change the restore destination;
 - use a real institution account or identifier.
 
-`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser, profile, portability, revision, diagnostic, and institution-pattern tests use Node's built-in runner.
+`@axe-core/playwright` 4.12.1 and Playwright 1.61.1 are lockfile-pinned. Lighthouse CI 0.15.1 is invoked at an exact version. Pure parser, profile, portability, revision, diagnostic, receipt-audit, roadmap, and institution-pattern tests use Node's built-in runner.
 
-## Parser, profile, portability, revision, diagnostic, and static preflight
+## Parser and static preflight
 
 Before either browser matrix job begins, GitHub runs:
 
-- `node --check` against active v115–v119 modules and `src/boot-v119.js`;
-- `npm run test:parser` using synthetic text fixtures, deterministic mutations, profile models, portable bundles, revision histories, dry-run diagnostics, and fictional institution patterns.
+- `node --check` against active v115–v120 modules and `src/boot-v120.js`;
+- `npm run test:parser` using synthetic parser fixtures, deterministic mutations, profile models, bundles, revision histories, dry runs, receipts, audit packages, roadmap data, and module-identity contracts.
 
-The gate covers format/delimiter detection, quoted fields, mapping candidates, date/amount/sign validation, OFX-family data, limits, malformed-input termination, exact profile compatibility, portable bundle sanitization/classification, Add/Replace/Skip planning, revision comparison/redaction/bounds, diagnostic privacy/signatures, and fictional institution patterns.
+The gate covers format/delimiter detection, field mapping, date/amount/sign validation, OFX-family data, limits, malformed-input termination, exact profile compatibility, bundle review, revision redaction/bounds, dry-run privacy, receipt arithmetic and verification, backup expectations, audit-package privacy, and the v120–v126 roadmap structure.
 
 Desktop and responsive browser jobs depend on this gate.
 
@@ -38,7 +38,7 @@ Desktop and responsive browser jobs depend on this gate.
 
 When ready for review:
 
-1. parser/profile/portability/revision/diagnostic preflight runs;
+1. parser/profile/portability/revision/diagnostic/receipt/roadmap preflight runs;
 2. Chromium desktop and Android Chromium run;
 3. Firefox/WebKit install only after desktop Chromium passes;
 4. iPad/iPhone WebKit install only after Android passes;
@@ -46,9 +46,13 @@ When ready for review:
 
 ## Axe accessibility gate
 
-Desktop inventory includes every primary destination, all Money and Activity subsections, all eight report pages, Tools before source selection, profile library, portability conflicts, profile field validation, prepared dry runs, profile revision comparison, full restore, Exports & Backup, Diagnostics, and Roadmap.
+The established inventory covers every primary destination, all Money and Activity subsections, all eight report pages, Import and Restore, profile library, portability conflict review, mapping validation, prepared dry runs, revision review, Exports, Diagnostics, and Roadmap.
 
-Phone inventory includes Dashboard, Reports summary/insights/Guided Plan, Activity Insights/Plan, portable bundle review, profile field validation, prepared dry run, and revision review.
+A focused v120 inventory starts from fresh renders and additionally scans:
+
+- a selected receipt-audit detail on desktop;
+- the seven-release roadmap horizon on desktop;
+- receipt audit and roadmap on the phone layout.
 
 The gate fails on serious or critical violations associated with WCAG 2.0 A/AA, WCAG 2.1 A/AA, and axe best-practice tags.
 
@@ -60,9 +64,9 @@ The suite verifies:
 - unique IDs;
 - secondary tab semantics and Arrow Left/Right/Home/End navigation;
 - labeled and focusable scrollable tables;
-- native report, mapping, profile, bundle-action, replacement-target, and revision controls;
-- explicit import/restore task buttons;
-- explicit revision and dry-run actions;
+- native report, mapping, profile, bundle, replacement, and revision controls;
+- explicit Import/Restore task buttons;
+- explicit revision, dry-run, receipt-audit, and manual-restore actions;
 - mobile-menu Escape behavior.
 
 ## Lighthouse CI
@@ -84,48 +88,51 @@ Three local desktop runs enforce median thresholds:
 - console errors: zero;
 - network requests: maximum 45.
 
-The v118 portability and v119 revision/diagnostic route layers and their CSS load only when Tools or Reports is opened. The initial Dashboard request budget is not increased.
+The v118 portability, v119 revision/dry-run, and v120 receipt/roadmap route layers and their CSS load only when Tools or Reports is opened. The initial Dashboard request budget is not increased.
 
 ## Privacy-safe visual contracts
 
 No binary screenshot baseline is committed.
 
-Deterministic contracts cover Dashboard desktop, Reports desktop and phone, Tools → Import phone, and Activity phone. Contracts verify six primary destinations, eight report pages, one visible report preview, Import visible/Restore hidden initially, profile portability, revision history, dry-run controls, compact phone navigation, control height, main width, topbar placement, and horizontal overflow.
+Deterministic contracts cover Dashboard desktop, Reports desktop and phone, Tools → Import phone, Activity phone, and route-specific controls. Contracts verify six primary destinations, eight report pages, one visible report preview, Import visible/Restore hidden initially, portability, revision history, dry run, receipt audit, compact phone navigation, control height, main width, topbar placement, and horizontal overflow.
 
 Geometry and computed-color JSON is temporary. Screenshots, traces, video, axe JSON, and Lighthouse reports upload only on failure.
 
 ## Observer stability
 
-The v118 and v119 route layers use idempotent enhancement markers and one observer per release layer. Tests require Reports, profile library, bundle preview, mapping controls, revision gate, revision history, dry-run summary, and import/restore changes to settle with zero continuing child-list rewrites.
+The route layers use idempotent enhancement markers and one observer per release layer. Tests require Reports, profiles, bundle preview, mappings, revision gate/history, dry-run summary, receipt audit, detailed roadmap, and Import/Restore changes to settle without continuing child-list rewrites.
 
-## v119 revision safety contracts
+## v120 receipt-audit safety contracts
 
 Browser and pure-model tests require:
 
-- existing Update and portable Replace are intercepted before metadata writes;
-- every changed mapping and option is shown;
-- destination-label values are redacted in retained history;
-- acknowledgement and confirmation are required;
-- history remains capped at 60 total and 8 per profile;
-- profile and revision writes are jointly read back;
-- both prior raw metadata values are restored after failure;
-- the household vault is unchanged.
+- verified and verified-no-change receipt handling;
+- incoming = inserted + skipped reconciliation;
+- destination before + inserted = destination after reconciliation;
+- inconsistent receipts classified for review;
+- current destination differences treated as notes rather than destructive triggers;
+- correct backup filename expectation;
+- no invented backup for no-change receipts;
+- no transaction write or storage cleanup;
+- no automatic rollback;
+- a separate explicit audit download;
+- no transaction rows, filenames, fingerprints, mappings, destination keys, account identifiers, merchants, or vault contents in downloaded audits;
+- the household vault remains byte-for-byte unchanged.
 
-## v119 dry-run safety contracts
+## v120 roadmap contracts
 
 Tests require:
 
-- source inspection before preparation;
-- preparation in memory only;
-- no transaction write;
-- explicit separate download;
-- stale diagnostic rejection after mapping/reconciliation changes;
-- no transaction rows, merchants, filenames, fingerprints, account identifiers, destination labels, balances, credentials, or vault contents;
-- explicit false data-boundary declarations.
+- at least six future-facing releases and seven current entries from v120 through v126;
+- distinct version identifiers;
+- purpose, capabilities, dependencies, safety boundaries, and expected outcome for every release;
+- v120 marked current;
+- directional-planning disclosure for later releases;
+- idempotent rendering and phone containment.
 
-## Preserved v118 and v117 contracts
+## Preserved v119–v117 contracts
 
-The suite retains sanitized bundle export/import, forbidden-key rejection, exact/same-definition/identity-conflict/name-conflict/new classification, reviewed Add/Replace/Skip decisions, identity-matched replacement, profile-ID preservation, exact-compatible application, bounded profile storage, field explanations, rollback, and vault noninterference.
+The suite retains revision-gated Update/Replace, bounded redacted revision history, dry-run privacy, bundle sanitization and reviewed Add/Replace/Skip, exact-compatible profile application, bounded profile storage, field explanations, metadata rollback, and vault noninterference.
 
 ## Repository security and supply chain
 
@@ -139,6 +146,7 @@ Protected workflows verify:
 - CodeQL `security-extended` analysis;
 - CSP and local-first boundary headers;
 - parser purity and storage-key separation;
+- receipt-audit read-only behavior and manual rollback;
 - required files and staged workflow ordering.
 
 ## Merge criteria
