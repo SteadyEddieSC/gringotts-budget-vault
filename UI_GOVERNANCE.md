@@ -10,7 +10,7 @@ Every release must review:
 
 1. **Navigation fit** — place new functionality inside an existing destination when that relationship is clear. Add a primary destination only for a durable user goal.
 2. **Content value** — keep text that explains a decision, risk, next action, or data limitation. Remove repeated descriptions and text that restates a visible heading.
-3. **Action placement** — put actions where the user needs them. Backup belongs with Exports and guarded workflows, not in the header or Dashboard hero.
+3. **Action placement** — put actions where the user needs them. Backup belongs with guarded workflows and Exports, not in the Dashboard hero.
 4. **Responsive behavior** — check phone portrait, phone landscape, tablet, laptop, and wide desktop. Avoid document overflow, cramped cards, and oversized controls.
 5. **Feature consolidation** — group related functions under clear destinations and use secondary/task navigation where needed.
 6. **Accessibility** — preserve keyboard navigation, visible focus, meaningful labels, contrast, native controls, and screen-reader state.
@@ -24,6 +24,8 @@ Every release must review:
 14. **Review profile revisions** — an existing Update or portable Replace must show changed mappings/options before storage.
 15. **Explicit diagnostics** — preparing and downloading a dry-run diagnostic are separate user actions.
 16. **Consequence-first destructive controls** — Replace, Delete, Restore, and transaction writes must be visually and textually distinct from ordinary edits.
+17. **Manual rollback boundaries** — receipt audit may explain and navigate to restore, but it must never present itself as an automatic undo button.
+18. **Roadmap depth without clutter** — planned releases must include useful scope, dependencies, safeguards, and outcomes; they must also be clearly labeled as directional.
 
 ## Current information architecture
 
@@ -36,13 +38,13 @@ The six primary destinations remain:
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
 - **Tools** — Import / Restore, Exports & Backup, Diagnostics, and Roadmap.
 
-v119 adds no primary destination. Profile revision review and dry-run diagnostics belong inside Tools → Import transactions because they configure and validate that existing task.
+v120 adds no primary destination. Receipt audit belongs inside Tools → Import & Restore because it explains prior outcomes of that task. The detailed release horizon remains under Tools → Roadmap because it is operational planning, not a household-finance destination.
 
 ## Reports
 
 Reports separates choosing the range, previewing the family report, and downloading exports. The eight pages remain one report. A native select and Previous/Next controls are appropriate on screen; print and PDF include every page.
 
-The v118/v119 report layer loads only when Reports is opened so Dashboard performance remains stable.
+The v118–v120 route layers load only when Reports or Tools is opened so Dashboard performance remains stable.
 
 ## Import and restore
 
@@ -52,6 +54,41 @@ Incremental import and full restore share a Tools subsection but are different t
 - restore replaces the destination vault.
 
 They must not appear as one uninterrupted workflow. Task controls state the consequence and preserve the guarded engines.
+
+## Receipt audit and rollback guidance
+
+The receipt-audit card replaces the old passive receipt table but remains part of the Import task.
+
+It must:
+
+- summarize verified, verified-with-notes, needs-review, and backup-expected counts;
+- show local receipt identity, source metadata, count arithmetic, verification state, and current-destination notes;
+- keep dense receipt and check tables in labeled focusable scroll regions;
+- explain that later activity can cause a legitimate current-count difference;
+- show the expected backup filename pattern and pre-import count when available;
+- state explicitly that no automatic rollback is available;
+- offer a sanitized audit download and a copyable manual checklist;
+- open the existing Full vault restore task rather than creating another restore control;
+- avoid persisting selection or new transaction data.
+
+Source filenames and fingerprints may appear only in the local on-screen receipt review. They must not appear in downloaded receipt audits.
+
+## Detailed roadmap horizon
+
+The Roadmap page must show more than one next-release title.
+
+Every visible planned release requires:
+
+- a clear purpose;
+- meaningful planned capabilities;
+- dependencies or prerequisites;
+- safety boundaries;
+- an expected household outcome;
+- current/planned status.
+
+The page must disclose that the next release is the strongest commitment and that later entries may move. Roadmap cards should use readable sections and lists, not a wall of pills. Desktop may use a three-column notes grid; tablet and phone must stack to one column without document overflow.
+
+The same horizon must remain in `ROADMAP.md`. Structured roadmap data must validate a minimum multi-release horizon before rendering.
 
 ## Saved profile library and portability
 
@@ -67,34 +104,17 @@ Exact and same-definition matches default to Skip. Replace remains unavailable w
 
 Existing-profile Update and portable-bundle Replace must pause before metadata storage.
 
-The review card must:
+The review card must identify the profile and source, show every changed mapping/option, redact destination-label values in retained history, state that the vault is unchanged, require acknowledgement, use an explicit confirmation control, provide Cancel, and keep comparisons scrollable on phones.
 
-- identify the profile and revision source;
-- show every changed mapping and normalization option in a labeled table;
-- redact destination-account-label values in retained history;
-- state that transactions and the vault are unchanged;
-- require acknowledgement;
-- use an explicit confirmation button;
-- provide a clear Cancel action;
-- keep the comparison table internally scrollable on phones.
-
-Revision history belongs below the profile library as collapsible metadata summaries. It must not become another primary or secondary navigation destination.
+Revision history belongs below the profile library as collapsible metadata summaries. It must not become another primary or secondary destination.
 
 ## Local import dry run
 
-The dry-run card belongs in Tools → Import transactions near the profile and mapping controls.
-
-Before source selection it explains what the diagnostic excludes. After inspection it can prepare an in-memory summary showing schema, mapping readiness, validation counts, coverage, duplicate counts, and write readiness.
+The dry-run card belongs in Tools → Import near profile and mapping controls.
 
 Prepare/Refresh and Download are separate controls. Download is unavailable until a current dry run exists. Mapping or reconciliation changes invalidate the prepared result.
 
-The UI must state that preparation performs no transaction write and that downloaded diagnostics exclude rows, filenames, fingerprints, account identifiers, destination labels, balances, credentials, and vault contents.
-
-## Mapping profiles and field explanations
-
-The mapping-profile UI appears after a supported export is inspected. It keeps mapping controls visible/editable, uses native selects/inputs, identifies applied/compatible profiles, explains incompatibility, warns when current settings differ, and distinguishes Save New, Update, New, Apply, Delete, and Clear consequences.
-
-Field-level text explains validation or downstream meaning without duplicating the normalized preview. Text, not color alone, communicates good, warning, error, informational, and optional states.
+The UI must state that preparation performs no transaction write and that downloads exclude rows, filenames, fingerprints, identifiers, destination labels, balances, credentials, and vault contents.
 
 ## Responsive navigation and density
 
@@ -105,9 +125,10 @@ Field-level text explains validation or downstream meaning without duplicating t
 - Dense tables scroll within their own containers.
 - Calendar detail stacks below the month grid on smaller screens.
 - Report-download cards use three, two, or one columns.
-- Mapping, bundle, revision, and dry-run fields use multiple columns when space permits and one column on phones.
-- Profile/revision action buttons wrap on larger screens and become full-width on narrow phones.
-- Long comparisons use native `details` or scrollable tables.
+- Mapping, bundle, revision, dry-run, and receipt-audit fields use multiple columns when space permits and one column on phones.
+- Receipt and roadmap action rows stack to full-width controls on narrow phones.
+- Roadmap note grids collapse from three columns to one.
+- Long comparisons use native `details`, lists, or scrollable tables.
 - Destructive confirmations remain distinct without becoming page-dominating banners.
 
 ## Architecture result
@@ -122,7 +143,7 @@ The v116 architecture review remains authoritative:
 - the v115 import engine and v111 runtime remain authoritative;
 - small idempotent presentation layers are preferable to another whole-page runtime.
 
-v119 follows this decision by identifying the app at boot while lazy-loading v118 portability and v119 revision/diagnostic route layers only when Tools or Reports opens. The v117 mapping controller remains a lazy subfeature, and the v115 parser/writer remains authoritative.
+v120 identifies the app at boot while lazy-loading v118 portability, v119 revision/dry-run, and v120 receipt/roadmap layers only when Tools or Reports opens. The v115 parser/writer and receipt store remain authoritative.
 
 ## Larger overhaul cadence
 
@@ -136,14 +157,15 @@ A deeper UI architecture review should occur every 10–20 releases, or earlier 
 - new features placed under Tools because no appropriate destination exists;
 - recurring navigation or layout regressions.
 
-The next scheduled deeper review is approximately v126, with an acceptable v126–v136 range.
+The next scheduled deeper review remains approximately v126, with an acceptable v126–v136 range.
 
 ## Architecture boundaries
 
-- Local-first transaction, profile, revision, and diagnostic processing.
+- Local-first transaction, profile, revision, diagnostic, receipt, and receipt-audit processing.
 - No transaction or profile uploads.
-- Profiles, portable bundles, revision history, and dry-run diagnostics contain bounded metadata only.
-- No source rows, filenames, fingerprints, credentials, tokens, balances, full account identifiers, or destination-label values in revision history or diagnostics.
+- Profiles, bundles, revision history, dry runs, receipts, and audits contain bounded metadata only.
+- No source rows, credentials, tokens, balances, full account identifiers, or vault contents in downloaded metadata artifacts.
+- No automatic receipt rollback or backup-directory scanning.
 - No service-worker registration or offline cache.
 - One live ES-module runtime chain.
 - Never auto-save an empty vault.
