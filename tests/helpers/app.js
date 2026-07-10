@@ -16,7 +16,7 @@ export async function seedVault(page, month = '2026-07') {
 }
 
 export async function waitForApp(page) {
-  await expect(page.locator('.version-text')).toContainText(/^v114/);
+  await expect(page.locator('.version-text')).toContainText(/^v115/);
   await expect(page.locator('#main')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 }

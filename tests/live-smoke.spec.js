@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v114/);
+    await expect(page.locator('.version-text')).toContainText(/^v115/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -34,13 +34,17 @@ test.describe('@live Cloudflare deployment', () => {
       ['Calendar', /Calendar & Cash Flow/i],
       ['Reports', /Reports Center/i],
       ['Activity', /Ledger/i],
-      ['Tools', /Import \/ Restore/i]
+      ['Tools', /Bank Export Import \/ Restore/i]
     ];
 
     for (const [name, heading] of destinations) {
       await openPrimary(page, name);
       await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
     }
+
+    await openPrimary(page, 'Tools');
+    await expect(page.locator('#bankImportFile')).toBeAttached();
+    await expect(page.getByText(/Supported: CSV, TSV, delimited text, OFX, QFX, QBO/i)).toBeVisible();
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();
@@ -50,6 +54,7 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByRole('heading', { name: 'Family Financial Report' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Household insights', exact: true })).toBeVisible();
     await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+    await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
     await expect(page.locator('#reportPreset')).toBeVisible();
 
     expect(errors, 'Deployed page errors').toEqual([]);

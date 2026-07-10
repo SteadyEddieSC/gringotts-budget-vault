@@ -1,10 +1,10 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('settles the v114 Reports Center without a recursive mutation loop', async ({ app }, testInfo) => {
+test('settles the v115 Reports Center without a recursive mutation loop', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Reports');
-  await expect(page.getByRole('heading', { name: '32-sheet Vault Workbook', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '33-sheet Vault Workbook', exact: true })).toBeVisible();
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
 
   const mutationCount = await page.evaluate(() => new Promise((resolve) => {

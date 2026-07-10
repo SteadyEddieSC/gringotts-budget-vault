@@ -6,14 +6,14 @@ const destinations = [
   ['Calendar', /Calendar & Cash Flow/i],
   ['Reports', /Reports Center/i],
   ['Activity', /Ledger/i],
-  ['Tools', /Import \/ Restore/i]
+  ['Tools', /Bank Export Import \/ Restore/i]
 ];
 
 test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v114/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v115/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v114');
+  await expect(page.locator('.version-text')).toHaveText('v115');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];

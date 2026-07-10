@@ -2,19 +2,21 @@ import { esc, getMonth, money } from '../v103/core.js';
 import { trackerTemplateSnapshot } from '../v104/template-workbook.js';
 import { exportsView } from '../v104/views-admin.js';
 import {
-  activityView as baseActivityView, calendarView, dashboardView, diagnosticsView, importView, moneyView
+  activityView as baseActivityView, calendarView, dashboardView, diagnosticsView, moneyView
 } from '../v110/views.js';
 import { compactMonthNavigator } from '../v107/views.js';
 import { buildHouseholdInsights } from '../v113/insights.js';
 import { insightsReportPage, insightsView } from '../v113/views.js';
-import { expandedWorkbookSheetsV114 } from '../v114/reporting.js';
 import { guidedPlanModel } from '../v114/planning.js';
 import { guidedPlanReportPage, guidedPlanningView } from '../v114/views.js';
+import { bankImportView } from '../v115/views.js';
+import { expandedWorkbookSheetsV115 } from '../v115/reporting.js';
 import {
   householdReportModel, rangeExecutiveSummary, reportRangeSettings
 } from './reporting.js';
 
-export { calendarView, dashboardView, diagnosticsView, importView, moneyView };
+export { calendarView, dashboardView, diagnosticsView, moneyView };
+export { bankImportView as importView };
 
 const presetLabels = {
   month: 'Selected month',
@@ -74,7 +76,7 @@ function reportControls(settings) {
 function downloadOptions(template, model) {
   return `<div class="grid two report-downloads screen-only">
     <article class="card report-option preferred-report"><h3>Wife's Annual Income & Expense Tracker</h3><p>The preferred annual tracker remains tied to the selected month and its source year. Choose the local template to preserve its formulas, charts, and styling.</p><label class="file-drop compact-drop" for="annualTrackerFile"><span><strong>${template.valid ? esc(template.fileName) : 'Choose annual tracker template (.xlsx)'}</strong><br>${template.valid ? `${template.transactions} transactions ready for ${esc(template.selectedMonthLabel)}` : 'The template stays local to this browser tab.'}</span><input id="annualTrackerFile" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx"></label>${template.valid ? `<div class="template-status"><strong>Template validated.</strong> Required sheets found.${template.truncated ? ' The template limit uses the latest 10,000 dated transactions.' : ''}</div>` : ''}<button id="filledAnnualTracker" class="btn primary" ${template.valid ? '' : 'disabled'}>Fill and Download Annual Tracker</button></article>
-    <article class="card report-option"><h3>32-sheet Vault Workbook</h3><p>Includes reporting, insights, recurring opportunities, Guided Plan, and Planning History.</p><button id="vaultXlsx" class="btn primary">Download 32-sheet Workbook</button></article>
+    <article class="card report-option"><h3>33-sheet Vault Workbook</h3><p>Includes reporting, insights, Guided Plan, Planning History, and bank import receipts.</p><button id="vaultXlsx" class="btn primary">Download 33-sheet Workbook</button></article>
     <article class="card report-option"><h3>Range transaction export</h3><p>Download the active ${esc(model.label)} transaction range as CSV, or retain the selected-month quick XLSX.</p><div class="button-row"><button id="familyCsv" class="btn secondary">Download Range CSV</button><button id="familyXlsx" class="btn secondary">Selected-Month Quick XLSX</button></div></article>
     <article class="card report-option"><h3>Range executive report</h3><p>Download or copy the custom-range narrative with year-over-year context.</p><div class="button-row"><button id="executiveMd" class="btn secondary">Download Executive Markdown</button><button id="copyExecutive" class="btn secondary">Copy Range Summary</button></div></article>
     <article class="card report-option"><h3>Family meeting pack</h3><p>Insights, Guided Plan, goals, Vault Health, close status, forecast, debt priorities, wins, risks, and actions.</p><div class="button-row"><button id="meetingMd" class="btn secondary">Download Meeting Pack</button><button id="printReports" class="btn secondary">Print / Save PDF</button></div></article>
@@ -83,7 +85,7 @@ function downloadOptions(template, model) {
 }
 
 function executivePage(model) {
-  return `<article class="card printable-report report-page report-cover"><div class="report-kicker">Guided Household Planning v114</div><h2>Family Financial Report</h2><p class="report-period">${esc(model.label)}</p><p class="executive-text">${esc(rangeExecutiveSummary(model))}</p><div class="report-metrics"><span><strong>${model.metrics.count}</strong> Transactions</span><span><strong>${money(model.metrics.income)}</strong> Income</span><span><strong>${money(model.metrics.spend)}</strong> Spending</span><span><strong>${money(model.metrics.net)}</strong> Net</span></div><div class="report-quality-line"><span>${model.metrics.pending} pending</span><span>${model.metrics.review} need review</span><span>Generated ${esc(new Date(model.generatedAt).toLocaleString())}</span></div></article>`;
+  return `<article class="card printable-report report-page report-cover"><div class="report-kicker">Bank Export Import & Mapping v115</div><h2>Family Financial Report</h2><p class="report-period">${esc(model.label)}</p><p class="executive-text">${esc(rangeExecutiveSummary(model))}</p><div class="report-metrics"><span><strong>${model.metrics.count}</strong> Transactions</span><span><strong>${money(model.metrics.income)}</strong> Income</span><span><strong>${money(model.metrics.spend)}</strong> Spending</span><span><strong>${money(model.metrics.net)}</strong> Net</span></div><div class="report-quality-line"><span>${model.metrics.pending} pending</span><span>${model.metrics.review} need review</span><span>Generated ${esc(new Date(model.generatedAt).toLocaleString())}</span></div></article>`;
 }
 
 function comparisonPage(model) {
@@ -121,20 +123,19 @@ export function reportsView() {
   const insights = buildHouseholdInsights({ rows: model.currentRows, start: settings.start, end: settings.end, label: model.label });
   const plan = guidedPlanModel();
   const template = trackerTemplateSnapshot();
-  const sheets = expandedWorkbookSheetsV114(getMonth(), model);
-  return `<section class="section active report-center v111-report-center v113-report-center v114-report-center"><div class="section-title-row"><div><h2>Reports Center</h2><p>Build custom-range, year-over-year, insights, Guided Plan, and family meeting reports entirely in this browser.</p></div><div class="section-meta">${esc(model.label)}</div></div>${compactMonthNavigator()}${reportControls(settings)}${downloadOptions(template, model)}${executivePage(model)}${comparisonPage(model)}${spendingPage(model)}${goalsHealthPage(model)}${planningPage(model)}${insightsReportPage(insights)}${guidedPlanReportPage(plan)}${meetingPage(model, insights, plan)}<article class="card screen-only"><h3>Vault workbook contents</h3><p>The deeper workbook contains ${sheets.length} sheets.</p><ul class="sheet-list">${sheets.map((sheet) => `<li>${esc(sheet.name)}</li>`).join('')}</ul></article></section>`;
+  const sheets = expandedWorkbookSheetsV115(getMonth(), model);
+  return `<section class="section active report-center v111-report-center v113-report-center v114-report-center v115-report-center"><div class="section-title-row"><div><h2>Reports Center</h2><p>Build custom-range, year-over-year, insights, Guided Plan, import-receipt, and family meeting reports entirely in this browser.</p></div><div class="section-meta">${esc(model.label)}</div></div>${compactMonthNavigator()}${reportControls(settings)}${downloadOptions(template, model)}${executivePage(model)}${comparisonPage(model)}${spendingPage(model)}${goalsHealthPage(model)}${planningPage(model)}${insightsReportPage(insights)}${guidedPlanReportPage(plan)}${meetingPage(model, insights, plan)}<article class="card screen-only"><h3>Vault workbook contents</h3><p>The deeper workbook contains ${sheets.length} sheets.</p><ul class="sheet-list">${sheets.map((sheet) => `<li>${esc(sheet.name)}</li>`).join('')}</ul></article></section>`;
 }
 
 export function roadmapView() {
   const roadmap = [
-    ['v115', 'Bank Export Import & Mapping', 'local CSV, OFX, QFX, and QBO parsing with mapping preview, duplicate review, backup-first writes, and read-back verification'],
     ['v116', 'Planned UI Architecture Review', 'navigation, content usefulness, accessibility, touch targets, density, and responsive design']
   ];
-  return `<section class="section active"><div class="section-title-row"><div><h2>Roadmap</h2><p>Every release retains responsive, privacy, security, accessibility, and working-control gates.</p></div><div class="section-meta">Next: v115</div></div><article class="roadmap-item shipped"><h3>v114 — Guided Household Planning</h3><p>Explainable action checklists driven by goals, close readiness, forecast pressure, debt priorities, recurring costs, and Household Insights, with explicit local status tracking.</p></article><div class="roadmap">${roadmap.map((item) => `<article class="roadmap-item"><h3>${esc(item[0])} — ${esc(item[1])}</h3><p>${esc(item[2])}</p></article>`).join('')}</div></section>`;
+  return `<section class="section active"><div class="section-title-row"><div><h2>Roadmap</h2><p>Every release retains responsive, privacy, security, accessibility, and working-control gates.</p></div><div class="section-meta">Next: v116</div></div><article class="roadmap-item shipped"><h3>v115 — Bank Export Import & Mapping</h3><p>Local CSV, OFX, QFX, QBO, and Gringotts JSON inspection with explicit mapping, amount-sign confirmation, duplicate review, backup-first writes, read-back verification, and metadata-only receipts.</p></article><div class="roadmap">${roadmap.map((item) => `<article class="roadmap-item"><h3>${esc(item[0])} — ${esc(item[1])}</h3><p>${esc(item[2])}</p></article>`).join('')}</div></section>`;
 }
 
 export function toolsView(section = 'import') {
-  const map = { import: importView, exports: exportsView, roadmap: roadmapView };
+  const map = { import: bankImportView, exports: exportsView, roadmap: roadmapView };
   const content = section === 'diagnostics' ? '<div id="diagnosticsMount"></div>' : (map[section] || map.import)();
   return `<div class="workspace"><div class="subnav tools-subnav" role="tablist" aria-label="Tools sections"><button class="subtab ${section === 'import' ? 'active' : ''}" data-tools-section="import">Import / Restore</button><button class="subtab ${section === 'exports' ? 'active' : ''}" data-tools-section="exports">Exports & Backup</button><button class="subtab ${section === 'diagnostics' ? 'active' : ''}" data-tools-section="diagnostics">Diagnostics</button><button class="subtab ${section === 'roadmap' ? 'active' : ''}" data-tools-section="roadmap">Roadmap</button></div>${content}</div>`;
 }

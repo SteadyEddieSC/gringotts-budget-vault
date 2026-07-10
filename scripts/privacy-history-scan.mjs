@@ -30,7 +30,10 @@ const forbiddenPathRules = [
 ];
 
 const allowedPaths = new Set([
-  'tests/fixtures/synthetic-vault.json'
+  'tests/fixtures/synthetic-vault.json',
+  'tests/fixtures/bank-import/synthetic-signed.csv',
+  'tests/fixtures/bank-import/synthetic-debit-credit.csv',
+  'tests/fixtures/bank-import/synthetic.qfx'
 ]);
 
 const pathLines = git(['log', '--all', '--name-only', '--pretty=format:'])

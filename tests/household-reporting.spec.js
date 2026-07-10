@@ -24,18 +24,19 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v114 and renders the complete guided household report preview', async ({ app }) => {
+test('boots v115 and renders the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v114/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v115/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   for (const heading of ['Family Financial Report', 'Year-over-year comparison', 'Goals and Vault Health', 'Month close, forecast, and debt', 'Household insights', 'Family meeting brief']) {
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
-  await expect(page.getByText(/32 sheets/i)).toBeVisible();
+  await expect(page.getByText(/33 sheets/i)).toBeVisible();
   await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Planning History', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
 });
 
 test('saves a custom range and compares equivalent prior-year dates without network writes', async ({ app }, testInfo) => {
@@ -109,15 +110,15 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
   await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
 });
 
-test('downloads the 32-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
+test('downloads the 33-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v114_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v115_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v114_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v115_2026-07_.*\.md/i);
 
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
@@ -132,7 +133,7 @@ test('uses eight report pages for print and hides screen-only controls', async (
   await expect(page.locator('.guided-plan-report')).toBeVisible();
 });
 
-test('keeps Guided Household Planning inside every configured viewport', async ({ app }) => {
+test('keeps reporting inside every configured viewport', async ({ app }) => {
   const { page } = app;
   await openReports(page);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
