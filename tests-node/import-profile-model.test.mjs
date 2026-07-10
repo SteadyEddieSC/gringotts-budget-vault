@@ -21,12 +21,17 @@ const options = {
   useSourceCategory: false
 };
 
+const fullMapping = {
+  date: 'Date', description: 'Description', amount: 'Amount', debit: '', credit: '',
+  status: 'Status', account: '', memo: '', id: 'Reference', category: '', type: ''
+};
+
 test('creates a metadata-only profile from inspected headers and reviewed options', () => {
   const profile = profileFromSession({ name: 'Household card export', inspection, options, now: '2026-07-10T00:00:00.000Z' });
   assert.equal(profile.name, 'Household card export');
   assert.equal(profile.schemaId, 'generic-signed');
   assert.match(profile.headerSignature, /^fnv1a-[0-9a-f]{8}$/);
-  assert.deepEqual(profile.mapping, options.mapping);
+  assert.deepEqual(profile.mapping, fullMapping);
   assert.equal(profile.options.signMode, 'bank');
   const serialized = JSON.stringify(profile);
   assert.doesNotMatch(serialized, /transactions|records|directTransactions|sourceFingerprint|fileName/);
@@ -54,7 +59,7 @@ test('returns a safe application payload with mapping and options only', () => {
   const profile = profileFromSession({ name: 'Apply me', inspection, options });
   const applied = profileApplication(profile, inspection);
   assert.equal(applied.profileName, 'Apply me');
-  assert.deepEqual(applied.mapping, options.mapping);
+  assert.deepEqual(applied.mapping, fullMapping);
   assert.deepEqual(applied.options, {
     dateOrder: 'mdy', signMode: 'bank', accountLabel: 'Household Card',
     accountMode: 'label', useSourceCategory: false
