@@ -252,11 +252,21 @@ function enhanceImportPage(page) {
     .catch((error) => announce(error?.message || 'Receipt integrity timeline could not be loaded'));
 }
 
+function enhanceReports(root) {
+  const button = root.querySelector('#vaultXlsx');
+  const card = button?.closest('.report-option');
+  if (!card) return;
+  setText(card.querySelector('h3'), '35-sheet Vault Workbook');
+  setText(card.querySelector('p'), 'Includes reporting, insights, Guided Plan, Planning History, Import Receipts, Receipt Integrity, and Batch Lineage.');
+  setText(button, 'Download 35-sheet Workbook');
+}
+
 function enhanceMain(root = document.getElementById('main')) {
   if (!root) return;
   root.querySelectorAll('.report-kicker').forEach((node) => setText(node, 'Receipt Integrity & Import Batch Reconciliation v121'));
   const importPage = root.querySelector('.v116-import-page, .v115-import-page');
   if (importPage) enhanceImportPage(importPage);
+  enhanceReports(root);
   enhanceRoadmap(root);
 }
 
