@@ -52,7 +52,7 @@ test('detects tab, semicolon, and pipe-delimited exports', () => {
 });
 
 test('blocks malformed quoted delimited text', () => {
-  assert.throws(() => parseDelimitedText('Date,Description\n2026-01-01,"Unclosed'), /quoted field was not closed/i);
+  assert.throws(() => parseDelimitedText('Date,Description\n2026-01-01,"Unclosed', ','), /quoted field was not closed/i);
 });
 
 test('auto-maps common signed CSV headers but requires an explicit sign convention', () => {
