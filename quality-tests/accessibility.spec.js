@@ -215,12 +215,20 @@ test('axe scans Tools mapping validation, dry run, and revision review', async (
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans Tools restore, exports, diagnostics, and roadmap', async ({ page }, testInfo) => {
+test('axe scans the full restore task in isolation', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: /Restore full vault/i }).click();
+  await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Full Restore');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools exports, diagnostics, and roadmap from a fresh render', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Exports & Backup');
   await scanSurface(page, testInfo, 'Tools — Exports and Backup');
   await clickSubsection(page, 'Diagnostics');
