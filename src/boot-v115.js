@@ -31,14 +31,12 @@ function renderFailure(error) {
 window.addEventListener('error', (event) => { if (event?.error) renderFailure(event.error); });
 window.addEventListener('unhandledrejection', (event) => renderFailure(event?.reason));
 
-import('./runtime-v111-reporting.js?v=115bankimport1')
+import('./runtime-v111-reporting.js?v=115bankimport2')
   .then(async () => {
-    const [{ activateV114 }, { activateV115 }, { installAccessibilityEnhancements }] = await Promise.all([
-      import('./v114/release.js?v=115bankimport1'),
-      import('./v115/release.js?v=115bankimport1'),
-      import('./v112/accessibility.js?v=115bankimport1')
+    const [{ activateV115 }, { installAccessibilityEnhancements }] = await Promise.all([
+      import('./v115/release.js?v=115bankimport2'),
+      import('./v112/accessibility.js?v=115bankimport2')
     ]);
-    activateV114({ installDownloads: false });
     const build = activateV115();
     installAccessibilityEnhancements();
     document.title = `Gringotts Budget Vault ${build.version}`;
