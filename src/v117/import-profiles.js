@@ -292,6 +292,7 @@ function renderProfileCard(page, state) {
   const remove = createButton('Delete Profile', 'deleteBankImportProfile', 'btn danger');
   remove.disabled = !selected;
   actions.append(apply, save, fresh, remove);
+  if (!state.analysis) actions.append(createButton('Clear Import Session', 'resetBankImport'));
 
   const status = document.createElement('div');
   status.className = 'import-profile-status';
