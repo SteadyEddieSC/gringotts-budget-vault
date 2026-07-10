@@ -257,7 +257,13 @@ function enhanceReports(root) {
   const card = button?.closest('.report-option');
   if (!card) return;
   setText(card.querySelector('h3'), '35-sheet Vault Workbook');
-  setText(card.querySelector('p'), 'Includes reporting, insights, Guided Plan, Planning History, Import Receipts, Receipt Integrity, and Batch Lineage.');
+  setText(card.querySelector('p'), 'Includes all existing reporting sheets plus two receipt-lineage additions.');
+  let list = card.querySelector('.v121-workbook-sheet-list');
+  if (!list) {
+    list = element('ul', 'v121-workbook-sheet-list');
+    list.append(element('li', '', 'Receipt Integrity'), element('li', '', 'Batch Lineage'));
+    button.before(list);
+  }
   setText(button, 'Download 35-sheet Workbook');
 }
 
