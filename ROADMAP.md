@@ -2,70 +2,68 @@
 
 ## Shipped
 
+### v116 — UI Architecture Review
+
+- Reconfirmed Dashboard, Money, Calendar, Reports, Activity, and Tools as the six durable primary destinations.
+- Preserved the persistent shell and one live ES-module runtime.
+- Changed Reports from an eight-page continuous screen preview to one selected report page at a time.
+- Added a native report-page select plus Previous and Next controls.
+- Preserved all eight pages for Print / Save PDF.
+- Separated Tools → Import / Restore into explicit **Import transactions** and **Restore full vault** tasks.
+- Added Inspect, Map, and Reconcile progress to bank import without adding storage or changing the v115 writer.
+- Compacted Activity secondary navigation on narrow phones.
+- Improved report-download and import layout across phone, tablet, laptop, and wide desktop sizes.
+- Added v116 export names, synthetic architecture tests, every-page axe coverage, visual contracts, and observer-stability checks.
+- Preserved local data, restore destination, backup-first writes, rollback, read-back verification, and v105 rescue behavior.
+
 ### v115 — Bank Export Import & Mapping
 
 - Added local CSV, TSV, semicolon, pipe, OFX, QFX, QBO, and existing Gringotts JSON inspection.
-- Added content and extension format detection with unsupported PDF, Office, archive, executable, binary, oversized, malformed, and excessive-row blocking.
+- Added content and extension detection with unsupported PDF, Office, archive, executable, binary, oversized, malformed, and excessive-row blocking.
 - Added explicit date, description, signed amount, debit, credit, status, account, memo, stable-ID, category, and type mapping.
 - Added explicit date-order and signed-amount interpretation rather than silent guessing.
-- Added bank-standard, Gringotts-standard, type-assisted, and separate debit/credit normalization.
-- Added source and normalized previews, ignored-column disclosure, Windows-1252 fallback warnings, masked account handling, and explicit source-category use.
 - Reused stable-ID, deterministic fingerprint, fuzzy, pending-to-posted, date coverage, and overlap review.
-- Added backup-first, acknowledgement, confirmation, missing-only insertion, rollback, read-back count verification, and inserted-transaction token verification.
-- Preserved full vault restore as a separate replacement workflow with destination `gringottsBudgetVault.latest`.
-- Added metadata-only import receipts and an Import Receipts workbook sheet, expanding the Vault Workbook from 32 to 33 sheets.
-- Added browser-free Node parser tests and deterministic malformed-input mutations before any Playwright browser installation.
-- Retained legacy JSON incremental import compatibility through the new v115 workflow.
-- Kept PDF statement extraction, XLSX ingestion, CAMT, MT940, and institution-specific parser expansion outside this release.
+- Added backup-first, acknowledgement, confirmation, missing-only insertion, rollback, count verification, and inserted-token verification.
+- Preserved full restore as a separate replacement workflow targeting `gringottsBudgetVault.latest`.
+- Added metadata-only import receipts and expanded the Vault Workbook to 33 sheets.
+- Added browser-free Node parser tests and deterministic malformed-input mutations before browser installation.
 
 ### v114 — Guided Household Planning
 
-- Added Activity → Plan without adding another top-level destination.
-- Added deterministic checklist generation from goals, close readiness, Vault Health, forecast pressure, debt priorities, recurring-cost changes, and Household Insights.
-- Added explicit reasons, evidence, recommended next steps, priority, and source-workflow navigation for every action.
-- Added separate browser-local checklist state under `gringottsGuidedPlan.v1`.
-- Added Not started, Planned, Done, and Dismissed states with owner, target date, notes, read-back verification, and explicit decision history.
-- Kept viewing the checklist read-only; only Save Plan Item creates planning metadata.
-- Added an eighth printable Guided Plan report page and fed priority actions into the family meeting brief.
-- Added Guided Plan and Planning History workbook sheets, expanding the Vault Workbook from 30 to 32 sheets.
-- Added a Guided Plan Markdown export and v114-named local workbook, meeting-pack, backup, calendar, rule-review, and diagnostics files.
-- Added synthetic Playwright coverage for action generation, explicit writes, read-back verification, history, source navigation, no transaction changes, no network writes, reports, accessibility, and responsive layouts.
-- Added staged release gates: draft PR suppression, Chromium-first browser preflights, quality preflight before axe, and failure-only diagnostics.
-- Added `RELEASE_PROCESS.md` and `SCORECARD_ALERTS.md` to reduce release noise and explain OpenSSF findings.
+- Added Activity → Plan without another primary destination.
+- Added explainable actions from goals, close readiness, Vault Health, forecast pressure, debt, recurring changes, and insights.
+- Stored checklist state separately under `gringottsGuidedPlan.v1` after explicit Save actions.
+- Added an eighth printable report page and Planning History workbook content.
 
 ### v113 — Household Insights IV
 
-- Added Activity → Insights with explainable merchant spikes, category increases, large first-seen merchants, and recurring-cost opportunities.
+- Added explainable merchant spikes, category increases, large first-seen merchants, and recurring-cost opportunities.
 - Excluded pending rows from anomaly comparisons while reporting their count.
-- Added visible evidence, baselines, comparison factors, methods, and household decision questions.
-- Added a seventh printable report page and Household Insights / Recurring Opportunities workbook sheets, expanding the workbook to 30 sheets.
-- Preserved read-only insight generation and all local-first safeguards.
+- Added visible evidence, baselines, comparison methods, and household decision questions.
 
 ### v112 — Accessibility & Quality Automation
 
 - Added axe, keyboard, visual-contract, and Lighthouse merge gates.
-- Added tab semantics, arrow-key navigation, accessible scroll regions, focus treatment, reduced-motion, and high-contrast support.
-- Added privacy-safe text/geometry contracts rather than committed financial-data screenshots.
-- Added repository security-drift checks for action pinning, permissions, headers, and quality files.
+- Added tab semantics, arrow-key navigation, accessible scroll regions, focus treatment, reduced motion, and high-contrast support.
+- Added privacy-safe text and geometry contracts instead of committed financial screenshots.
 
 ### v111 — Household Reporting III
 
 - Added selected-month, year-to-date, rolling 3/6/12-month, and custom report ranges.
-- Added equivalent prior-year comparisons and six printable family-report pages.
-- Expanded the workbook to 28 sheets and added range-aware CSV, Markdown, and XLSX exports.
+- Added prior-year comparisons and six printable family-report pages.
+- Expanded the workbook to 28 sheets and added range-aware exports.
 
 ### v110 — Month Close & Forecasting
 
-- Added statement reconciliation, immutable close revisions, reasoned reopen events, recurring bills/paydays, 30/60/90-day forecasts, debt planning, and promotional APR urgency.
-- Expanded the workbook to 24 sheets.
+- Added statement reconciliation, immutable close revisions, controlled reopen events, recurring bills/paydays, cash forecasts, debt planning, and promotional APR urgency.
 
 ### v109 — Import Memory & Duplicate Guard
 
-- Added stable-ID and deterministic fingerprint duplicate protection, fuzzy review, date coverage warnings, missing-only imports, backup-first writes, and verified import history metadata.
+- Added stable-ID and deterministic fingerprint duplicate protection, fuzzy review, coverage warnings, missing-only imports, backup-first writes, and verified import history metadata.
 
 ### v108.4 — Security Alert Cleanup
 
-- Removed a CodeQL finding, tightened CodeQL permissions, updated pinned CodeQL actions, and documented Scorecard dispositions.
+- Removed a CodeQL finding, tightened CodeQL permissions, updated pinned CodeQL Actions, and documented Scorecard dispositions.
 
 ### v108.3 — Security Completion
 
@@ -85,7 +83,7 @@
 
 ### v107 — Review Queue & Performance
 
-- Added persistent-shell rendering, vault caching, debounced search, compact mobile month controls, and backup-first Review Queue editing.
+- Added persistent-shell rendering, vault caching, debounced search, compact month controls, and backup-first Review Queue editing.
 
 ### v106.2 — Reports Export Fix
 
@@ -113,26 +111,38 @@
 
 ## Next release
 
-### v116 — Planned UI Architecture Review
+### v117 — Import Profiles & Field Validation
 
-- Reassess primary and secondary navigation.
-- Audit every page for useful, non-repetitive content.
-- Re-test phone portrait, phone landscape, tablet, laptop, and wide desktop layouts.
-- Review accessibility, touch targets, density, and action placement.
-- Consolidate or remove features that no longer justify separate surfaces.
-- Review whether import mapping should remain one long workflow or use progressive steps after real household testing.
+- Store reviewed mapping preferences by local source schema and fingerprint family, not by transaction contents.
+- Reapply prior mapping choices only when headers and format still match.
+- Explain every remembered field choice and allow immediate correction.
+- Improve field-level validation for dates, amount signs, IDs, account handling, status, category, and type.
+- Add more synthetic institution-pattern fixtures without committing real exports.
+- Preserve explicit duplicate review, backup-first writes, and read-back verification.
 
 ## Future import candidates
 
-After v115 field use is validated with real exports, separately evaluate:
+After field use is validated with real exports, separately evaluate:
 
 - CAMT.053 and CAMT.054;
 - MT940;
 - institution-specific JSON;
 - guarded XLSX transaction exports;
-- dedicated parser fuzz/property libraries if format diversity justifies another dependency.
+- a dedicated parser property-testing dependency when format diversity justifies it.
 
 PDF statement extraction remains outside normal transaction import because OCR and table interpretation require a different review model.
+
+## Future release themes
+
+Potential later releases include:
+
+- household scenario planning and what-if comparisons;
+- recurring-cost decision tracking;
+- account and merchant cleanup assistance;
+- expanded close-history comparisons;
+- selective performance profiling based on real browser diagnostics.
+
+These are themes rather than commitments and must be validated against actual household use.
 
 ## Release governance
 
@@ -140,22 +150,21 @@ Every release follows `RELEASE_PROCESS.md`:
 
 - build and review on a feature branch;
 - freeze code, tests, and release documentation before the final matrix;
-- use draft PR status for quiet diff review;
+- use draft PR status for quiet development;
 - run pure parser/static checks before browser installation;
-- mark ready once the release candidate is stable;
-- preserve the full final-head browser, accessibility, Lighthouse, privacy, supply-chain, and CodeQL matrix;
+- mark ready only when the release candidate is stable;
+- preserve the final-head browser, accessibility, Lighthouse, privacy, supply-chain, and CodeQL matrix;
 - squash-merge with an expected head SHA;
 - verify production separately.
 
 ## Architecture guardrails
 
-- Local-first transaction storage, parsing, processing, insights, and guided planning.
+- Local-first transaction storage, parsing, processing, insights, planning, and UI preferences.
 - No transaction uploads.
-- Import source contents remain in-memory and are not copied into receipts.
-- Guided Plan metadata remains separate and never changes the vault or calculation inputs.
-- Import and close history store metadata/summaries rather than redundant transaction copies.
-- Report-range, forecast, debt, goal, health, and Guided Plan settings remain separate.
-- No committed screenshot baselines containing household data.
+- Import source contents remain in memory and are not copied into receipts or profiles.
+- Guided Plan metadata remains separate and never changes transaction calculations.
+- Import and close history store metadata rather than redundant transaction copies.
+- No committed screenshot baseline containing household data.
 - No service worker, PWA cache, or offline cache.
 - One live ES-module runtime chain.
 - Best-populated readable vault selection.

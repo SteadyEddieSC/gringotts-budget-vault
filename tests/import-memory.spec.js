@@ -8,7 +8,7 @@ const jsonFile = (name, value) => ({
 
 async function openImport(page) {
   await openPrimary(page, 'Tools');
-  await expect(page.getByRole('heading', { name: 'Bank Export Import / Restore' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
   await expect(page.locator('#bankImportFile')).toBeAttached();
 }
 
@@ -146,7 +146,7 @@ test('blocks malformed, missing-array, and empty JSON without empty-vault overwr
   expect(count).toBe(12);
 });
 
-test('keeps the v115 Import / Restore workflow inside phone, tablet, and desktop viewports', async ({ app }) => {
+test('keeps the v116 Import & Restore workflow inside phone, tablet, and desktop viewports', async ({ app }) => {
   const { page } = app;
   await openImport(page);
   const overflow = await page.evaluate(() => ({
@@ -156,4 +156,5 @@ test('keeps the v115 Import / Restore workflow inside phone, tablet, and desktop
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 2);
   await expect(page.locator('#bankImportFile')).toBeAttached();
   await expect(page.locator('#restoreFile')).toBeAttached();
+  await expect(page.locator('#restoreFile')).toBeHidden();
 });

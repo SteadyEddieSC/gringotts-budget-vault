@@ -7,7 +7,7 @@ const fixture = (name) => path.join(root, 'tests', 'fixtures', 'bank-import', na
 
 async function openImport(page) {
   await openPrimary(page, 'Tools');
-  await expect(page.getByRole('heading', { name: 'Bank Export Import / Restore', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
 }
 
 test('inspects and maps a signed CSV without writing the vault', async ({ app }) => {
@@ -155,6 +155,7 @@ test('blocks unsupported files, oversized inputs, and preserves full restore saf
   });
   await expect(page.locator('.error-box').first()).toContainText(/5 MB local safety limit/i);
 
+  await page.getByRole('button', { name: /Restore full vault/i }).click();
   await page.locator('#restoreFile').setInputFiles({
     name: 'empty-vault.json',
     mimeType: 'application/json',

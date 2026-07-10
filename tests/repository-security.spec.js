@@ -93,6 +93,9 @@ test('parser preflight runs before browser installation and release workflows st
   expect(playwright).toContain('name: Parser and static preflight');
   expect(playwright).toContain('run: npm run test:parser');
   expect(playwright).toContain('needs: parser-preflight');
+  expect(playwright).toContain('node --check src/v116/release.js');
+  expect(playwright).toContain('node --check src/boot-v116.js');
+  expect(playwright).not.toContain('src/v116/reporting.js');
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
@@ -133,7 +136,6 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   const importer = read('src/v115/bank-import.js');
   const views = read('src/v115/views.js');
   const release = read('src/v115/release.js');
-  const boot = read('src/boot-v115.js');
   for (const source of [parser, importer, views, release]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   }
@@ -146,12 +148,34 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
   expect(importer).toContain('localStorage.setItem(destination.key, previousRaw)');
   expect(importer).toContain("export const IMPORT_HISTORY_KEY = 'gringottsImportHistory.v1'");
   expect(importer).not.toContain('transactions: incomingRows');
-  expect(read('index.html')).toContain('src/boot-v115.js?v=115bankimport2');
-  expect(read('app.html')).toContain('src/boot-v115.js?v=115bankimport2');
-  expect(boot).not.toContain('v114/release.js');
   expect(release).toContain("import('./bank-import.js?v=115bankimport2')");
   expect(release).toContain("import('../v114/reporting.js?v=115bankimport2')");
   expect(release).toContain('prepareV115Route');
+});
+
+test('v116 changes presentation and export naming without adding storage or network channels', () => {
+  const release = read('src/v116/release.js');
+  const boot = read('src/boot-v116.js');
+  const index = read('index.html');
+  const app = read('app.html');
+  expect(release).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(release).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
+  expect(release).not.toContain('gringottsBudgetVault.latest');
+  expect(release).toContain("version: 'v116'");
+  expect(release).toContain('REPORT_PAGE_ORDER');
+  expect(release).toContain('data-import-task-panel');
+  expect(release).toContain('expandedWorkbookSheetsV115');
+  expect(release).toContain('installV116DownloadOverrides');
+  expect(index).toContain('src/boot-v116.js?v=116ui1');
+  expect(app).toContain('src/boot-v116.js?v=116ui1');
+  expect(index).toContain('styles/v116.css');
+  expect(app).toContain('styles/v116.css');
+  expect(index).not.toContain('styles/v114.css');
+  expect(app).not.toContain('styles/v114.css');
+  expect(boot).toContain("import('./v115/release.js?v=116ui1')");
+  expect(boot).toContain("import('./v116/release.js?v=116ui1')");
+  expect(boot).not.toContain('v114/release.js');
+  expect(boot).not.toContain('serviceWorker');
 });
 
 test('public repository security and quality control files remain present', () => {
@@ -170,7 +194,7 @@ test('public repository security and quality control files remain present', () =
     'quality-tests/accessibility.spec.js',
     'quality-tests/tab-semantics.spec.js',
     'quality-tests/visual-contracts.spec.js',
-    'src/boot-v115.js',
+    'src/boot-v116.js',
     'src/v113/insights.js',
     'src/v114/planning.js',
     'src/v114/reporting.js',
@@ -181,9 +205,12 @@ test('public repository security and quality control files remain present', () =
     'src/v115/reporting.js',
     'src/v115/release.js',
     'src/v115/views.js',
+    'src/v116/release.js',
     'styles/v114.css',
     'styles/v115.css',
+    'styles/v116.css',
     'tests-node/bank-parser.test.mjs',
+    'tests/v116-ui-architecture.spec.js',
     'tests/fixtures/bank-import/synthetic-signed.csv',
     'tests/fixtures/bank-import/synthetic-debit-credit.csv',
     'tests/fixtures/bank-import/synthetic.qfx',

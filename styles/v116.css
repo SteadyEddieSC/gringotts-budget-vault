@@ -1,0 +1,487 @@
+.guided-planning-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.guided-plan-kpis {
+  margin-top: 0;
+}
+
+.guided-plan-overview .summary-box {
+  min-height: 100%;
+}
+
+.guided-action-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.guided-action-card {
+  border-inline-start: 4px solid color-mix(in srgb, var(--accent, #d7b45b) 62%, transparent);
+}
+
+.guided-action-card.priority-urgent {
+  border-inline-start-color: #f06f61;
+}
+
+.guided-action-card.priority-high {
+  border-inline-start-color: #ef9f52;
+}
+
+.guided-action-card.priority-medium {
+  border-inline-start-color: #e2c45f;
+}
+
+.guided-action-card.priority-routine {
+  border-inline-start-color: #72b8d6;
+}
+
+.guided-action-card.resolved {
+  border-inline-start-color: #6fc49a;
+}
+
+.guided-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .3rem;
+  color: var(--muted, #a9b4c5);
+  font-size: .9rem;
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: .2rem .6rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.priority-badge.urgent {
+  color: #ff9b8d;
+}
+
+.priority-badge.high {
+  color: #f4b26d;
+}
+
+.priority-badge.medium {
+  color: #ead477;
+}
+
+.priority-badge.routine {
+  color: #8dcce8;
+}
+
+.guided-action-copy {
+  display: grid;
+  gap: .45rem;
+  margin: .8rem 0;
+}
+
+.guided-action-copy p {
+  margin: 0;
+}
+
+.guided-plan-form {
+  display: grid;
+  grid-template-columns: minmax(10rem, .8fr) minmax(12rem, 1fr) minmax(10rem, .8fr);
+  gap: .75rem;
+  align-items: end;
+}
+
+.guided-plan-form .guided-notes {
+  grid-column: 1 / -1;
+}
+
+.guided-plan-form textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.resolved-plan-items > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.resolved-plan-items[open] > summary {
+  margin-bottom: 1rem;
+}
+
+.guided-plan-report .card,
+.guided-report-list .card {
+  break-inside: avoid;
+}
+
+.guided-report-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.guided-report-list .card {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: .75rem;
+}
+
+.guided-report-number {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent, #d7b45b) 20%, transparent);
+  font-weight: 900;
+}
+
+/* v115 Bank Export Import & Mapping */
+.v115-import-page,
+.v115-import-page .import-workflow,
+.bank-duplicate-review {
+  display: grid;
+  gap: 1rem;
+}
+
+.bank-file-card,
+.bank-mapping-card {
+  overflow: hidden;
+}
+
+.bank-inspection-summary {
+  margin-top: 1rem;
+}
+
+.bank-mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .8rem;
+  margin: 1rem 0;
+}
+
+.bank-option-grid {
+  margin-bottom: 1rem;
+}
+
+.bank-mapping-grid label,
+.bank-option-grid label {
+  min-width: 0;
+}
+
+.bank-mapping-grid select,
+.bank-option-grid select,
+.bank-option-grid input {
+  width: 100%;
+}
+
+.bank-source-table,
+.bank-preview-table,
+.import-table {
+  min-width: 760px;
+}
+
+.bank-source-table td,
+.bank-source-table th,
+.bank-preview-table td,
+.bank-preview-table th {
+  max-width: 18rem;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.bank-source-table td {
+  white-space: pre-wrap;
+}
+
+.bank-duplicate-review > .section-title-row {
+  align-items: end;
+}
+
+.bank-duplicate-review > .section-title-row label {
+  min-width: min(100%, 22rem);
+}
+
+.bank-duplicate-review > .section-title-row select {
+  width: 100%;
+}
+
+.v115-import-page .error-box ul {
+  margin: .7rem 0 0 1.2rem;
+}
+
+.v115-import-page .summary-box {
+  overflow-wrap: anywhere;
+}
+
+.v115-import-page .file-drop input[type="file"] {
+  max-width: 100%;
+}
+
+/* v116 UI Architecture Review */
+.v116-task-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0 0 1rem;
+}
+
+.v116-task-switcher button {
+  min-height: 72px;
+  display: grid;
+  gap: .25rem;
+  align-content: center;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: .8rem 1rem;
+  background: #0b1220;
+  color: var(--text);
+}
+
+.v116-task-switcher button span {
+  color: var(--muted);
+  font-size: .88rem;
+  line-height: 1.35;
+}
+
+.v116-task-switcher button:hover,
+.v116-task-switcher button.active {
+  border-color: var(--gold);
+}
+
+.v116-task-switcher button.active {
+  background: rgba(245, 196, 81, .1);
+  box-shadow: inset 0 -3px 0 var(--gold);
+}
+
+.bank-import-progress {
+  list-style: none;
+  counter-reset: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.bank-import-progress li {
+  min-width: 0;
+  display: grid;
+  gap: .25rem;
+  border-top: 3px solid var(--line);
+  padding: .65rem .15rem 0;
+}
+
+.bank-import-progress li[data-status="complete"] {
+  border-top-color: var(--green);
+}
+
+.bank-import-progress li[data-status="current"] {
+  border-top-color: var(--gold);
+}
+
+.bank-import-progress li span,
+.bank-import-progress li small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.bank-import-progress li small {
+  font-weight: 700;
+}
+
+.report-preview-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.report-preview-toolbar h3,
+.report-preview-toolbar p,
+.report-preview-controls p {
+  margin-bottom: 0;
+}
+
+.report-preview-controls {
+  display: grid;
+  gap: .6rem;
+}
+
+.report-preview-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.report-preview-buttons .btn {
+  width: 100%;
+}
+
+.report-preview-deck {
+  display: grid;
+  gap: 1rem;
+}
+
+.report-preview-deck > .report-page {
+  margin: 0;
+}
+
+.report-preview-deck > .report-page[hidden],
+.v116-import-page [data-import-task-panel][hidden] {
+  display: none;
+}
+
+.v116-report-center .report-downloads {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.v116-report-center .report-option {
+  min-width: 0;
+}
+
+.workbook-contents-card {
+  margin-top: 1rem;
+}
+
+@media (max-width: 980px) {
+  .bank-mapping-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .v116-report-center .report-downloads {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .guided-plan-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .guided-plan-form .guided-notes {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .v116-task-switcher,
+  .bank-import-progress,
+  .report-preview-toolbar,
+  .v116-report-center .report-downloads {
+    grid-template-columns: 1fr;
+  }
+
+  .v116-task-switcher button {
+    min-height: 60px;
+  }
+
+  .bank-import-progress li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: .75rem;
+  }
+
+  .bank-import-progress li span {
+    grid-column: 1 / -1;
+  }
+
+  .activity-subnav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    padding-bottom: .65rem;
+  }
+
+  .activity-subnav .subtab {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  .report-preview-buttons {
+    display: grid;
+  }
+}
+
+@media (max-width: 680px) {
+  .bank-mapping-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bank-duplicate-review > .section-title-row {
+    align-items: stretch;
+  }
+
+  .bank-duplicate-review > .section-title-row label {
+    width: 100%;
+  }
+
+  .v115-import-page .button-row {
+    align-items: stretch;
+  }
+
+  .v115-import-page .button-row .btn,
+  .v115-import-page .restore-button,
+  .v115-import-page #prepareBankDuplicateReview {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .guided-plan-form {
+    grid-template-columns: 1fr;
+  }
+
+  .guided-plan-form .guided-notes {
+    grid-column: auto;
+  }
+
+  .guided-action-card .button-row {
+    align-items: stretch;
+  }
+
+  .guided-action-card .button-row .btn {
+    width: 100%;
+  }
+
+  .guided-report-list .card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .guided-plan-report {
+    break-before: page;
+  }
+
+  .guided-plan-report .card {
+    box-shadow: none;
+  }
+
+  .v115-import-page {
+    display: none !important;
+  }
+
+  .report-preview-toolbar,
+  .v116-task-switcher,
+  .bank-import-progress {
+    display: none !important;
+  }
+
+  .report-preview-deck {
+    display: contents !important;
+  }
+
+  .report-preview-deck > .report-page[hidden] {
+    display: block !important;
+  }
+}

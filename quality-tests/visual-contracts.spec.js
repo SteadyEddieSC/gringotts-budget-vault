@@ -31,7 +31,7 @@ async function computedSnapshot(page, name, contract) {
   const rangeColumns = await rangeGrid.count() && await rangeGrid.isVisible()
     ? await rangeGrid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length)
     : null;
-  const controlHeights = await page.locator('.range-controls input, .range-controls select, .range-controls button').evaluateAll((elements) => elements
+  const controlHeights = await page.locator('.range-controls input, .range-controls select, .range-controls button, .report-preview-toolbar select, .report-preview-toolbar button').evaluateAll((elements) => elements
     .filter((element) => {
       const style = getComputedStyle(element);
       return style.display !== 'none' && style.visibility !== 'hidden';
@@ -86,7 +86,7 @@ function enforceContract(actual, contract) {
 }
 
 for (const [name, contract] of Object.entries(contracts.snapshots)) {
-  test(`matches the v115 ${name} visual layout contract`, async ({ app }, testInfo) => {
+  test(`matches the v116 ${name} visual layout contract`, async ({ app }, testInfo) => {
     test.skip(testInfo.project.name !== 'quality-desktop', 'Each contract sets its own viewport and runs once.');
     const actual = await computedSnapshot(app.page, name, contract);
     enforceContract(actual, contract);

@@ -11,16 +11,57 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application release: **v115 — Bank Export Import & Mapping**  
-Current quality-infrastructure release: **v115 — Parser-First Release Gates**
+Current application release: **v116 — UI Architecture Review**  
+Current quality-infrastructure release: **v116 — Task-Based UI Contracts**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
+## UI Architecture Review
+
+v116 keeps the six established primary destinations:
+
+- Dashboard;
+- Money;
+- Calendar;
+- Reports;
+- Activity;
+- Tools.
+
+The review found that the primary architecture still matches durable household goals. The changes therefore focus on dense workflows rather than adding or moving top-level destinations.
+
+### Reports
+
+Reports now presents three clear tasks:
+
+- choose a reusable report range;
+- preview one of the eight family-report pages;
+- download local exports.
+
+The preview uses a native select plus Previous and Next controls. Only one report page is shown on screen, while Print / Save PDF still includes all eight pages.
+
+The annual tracker, 33-sheet Vault Workbook, range CSV, selected-month quick XLSX, executive Markdown, family meeting pack, and Guided Plan remain available.
+
+### Import and restore
+
+Tools → Import / Restore now has two explicit paths:
+
+- **Import transactions** for reviewed missing-only transaction insertion;
+- **Restore full vault** for replacement through the guarded restore workflow.
+
+Bank import shows Inspect, Map, and Reconcile progress without storing new transaction copies or bypassing existing safeguards.
+
+### Responsive behavior
+
+- Activity secondary navigation scrolls horizontally on narrow phones instead of creating five oversized rows.
+- Report downloads use three columns on wide displays, two on tablets, and one on phones.
+- Import task controls and progress stack on phones.
+- Tables remain inside their own scroll containers.
+
 ## Bank Export Import & Mapping
 
-v115 expands **Tools → Import / Restore** into a guarded local transaction-import workflow.
+v115 remains the guarded local import engine under the v116 presentation.
 
 Supported local sources:
 
@@ -32,50 +73,11 @@ Supported local sources:
 - QBO;
 - existing Gringotts JSON transaction packages.
 
-The workflow provides:
+The workflow provides format and schema inspection, explicit mapping, date-order and signed-amount interpretation, normalized preview, masked accounts, exact and fuzzy duplicate review, coverage warnings, backup-first insertion, rollback, read-back verification, and metadata-only receipts.
 
-- format, schema, encoding, institution, row-count, and source-fingerprint inspection;
-- raw source preview;
-- explicit date, description, amount, debit, credit, status, account, memo, ID, category, and transaction-type mapping;
-- explicit date-order and signed-amount interpretation;
-- normalized transaction preview;
-- ignored-column disclosure;
-- masked account handling;
-- exact, fingerprint, fuzzy, and pending-to-posted duplicate review;
-- coverage and overlap warnings;
-- required populated backup before transaction insertion;
-- acknowledgement, confirmation, missing-only insertion, rollback, and read-back verification;
-- metadata-only import receipts.
+Imported rows default to `Other`, unreviewed, and review-required unless source-category use is explicitly selected. Incremental import never replaces the destination vault.
 
-Imported rows default to `Other`, unreviewed, and review-required unless source-category use is explicitly selected. Incremental bank import never replaces the destination vault.
-
-Full vault restore remains a separate guarded workflow and still writes only to `gringottsBudgetVault.latest` after a populated preview, acknowledgement, confirmation, and read-back verification.
-
-The Reports Center now includes an **Import Receipts** sheet, expanding the Vault Workbook from 32 to **33 sheets**.
-
-See [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md) for implemented details and future candidate formats.
-
-## Guided Household Planning
-
-Activity → Plan remains an explainable local checklist generated from goals, month-close readiness, forecast pressure, debt priorities, recurring-price changes, and Household Insights.
-
-Viewing the checklist performs no write. Only **Save Plan Item** stores status, owner, target date, notes, and history under the separate `gringottsGuidedPlan.v1` key.
-
-## Faster, quieter release process
-
-v115 adds a browser-free gate ahead of Playwright:
-
-- current release modules are checked with `node --check`;
-- parser, mapping, malformed-input, size-limit, and deterministic mutation tests run with Node's built-in test runner;
-- no browser or additional parser-test dependency is installed for this stage;
-- desktop and responsive browser jobs cannot begin until the parser/static job passes;
-- Chromium desktop still runs before Firefox and WebKit installation;
-- Android Chromium still runs before iPad and iPhone WebKit;
-- keyboard and visual contracts still run before the longer axe inventory;
-- diagnostics upload only on failure;
-- draft pull requests still skip expensive gates.
-
-See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
+Full restore remains separate and still writes only to `gringottsBudgetVault.latest` after a populated preview, acknowledgement, confirmation, and read-back verification.
 
 ## Privacy and data boundary
 
@@ -99,11 +101,20 @@ The application remains local-first:
 - an empty vault is never automatically saved over a populated vault;
 - broad transaction writes remain backup-first and read-back verified.
 
-## Unsupported import formats
+## Faster, quieter release process
 
-v115 intentionally blocks PDF statements, Office files, archives, executables, unsupported binaries, files above 5 MB, and imports above the configured transaction-row limit.
+The parser/static gate runs before Playwright browser installation:
 
-CAMT, MT940, XLSX, institution-specific JSON, OCR, and PDF extraction remain future candidates requiring their own fixtures and safety review.
+- current v115 and v116 modules are checked with `node --check`;
+- parser, mapping, malformed-input, size-limit, and mutation tests use Node's built-in runner;
+- desktop and responsive browser jobs cannot begin until preflight passes;
+- Chromium runs before Firefox and WebKit installation;
+- Android Chromium runs before iPad and iPhone WebKit;
+- keyboard and visual contracts run before the longer axe inventory;
+- diagnostics upload only on failure;
+- draft pull requests skip expensive protected jobs.
+
+See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 ## Automated testing and security
 
@@ -112,13 +123,11 @@ The final merge gate covers:
 - browser-free parser and static preflight;
 - Chromium, Firefox, and WebKit desktop behavior;
 - iPad, Android, and iPhone/WebKit layouts;
-- signed CSV and separate debit/credit normalization;
-- quoted commas, multiline memos, BOM, multiple delimiters, ambiguous dates, and sign modes;
-- OFX/QFX/QBO FITIDs and masked accounts;
-- exact, fuzzy, pending-to-posted, missing-only, rollback, backup, and verification behavior;
-- legacy Gringotts JSON compatibility;
+- all eight report-preview pages and complete print output;
+- separated import and restore paths;
+- signed CSV, debit/credit, OFX-family, and legacy JSON imports;
+- duplicate, rollback, backup, and verification behavior;
 - restore, month close, forecast, debt, goals, Guided Plan, and Review Queue safeguards;
-- 33-sheet reports and eight-page printable reports;
 - axe, keyboard, visual contracts, and Lighthouse budgets;
 - full-history privacy and Gitleaks scans;
 - Dependency Review, high/critical npm audit, and CodeQL;
@@ -133,42 +142,25 @@ Requirements:
 - Node.js 24;
 - Python 3 for the local static server.
 
-Fast parser-only gate:
-
 ```bash
 npm run test:parser
-```
-
-Complete local checks:
-
-```bash
 npm ci --ignore-scripts
 npx playwright install chromium
 npm run test:preflight
 npm run test:quality
-npm run test:local
-npm run privacy:history
-npm audit --audit-level=high
 ```
 
-## Documentation
+See [`TESTING.md`](TESTING.md) and [`QUALITY_GATES.md`](QUALITY_GATES.md) for the complete matrix.
 
-- [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) — parser-first, draft, ready-for-review, and merge process;
-- [`TESTING.md`](TESTING.md) — parser, browser, and security commands;
-- [`QUALITY_GATES.md`](QUALITY_GATES.md) — accessibility, visual-contract, Lighthouse, and parser-preflight details;
-- [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md) — implemented import safeguards and future formats;
-- [`SCORECARD_ALERTS.md`](SCORECARD_ALERTS.md) — OpenSSF finding triage;
-- [`GITHUB_SETTINGS_CHECKLIST.md`](GITHUB_SETTINGS_CHECKLIST.md) — manual repository settings;
-- [`SECURITY.md`](SECURITY.md) — private vulnerability reporting and sensitive-data boundaries.
+## Unsupported import formats
 
-## Cloudflare Pages deployment
+PDF statements, Office files, archives, executables, unsupported binaries, files above 5 MB, and imports above the configured transaction-row limit remain blocked.
 
-- Project type: Pages / Static
-- Repository: `SteadyEddieSC/gringotts-budget-vault`
-- Production branch: `main`
-- Build command: leave blank
-- Output directory: `/`
+CAMT, MT940, XLSX, institution-specific JSON, OCR, and PDF extraction require separate fixtures and safety review.
 
-## Project status
+## Release documentation
 
-The application is an unofficial fan-themed personal project and is not affiliated with or endorsed by Warner Bros., the Wizarding World, or any financial institution.
+- [`RELEASE_NOTES_v116_UI_ARCHITECTURE_REVIEW.md`](RELEASE_NOTES_v116_UI_ARCHITECTURE_REVIEW.md)
+- [`ROADMAP.md`](ROADMAP.md)
+- [`UI_GOVERNANCE.md`](UI_GOVERNANCE.md)
+- [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md)
