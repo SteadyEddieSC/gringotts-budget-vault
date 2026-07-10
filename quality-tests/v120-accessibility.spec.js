@@ -57,37 +57,40 @@ async function seedReceipt(page) {
 }
 
 function desktopOnly(testInfo) {
-  test.skip(testInfo.project.name !== 'quality-desktop', 'The detailed v120 surfaces run once in the desktop quality project.');
+  test.skip(testInfo.project.name !== 'quality-desktop', 'The preserved v120 audit surface runs once in the desktop quality project.');
 }
 
-test('axe scans the selected import receipt audit from a fresh render', async ({ page }, testInfo) => {
+test('axe scans v120 receipt arithmetic and rollback guidance within v121', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
   await openPrimary(page, 'Tools');
-  await expect(page.getByRole('heading', { name: 'Import receipt audit', exact: true })).toBeVisible();
-  await expect(page.locator('#importReceiptAuditDetail')).toBeVisible();
-  await scanSurface(page, testInfo, 'Tools — Import Receipt Audit');
+  await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
+  await expect(page.locator('#receiptTimelineDetail')).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Destination count arithmetic', exact: true })).toBeVisible();
+  await expect(page.getByText(/No automatic rollback/i)).toBeVisible();
+  await scanSurface(page, testInfo, 'Tools — Preserved Receipt Audit and Rollback');
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the detailed multi-release roadmap from a fresh render', async ({ page }, testInfo) => {
+test('axe scans the advanced multi-release roadmap from a fresh render', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
+  await expect(page.getByRole('heading', { name: /v121 — Receipt Integrity/i })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans receipt audit and roadmap on the phone layout', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific v120 coverage runs in the mobile quality project.');
+test('axe scans preserved audit safety and roadmap on the phone layout', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific preserved audit coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
   await openPrimary(page, 'Tools');
-  await expect(page.locator('#importReceiptAuditDetail')).toBeVisible();
-  await scanSurface(page, testInfo, 'Mobile Tools — Import Receipt Audit');
+  await expect(page.locator('#receiptTimelineDetail')).toBeVisible();
+  await scanSurface(page, testInfo, 'Mobile Tools — Preserved Receipt Audit and Rollback');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
   await scanSurface(page, testInfo, 'Mobile Tools — Detailed Roadmap Horizon');
