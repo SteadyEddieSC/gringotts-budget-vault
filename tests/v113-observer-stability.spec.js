@@ -15,7 +15,7 @@ async function settledMutationCount(page) {
   }));
 }
 
-test('settles the v116 Reports architecture without a recursive mutation loop', async ({ app }, testInfo) => {
+test('settles the v117 Reports architecture without a recursive mutation loop', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Reports');
@@ -29,12 +29,22 @@ test('settles the v116 Reports architecture without a recursive mutation loop', 
   expect(await settledMutationCount(page), 'Changing the report preview must settle after the explicit selection.').toBe(0);
 });
 
-test('settles the separated import and restore tasks without a recursive mutation loop', async ({ app }, testInfo) => {
+test('settles import, restore, profiles, and field validation without a recursive mutation loop', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Tools');
   await expect(page.locator('.v116-task-switcher')).toBeVisible();
   expect(await settledMutationCount(page)).toBe(0);
+
+  await page.locator('#bankImportFile').setInputFiles({
+    name: 'observer-profile.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from('Date,Description,Amount,Status,Reference,Memo\n07/10/2026,Synthetic Fuel,-45.67,Posted,observer-1,Fictional row')
+  });
+  await expect(page.locator('#importProfileCard')).toBeVisible();
+  await expect(page.locator('.field-validation')).toHaveCount(11);
+  expect(await settledMutationCount(page), 'The profile and validation enhancement must settle after insertion.').toBe(0);
+
   await page.getByRole('button', { name: /Restore full vault/i }).click();
   await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
   expect(await settledMutationCount(page)).toBe(0);
