@@ -63,6 +63,12 @@ function installGuidedPlanningInteractions() {
 }
 
 function installBankImportInteractions(imports) {
+  document.addEventListener('input', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || !target.matches('[data-bank-option="accountLabel"]')) return;
+    imports.updateBankOption('accountLabel', target.value);
+  }, true);
+
   document.addEventListener('change', async (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
