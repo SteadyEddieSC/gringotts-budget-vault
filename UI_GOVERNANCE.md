@@ -2,134 +2,132 @@
 
 ## Purpose
 
-The interface must evolve with the feature set. New capabilities should not simply add another permanent top-level tab, repeated explanation, decorative status label, or desktop-only layout.
+The interface must evolve with the feature set. New capabilities should not automatically create another top-level tab, repeated explanation, decorative pill, or desktop-only layout.
 
 ## Release-level UI quality gate
 
-Every release must review:
+Every release reviews:
 
-1. **Navigation fit** — place new functionality inside an existing destination when that relationship is clear. Add a primary destination only for a durable user goal.
-2. **Content value** — keep text that explains a decision, risk, next action, or data limitation. Remove repeated descriptions and text that restates a visible heading.
-3. **Action placement** — put actions where the user needs them. Backup belongs with guarded workflows and Exports, not in the Dashboard hero.
-4. **Responsive behavior** — check phone portrait, phone landscape, tablet, laptop, and wide desktop. Avoid document overflow, cramped cards, and oversized controls.
-5. **Feature consolidation** — group related functions under clear destinations and use secondary/task navigation where needed.
-6. **Accessibility** — preserve keyboard navigation, visible focus, meaningful labels, contrast, native controls, and screen-reader state.
-7. **No informational pills** — use headings, lists, inline text, or status panels unless a compact badge communicates an actionable state.
-8. **Working-control review** — test every button, picker, tab, download, and local-storage write.
-9. **Print completeness** — screen simplification must not remove content from print or local exports.
-10. **State restraint** — persistent state must create clear value and must not duplicate transaction contents.
-11. **Explain remembered choices** — restored settings must identify their source and remain editable.
-12. **No silent compatibility guesses** — profiles may apply automatically only when one exact-compatible match exists.
-13. **No silent portable merges** — every imported definition must expose Add, Replace, or Skip.
-14. **Review profile revisions** — an existing Update or portable Replace must show changed mappings/options before storage.
-15. **Explicit diagnostics** — preparing and downloading a dry-run diagnostic are separate user actions.
-16. **Consequence-first destructive controls** — Replace, Delete, Restore, and transaction writes must be visually and textually distinct from ordinary edits.
-17. **Manual rollback boundaries** — receipt audit may explain and navigate to restore, but it must never present itself as an automatic undo button.
-18. **Roadmap depth without clutter** — planned releases must include useful scope, dependencies, safeguards, and outcomes; they must also be clearly labeled as directional.
+1. **Navigation fit** — use an existing destination when the user goal is already represented.
+2. **Content value** — keep text that explains a decision, risk, limitation, or next action.
+3. **Action placement** — put guarded actions beside the workflow they affect.
+4. **Responsive behavior** — test phone, tablet, laptop, and wide desktop without document overflow.
+5. **Feature consolidation** — group related functions rather than scattering them.
+6. **Accessibility** — preserve keyboard access, focus, labels, contrast, native controls, and state.
+7. **No informational-pill clutter** — prefer headings, lists, status panels, and tables.
+8. **Working-control review** — test every action, filter, picker, download, and metadata write.
+9. **Print/export completeness** — screen simplification must not remove required output.
+10. **State restraint** — persistent metadata must provide clear value and never duplicate transactions.
+11. **Explain remembered choices** — restored settings remain attributable and editable.
+12. **No silent compatibility guesses** — automatic profile use requires one exact match.
+13. **No silent portable merges** — every definition requires Add, Replace, or Skip.
+14. **Review revisions** — Update and Replace show field changes before storage.
+15. **Explicit diagnostics** — preparing and downloading a dry run are separate actions.
+16. **Consequence-first controls** — Replace, Delete, Restore, and transaction writes are visibly distinct.
+17. **Manual rollback boundary** — audits and timelines may guide restore but never impersonate automatic undo.
+18. **Roadmap depth without clutter** — releases include scope, dependencies, safeguards, and outcomes.
+19. **Derived evidence labels** — continuity, repeated source, and readiness must be explained as evidence rather than certainty.
+20. **No automatic history repair** — receipt integrity can flag gaps but must not offer one-click repair.
 
 ## Current information architecture
 
 The six primary destinations remain:
 
-- **Dashboard** — selected-month household overview and report-quality signals.
-- **Money** — budgets, recurring charges, bills, paydays, goals, close, forecast, and debt planning.
-- **Calendar** — date-based bills, paydays, transaction activity, and cash-flow pressure.
-- **Reports** — report range, one-page-at-a-time family preview, annual tracker, workbook, and local exports.
+- **Dashboard** — selected-month overview and report-quality signals.
+- **Money** — budgets, recurring charges, bills, paydays, goals, close, forecast, and debt.
+- **Calendar** — date-based household cash-flow activity.
+- **Reports** — range, one-page preview, annual tracker, workbook, and exports.
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
 - **Tools** — Import / Restore, Exports & Backup, Diagnostics, and Roadmap.
 
-v120 adds no primary destination. Receipt audit belongs inside Tools → Import & Restore because it explains prior outcomes of that task. The detailed release horizon remains under Tools → Roadmap because it is operational planning, not a household-finance destination.
+v121 adds no primary destination. Receipt integrity belongs in Tools → Import & Restore because it explains outcomes of prior import activity. The release horizon remains under Tools → Roadmap.
 
 ## Reports
 
-Reports separates choosing the range, previewing the family report, and downloading exports. The eight pages remain one report. A native select and Previous/Next controls are appropriate on screen; print and PDF include every page.
+Reports separates range selection, family-report preview, and downloads. Eight pages remain one report. A native page select and Previous/Next controls are appropriate on screen; print includes all pages.
 
-The v118–v120 route layers load only when Reports or Tools is opened so Dashboard performance remains stable.
+The workbook card must advertise the actual release artifact. v121 shows 35 sheets and names Receipt Integrity and Batch Lineage.
+
+Route-specific v118–v121 code loads only after Reports or Tools opens.
 
 ## Import and restore
 
-Incremental import and full restore share a Tools subsection but are different tasks:
+Incremental import and full restore remain different tasks:
 
 - import adds reviewed missing rows;
 - restore replaces the destination vault.
 
-They must not appear as one uninterrupted workflow. Task controls state the consequence and preserve the guarded engines.
+They share a Tools section but not a single uninterrupted workflow. Restore remains hidden until deliberately selected.
 
-## Receipt audit and rollback guidance
+## Import batch timeline
 
-The receipt-audit card replaces the old passive receipt table but remains part of the Import task.
+The v121 timeline replaces the passive receipt/audit card while preserving v120 receipt checks and manual rollback guidance.
 
 It must:
 
-- summarize verified, verified-with-notes, needs-review, and backup-expected counts;
-- show local receipt identity, source metadata, count arithmetic, verification state, and current-destination notes;
+- summarize retained batches, verified items, review items, dry-run links, and continuity breaks;
+- offer native filters for integrity, result, lineage, dry-run state, and destination family;
+- provide a local search field without persisting the query;
+- show source filename, fingerprint, and destination key only in the local browser detail;
 - keep dense receipt and check tables in labeled focusable scroll regions;
-- explain that later activity can cause a legitimate current-count difference;
-- show the expected backup filename pattern and pre-import count when available;
-- state explicitly that no automatic rollback is available;
-- offer a sanitized audit download and a copyable manual checklist;
-- open the existing Full vault restore task rather than creating another restore control;
-- avoid persisting selection or new transaction data.
+- explain every continuity state in plain language;
+- distinguish informational repeated-source evidence from a failure;
+- state that no automatic repair or rollback is available;
+- retain backup filename and expected pre-import count guidance;
+- open the existing Full vault restore task rather than creating a second restore engine;
+- avoid persisting selected batch, filters, or transaction copies.
 
-Source filenames and fingerprints may appear only in the local on-screen receipt review. They must not appear in downloaded receipt audits.
+## Dry-run lineage
 
-## Detailed roadmap horizon
+Prepare Dry Run remains an explicit existing action. v121 may stage sanitized readiness metadata only after that action.
 
-The Roadmap page must show more than one next-release title.
+The UI must not claim a link unless format, schema, normalized rows, insert count, and skip count reconcile to the resulting receipt.
 
-Every visible planned release requires:
+A missing link must be described as valid for older or no-dry-run imports. The UI must not imply that v121 can reconstruct a historical dry run.
 
-- a clear purpose;
-- meaningful planned capabilities;
-- dependencies or prerequisites;
+## Local and downloaded privacy
+
+Source filenames, fingerprints, and local destination keys may appear on screen for identification. Full-timeline and selected-batch downloads must omit them.
+
+Download descriptions should state that rows, filenames, fingerprints, mappings, destination keys, identifiers, merchants, and vault contents are excluded.
+
+## Detailed Roadmap
+
+The Roadmap page must display the seven-release v121–v127 horizon.
+
+Every release requires:
+
+- purpose;
+- meaningful capabilities;
+- dependencies;
 - safety boundaries;
-- an expected household outcome;
+- expected household outcome;
 - current/planned status.
 
-The page must disclose that the next release is the strongest commitment and that later entries may move. Roadmap cards should use readable sections and lists, not a wall of pills. Desktop may use a three-column notes grid; tablet and phone must stack to one column without document overflow.
+The page must state that the next release is the strongest commitment and later entries may move. Cards use readable lists rather than pills. The same horizon must remain in `ROADMAP.md`.
 
-The same horizon must remain in `ROADMAP.md`. Structured roadmap data must validate a minimum multi-release horizon before rendering.
+## Profiles, portability, revisions, and dry runs
 
-## Saved profile library and portability
+Saved profiles remain Import configuration, not a destination. The library distinguishes name, destination label, source pattern/schema, and non-reversible header identity.
 
-The saved-profile library is configuration for Import, not another top-level task. It appears before a transaction export is selected so users can review names/labels, export sanitized definitions, inspect a bundle, and resolve conflicts.
+Portable bundles require Add, Replace, or Skip for each definition. Replace remains identity-matched.
 
-The library distinguishes profile name, destination label, source pattern/schema, and non-reversible header identity. Dense profile data belongs in a labeled, focusable table that scrolls internally.
+Existing-profile Update and portable Replace pause for a field-by-field revision review with acknowledgement and confirmation.
 
-A portable-bundle preview must show proposed name, source identity, destination label, classification, differences, native Add/Replace/Skip selection, editable local name, and identity-matched replacement target when applicable.
-
-Exact and same-definition matches default to Skip. Replace remains unavailable without an identity match. Bundle filenames may appear during review but are not persisted.
-
-## Profile revision review
-
-Existing-profile Update and portable-bundle Replace must pause before metadata storage.
-
-The review card must identify the profile and source, show every changed mapping/option, redact destination-label values in retained history, state that the vault is unchanged, require acknowledgement, use an explicit confirmation control, provide Cancel, and keep comparisons scrollable on phones.
-
-Revision history belongs below the profile library as collapsible metadata summaries. It must not become another primary or secondary destination.
-
-## Local import dry run
-
-The dry-run card belongs in Tools → Import near profile and mapping controls.
-
-Prepare/Refresh and Download are separate controls. Download is unavailable until a current dry run exists. Mapping or reconciliation changes invalidate the prepared result.
-
-The UI must state that preparation performs no transaction write and that downloads exclude rows, filenames, fingerprints, identifiers, destination labels, balances, credentials, and vault contents.
+Prepare/Refresh Dry Run and Download Dry Run remain separate controls. Mapping or reconciliation changes invalidate the prepared result.
 
 ## Responsive navigation and density
 
 - Desktop uses six primary destinations.
-- Phone/tablet use a compact header menu.
-- Secondary sections use rectangular controls, not decorative pills.
-- Narrow-phone secondary navigation may scroll horizontally.
-- Dense tables scroll within their own containers.
-- Calendar detail stacks below the month grid on smaller screens.
-- Report-download cards use three, two, or one columns.
-- Mapping, bundle, revision, dry-run, and receipt-audit fields use multiple columns when space permits and one column on phones.
-- Receipt and roadmap action rows stack to full-width controls on narrow phones.
+- Phone/tablet use the compact menu.
+- Secondary navigation may scroll horizontally on narrow phones.
+- Dense tables scroll within their own labeled containers.
+- Report download cards use three, two, or one columns.
+- Timeline filters use three columns wide, two on tablet, and one on phone.
+- Timeline overview cards stack on phones.
+- Timeline and rollback action rows become full-width on narrow screens.
 - Roadmap note grids collapse from three columns to one.
-- Long comparisons use native `details`, lists, or scrollable tables.
-- Destructive confirmations remain distinct without becoming page-dominating banners.
+- Destructive confirmations remain distinct without dominating the page.
 
 ## Architecture result
 
@@ -137,39 +135,42 @@ The v116 architecture review remains authoritative:
 
 - six primary destinations are correct;
 - the persistent shell remains;
-- Reports uses progressive presentation, not another tab;
-- Import/Restore uses task separation, not another destination;
+- Reports uses progressive presentation;
+- Import/Restore uses task separation;
 - Activity phone subnavigation uses compact overflow;
-- the v115 import engine and v111 runtime remain authoritative;
-- small idempotent presentation layers are preferable to another whole-page runtime.
+- v115 remains the authoritative parser, writer, and receipt store;
+- v111 remains the runtime foundation;
+- release layers stay small and idempotent.
 
-v120 identifies the app at boot while lazy-loading v118 portability, v119 revision/dry-run, and v120 receipt/roadmap layers only when Tools or Reports opens. The v115 parser/writer and receipt store remain authoritative.
+v121 identifies the app at boot and lazy-loads v118 portability, v119 revisions/dry run, v120 audit support, and v121 lineage only for Tools or Reports.
+
+v121 owns current presentation. v120 must yield Reports, Import, and Roadmap writing when v121 is active so observers cannot alternate content.
 
 ## Larger overhaul cadence
 
-A deeper UI architecture review should occur every 10–20 releases, or earlier if any threshold is reached:
+A deeper UI review should occur every 10–20 releases, or sooner if:
 
-- more than 7 primary destinations;
-- repeated mobile overflow/usability defects;
-- two or more pages serving the same goal;
-- major actions appearing in three or more unrelated locations;
-- repeated explanatory copy;
-- new features placed under Tools because no appropriate destination exists;
-- recurring navigation or layout regressions.
+- primary destinations exceed seven;
+- mobile overflow repeats;
+- multiple pages serve the same goal;
+- major actions appear in unrelated places;
+- explanatory copy repeats;
+- Tools becomes a dumping ground;
+- navigation or observer regressions recur.
 
 The next scheduled deeper review remains approximately v126, with an acceptable v126–v136 range.
 
 ## Architecture boundaries
 
-- Local-first transaction, profile, revision, diagnostic, receipt, and receipt-audit processing.
+- Local-first transaction, profile, revision, diagnostic, receipt, audit, and batch-lineage processing.
 - No transaction or profile uploads.
-- Profiles, bundles, revision history, dry runs, receipts, and audits contain bounded metadata only.
-- No source rows, credentials, tokens, balances, full account identifiers, or vault contents in downloaded metadata artifacts.
-- No automatic receipt rollback or backup-directory scanning.
-- No service-worker registration or offline cache.
-- One live ES-module runtime chain.
+- Metadata channels never duplicate source rows.
+- No filenames, fingerprints, destination keys, credentials, tokens, balances, full identifiers, or vault contents in timeline downloads.
+- No automatic receipt repair, rollback, account merge, or backup-directory scanning.
+- No service worker or offline cache.
+- One live ES-module runtime.
 - Never auto-save an empty vault.
-- Preserve best-populated readable-vault selection.
+- Preserve best-populated-readable-vault selection.
 - Preserve `gringottsBudgetVault.latest` as restore destination.
 - Keep backup-first broad-write and restore safeguards.
-- Preserve the stable v105 rescue page.
+- Preserve stable v105 rescue.
