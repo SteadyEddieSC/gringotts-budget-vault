@@ -2,58 +2,77 @@
 
 ## Current architecture
 
+### v121 — Receipt Integrity & Import Batch Reconciliation
+
+v121 adds a derived timeline above the existing v115 metadata-only receipt history. Existing receipts remain authoritative and are never rewritten, repaired, or deleted.
+
+The timeline derives:
+
+- destination-family sequence;
+- receipt integrity status;
+- before/after-count continuity;
+- predecessor and successor batch references;
+- duplicate receipt identities;
+- repeated source-fingerprint notes;
+- optional verified dry-run lineage.
+
+Continuity states are earliest retained, continuous, legacy counts, untracked increase, and count decrease. They are review evidence only and never trigger a write, restore, deletion, or repair.
+
+#### Verified dry-run links
+
+The v121 route layer observes the existing explicit Prepare Dry Run and Confirm Missing-Only Import actions. It does not replace the v119 diagnostic generator or v115 writer.
+
+A link is stored only when the resulting receipt reconciles to the staged dry run on:
+
+- source format;
+- schema label;
+- normalized row count;
+- would-insert count;
+- would-skip count.
+
+Links are stored under `gringottsImportBatchIndex.v1`, capped at 80 records, read-back verified, and restored to the prior raw value after failure.
+
+The index stores references, timestamps, a non-reversible signature, format/schema labels, counts, readiness flags, and explicit privacy declarations. It excludes transaction rows, filenames, fingerprints, mappings, destination keys, account identifiers, merchants, balances, credentials, and vault contents.
+
+A missing link does not invalidate an older import. v121 does not infer or backfill dry-run history.
+
+#### Timeline outputs
+
+The user can:
+
+- filter by integrity, result, lineage, dry-run state, destination family, and local search;
+- download a sanitized full timeline;
+- download a sanitized selected batch;
+- copy a local batch summary;
+- open the separate Full vault restore task.
+
+The workbook now contains 35 sheets, adding Receipt Integrity and Batch Lineage while preserving Import Receipts.
+
 ### v120 — Import Receipt Audit & Rollback Guidance
 
-v120 adds a read-only audit layer above the existing metadata-only v115 receipts. It does not alter the parser, reconciliation rules, transaction writer, profile stores, or restore operation.
+v120 remains the receipt-arithmetic and manual-recovery layer. It checks incoming, inserted, skipped, before, after, verification, date coverage, warning counts, current destination count, and expected backup pattern.
 
-The audit reviews:
-
-- incoming, inserted, and skipped count arithmetic;
-- destination transaction count before and after the import;
-- guarded-writer verification result;
-- retained source date coverage and warning count;
-- the currently readable destination count when available;
-- whether a populated pre-import backup was expected;
-- the expected `Gringotts_v115_pre_import_<count>_*.json` filename pattern.
-
-Current-vault differences are notes rather than automatic failures because valid household activity may have occurred after the receipt was created.
-
-The selected audit can be downloaded as sanitized JSON containing counts, format/schema metadata, checks, backup expectations, and manual guidance. It excludes transaction rows, source filenames, source fingerprints, mappings, destination storage keys, account identifiers, merchant names, and vault contents.
-
-No automatic rollback is available. The audit can copy a manual checklist or open the separate Full vault restore task, but it never scans files, restores a vault, deletes rows, or rewrites transactions.
+No automatic rollback is available. Restore remains a separate confirmed task.
 
 ### v119 — Profile Versioning & Dry-Run Diagnostics
 
-v119 adds a metadata-only revision and readiness layer above the v118 portability controller, v117 profile model, and v115 guarded transaction engine.
-
-Existing profile Update and portable-bundle Replace pause before storage. The user sees every changed mapping and normalization option, acknowledges the comparison, and confirms the revision. Profile and revision metadata are written together, read back, and rolled back to both prior raw values after failure.
-
-Revision summaries are stored separately under `gringottsImportProfileRevisions.v1`, capped at 60 total and 8 per profile. Destination-account-label values are redacted. No transaction rows, source files, filenames, fingerprints, balances, credentials, or vault contents are retained.
-
-The Import screen also offers an explicit local dry run after source inspection. Preparing it performs no transaction write. Download requires a second explicit action and excludes rows, merchants, filenames, fingerprints, account identifiers, destination labels, balances, credentials, and vault contents.
+v119 retains bounded revision history and explicit metadata-only readiness diagnostics. Preparing a dry run performs no transaction write. Downloading is a separate action.
 
 ### v118 — Profile Portability & Institution Patterns
 
-Portable profile definitions contain mapping metadata only. Bundles omit transaction rows, raw source content, filenames, fingerprints, balances, credentials, tokens, full account numbers, local profile IDs, and local profile timestamps.
-
-Every selected bundle is reviewed in memory and every definition requires Add, Replace, or Skip. Replace is limited to an identity-matched saved profile and is revision-gated by v119.
+Portable definitions remain sanitized metadata requiring explicit Add, Replace, or Skip. Replace remains identity-matched and revision-gated.
 
 ### v117 — Import Profiles & Field Validation
 
-Browser-local profiles remember reviewed mapping metadata and apply automatically only when exactly one profile matches format, schema, delimiter, ordered headers, and remembered mapped headers. Several exact matches require an explicit choice.
+Browser-local profiles remain capped at 24 sanitized records and apply automatically only when exactly one source is compatible.
 
 ### v116 — Import and Restore Task Separation
 
-Tools presents two distinct tasks:
-
-- **Import transactions** adds reviewed missing rows from a supported export;
-- **Restore full vault** replaces the destination only through guarded restore.
-
-The restore destination remains exactly `gringottsBudgetVault.latest`.
+Tools presents separate Import transactions and Restore full vault tasks. Restore targets exactly `gringottsBudgetVault.latest`.
 
 ### v115 — Bank Export Import & Mapping
 
-v115 implements local import for common bank and credit-card transaction exports while preserving duplicate-safe, backup-first writes.
+v115 remains the authoritative local parser, reconciliation engine, guarded writer, and receipt store.
 
 ## Implemented format scope
 
@@ -68,95 +87,68 @@ v115 implements local import for common bank and credit-card transaction exports
 - QBO;
 - existing Gringotts JSON transaction packages.
 
-### Explicitly outside normal import
+### Outside normal import
 
 - PDF statements and OCR;
 - XLS and XLSX transaction exports;
-- CAMT.053 and CAMT.054 XML;
+- CAMT.053 and CAMT.054;
 - MT940;
 - archives, executables, and unsupported binaries;
 - direct institution credentials or account connections.
 
-PDF statements require a separate extraction and verification workflow because visual statements are not reliable machine-readable ledgers.
-
 ## Implemented import stages
 
-1. **Local file inspection**
-   - Reads the file only inside the browser.
-   - Detects format from extension and content signature.
-   - Blocks unsupported formats, files over 5 MB, and exports over 25,000 normalized rows.
-   - Uses UTF-8 first and Windows-1252 fallback with a visible warning.
+1. **Local inspection**
+   - Browser-only file read.
+   - Extension and content detection.
+   - 5 MB and 25,000-row limits.
+   - UTF-8 with visible Windows-1252 fallback.
 
-2. **Institution and schema detection**
-   - Detects OFX-family transaction blocks and delimited header patterns.
-   - Exercises card, deposit/withdrawal, wallet, signed-amount, and debit/credit families with fictional fixtures.
-   - Shows format, schema, confidence, encoding, row count, and an in-memory source fingerprint.
-   - Does not silently accept ambiguous dates or amount signs.
+2. **Schema detection**
+   - OFX-family and delimited-header recognition.
+   - Fictional card, deposit, wallet, signed-amount, and debit/credit fixtures.
+   - No silent date or sign guesses.
 
-3. **Profile, revision, portability, and mapping review**
-   - Shows saved profile identity and destination handling.
-   - Exports and imports sanitized definitions.
-   - Requires Add, Replace, or Skip for every portable definition.
-   - Requires field-by-field revision confirmation before Update or Replace.
-   - Maps date, description, amounts, status, account, memo, stable ID, category, and type.
-   - Explains date, sign, ID, account, status, category, and type behavior.
+3. **Profile and mapping review**
+   - Exact-compatible profile handling.
+   - Sanitized portable definitions.
+   - Revision-gated Update and Replace.
+   - Explicit field mapping and explanations.
 
-4. **Normalization preview and local dry run**
-   - Validates dates and amounts.
-   - Supports bank-standard, Gringotts-standard, separate debit/credit, and type-assisted signs.
-   - Masks mapped account identifiers.
-   - Defaults new rows to `Other` unless source-category use is explicitly enabled.
-   - Uses OFX-family FITID as the preferred stable identifier.
-   - Creates an optional metadata-only readiness diagnostic without transaction rows or household identifiers.
+4. **Normalization and dry run**
+   - Date/amount validation.
+   - Explicit sign modes.
+   - Masked account identifiers.
+   - Optional metadata-only readiness diagnostic.
 
 5. **Duplicate and overlap review**
-   - Uses stable IDs, deterministic fingerprints, date coverage, fuzzy matching, and pending-to-posted detection.
-   - Skips exact matches with an explanation.
-   - Requires Keep, Skip, or Defer for probable matches.
-   - Displays overlap and missing-period warnings.
+   - Stable IDs and deterministic fingerprints.
+   - Fuzzy and pending-to-posted review.
+   - Date coverage and overlap warnings.
 
 6. **Guarded write**
-   - Requires a populated readable destination.
-   - Requires a downloaded populated pre-import backup before insertion.
-   - Requires acknowledgement and confirmation.
-   - Writes only approved missing rows.
-   - Restores the prior raw value after failed write or verification.
-   - Reads back counts and inserted stable-ID/fingerprint tokens.
+   - Populated readable destination.
+   - Downloaded populated pre-import backup.
+   - Acknowledgement and confirmation.
+   - Missing-only insertion.
+   - Raw-value rollback after failure.
+   - Count and inserted-token read-back verification.
 
 7. **Metadata-only receipt**
-   - Records format/schema, mapping summary, warnings, coverage, duplicate counts, destination counts, source metadata, and verification.
-   - Does not copy imported transaction rows.
-   - Feeds the Import Receipts workbook sheet.
+   - Records source metadata, mappings, counts, coverage, duplicates, destination counts, and verification.
+   - Does not copy transaction rows.
 
-8. **Receipt audit and manual rollback guidance**
-   - Reconciles retained counts and verification state.
-   - Identifies whether a pre-import backup was expected.
-   - Produces a sanitized audit package after an explicit download action.
-   - Offers manual guidance only; it never performs rollback.
+8. **Receipt audit and rollback guidance**
+   - Reconciles counts and verification.
+   - Shows expected backup pattern.
+   - Produces sanitized audit output.
+   - Never performs rollback.
 
-## Receipt audit stages
-
-1. **Select**
-   - Choose a retained receipt in the local browser.
-   - Source filename and fingerprint may be shown on screen for local identification only.
-
-2. **Audit**
-   - Check receipt timestamp, writer result, incoming arithmetic, destination arithmetic, date range, warnings, and current destination comparison.
-   - Classify the result as Verified, Verified with notes, or Needs review.
-
-3. **Identify backup expectation**
-   - An insertion receipt expects the v115 pre-import backup matching the retained pre-import transaction count.
-   - A verified no-change receipt does not invent a backup requirement.
-   - v120 does not know or scan the backup's storage location.
-
-4. **Download or copy guidance**
-   - Download a sanitized JSON audit or copy the manual checklist.
-   - Exclude rows, filenames, fingerprints, mappings, destination keys, account identifiers, merchants, and vault contents.
-
-5. **Optional separate restore**
-   - Open the Full vault restore task.
-   - Preview and verify the chosen backup manually.
-   - Acknowledge and confirm only when rollback is genuinely necessary.
+9. **Receipt integrity and batch lineage**
+   - Derives sequence and continuity from retained receipts.
+   - Optionally links a reconciled explicit dry run.
+   - Produces sanitized timeline outputs.
+   - Never repairs receipts or changes transactions.
 
 ## Preserved restore boundary
 
@@ -169,51 +161,51 @@ Full restore:
 - performs read-back verification;
 - blocks an empty transaction array.
 
-Profile metadata, bundle import, revision history, dry runs, receipts, and receipt audits are not vault restore operations.
+Profiles, bundles, revisions, dry runs, receipts, audits, and batch links are not restore operations.
 
 ## Safety requirements
 
-- No import content leaves the browser except an explicit local download.
-- No remote parser, analytics endpoint, or institution credential connection.
-- No raw source rows in profiles, revision history, bundles, dry runs, receipts, or audits.
-- No automatic profile replacement, account merge, source-category use, or receipt repair.
-- No profile Update or Replace without revision review.
+- No import content leaves the browser except an explicit download.
+- No remote parser, analytics, or institution connection.
+- No raw rows in profiles, revisions, bundles, dry runs, receipts, audits, or batch links.
+- No automatic profile replacement, account merge, receipt repair, or rollback.
 - No empty-vault overwrite.
-- No transaction write with unresolved mapping, date, sign, or duplicate decisions.
+- No write with unresolved mapping, date, sign, or duplicate decisions.
 - No transaction write without a populated backup.
-- No successful result without read-back verification.
-- No automatic rollback from receipt review.
+- No successful write without read-back verification.
 
 ## Test coverage
 
 Synthetic coverage includes:
 
-- receipt normalization, verified imports, verified no-change imports, and inconsistent arithmetic;
-- current-destination comparison and backup filename expectations;
-- privacy-safe audit downloads and vault byte-for-byte noninterference;
-- separate restore navigation and disabled restore before a valid preview;
-- profile revisions, dry runs, bundle decisions, and field validation;
-- card, ledger, wallet, signed-amount, debit/credit, and OFX-family fixtures;
-- exact, fuzzy, pending-to-posted, coverage, malformed, oversized, and excessive-row cases;
-- phone, tablet, Android, iPhone, desktop, axe, and observer-stability coverage;
-- no network writes and repository security boundaries.
+- parser formats, malformed input, size, and row limits;
+- mapping profiles, bundle decisions, revisions, and dry runs;
+- exact, fuzzy, pending-to-posted, coverage, and overlap cases;
+- verified/no-change receipt arithmetic;
+- dry-run-to-receipt reconciliation and mismatch rejection;
+- bounded index storage and rollback;
+- continuous, legacy, increase, and decrease lineage;
+- timeline filters and privacy-safe downloads;
+- 35-sheet workbook generation;
+- desktop, phone, tablet, Android, iPhone, axe, and observer-stability checks;
+- repository security and no-network-write contracts.
 
-Real household exports, profiles, revisions, bundles, dry runs, receipts, receipt audits, backups, and reports must never be committed to the public repository or CI artifacts.
+Real household exports, profiles, revisions, dry runs, receipts, timelines, backups, and reports must never be committed or uploaded to CI artifacts.
 
 ## Next planned release
 
-### v121 — Receipt Integrity & Import Batch Reconciliation
+### v122 — Account Cleanup & Merge Planning
 
 Planned focus:
 
-- metadata-only batch lineage and receipt timeline filters;
-- missing, duplicated, legacy, and inconsistent receipt identification;
-- safe relation between dry-run readiness metadata and resulting receipts;
-- workbook receipt integrity status and explanations;
-- no automatic receipt repair or transaction change.
+- inventory account labels, masked identifiers, counts, and date ranges;
+- explain likely duplicates and naming drift;
+- preview rename/merge effects before any write;
+- require backup, acknowledgement, confirmation, and read-back verification;
+- never merge accounts automatically.
 
-See `ROADMAP.md` for the detailed v121–v126 planning horizon.
+See `ROADMAP.md` for the detailed v122–v127 horizon.
 
 ## Candidate future formats
 
-After representative real-export validation, separately evaluate CAMT, MT940, institution JSON, guarded XLSX, and additional property-testing support.
+After representative validation, separately evaluate CAMT, MT940, institution JSON, guarded XLSX, and additional property-testing support.
