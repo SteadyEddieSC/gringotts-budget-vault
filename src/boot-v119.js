@@ -37,24 +37,56 @@ document.addEventListener('input', (event) => {
   window.GringottsV115?.updateBankOption?.('accountLabel', target.value);
 }, true);
 
-import('./runtime-v111-reporting.js?v=119diagnostics1')
+let routeLayersPromise = null;
+let routeLayersReady = false;
+
+function loadRouteLayers() {
+  if (!routeLayersPromise) {
+    routeLayersPromise = Promise.all([
+      import('./v118/release.js?v=119diagnostics2'),
+      import('./v119/release.js?v=119diagnostics2')
+    ]).then(([v118, v119]) => {
+      v119.prepareV119Interceptors();
+      v118.prepareV118Interceptors();
+      v118.activateV118();
+      const build = v119.activateV119();
+      routeLayersReady = true;
+      return build;
+    }).catch((error) => {
+      routeLayersPromise = null;
+      throw error;
+    });
+  }
+  return routeLayersPromise;
+}
+
+document.addEventListener('click', (event) => {
+  const routeButton = event.target.closest?.('[data-tab]');
+  const route = routeButton?.dataset.tab;
+  if (!routeButton || !['tools', 'reports'].includes(route) || routeLayersReady) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  loadRouteLayers()
+    .then(() => routeButton.click())
+    .catch(renderFailure);
+}, true);
+
+import('./runtime-v111-reporting.js?v=119diagnostics2')
   .then(async () => {
-    const [
-      { activateV115 },
-      { prepareV118Interceptors, activateV118 },
-      { prepareV119Interceptors, activateV119 },
-      { installAccessibilityEnhancements }
-    ] = await Promise.all([
-      import('./v115/release.js?v=119diagnostics1'),
-      import('./v118/release.js?v=119diagnostics1'),
-      import('./v119/release.js?v=119diagnostics1'),
-      import('./v112/accessibility.js?v=119diagnostics1')
+    const [{ activateV115 }, { installAccessibilityEnhancements }] = await Promise.all([
+      import('./v115/release.js?v=119diagnostics2'),
+      import('./v112/accessibility.js?v=119diagnostics2')
     ]);
-    prepareV119Interceptors();
-    prepareV118Interceptors();
-    activateV115();
-    activateV118();
-    const build = activateV119();
+    const build = activateV115();
+    Object.assign(build, {
+      version: 'v119',
+      name: 'Profile Versioning & Dry-Run Diagnostics',
+      runtime: 'src/runtime-v111-reporting.js + lazy src/v115 + lazy v118 portability + lazy v119 revision diagnostics',
+      cacheBust: '119diagnostics2'
+    });
+    if (window.GringottsCleanRuntime?.BUILD) Object.assign(window.GringottsCleanRuntime.BUILD, build);
+    const registry = window.GringottsV119 || (window.GringottsV119 = {});
+    Object.assign(registry, { release: 'v119', loadRouteLayers });
     installAccessibilityEnhancements();
     document.title = `Gringotts Budget Vault ${build.version}`;
     const version = document.querySelector('.version-text');
