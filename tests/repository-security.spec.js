@@ -95,6 +95,7 @@ test('parser preflight runs before browser installation and release workflows st
   expect(playwright).toContain('needs: parser-preflight');
   expect(playwright).toContain('node --check src/v116/release.js');
   expect(playwright).toContain('node --check src/boot-v116.js');
+  expect(playwright).not.toContain('src/v116/reporting.js');
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
@@ -154,23 +155,23 @@ test('v115 parser is pure and the guarded writer preserves explicit backup and v
 
 test('v116 changes presentation and export naming without adding storage or network channels', () => {
   const release = read('src/v116/release.js');
-  const reporting = read('src/v116/reporting.js');
   const boot = read('src/boot-v116.js');
   const index = read('index.html');
   const app = read('app.html');
-  for (const source of [release, reporting]) {
-    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
-    expect(source).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
-    expect(source).not.toContain('gringottsBudgetVault.latest');
-  }
+  expect(release).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  expect(release).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
+  expect(release).not.toContain('gringottsBudgetVault.latest');
   expect(release).toContain("version: 'v116'");
   expect(release).toContain('REPORT_PAGE_ORDER');
   expect(release).toContain('data-import-task-panel');
-  expect(reporting).toContain('expandedWorkbookSheetsV115');
+  expect(release).toContain('expandedWorkbookSheetsV115');
+  expect(release).toContain('installV116DownloadOverrides');
   expect(index).toContain('src/boot-v116.js?v=116ui1');
   expect(app).toContain('src/boot-v116.js?v=116ui1');
   expect(index).toContain('styles/v116.css');
   expect(app).toContain('styles/v116.css');
+  expect(index).not.toContain('styles/v114.css');
+  expect(app).not.toContain('styles/v114.css');
   expect(boot).toContain("import('./v115/release.js?v=116ui1')");
   expect(boot).toContain("import('./v116/release.js?v=116ui1')");
   expect(boot).not.toContain('v114/release.js');
@@ -204,7 +205,6 @@ test('public repository security and quality control files remain present', () =
     'src/v115/reporting.js',
     'src/v115/release.js',
     'src/v115/views.js',
-    'src/v116/reporting.js',
     'src/v116/release.js',
     'styles/v114.css',
     'styles/v115.css',
