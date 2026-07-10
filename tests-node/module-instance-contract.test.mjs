@@ -17,14 +17,10 @@ test('v119 reuses the active v115 import session and v117 profile controller ins
 
 test('v120 reads the active registries instead of importing a second bank session', () => {
   const controller = read('src/v120/import-receipt-audit.js');
-  const boot = read('src/boot-v120.js');
   const v115 = read('src/v115/release.js');
   assert.match(controller, /window\.GringottsV115\?\.importHistory/);
   assert.doesNotMatch(controller, /bank-import\.js/);
   assert.match(v115, /bank-import\.js\?v=115bankimport2/);
-  assert.match(boot, /import\('\.\/v115\/release\.js\?v=120receipts1'\)/);
-  assert.match(boot, /import\('\.\/v119\/release\.js\?v=120receipts1'\)/);
-  assert.doesNotMatch(boot, /bank-import\.js\?v=120/);
 });
 
 test('v119 defers presentation writes when the v120 layer owns the route', () => {
@@ -33,6 +29,29 @@ test('v119 defers presentation writes when the v120 layer owns the route', () =>
   assert.match(release, /window\.GringottsV120\?\.release === 'v120'/);
   assert.match(release, /if \(!v120OwnsPresentation\(\)\) \{[\s\S]*report-kicker/);
   assert.match(release, /function enhanceRoadmap\(root\) \{\s*if \(v120OwnsPresentation\(\)\) return;/);
-  assert.match(release, /function enhanceImportPage\(page\) \{\s*if \(!v120OwnsPresentation\(\)\)/);
   assert.match(release, /module\.enhanceProfileVersioning\(page\)/);
+});
+
+test('v121 reuses the authoritative v115 and v117 module instances', () => {
+  const controller = read('src/v121/receipt-integrity.js');
+  assert.match(controller, /bank-import\.js\?v=115bankimport2/);
+  assert.match(controller, /import-profiles\.js\?v=117profiles1/);
+  assert.doesNotMatch(controller, /bank-import\.js\?v=121/);
+  assert.doesNotMatch(controller, /import-profiles\.js\?v=121/);
+});
+
+test('v121 interceptors load before inherited route controls attach', () => {
+  const boot = read('src/boot-v121.js');
+  assert.match(boot, /await v121\.prepareV121Interceptors\(\);[\s\S]*v120\.prepareV120Interceptors\(\);[\s\S]*v119\.prepareV119Interceptors\(\);[\s\S]*v118\.prepareV118Interceptors\(\);/);
+  assert.match(boot, /v118\.activateV118\(\);[\s\S]*v119\.activateV119\(\);[\s\S]*v120\.activateV120\(\);[\s\S]*v121\.activateV121\(\)/);
+  assert.match(boot, /import\('\.\/v115\/release\.js\?v=121batch1'\)/);
+  assert.doesNotMatch(boot, /bank-import\.js\?v=121/);
+});
+
+test('v120 defers presentation writes while v121 owns the route', () => {
+  const release = read('src/v120/release.js');
+  assert.match(release, /function v121OwnsPresentation\(\)/);
+  assert.match(release, /window\.GringottsV121\?\.release === 'v121'/);
+  assert.match(release, /function enhanceMain\(root = document\.getElementById\('main'\)\) \{\s*if \(!root \|\| v121OwnsPresentation\(\)\) return;/);
+  assert.match(release, /function enhanceRoadmap\(root\) \{\s*if \(v121OwnsPresentation\(\)\) return;/);
 });
