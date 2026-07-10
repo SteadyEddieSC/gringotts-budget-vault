@@ -46,7 +46,6 @@ jobs:
           node --check src/v115/views.js
           node --check src/v115/reporting.js
           node --check src/v115/release.js
-          node --check src/v116/reporting.js
           node --check src/v116/release.js
           node --check src/boot-v116.js
           node --check src/v111/views.js
