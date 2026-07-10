@@ -45,6 +45,10 @@ function requiredFeature(name) {
   return value;
 }
 
+function v121OwnsPresentation() {
+  return window.GringottsV121?.release === 'v121';
+}
+
 function installCss() {
   if (cssInstalled || document.querySelector('link[data-v120-styles]')) return;
   cssInstalled = true;
@@ -208,6 +212,7 @@ function roadmapCard(entry) {
 }
 
 function enhanceRoadmap(root) {
+  if (v121OwnsPresentation()) return;
   const section = [...root.querySelectorAll('.section.active')]
     .find((candidate) => candidate.querySelector('h2')?.textContent?.trim() === 'Roadmap');
   if (!section || section.dataset.v120RoadmapEnhanced === 'true') return;
@@ -229,6 +234,7 @@ function enhanceRoadmap(root) {
 }
 
 function enhanceImportPage(page) {
+  if (v121OwnsPresentation()) return;
   const titleRow = page.querySelector(':scope > .section-title-row');
   setText(titleRow?.querySelector('h2'), 'Import & Restore');
   setText(titleRow?.querySelector('p'), 'Audit prior receipts, compare profile revisions, prepare metadata-only dry runs, import reviewed missing rows, or use the separate full restore task.');
@@ -239,7 +245,7 @@ function enhanceImportPage(page) {
 }
 
 function enhanceMain(root = document.getElementById('main')) {
-  if (!root) return;
+  if (!root || v121OwnsPresentation()) return;
   root.querySelectorAll('.report-kicker').forEach((node) => setText(node, 'Import Receipt Audit & Rollback Guidance v120'));
   const importPage = root.querySelector('.v116-import-page, .v115-import-page');
   if (importPage) enhanceImportPage(importPage);
