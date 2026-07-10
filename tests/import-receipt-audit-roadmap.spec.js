@@ -47,7 +47,7 @@ test('audits retained receipts without changing the vault', async ({ app }) => {
   await expect(page.getByText('Verified', { exact: true }).first()).toBeVisible();
   await page.locator('[data-receipt-audit-select="import_v120_verified"]').click();
   await expect(page.locator('#importReceiptAuditDetail')).toBeVisible();
-  await expect(page.getByText(/Gringotts_v115_pre_import_/i)).toBeVisible();
+  await expect(page.locator('.receipt-rollback-guidance .summary-box')).toContainText('Gringotts_v115_pre_import_');
   await expect(page.getByText(/No automatic rollback/i)).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Destination count arithmetic', exact: true })).toBeVisible();
 
