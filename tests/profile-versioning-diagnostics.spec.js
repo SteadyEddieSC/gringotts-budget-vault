@@ -111,8 +111,16 @@ test('prepares and explicitly downloads a metadata-only import dry run', async (
   const diagnostic = JSON.parse(await fs.readFile(filePath, 'utf8'));
   expect(diagnostic.kind).toBe('gringotts-import-dry-run-diagnostic');
   expect(diagnostic.readiness.transactionWritePerformed).toBe(false);
+  expect(diagnostic.dataBoundary).toMatchObject({
+    transactionRowsIncluded: false,
+    sourceFileNameIncluded: false,
+    sourceFingerprintIncluded: false,
+    accountIdentifiersIncluded: false,
+    destinationAccountLabelIncluded: false,
+    vaultContentsIncluded: false
+  });
   const text = JSON.stringify(diagnostic);
-  expect(text).not.toMatch(/synthetic-signed\.csv|Synthetic Fuel|bank-new-1|sourceFingerprint|transactions|records|accountLabel/i);
+  expect(text).not.toMatch(/synthetic-signed\.csv|Synthetic Fuel|bank-new-1|Synthetic Card|sourceFingerprint|"transactions"|"records"/i);
 });
 
 test('keeps revision and dry-run surfaces inside a phone viewport', async ({ app }) => {
