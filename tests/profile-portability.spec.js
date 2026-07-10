@@ -60,6 +60,13 @@ async function chooseBundle(page, value, name = 'synthetic-profile-bundle.json')
   await expect(page.locator('#profileBundlePreview')).toBeVisible();
 }
 
+async function confirmRevision(page) {
+  await expect(page.locator('#profileRevisionGate')).toBeVisible();
+  await page.locator('#profileRevisionAck').check();
+  await page.locator('#confirmProfileRevision').click();
+  await expect(page.locator('#profileRevisionGate')).toHaveCount(0);
+}
+
 test('shows profile portability before a transaction export is selected', async ({ app }) => {
   const { page } = app;
   await openImport(page);
@@ -115,7 +122,7 @@ test('adds a reviewed profile without changing the household vault or retaining 
   await expect(action).toHaveValue('add');
   await page.locator('#profileBundleAck').check();
   await page.locator('#commitProfileBundle').click();
-  await expect(page.getByText(/Verified profile bundle result: 1 added, 0 replaced, 0 skipped/i)).toBeVisible();
+  await expect(page.getByLabel('Bank export import').getByText(/Verified profile bundle result: 1 added, 0 replaced, 0 skipped/i)).toBeVisible();
 
   const result = await page.evaluate((key) => ({
     vault: localStorage.getItem('gringottsBudgetVault.latest'),
@@ -129,7 +136,7 @@ test('adds a reviewed profile without changing the household vault or retaining 
   expect(result.raw).not.toMatch(/transactions|records|sourceFingerprint|sourceFilename/i);
 });
 
-test('replaces only an identity-matched profile and preserves its local identity', async ({ app }, testInfo) => {
+test('revision-gates an identity-matched replacement and preserves its local identity', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for replacement coverage.');
   const { page } = app;
   const beforeVault = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
@@ -150,10 +157,12 @@ test('replaces only an identity-matched profile and preserves its local identity
   await target.selectOption(savedProfile.profileId);
   await page.locator('#profileBundleAck').check();
   await page.locator('#commitProfileBundle').click();
+  await confirmRevision(page);
 
   const result = await page.evaluate((key) => ({
     vault: localStorage.getItem('gringottsBudgetVault.latest'),
-    profile: JSON.parse(localStorage.getItem(key)).profiles[0]
+    profile: JSON.parse(localStorage.getItem(key)).profiles[0],
+    revisions: JSON.parse(localStorage.getItem('gringottsImportProfileRevisions.v1')).revisions
   }), STORAGE_KEY);
   expect(result.vault).toBe(beforeVault);
   expect(result.profile.profileId).toBe(savedProfile.profileId);
@@ -161,6 +170,7 @@ test('replaces only an identity-matched profile and preserves its local identity
   expect(result.profile.name).toBe('Household Visa Updated');
   expect(result.profile.options.accountLabel).toBe('Household Visa •4242');
   expect(result.profile.mapping.category).toBe('');
+  expect(result.revisions[0].source).toBe('bundle-replace');
 });
 
 test('defaults an identical imported definition to Skip and creates no duplicate', async ({ app }, testInfo) => {
