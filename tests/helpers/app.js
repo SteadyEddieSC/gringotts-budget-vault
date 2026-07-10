@@ -23,11 +23,20 @@ export async function waitForApp(page) {
 
 export async function openPrimary(page, name) {
   const button = page.getByRole('button', { name, exact: true });
-  if (!(await button.isVisible())) {
-    await page.getByRole('button', { name: /Menu/i }).click();
-    await expect(button).toBeVisible();
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (!(await button.isVisible())) {
+      await page.getByRole('button', { name: /Menu/i }).click();
+      await expect(button).toBeVisible({ timeout: 2500 });
+    }
+    try {
+      await button.click({ timeout: 3000 });
+      return;
+    } catch (error) {
+      lastError = error;
+    }
   }
-  await button.click();
+  throw lastError;
 }
 
 function enableActionRoleCompatibility(page) {
