@@ -68,7 +68,7 @@ function sanitizeOptions(options = {}) {
 
 export function profileFromSession({ profileId = '', name = '', inspection, options = {}, existingProfile = null, now = new Date().toISOString() } = {}) {
   const identity = inspectionIdentity(inspection);
-  if (!identity) throw new Error('A supported inspected export is required before saving a mapping profile.');
+  if (!identity || !identity.format) throw new Error('A supported inspected export is required before saving a mapping profile.');
   if (identity.format === 'json') throw new Error('Gringotts JSON imports preserve source fields and do not use mapping profiles.');
   const headers = Array.isArray(inspection.headers) ? inspection.headers : [];
   const sanitizedName = clean(name).slice(0, 80);
@@ -102,7 +102,7 @@ export function sanitizeStoredProfiles(value) {
       createdAt: clean(profile.createdAt),
       updatedAt: clean(profile.updatedAt)
     }))
-    .filter((profile) => profile.profileId && profile.name && profile.format && profile.schemaId && profile.headerSignature)
+    .filter((profile) => profile.profileId && profile.name && profile.format && profile.schemaId && /^fnv1a-[0-9a-f]{8}$/.test(profile.headerSignature))
     .slice(0, MAX_IMPORT_PROFILES);
 }
 
