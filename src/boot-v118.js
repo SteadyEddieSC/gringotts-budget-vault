@@ -31,6 +31,12 @@ function renderFailure(error) {
 window.addEventListener('error', (event) => { if (event?.error) renderFailure(event.error); });
 window.addEventListener('unhandledrejection', (event) => renderFailure(event?.reason));
 
+document.addEventListener('input', (event) => {
+  const target = event.target;
+  if (!(target instanceof Element) || !target.matches('[data-bank-option="accountLabel"]')) return;
+  window.GringottsV115?.updateBankOption?.('accountLabel', target.value);
+}, true);
+
 import('./runtime-v111-reporting.js?v=118portable1')
   .then(async () => {
     const [{ activateV115 }, { prepareV118Interceptors, activateV118 }, { installAccessibilityEnhancements }] = await Promise.all([
