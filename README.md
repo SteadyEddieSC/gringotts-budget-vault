@@ -11,16 +11,64 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application release: **v116 — UI Architecture Review**  
-Current quality-infrastructure release: **v116 — Task-Based UI Contracts**
+Current application release: **v117 — Import Profiles & Field Validation**  
+Current quality-infrastructure release: **v117 — Profile and Field-Validation Contracts**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## UI Architecture Review
+## Import Profiles & Field Validation
 
-v116 keeps the six established primary destinations:
+v117 adds reusable browser-local mapping profiles to Tools → Import transactions without replacing the v115 guarded parser or writer.
+
+### Exact-compatible profiles
+
+Profiles remember reviewed import metadata only:
+
+- user-supplied profile name;
+- format, schema, and delimiter;
+- a non-reversible ordered-header signature;
+- mapped source header names;
+- date order and amount-sign interpretation;
+- account handling and destination label;
+- explicit source-category preference;
+- timestamps.
+
+Profiles never contain transaction rows, raw records, source file content, source filenames, source fingerprints, balances, credentials, or full unmasked account identifiers.
+
+A profile applies only when format, schema, delimiter, ordered headers, and all remembered mapped headers match exactly. One compatible profile applies automatically. Multiple compatible profiles require an explicit selection.
+
+### Profile controls
+
+The Import task provides:
+
+- Apply Selected Profile;
+- Save New Profile;
+- Update Profile;
+- New Profile;
+- Delete Profile.
+
+Profile writes are bounded to 24 records, sanitized, browser-local, and read-back verified. Applying a profile changes only the in-memory import session and does not write transactions.
+
+### Field-level explanations
+
+v117 explains the current interpretation of:
+
+- dates and ambiguity handling;
+- signed amounts or debit/credit columns;
+- stable transaction IDs;
+- account mapping and masking;
+- pending status;
+- source categories;
+- transaction type;
+- profile-remembered field choices.
+
+The normalized preview and all existing unresolved-field blocking remain authoritative.
+
+## UI architecture
+
+The six primary destinations remain:
 
 - Dashboard;
 - Money;
@@ -29,39 +77,11 @@ v116 keeps the six established primary destinations:
 - Activity;
 - Tools.
 
-The review found that the primary architecture still matches durable household goals. The changes therefore focus on dense workflows rather than adding or moving top-level destinations.
-
-### Reports
-
-Reports now presents three clear tasks:
-
-- choose a reusable report range;
-- preview one of the eight family-report pages;
-- download local exports.
-
-The preview uses a native select plus Previous and Next controls. Only one report page is shown on screen, while Print / Save PDF still includes all eight pages.
-
-The annual tracker, 33-sheet Vault Workbook, range CSV, selected-month quick XLSX, executive Markdown, family meeting pack, and Guided Plan remain available.
-
-### Import and restore
-
-Tools → Import / Restore now has two explicit paths:
-
-- **Import transactions** for reviewed missing-only transaction insertion;
-- **Restore full vault** for replacement through the guarded restore workflow.
-
-Bank import shows Inspect, Map, and Reconcile progress without storing new transaction copies or bypassing existing safeguards.
-
-### Responsive behavior
-
-- Activity secondary navigation scrolls horizontally on narrow phones instead of creating five oversized rows.
-- Report downloads use three columns on wide displays, two on tablets, and one on phones.
-- Import task controls and progress stack on phones.
-- Tables remain inside their own scroll containers.
+Reports continues to show one of eight report pages at a time on screen while Print / Save PDF includes all eight pages. Tools continues to separate incremental transaction import from full vault restore. Activity secondary navigation remains compact on narrow phones.
 
 ## Bank Export Import & Mapping
 
-v115 remains the guarded local import engine under the v116 presentation.
+v115 remains the guarded local import engine under the v117 profile and validation layer.
 
 Supported local sources:
 
@@ -77,7 +97,7 @@ The workflow provides format and schema inspection, explicit mapping, date-order
 
 Imported rows default to `Other`, unreviewed, and review-required unless source-category use is explicitly selected. Incremental import never replaces the destination vault.
 
-Full restore remains separate and still writes only to `gringottsBudgetVault.latest` after a populated preview, acknowledgement, confirmation, and read-back verification.
+Full restore remains separate and writes only to `gringottsBudgetVault.latest` after a populated preview, acknowledgement, confirmation, and read-back verification.
 
 ## Privacy and data boundary
 
@@ -85,6 +105,7 @@ Do not commit or attach:
 
 - bank or credit-card exports;
 - Gringotts vault backups;
+- saved household import profiles;
 - account or routing numbers;
 - screenshots containing household financial data;
 - filled spreadsheets or generated reports;
@@ -94,19 +115,22 @@ The application remains local-first:
 
 - bank exports are parsed in memory inside the browser;
 - no transaction upload, parser API, analytics endpoint, or institution credential connection exists;
+- profiles retain mapping metadata only;
 - source account identifiers are masked when mapped;
-- raw imported rows are not copied into metadata receipts;
+- raw imported rows are not copied into receipts or profiles;
 - reports and downloads are generated locally;
 - no service worker or offline application cache is registered;
 - an empty vault is never automatically saved over a populated vault;
 - broad transaction writes remain backup-first and read-back verified.
 
-## Faster, quieter release process
+## Performance and staged release process
+
+The initial request budget remains unchanged because profile code and `styles/v117.css` load only after Tools → Import is rendered.
 
 The parser/static gate runs before Playwright browser installation:
 
-- current v115 and v116 modules are checked with `node --check`;
-- parser, mapping, malformed-input, size-limit, and mutation tests use Node's built-in runner;
+- v115 and v117 modules are checked with `node --check`;
+- parser, profile, mapping, malformed-input, size-limit, and mutation tests use Node's built-in runner;
 - desktop and responsive browser jobs cannot begin until preflight passes;
 - Chromium runs before Firefox and WebKit installation;
 - Android Chromium runs before iPad and iPhone WebKit;
@@ -120,14 +144,15 @@ See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 The final merge gate covers:
 
-- browser-free parser and static preflight;
+- browser-free parser and profile-model preflight;
 - Chromium, Firefox, and WebKit desktop behavior;
 - iPad, Android, and iPhone/WebKit layouts;
+- profile save, auto-apply, conflicts, incompatibility, deletion, and vault noninterference;
+- field-validation explanations and profile observer stability;
 - all eight report-preview pages and complete print output;
-- separated import and restore paths;
 - signed CSV, debit/credit, OFX-family, and legacy JSON imports;
-- duplicate, rollback, backup, and verification behavior;
-- restore, month close, forecast, debt, goals, Guided Plan, and Review Queue safeguards;
+- duplicate, rollback, backup, restore, and verification behavior;
+- month close, forecast, debt, goals, Guided Plan, Insights, and Review Queue safeguards;
 - axe, keyboard, visual contracts, and Lighthouse budgets;
 - full-history privacy and Gitleaks scans;
 - Dependency Review, high/critical npm audit, and CodeQL;
@@ -160,7 +185,7 @@ CAMT, MT940, XLSX, institution-specific JSON, OCR, and PDF extraction require se
 
 ## Release documentation
 
-- [`RELEASE_NOTES_v116_UI_ARCHITECTURE_REVIEW.md`](RELEASE_NOTES_v116_UI_ARCHITECTURE_REVIEW.md)
+- [`RELEASE_NOTES_v117_IMPORT_PROFILES_FIELD_VALIDATION.md`](RELEASE_NOTES_v117_IMPORT_PROFILES_FIELD_VALIDATION.md)
 - [`ROADMAP.md`](ROADMAP.md)
 - [`UI_GOVERNANCE.md`](UI_GOVERNANCE.md)
 - [`BANK_IMPORT_ROADMAP.md`](BANK_IMPORT_ROADMAP.md)
