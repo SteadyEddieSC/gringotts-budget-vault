@@ -26,3 +26,13 @@ test('v120 reads the active registries instead of importing a second bank sessio
   assert.match(boot, /import\('\.\/v119\/release\.js\?v=120receipts1'\)/);
   assert.doesNotMatch(boot, /bank-import\.js\?v=120/);
 });
+
+test('v119 defers presentation writes when the v120 layer owns the route', () => {
+  const release = read('src/v119/release.js');
+  assert.match(release, /function v120OwnsPresentation\(\)/);
+  assert.match(release, /window\.GringottsV120\?\.release === 'v120'/);
+  assert.match(release, /if \(!v120OwnsPresentation\(\)\) \{[\s\S]*report-kicker/);
+  assert.match(release, /function enhanceRoadmap\(root\) \{\s*if \(v120OwnsPresentation\(\)\) return;/);
+  assert.match(release, /function enhanceImportPage\(page\) \{\s*if \(!v120OwnsPresentation\(\)\)/);
+  assert.match(release, /module\.enhanceProfileVersioning\(page\)/);
+});
