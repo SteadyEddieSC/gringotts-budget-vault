@@ -42,12 +42,13 @@ export function inspectionIdentity(inspection) {
   };
 }
 
-function sanitizeMapping(mapping, headers = []) {
-  const allowed = new Set(headers.map(clean));
+function sanitizeMapping(mapping, headers = null) {
+  const validateHeaders = Array.isArray(headers);
+  const allowed = new Set((headers || []).map(clean));
   const result = {};
   PROFILE_FIELDS.forEach((field) => {
     const header = clean(mapping?.[field]);
-    if (!header || allowed.has(header)) result[field] = header;
+    result[field] = !header || !validateHeaders || allowed.has(header) ? header : '';
   });
   return result;
 }
