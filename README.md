@@ -11,76 +11,66 @@ A public, local-first household budgeting application deployed as a static Cloud
 
 The source code is public. Household transaction data is not part of this repository and is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current application release: **v118 — Profile Portability & Institution Patterns**  
-Current quality-infrastructure release: **v118 — Portable Profile and Conflict-Review Contracts**
+Current application release: **v119 — Profile Versioning & Dry-Run Diagnostics**  
+Current quality-infrastructure release: **v119 — Revision, Diagnostic, and Lazy-Route Contracts**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
+## Profile Versioning & Dry-Run Diagnostics
+
+v119 adds two explicit metadata-only safety boundaries to Tools → Import transactions.
+
+### Revision-gated profile updates
+
+Updating an existing mapping profile or replacing one through a portable bundle now pauses before storage and shows every changed mapping and normalization option.
+
+The user must acknowledge and confirm the comparison before metadata is written. Profile and revision-history values are then read back together. A failed write restores both previous raw values.
+
+Revision history is stored separately under `gringottsImportProfileRevisions.v1` and is limited to:
+
+- 60 revision summaries total;
+- 8 revision summaries per local profile.
+
+The history stores definition hashes, source, time, and sanitized changed-field descriptions. Local destination-account-label values are represented only as a redacted change indicator. Transaction rows, source files, filenames, fingerprints, balances, credentials, and vault contents are never copied into revision history.
+
+### Explicit local import dry run
+
+After inspecting a supported bank export, the user can prepare an in-memory dry run showing:
+
+- source format and schema;
+- selected header mappings;
+- non-sensitive normalization options;
+- required-field readiness;
+- normalization error and warning counts;
+- date coverage and overlap;
+- exact, fuzzy, fresh, unresolved, insert, and skip counts;
+- acknowledgement, backup, and transaction-write readiness.
+
+Preparing the dry run performs no transaction write. A second explicit action downloads the JSON diagnostic.
+
+The diagnostic excludes transaction rows, merchant names, source filenames, source fingerprints, account identifiers, destination account labels, balances, credentials, and household vault contents.
+
 ## Profile Portability & Institution Patterns
 
-v118 lets a household move reviewed bank-export mapping definitions between browsers without moving transactions or replacing the household vault.
+v118 remains the portable-definition layer below v119.
 
-### Sanitized bundle export
+Tools → Import transactions can export the saved profile library as a versioned JSON bundle. Portable definitions contain profile names, source schema and delimiter metadata, a non-reversible ordered-header signature, mapped source-header names, normalization choices, and destination handling metadata.
 
-Tools → Import transactions can export the saved profile library as a versioned JSON bundle. Portable definitions contain only:
+Portable files omit local profile IDs and local creation/update timestamps. They never contain transaction rows, source file content, source filenames, source fingerprints, balances, credentials, tokens, or full account numbers. Bundles are limited to 24 definitions and 256 KB.
 
-- profile name;
-- source format, schema, delimiter, and non-reversible ordered-header signature;
-- mapped source header names;
-- date-order and amount-sign interpretation;
-- destination account label and account-handling mode;
-- explicit source-category preference.
+Selecting a bundle creates an in-memory preview. Every definition is classified as an exact duplicate, same definition under another name, source-identity conflict, name conflict, or new definition. Every item requires Add, Replace, or Skip. Replace is available only for an identity-matched saved profile and is revision-gated by v119.
 
-Portable files omit local profile IDs and local creation/update timestamps. They never contain transaction rows, source file content, source filenames, source fingerprints, balances, credentials, tokens, or full account numbers.
-
-Bundles are limited to 24 definitions and 256 KB.
-
-### Explicit import review
-
-Selecting a bundle creates an in-memory preview before any profile storage changes. Every definition is classified as:
-
-- exact duplicate;
-- same definition under another name;
-- source-identity conflict;
-- name conflict;
-- new definition.
-
-Every item requires a reviewed **Add**, **Replace**, or **Skip** decision. Exact and same-definition matches default to Skip. Replace is available only for an identity-matched saved profile. No conflict is silently overwritten.
-
-The final metadata write is sanitized and read back. A failed storage or verification attempt restores the prior raw profile-library value.
-
-### Saved profile library
-
-The Import screen now shows profile name, destination label, source pattern, and non-reversible identity. Distinct profile and destination names help households separate multiple cards or accounts that share one export schema.
-
-### Fictional institution-pattern coverage
-
-v118 adds synthetic fixtures for:
-
-- card activity with transaction and post dates;
-- deposit/withdrawal account ledgers;
-- digital-wallet activity with net amount, status, transaction ID, type, and note.
-
-These fixtures exercise the existing v115 parser and normalizer. v118 does not create a parallel transaction parser.
+Synthetic fixtures cover card activity, deposit/withdrawal account ledgers, and digital-wallet activity through the existing v115 parser.
 
 ## Import Profiles & Field Validation
 
-v117 remains the mapping-profile layer beneath v118. Profiles are browser-local metadata under `gringottsImportProfiles.v1`, capped at 24 sanitized records and read-back verified.
+v117 remains the mapping-profile layer. Profiles are browser-local metadata under `gringottsImportProfiles.v1`, capped at 24 sanitized records and read-back verified.
 
 A profile applies automatically only when exactly one saved profile matches format, schema, delimiter, ordered headers, and remembered mapped headers. Several exact matches require an explicit choice.
 
-The Map stage explains:
-
-- dates and ambiguity handling;
-- signed amounts or debit/credit columns;
-- stable transaction IDs;
-- account mapping and masking;
-- pending status;
-- source categories;
-- transaction type;
-- profile-remembered choices.
+The Map stage explains dates, signed amounts or debit/credit columns, stable transaction IDs, account mapping and masking, pending status, source categories, transaction type, and profile-remembered choices.
 
 Applying, saving, importing, updating, replacing, or deleting profile metadata does not import transactions.
 
@@ -97,9 +87,11 @@ The six primary destinations remain:
 
 Reports shows one of eight pages at a time on screen while Print / Save PDF includes all eight. Tools separates incremental transaction import from full vault restore. Activity secondary navigation remains compact on narrow phones.
 
+The initial Dashboard request budget remains protected: v118 portability and v119 revision/diagnostic layers load only when Tools or Reports is opened.
+
 ## Bank Export Import & Mapping
 
-v115 remains the guarded local transaction engine under the v117 and v118 profile layers.
+v115 remains the guarded local transaction engine under the v117–v119 metadata layers.
 
 Supported local sources:
 
@@ -123,7 +115,7 @@ Do not commit or attach:
 
 - bank or credit-card exports;
 - Gringotts vault backups;
-- saved household profiles or exported profile bundles;
+- saved household profiles, revision-history exports, or exported profile bundles;
 - account or routing numbers;
 - screenshots containing household financial data;
 - filled spreadsheets or generated reports;
@@ -133,10 +125,10 @@ The application remains local-first:
 
 - bank exports and profile bundles are parsed in browser memory;
 - no transaction upload, parser API, analytics endpoint, or institution credential connection exists;
-- profile bundles retain mapping metadata only;
-- filenames are displayed for review but are not stored in the profile library;
+- profile bundles, revision history, and dry-run diagnostics retain metadata only;
+- filenames are displayed for review but are not stored in the profile library or diagnostic;
 - source account identifiers are masked when mapped;
-- raw imported rows are not copied into receipts or profiles;
+- raw imported rows are not copied into receipts, profiles, revision history, or diagnostics;
 - reports and downloads are generated locally;
 - no service worker or offline application cache is registered;
 - an empty vault is never automatically saved over a populated vault;
@@ -144,12 +136,10 @@ The application remains local-first:
 
 ## Performance and staged release process
 
-The initial request budget remains unchanged because v117 profile code, v118 portability code, and their styles load only after Tools → Import is rendered.
-
 The parser/static gate runs before Playwright browser installation:
 
-- active v115, v117, and v118 modules are checked with `node --check`;
-- parser, profile, portability, institution-pattern, malformed-input, size-limit, and deterministic mutation tests use Node's built-in runner;
+- active v115–v119 modules are checked with `node --check`;
+- parser, profile, portability, revision, diagnostic, malformed-input, size-limit, and deterministic mutation tests use Node's built-in runner;
 - desktop and responsive browser jobs cannot begin until preflight passes;
 - Chromium runs before Firefox and WebKit installation;
 - Android Chromium runs before iPad and iPhone WebKit;
@@ -163,10 +153,11 @@ See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 The final merge gate covers:
 
-- browser-free parser, profile, portability, and institution-pattern preflight;
+- browser-free parser, profile, portability, revision, and diagnostic preflight;
 - Chromium, Firefox, and WebKit desktop behavior;
 - iPad, Android, and iPhone/WebKit layouts;
-- sanitized profile downloads and imported-file rejection;
+- sanitized profile and dry-run downloads;
+- Update and Replace revision gates;
 - exact, same-definition, identity-conflict, name-conflict, and new-profile review;
 - Add, Replace, Skip, duplicate-name blocking, and invalid-target blocking;
 - vault byte-for-byte noninterference and filename non-retention;
@@ -207,6 +198,7 @@ CAMT, MT940, XLSX, institution-specific JSON, OCR, and PDF extraction require se
 
 ## Release documentation
 
+- [`RELEASE_NOTES_v119_PROFILE_VERSIONING_DIAGNOSTICS.md`](RELEASE_NOTES_v119_PROFILE_VERSIONING_DIAGNOSTICS.md)
 - [`RELEASE_NOTES_v118_PROFILE_PORTABILITY_PATTERNS.md`](RELEASE_NOTES_v118_PROFILE_PORTABILITY_PATTERNS.md)
 - [`ROADMAP.md`](ROADMAP.md)
 - [`UI_GOVERNANCE.md`](UI_GOVERNANCE.md)
