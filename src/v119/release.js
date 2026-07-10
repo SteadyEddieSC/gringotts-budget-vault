@@ -225,7 +225,10 @@ function enhanceImportPage(page) {
 function enhanceRoadmap(root) {
   const section = [...root.querySelectorAll('.section.active')]
     .find((candidate) => candidate.querySelector('h2')?.textContent?.trim() === 'Roadmap');
-  if (!section) return;
+  if (!section || section.dataset.v119RoadmapEnhanced === 'true') return;
+
+  // Mark the rendered section before DOM writes so observer callbacks cannot re-enter this enhancement.
+  section.dataset.v119RoadmapEnhanced = 'true';
   const titleRow = section.querySelector(':scope > .section-title-row');
   setText(titleRow?.querySelector('p'), 'Shipped releases and the next focused improvement for the local-first application.');
   setText(titleRow?.querySelector('.section-meta'), 'Next: v120');
