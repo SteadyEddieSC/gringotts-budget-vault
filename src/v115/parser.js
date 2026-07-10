@@ -26,13 +26,19 @@ function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+const OFX_ENTITIES = Object.freeze({
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  '#39': "'"
+});
+
 function decodeEntities(value) {
-  return String(value ?? '')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'");
+  return String(value ?? '').replace(/&(amp|lt|gt|quot|apos|#39);/gi, (entity, name) => (
+    OFX_ENTITIES[name.toLowerCase()] ?? entity
+  ));
 }
 
 function extensionOf(fileName) {
