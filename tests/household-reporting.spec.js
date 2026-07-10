@@ -46,7 +46,8 @@ test('boots v116 and navigates the complete household report preview', async ({ 
   ];
   for (const [value, heading] of pages) {
     await selectReportPage(page, value);
-    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    const visiblePage = page.locator('.report-preview-deck > .report-page:not([hidden])');
+    await expect(visiblePage.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
   await expect(page.getByText(/33 sheets/i)).toBeVisible();
   await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
