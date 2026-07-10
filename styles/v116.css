@@ -1,0 +1,190 @@
+/* v116 UI Architecture Review */
+.v116-task-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0 0 1rem;
+}
+
+.v116-task-switcher button {
+  min-height: 72px;
+  display: grid;
+  gap: .25rem;
+  align-content: center;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: .8rem 1rem;
+  background: #0b1220;
+  color: var(--text);
+}
+
+.v116-task-switcher button span {
+  color: var(--muted);
+  font-size: .88rem;
+  line-height: 1.35;
+}
+
+.v116-task-switcher button:hover,
+.v116-task-switcher button.active {
+  border-color: var(--gold);
+}
+
+.v116-task-switcher button.active {
+  background: rgba(245, 196, 81, .1);
+  box-shadow: inset 0 -3px 0 var(--gold);
+}
+
+.bank-import-progress {
+  list-style: none;
+  counter-reset: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.bank-import-progress li {
+  min-width: 0;
+  display: grid;
+  gap: .25rem;
+  border-top: 3px solid var(--line);
+  padding: .65rem .15rem 0;
+}
+
+.bank-import-progress li[data-status="complete"] {
+  border-top-color: var(--green);
+}
+
+.bank-import-progress li[data-status="current"] {
+  border-top-color: var(--gold);
+}
+
+.bank-import-progress li span,
+.bank-import-progress li small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.bank-import-progress li small {
+  font-weight: 700;
+}
+
+.report-preview-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.report-preview-toolbar h3,
+.report-preview-toolbar p,
+.report-preview-controls p {
+  margin-bottom: 0;
+}
+
+.report-preview-controls {
+  display: grid;
+  gap: .6rem;
+}
+
+.report-preview-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.report-preview-buttons .btn {
+  width: 100%;
+}
+
+.report-preview-deck {
+  display: grid;
+  gap: 1rem;
+}
+
+.report-preview-deck > .report-page {
+  margin: 0;
+}
+
+.report-preview-deck > .report-page[hidden],
+.v116-import-page [data-import-task-panel][hidden] {
+  display: none;
+}
+
+.v116-report-center .report-downloads {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.v116-report-center .report-option {
+  min-width: 0;
+}
+
+.workbook-contents-card {
+  margin-top: 1rem;
+}
+
+@media (max-width: 980px) {
+  .v116-report-center .report-downloads {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .v116-task-switcher,
+  .bank-import-progress,
+  .report-preview-toolbar,
+  .v116-report-center .report-downloads {
+    grid-template-columns: 1fr;
+  }
+
+  .v116-task-switcher button {
+    min-height: 60px;
+  }
+
+  .bank-import-progress li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: .75rem;
+  }
+
+  .bank-import-progress li span {
+    grid-column: 1 / -1;
+  }
+
+  .activity-subnav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    padding-bottom: .65rem;
+  }
+
+  .activity-subnav .subtab {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  .report-preview-buttons {
+    display: grid;
+  }
+}
+
+@media print {
+  .report-preview-toolbar,
+  .v116-task-switcher,
+  .bank-import-progress {
+    display: none !important;
+  }
+
+  .report-preview-deck {
+    display: contents !important;
+  }
+
+  .report-preview-deck > .report-page[hidden] {
+    display: block !important;
+  }
+}
