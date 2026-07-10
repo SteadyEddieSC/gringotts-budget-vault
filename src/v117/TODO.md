@@ -1,0 +1,6 @@
+- profile persistence and read-back verification
+- exact-match auto-application
+- field-level validation explanations
+- responsive profile management UI
+- synthetic browser and Node coverage
+- release documentation and final matrix
