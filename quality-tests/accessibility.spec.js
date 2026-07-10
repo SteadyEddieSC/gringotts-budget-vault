@@ -225,15 +225,29 @@ test('axe scans the full restore task in isolation', async ({ page }, testInfo) 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans Tools exports, diagnostics, and roadmap from a fresh render', async ({ page }, testInfo) => {
+test('axe scans Tools exports from a fresh render', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Exports & Backup');
   await scanSurface(page, testInfo, 'Tools — Exports and Backup');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools diagnostics from a fresh render', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Diagnostics');
   await expect(page.locator('#diagnosticsMount')).not.toBeEmpty();
   await scanSurface(page, testInfo, 'Tools — Diagnostics');
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools roadmap from a fresh render', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await clickSubsection(page, 'Roadmap');
   await scanSurface(page, testInfo, 'Tools — Roadmap');
   await expectNoBrowserErrors(errors);
