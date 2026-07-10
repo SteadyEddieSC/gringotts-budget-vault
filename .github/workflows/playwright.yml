@@ -52,7 +52,10 @@ jobs:
           node --check src/v118/institution-patterns.js
           node --check src/v118/profile-portability.js
           node --check src/v118/release.js
-          node --check src/boot-v118.js
+          node --check src/v119/profile-versioning-model.js
+          node --check src/v119/profile-versioning.js
+          node --check src/v119/release.js
+          node --check src/boot-v119.js
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests
