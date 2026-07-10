@@ -4,15 +4,13 @@
 
 OpenSSF Scorecard findings are supply-chain posture signals. They are not all exploitable vulnerabilities, and a finding should not be closed merely to improve a numeric score.
 
-This document classifies the findings visible after the v113 release as:
+Classifications used here:
 
 - **Implemented control / refresh needed**;
 - **Manual repository setting**;
 - **Owner decision**;
 - **Accepted project tradeoff**;
-- **Future release improvement**.
-
-The next Scorecard run should be reviewed after v114 merges because some findings may reflect an earlier repository snapshot.
+- **Future improvement**.
 
 ## Finding review
 
@@ -25,11 +23,12 @@ Evidence:
 - direct writes to `main` are rejected by repository rules;
 - releases use feature branches and pull requests;
 - required checks must pass before squash merge;
-- merge uses the expected final head SHA.
+- merge uses the expected final head SHA;
+- force-push and deletion protections are expected on the default branch ruleset.
 
-Manual verification remains necessary because Scorecard may evaluate specific branch-protection fields differently from GitHub rulesets. Confirm the `main` ruleset requires a pull request and required status checks, blocks force pushes and deletion, and applies to administrators where appropriate.
+Scorecard may interpret GitHub rulesets differently from classic branch protection. Confirm the `main` ruleset requires a pull request and required checks, blocks force pushes and deletion, and applies to administrators where appropriate.
 
-Do not disable branch protection to make releases faster.
+Do not weaken branch protection to make releases faster.
 
 ### Code-Review — High
 
@@ -45,15 +44,25 @@ Compensating controls:
 - expected-head SHA prevents a moving-target merge;
 - release notes and architecture guardrails are committed.
 
-This finding can improve only when a genuine second maintainer or reviewer participates. Self-approval or a token reviewer should not be added merely to satisfy the score.
+This finding can improve only when a genuine second maintainer or reviewer participates. Do not add self-approval or a token reviewer merely to satisfy a score.
 
 ### Maintained — High
 
 **Classification:** Ongoing repository-history signal.
 
-The repository is actively receiving releases, dependency updates, security scans, and documentation. Scorecard's maintained heuristic may lag or require a longer public activity history.
+The repository actively receives releases, dependency updates, security scans, documentation, and defect corrections. Scorecard's heuristic may lag or require a longer public history.
 
-Continue normal maintenance. Do not create artificial commits or issues solely to affect this score.
+Continue normal maintenance. Do not create artificial commits or issues solely to change the score.
+
+### Token-Permissions — High
+
+**Classification:** Implemented control / refresh needed.
+
+Workflows use read-only defaults or explicit `contents: read`. CodeQL uses top-level `permissions: read-all` and grants only `actions: read`, `contents: read`, and `security-events: write` to the analysis job.
+
+Repository tests reject `write-all`, content-write permission, privileged `pull_request_target`, and unpinned external Actions.
+
+If this remains after a fresh scan, inspect the exact workflow and Scorecard evidence before changing permissions.
 
 ### SAST — Medium
 
@@ -64,77 +73,56 @@ The repository has:
 - CodeQL JavaScript/TypeScript analysis;
 - `security-extended` queries;
 - code-scanning SARIF publication;
-- least-privilege `security-events: write` permission scoped to the analysis job;
-- a required JavaScript security-analysis merge gate.
+- least-privilege `security-events: write` permission scoped to analysis;
+- JavaScript security analysis as a required merge gate.
 
-If the finding remains after a fresh Scorecard run, inspect whether GitHub is recognizing the CodeQL result on the default branch and whether repository code-scanning settings are enabled.
+If the finding remains, confirm GitHub recognizes the default-branch CodeQL result and that code scanning remains enabled.
 
 ### Security-Policy — Medium
 
 **Classification:** Implemented control / refresh needed.
 
-`SECURITY.md` documents:
+`SECURITY.md` documents supported versions, private vulnerability reporting, prohibited sensitive-data disclosure, public-issue boundaries, accidental-exposure response, and local-first invariants.
 
-- the supported version;
-- private vulnerability reporting through GitHub Security Advisories;
-- prohibited sensitive-data disclosure;
-- public-issue boundaries;
-- accidental-data-exposure response;
-- local-first security invariants.
+Private vulnerability reporting and security advisories are enabled. If the finding remains, verify GitHub recognizes `SECURITY.md` on the default branch.
 
-If the finding remains, verify that GitHub recognizes `SECURITY.md` on the default branch and that private vulnerability reporting is enabled in repository settings.
+### Fuzzing — Medium
+
+**Classification:** Partially addressed with meaningful local mutation coverage; dedicated service not currently justified.
+
+v115 added deterministic malformed-input mutation tests for the bank-export parser, including delimiter, quote, date, amount, OFX, size, row-limit, and termination behavior. These run before browser installation.
+
+The project does not claim a dedicated fuzzing service. A property-testing dependency or continuous fuzzing service should be added only when additional source-format diversity provides meaningful targets and maintenance value.
+
+Do not add a superficial fuzzing badge or unused harness merely to silence Scorecard.
 
 ### License — Low
 
 **Classification:** Owner legal decision.
 
-The repository currently does not declare an open-source license. Public visibility alone does not grant others permission to copy, modify, or redistribute the code.
+The repository intentionally does not declare an open-source license. Public visibility alone does not grant permission to copy, modify, or redistribute the code.
 
-Do not add a license automatically. The owner should deliberately choose among options such as:
+Do not add MIT, Apache-2.0, GPL, or another license automatically. The owner should make a deliberate legal and project decision, including consideration of fan-themed names and third-party trademarks.
 
-- retaining all rights with no open-source license;
-- MIT for broad permissive reuse;
-- Apache-2.0 for permissive reuse with an express patent grant;
-- GPL-family licensing when reciprocal sharing is desired.
-
-The fan-themed nature and third-party trademarks should also be considered. The project disclaimer does not replace a software license decision.
-
-Until the owner chooses, this alert remains an accepted unresolved item.
-
-### Fuzzing — Medium
-
-**Classification:** Accepted current tradeoff; future parser improvement.
-
-The current application is a static browser application with deterministic local data transformations and synthetic malformed-input tests. It does not yet include a dedicated fuzzing service.
-
-v115 Bank Export Import & Mapping will add parsers for CSV, OFX/QFX/QBO, and potentially other structured formats. Parser fuzz and property-based tests would provide more value there than adding a superficial fuzzing badge now.
-
-Planned v115 review:
-
-- malformed delimiters and quoting;
-- oversized fields and files;
-- invalid OFX/SGML/XML structures;
-- ambiguous debit/credit signs;
-- duplicate identifiers and date edge cases;
-- parser termination and memory limits.
+Until that choice is made, this remains an accepted unresolved item.
 
 ### CII-Best-Practices — Low
 
 **Classification:** Accepted project-profile tradeoff.
 
-The OpenSSF Best Practices badge program is valuable for reusable public software projects with a broader contributor and release ecosystem. This repository is a solo-maintained personal budgeting application with no package distribution or hosted transaction service.
+The Best Practices badge program is valuable for reusable public software with a broader contributor and release ecosystem. This repository is a solo-maintained personal budgeting application with no package distribution or hosted transaction service.
 
-The project already documents security policy, testing, dependency controls, release gates, privacy boundaries, and incident handling. Pursuing a badge may be reconsidered if the project gains external maintainers or users.
+The project already documents security policy, testing, dependency controls, release gates, privacy boundaries, incident handling, and architecture governance. Reconsider certification if the project gains external maintainers or users.
 
 ## Refresh and closure rules
 
-After v114 merges:
+After each meaningful security or workflow release:
 
 1. Wait for or manually dispatch the next OpenSSF Scorecard run.
 2. Confirm findings against the current default branch.
-3. Close only alerts that the new SARIF result no longer reports or that GitHub marks fixed.
-4. Do not dismiss an alert as fixed when it is merely an accepted tradeoff.
-5. Record any manual repository-setting change in `GITHUB_SETTINGS_CHECKLIST.md`.
+3. Close only alerts that the refreshed SARIF no longer reports or GitHub marks fixed.
+4. Do not dismiss an accepted tradeoff as fixed.
+5. Record manual repository-setting changes in `GITHUB_SETTINGS_CHECKLIST.md`.
 
 ## Current disposition summary
 
@@ -143,8 +131,9 @@ After v114 merges:
 | Branch-Protection | Implemented; verify ruleset and refresh |
 | Code-Review | Accepted solo-maintainer limitation |
 | Maintained | Continue normal maintenance; refresh |
+| Token-Permissions | Least privilege implemented; refresh |
 | SAST | CodeQL implemented; refresh and verify recognition |
-| Security-Policy | `SECURITY.md` implemented; refresh and verify settings |
+| Security-Policy | `SECURITY.md` and private reporting implemented; refresh |
+| Fuzzing | Deterministic parser mutation coverage implemented; dedicated service deferred |
 | License | Await explicit owner legal decision |
-| Fuzzing | Defer meaningful parser fuzzing to v115 |
 | CII-Best-Practices | Accepted current project-profile tradeoff |
