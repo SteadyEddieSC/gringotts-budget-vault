@@ -1,3 +1,228 @@
+.guided-planning-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.guided-plan-kpis {
+  margin-top: 0;
+}
+
+.guided-plan-overview .summary-box {
+  min-height: 100%;
+}
+
+.guided-action-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.guided-action-card {
+  border-inline-start: 4px solid color-mix(in srgb, var(--accent, #d7b45b) 62%, transparent);
+}
+
+.guided-action-card.priority-urgent {
+  border-inline-start-color: #f06f61;
+}
+
+.guided-action-card.priority-high {
+  border-inline-start-color: #ef9f52;
+}
+
+.guided-action-card.priority-medium {
+  border-inline-start-color: #e2c45f;
+}
+
+.guided-action-card.priority-routine {
+  border-inline-start-color: #72b8d6;
+}
+
+.guided-action-card.resolved {
+  border-inline-start-color: #6fc49a;
+}
+
+.guided-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .3rem;
+  color: var(--muted, #a9b4c5);
+  font-size: .9rem;
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: .2rem .6rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.priority-badge.urgent {
+  color: #ff9b8d;
+}
+
+.priority-badge.high {
+  color: #f4b26d;
+}
+
+.priority-badge.medium {
+  color: #ead477;
+}
+
+.priority-badge.routine {
+  color: #8dcce8;
+}
+
+.guided-action-copy {
+  display: grid;
+  gap: .45rem;
+  margin: .8rem 0;
+}
+
+.guided-action-copy p {
+  margin: 0;
+}
+
+.guided-plan-form {
+  display: grid;
+  grid-template-columns: minmax(10rem, .8fr) minmax(12rem, 1fr) minmax(10rem, .8fr);
+  gap: .75rem;
+  align-items: end;
+}
+
+.guided-plan-form .guided-notes {
+  grid-column: 1 / -1;
+}
+
+.guided-plan-form textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.resolved-plan-items > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.resolved-plan-items[open] > summary {
+  margin-bottom: 1rem;
+}
+
+.guided-plan-report .card,
+.guided-report-list .card {
+  break-inside: avoid;
+}
+
+.guided-report-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.guided-report-list .card {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: .75rem;
+}
+
+.guided-report-number {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent, #d7b45b) 20%, transparent);
+  font-weight: 900;
+}
+
+/* v115 Bank Export Import & Mapping */
+.v115-import-page,
+.v115-import-page .import-workflow,
+.bank-duplicate-review {
+  display: grid;
+  gap: 1rem;
+}
+
+.bank-file-card,
+.bank-mapping-card {
+  overflow: hidden;
+}
+
+.bank-inspection-summary {
+  margin-top: 1rem;
+}
+
+.bank-mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .8rem;
+  margin: 1rem 0;
+}
+
+.bank-option-grid {
+  margin-bottom: 1rem;
+}
+
+.bank-mapping-grid label,
+.bank-option-grid label {
+  min-width: 0;
+}
+
+.bank-mapping-grid select,
+.bank-option-grid select,
+.bank-option-grid input {
+  width: 100%;
+}
+
+.bank-source-table,
+.bank-preview-table,
+.import-table {
+  min-width: 760px;
+}
+
+.bank-source-table td,
+.bank-source-table th,
+.bank-preview-table td,
+.bank-preview-table th {
+  max-width: 18rem;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.bank-source-table td {
+  white-space: pre-wrap;
+}
+
+.bank-duplicate-review > .section-title-row {
+  align-items: end;
+}
+
+.bank-duplicate-review > .section-title-row label {
+  min-width: min(100%, 22rem);
+}
+
+.bank-duplicate-review > .section-title-row select {
+  width: 100%;
+}
+
+.v115-import-page .error-box ul {
+  margin: .7rem 0 0 1.2rem;
+}
+
+.v115-import-page .summary-box {
+  overflow-wrap: anywhere;
+}
+
+.v115-import-page .file-drop input[type="file"] {
+  max-width: 100%;
+}
+
 /* v116 UI Architecture Review */
 .v116-task-switcher {
   display: grid;
@@ -126,8 +351,22 @@
 }
 
 @media (max-width: 980px) {
+  .bank-mapping-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .v116-report-center .report-downloads {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .guided-plan-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .guided-plan-form .guided-notes {
+    grid-column: 1 / -1;
   }
 }
 
@@ -173,7 +412,65 @@
   }
 }
 
+@media (max-width: 680px) {
+  .bank-mapping-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bank-duplicate-review > .section-title-row {
+    align-items: stretch;
+  }
+
+  .bank-duplicate-review > .section-title-row label {
+    width: 100%;
+  }
+
+  .v115-import-page .button-row {
+    align-items: stretch;
+  }
+
+  .v115-import-page .button-row .btn,
+  .v115-import-page .restore-button,
+  .v115-import-page #prepareBankDuplicateReview {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .guided-plan-form {
+    grid-template-columns: 1fr;
+  }
+
+  .guided-plan-form .guided-notes {
+    grid-column: auto;
+  }
+
+  .guided-action-card .button-row {
+    align-items: stretch;
+  }
+
+  .guided-action-card .button-row .btn {
+    width: 100%;
+  }
+
+  .guided-report-list .card {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media print {
+  .guided-plan-report {
+    break-before: page;
+  }
+
+  .guided-plan-report .card {
+    box-shadow: none;
+  }
+
+  .v115-import-page {
+    display: none !important;
+  }
+
   .report-preview-toolbar,
   .v116-task-switcher,
   .bank-import-progress {
