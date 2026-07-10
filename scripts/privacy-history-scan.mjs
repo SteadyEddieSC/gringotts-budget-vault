@@ -30,7 +30,10 @@ const forbiddenPathRules = [
 ];
 
 const allowedPaths = new Set([
-  'tests/fixtures/synthetic-vault.json'
+  'tests/fixtures/synthetic-vault.json',
+  'tests/fixtures/bank-import/synthetic-signed.csv',
+  'tests/fixtures/bank-import/synthetic-debit-credit.csv',
+  'tests/fixtures/bank-import/synthetic.qfx'
 ]);
 
 const pathLines = git(['log', '--all', '--name-only', '--pretty=format:'])
@@ -138,7 +141,7 @@ if (forbiddenPathHits.length || sensitiveContentHits.length) {
   if (sensitiveContentHits.length) {
     console.error('High-confidence financial or personal identifier patterns found in Git history:');
     for (const hit of sensitiveContentHits) {
-      console.error(`- ${hit.filePath} @ ${hit.objectId.slice(0, 12)} (${hit.label}): ${hit.sample}`);
+      console.error(`- ${hit.filePath} @ ${objectId.slice(0, 12)} (${hit.label}): ${hit.sample}`);
     }
     console.error('');
   }
