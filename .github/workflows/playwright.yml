@@ -48,8 +48,11 @@ jobs:
           node --check src/v115/release.js
           node --check src/v117/profile-model.js
           node --check src/v117/import-profiles.js
-          node --check src/v117/release.js
-          node --check src/boot-v117.js
+          node --check src/v118/profile-portability-model.js
+          node --check src/v118/institution-patterns.js
+          node --check src/v118/profile-portability.js
+          node --check src/v118/release.js
+          node --check src/boot-v118.js
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests
