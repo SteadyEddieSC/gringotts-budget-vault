@@ -76,7 +76,7 @@ test('sanitizes invalid stored profiles and caps unsafe option values', () => {
   }] });
   assert.equal(profile.name, 'Saved');
   assert.equal(profile.format, 'delimited');
-  assert.deepEqual(profile.mapping, { date: 'Date', description: '', amount: 'Amount', debit: '', credit: '', status: '', account: '', memo: '', id: 'Reference' === 'never' ? 'Reference' : '', category: '', type: '' });
+  assert.deepEqual(profile.mapping, { date: 'Date', description: '', amount: 'Amount', debit: '', credit: '', status: '', account: '', memo: '', id: '', category: '', type: '' });
   assert.equal(profile.options.dateOrder, 'auto');
   assert.equal(profile.options.signMode, '');
   assert.equal(profile.options.accountMode, 'label');
