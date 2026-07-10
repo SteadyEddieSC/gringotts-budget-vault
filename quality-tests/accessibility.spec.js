@@ -71,6 +71,7 @@ async function clickSubsection(page, name) {
 }
 
 async function inspectProfileCsv(page) {
+  await expect(page.locator('#bankImportFile')).toBeAttached();
   await page.locator('#bankImportFile').setInputFiles({
     name: 'synthetic-profile-quality.csv',
     mimeType: 'text/csv',
@@ -81,6 +82,7 @@ async function inspectProfileCsv(page) {
 }
 
 async function inspectPortableBundle(page) {
+  await expect(page.locator('#profileBundleFile')).toBeAttached();
   await page.locator('#profileBundleFile').setInputFiles({
     name: 'synthetic-portability-quality.json',
     mimeType: 'application/json',
@@ -96,9 +98,31 @@ async function prepareDryRun(page) {
   await expect(page.getByText(/Prepared in memory only/i)).toBeVisible();
 }
 
+async function fillCurrentProfileName(page, name) {
+  const input = page.locator('#bankImportProfileName');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await expect(input).toBeVisible();
+    await input.fill(name);
+    try {
+      await expect(input).toHaveValue(name, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the form after an earlier option change.
+    }
+  }
+  await expect(input).toHaveValue(name);
+}
+
 async function prepareProfileRevision(page) {
-  await page.locator('#bankImportProfileName').fill('Synthetic accessibility profile');
+  await fillCurrentProfileName(page, 'Synthetic accessibility profile');
   await page.locator('#saveBankImportProfile').click();
+  await expect.poll(async () => page.evaluate(() => {
+    try {
+      return JSON.parse(localStorage.getItem('gringottsImportProfiles.v1') || '{"profiles":[]}').profiles?.length || 0;
+    } catch {
+      return 0;
+    }
+  })).toBe(1);
   await expect(page.getByText(/Synthetic accessibility profile.*applied/i)).toBeVisible();
   await page.locator('[data-bank-option="dateOrder"]').selectOption('dmy');
   await page.locator('#saveBankImportProfile').click();
@@ -168,21 +192,33 @@ test('axe scans every Activity subsection including Guided Plan', async ({ page 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans every Tools subsection, portability, dry run, revision review, restore, and validation', async ({ page }, testInfo) => {
+test('axe scans Tools profile library and portability conflict review', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await scanSurface(page, testInfo, 'Tools — Profile Library and Bank Import');
   await inspectPortableBundle(page);
   await scanSurface(page, testInfo, 'Tools — Profile Bundle Conflict Review');
-  await page.locator('#clearProfileBundlePreview').click();
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools mapping validation, dry run, and revision review', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Tools — Import Profile and Field Validation');
   await prepareDryRun(page);
   await scanSurface(page, testInfo, 'Tools — Metadata-Only Import Dry Run');
   await prepareProfileRevision(page);
   await scanSurface(page, testInfo, 'Tools — Profile Revision Review');
-  await page.locator('#cancelProfileRevision').click();
+  await expectNoBrowserErrors(errors);
+});
+
+test('axe scans Tools restore, exports, diagnostics, and roadmap', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const errors = await bootQualityPage(page);
+  await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: /Restore full vault/i }).click();
   await scanSurface(page, testInfo, 'Tools — Full Restore');
   await clickSubsection(page, 'Exports & Backup');
@@ -214,6 +250,7 @@ test('axe scans key phone surfaces including dry run and import profiles', async
   await inspectPortableBundle(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Profile Bundle Conflict Review');
   await page.locator('#clearProfileBundlePreview').click();
+  await expect(page.locator('#profileBundlePreview')).toHaveCount(0);
   await inspectProfileCsv(page);
   await scanSurface(page, testInfo, 'Mobile Tools — Import Profile and Field Validation');
   await prepareDryRun(page);
