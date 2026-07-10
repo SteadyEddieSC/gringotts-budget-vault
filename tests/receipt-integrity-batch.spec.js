@@ -118,7 +118,7 @@ test('links an explicit current dry run to the verified receipt without changing
   expect(indexText).not.toMatch(/"sourceFilename"\s*:|"sourceFingerprint"\s*:|"selectedDestinationVault"\s*:|"transactions"\s*:|"records"\s*:|"rows"\s*:/i);
 
   await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
-  await expect(page.getByText('Linked · ready', { exact: true })).toBeVisible();
+  await expect(page.locator('.receipt-timeline-table').getByText('Linked · ready', { exact: true })).toBeVisible();
   await expect(page.getByText(/A metadata-only dry run reconciles to this receipt/i)).toBeVisible();
 });
 
@@ -131,12 +131,12 @@ test('filters retained batches and explains continuity and repeated source use',
   await expect(page.getByText(/Showing 3 of 3 retained batches/i)).toBeVisible();
   await page.locator('[data-v121-filter="result"]').selectOption('no-change');
   await expect(page.locator('.receipt-timeline-table tbody tr')).toHaveCount(1);
-  await expect(page.getByText(/No change/i).first()).toBeVisible();
+  await expect(page.locator('.receipt-timeline-table').getByRole('cell', { name: /No change 0 inserted · 4 skipped/i })).toBeVisible();
 
   await page.locator('#clearReceiptTimelineFilters').click();
   await page.locator('[data-v121-filter="dryRun"]').selectOption('linked');
   await expect(page.locator('.receipt-timeline-table tbody tr')).toHaveCount(1);
-  await expect(page.getByText('Linked · ready', { exact: true })).toBeVisible();
+  await expect(page.locator('.receipt-timeline-table').getByText('Linked · ready', { exact: true })).toBeVisible();
 
   await page.locator('#clearReceiptTimelineFilters').click();
   await page.locator('[data-v121-filter-query]').fill('SECRET-third.csv');
