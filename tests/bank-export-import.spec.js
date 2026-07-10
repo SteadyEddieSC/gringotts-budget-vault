@@ -19,11 +19,11 @@ test('inspects and maps a signed CSV without writing the vault', async ({ app })
   await expect(page.getByText(/Format: CSV \/ delimited text/i)).toBeVisible();
   await expect(page.getByText(/Generic signed-amount CSV/i)).toBeVisible();
   await expect(page.getByText(/Choose how signed amounts should be interpreted/i)).toBeVisible();
-  await expect(page.getByText(/Ambiguous date 07\/10\/2026/i)).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Fictional fuel purchase, test only', exact: true })).toBeVisible();
 
-  await page.locator('[data-bank-option="dateOrder"]').selectOption('mdy');
   await page.locator('[data-bank-option="signMode"]').selectOption('bank');
+  await expect(page.getByText(/Ambiguous date 07\/10\/2026/i)).toBeVisible();
+  await page.locator('[data-bank-option="dateOrder"]').selectOption('mdy');
   await page.locator('[data-bank-option="accountLabel"]').fill('Test Credit Card');
   await page.locator('[data-bank-option="accountLabel"]').press('Tab');
 
