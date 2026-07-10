@@ -8,13 +8,6 @@ import {
   sanitizeStoredProfiles
 } from './profile-model.js';
 
-const FIELD_LABELS = {
-  date: 'Transaction date', description: 'Description / payee', amount: 'Signed amount',
-  debit: 'Debit amount', credit: 'Credit amount', status: 'Pending / posted status',
-  account: 'Source account', memo: 'Memo / notes', id: 'Stable transaction ID',
-  category: 'Source category', type: 'Transaction type'
-};
-
 let activeSourceKey = '';
 let selectedProfileId = '';
 let appliedProfileId = '';
@@ -24,6 +17,15 @@ let handlersInstalled = false;
 let refreshQueued = false;
 
 const clean = (value) => String(value ?? '').trim();
+
+function ensureStylesheet() {
+  if (document.querySelector('link[data-v117-profiles]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'styles/v117.css?v=117profiles1';
+  link.dataset.v117Profiles = 'true';
+  document.head.append(link);
+}
 
 function toast(message) {
   const node = document.getElementById('toast');
@@ -47,7 +49,7 @@ function writeProfiles(profiles) {
   const payload = { profiles: sanitized, updatedAt: new Date().toISOString() };
   localStorage.setItem(IMPORT_PROFILES_KEY, JSON.stringify(payload));
   const verified = sanitizeStoredProfiles(JSON.parse(localStorage.getItem(IMPORT_PROFILES_KEY) || '{}'));
-  if (verified.length !== sanitized.length || verified.some((profile, index) => profile.profileId !== sanitized[index].profileId)) {
+  if (JSON.stringify(verified) !== JSON.stringify(sanitized)) {
     throw new Error('Import profile verification failed. No profile change was accepted.');
   }
   return verified;
@@ -92,11 +94,16 @@ function applyProfileById(profileId, { automatic = false } = {}) {
 }
 
 function autoApplyCompatibleProfile(state) {
-  if (!state.inspection || autoApplyAttempted || state.inspection.format === 'json') return;
+  if (!state.inspection || autoApplyAttempted || state.inspection.format === 'json') return false;
   autoApplyAttempted = true;
   const matches = compatibleProfiles(readProfiles(), state.inspection);
-  if (matches.length === 1) {
-    try { applyProfileById(matches[0].profileId, { automatic: true }); } catch (error) { toast(error?.message || 'Compatible profile could not be applied'); }
+  if (matches.length !== 1) return false;
+  try {
+    applyProfileById(matches[0].profileId, { automatic: true });
+    return true;
+  } catch (error) {
+    toast(error?.message || 'Compatible profile could not be applied');
+    return false;
   }
 }
 
@@ -164,7 +171,6 @@ function countMappedValues(state, field) {
 function fieldValidation(state, field) {
   const mapping = state.options?.mapping || {};
   const header = mapping[field];
-  const records = state.inspection?.records || [];
   if (!header) {
     if (field === 'date') return { status: 'error', text: 'Required: choose the transaction date column.' };
     if (field === 'description' && !mapping.memo) return { status: 'error', text: 'Required: map a description or memo column.' };
@@ -192,13 +198,13 @@ function fieldValidation(state, field) {
   }
 
   const coverage = countMappedValues(state, field);
-  const rememberedPurpose = field === 'id' ? 'Stable IDs strengthen exact duplicate detection.'
+  const purpose = field === 'id' ? 'Stable IDs strengthen exact duplicate detection.'
     : field === 'account' ? `Account handling is ${state.options.accountMode === 'mapped-masked' ? 'masked final-four mapping' : 'the destination label for every row'}.`
       : field === 'category' ? `Source categories are ${state.options.useSourceCategory ? 'explicitly enabled' : 'disabled; new rows use Other'}.`
         : field === 'status' ? 'Pending-like values are kept out of posted comparisons.'
           : field === 'type' ? `Transaction type ${state.options.signMode === 'type' ? 'controls amount direction' : 'is used for transfer classification only'}.`
             : 'Mapped values are retained only in normalized transaction fields.';
-  return { status: coverage.present ? 'good' : 'warning', text: `${coverage.present} of ${coverage.total} rows contain a value. ${rememberedPurpose}` };
+  return { status: coverage.present ? 'good' : 'warning', text: `${coverage.present} of ${coverage.total} rows contain a value. ${purpose}` };
 }
 
 function addValidationNotes(page, state, appliedProfile) {
@@ -226,7 +232,6 @@ function createButton(text, id, className = 'btn secondary') {
 }
 
 function renderProfileCard(page, state) {
-  page.querySelector('#importProfileCard')?.remove();
   if (!state.inspection || state.inspection.format === 'json') return;
   const profiles = readProfiles();
   const matches = compatibleProfiles(profiles, state.inspection);
@@ -250,7 +255,7 @@ function renderProfileCard(page, state) {
   titleRow.append(title, meta);
 
   const grid = document.createElement('div');
-  grid.className = 'import-profile-grid';
+  grid.className = 'grid two import-profile-grid';
   const selectLabel = document.createElement('label');
   selectLabel.append(document.createTextNode('Compatible saved profile'));
   const select = document.createElement('select');
@@ -370,11 +375,12 @@ function installHandlers() {
 }
 
 export function enhanceImportProfiles(page) {
-  if (!page) return;
+  if (!page || page.dataset.v117Profiles === 'true') return;
+  ensureStylesheet();
   installHandlers();
   const state = imports.snapshot();
   resetControllerForSource(state);
-  autoApplyCompatibleProfile(state);
+  if (autoApplyCompatibleProfile(state)) return;
   renderProfileCard(page, state);
   const applied = readProfiles().find((profile) => profile.profileId === appliedProfileId) || null;
   addValidationNotes(page, state, applied);
