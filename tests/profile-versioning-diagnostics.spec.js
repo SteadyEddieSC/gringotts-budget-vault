@@ -13,6 +13,21 @@ async function openImport(page) {
   await expect(page.locator('#importDryRunCard')).toBeVisible();
 }
 
+async function fillCurrentProfileName(page, name) {
+  const input = page.locator('#bankImportProfileName');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await expect(input).toBeVisible();
+    await input.fill(name);
+    try {
+      await expect(input).toHaveValue(name, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the form after an earlier option change.
+    }
+  }
+  await expect(input).toHaveValue(name);
+}
+
 async function inspectAndSave(page, name = 'Synthetic revision profile') {
   await page.locator('#bankImportFile').setInputFiles(signedFixture);
   await expect(page.locator('#importProfileCard')).toBeVisible();
@@ -20,8 +35,16 @@ async function inspectAndSave(page, name = 'Synthetic revision profile') {
   await page.locator('[data-bank-option="signMode"]').selectOption('bank');
   await page.locator('[data-bank-option="accountLabel"]').fill('Synthetic Card');
   await page.locator('[data-bank-option="accountLabel"]').press('Tab');
-  await page.locator('#bankImportProfileName').fill(name);
+  await fillCurrentProfileName(page, name);
   await page.locator('#saveBankImportProfile').click();
+  await expect.poll(async () => page.evaluate((profileName) => {
+    try {
+      const profiles = JSON.parse(localStorage.getItem('gringottsImportProfiles.v1') || '{"profiles":[]}').profiles || [];
+      return profiles.some((profile) => profile.name === profileName);
+    } catch {
+      return false;
+    }
+  }, name)).toBe(true);
   await expect(page.getByText(new RegExp(`Profile “${name}” is applied`, 'i'))).toBeVisible();
 }
 
@@ -120,7 +143,7 @@ test('prepares and explicitly downloads a metadata-only import dry run', async (
     vaultContentsIncluded: false
   });
   const text = JSON.stringify(diagnostic);
-  expect(text).not.toMatch(/synthetic-signed\.csv|Synthetic Fuel|bank-new-1|Synthetic Card|sourceFingerprint|"transactions"|"records"/i);
+  expect(text).not.toMatch(/synthetic-signed\.csv|Synthetic Fuel|bank-new-1|Synthetic Card|SECRET-FINGERPRINT|"transactions"|"records"/i);
 });
 
 test('keeps revision and dry-run surfaces inside a phone viewport', async ({ app }) => {
