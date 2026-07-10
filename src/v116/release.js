@@ -154,18 +154,56 @@ function labelForReportPage(id, page, index) {
     || `Report page ${index + 1}`;
 }
 
+function createReportButton(text, attribute) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'btn secondary';
+  button.textContent = text;
+  button.setAttribute(attribute, '');
+  return button;
+}
+
 function createReportToolbar(pages) {
   const toolbar = document.createElement('article');
   toolbar.className = 'card report-preview-toolbar screen-only';
-  toolbar.innerHTML = `<div><h3>Report preview</h3><p>Review one report page at a time on screen. Printing and PDF export still include all eight pages.</p></div>
-    <div class="report-preview-controls">
-      <label>Preview page<select id="reportPreviewPage">${pages.map((page, index) => {
-        const id = page.dataset.reportPage;
-        return `<option value="${id}">${index + 1}. ${labelForReportPage(id, page, index)}</option>`;
-      }).join('')}</select></label>
-      <div class="button-row report-preview-buttons"><button type="button" class="btn secondary" data-report-preview-previous>Previous</button><button type="button" class="btn secondary" data-report-preview-next>Next</button></div>
-      <p id="reportPreviewStatus" class="muted-note" aria-live="polite"></p>
-    </div>`;
+
+  const intro = document.createElement('div');
+  const heading = document.createElement('h3');
+  heading.textContent = 'Report preview';
+  const copy = document.createElement('p');
+  copy.textContent = 'Review one report page at a time on screen. Printing and PDF export still include all eight pages.';
+  intro.append(heading, copy);
+
+  const controls = document.createElement('div');
+  controls.className = 'report-preview-controls';
+
+  const label = document.createElement('label');
+  label.append(document.createTextNode('Preview page'));
+  const select = document.createElement('select');
+  select.id = 'reportPreviewPage';
+  pages.forEach((page, index) => {
+    const id = page.dataset.reportPage;
+    const option = document.createElement('option');
+    option.value = id;
+    option.textContent = `${index + 1}. ${labelForReportPage(id, page, index)}`;
+    select.append(option);
+  });
+  label.append(select);
+
+  const buttons = document.createElement('div');
+  buttons.className = 'button-row report-preview-buttons';
+  buttons.append(
+    createReportButton('Previous', 'data-report-preview-previous'),
+    createReportButton('Next', 'data-report-preview-next')
+  );
+
+  const status = document.createElement('p');
+  status.id = 'reportPreviewStatus';
+  status.className = 'muted-note';
+  status.setAttribute('aria-live', 'polite');
+
+  controls.append(label, buttons, status);
+  toolbar.append(intro, controls);
   return toolbar;
 }
 
@@ -207,17 +245,17 @@ function enhanceReportCenter(center) {
       pages.forEach((page, index) => {
         const id = reportIdFor(index, page);
         page.dataset.reportPage = id;
-        const heading = page.querySelector('h2');
-        if (heading && !heading.id) heading.id = `reportPreviewHeading-${id}`;
-        if (heading) heading.tabIndex = -1;
-        if (heading?.id) page.setAttribute('aria-labelledby', heading.id);
+        const pageHeading = page.querySelector('h2');
+        if (pageHeading && !pageHeading.id) pageHeading.id = `reportPreviewHeading-${id}`;
+        if (pageHeading) pageHeading.tabIndex = -1;
+        if (pageHeading?.id) page.setAttribute('aria-labelledby', pageHeading.id);
       });
       const toolbar = createReportToolbar(pages);
       pages[0].before(toolbar, deck);
       pages.forEach((page) => deck.appendChild(page));
     }
 
-    const workbookHeading = [...center.querySelectorAll('h3')].find((heading) => /Vault workbook contents/i.test(heading.textContent || ''));
+    const workbookHeading = [...center.querySelectorAll('h3')].find((headingNode) => /Vault workbook contents/i.test(headingNode.textContent || ''));
     workbookHeading?.closest('.card')?.classList.add('workbook-contents-card');
   }
   applyReportSelection(center);
