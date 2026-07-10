@@ -55,7 +55,11 @@ jobs:
           node --check src/v119/profile-versioning-model.js
           node --check src/v119/profile-versioning.js
           node --check src/v119/release.js
-          node --check src/boot-v119.js
+          node --check src/v120/import-receipt-audit-model.js
+          node --check src/v120/import-receipt-audit.js
+          node --check src/v120/roadmap-horizon.js
+          node --check src/v120/release.js
+          node --check src/boot-v120.js
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests
