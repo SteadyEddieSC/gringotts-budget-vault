@@ -1,4 +1,5 @@
 import { MAX_IMPORT_PROFILES, sanitizeStoredProfiles } from '../v117/profile-model.js';
+import { detectInstitutionPattern } from './institution-patterns.js';
 
 export const PROFILE_BUNDLE_KIND = 'gringotts-import-profile-bundle';
 export const PROFILE_BUNDLE_VERSION = 1;
@@ -250,7 +251,7 @@ export function applyProfileImportPlan(existingProfiles, preview, decisions, {
     }
     const targetId = clean(decision.targetProfileId);
     if (!item.replaceTargets?.some((target) => target.profileId === targetId)) {
-      throw new Error(`Choose a compatible identity-matched profile to replace for “${reviewedName}”.`);
+      throw new Error(`Replace an identity-matched profile only; choose a compatible saved target for “${reviewedName}”.`);
     }
     const targetIndex = output.findIndex((profile) => profile.profileId === targetId);
     if (targetIndex < 0) throw new Error('The selected replacement target is no longer available.');
@@ -279,7 +280,7 @@ export function profileLibrary(profiles) {
       profileId: profile.profileId,
       name: profile.name,
       accountLabel: profile.options.accountLabel,
-      schema: profile.schemaLabel || profile.schemaId,
+      schema: detectInstitutionPattern(profile).label,
       identity: `${profile.format.toUpperCase()} · ${profile.headerSignature}`,
       updatedAt: profile.updatedAt
     }))
