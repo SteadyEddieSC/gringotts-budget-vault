@@ -1,0 +1,3 @@
+Transaction Date,Post Date,Description,Category,Type,Amount,Status,Reference Number
+07/01/2026,07/02/2026,Fictional Grocery,Groceries,Purchase,-54.22,Posted,CARD-001
+07/03/2026,07/04/2026,Fictional Refund,Refund,Refund,12.50,Posted,CARD-002
