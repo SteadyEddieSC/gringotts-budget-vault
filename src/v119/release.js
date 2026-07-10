@@ -36,6 +36,10 @@ function requiredFeature(name) {
   return value;
 }
 
+function v120OwnsPresentation() {
+  return window.GringottsV120?.release === 'v120';
+}
+
 function loadProfileFeatures() {
   if (!featurePromise) {
     featurePromise = import('./profile-versioning.js?v=119diagnostics1')
@@ -213,16 +217,19 @@ function installV119DownloadOverrides() {
 }
 
 function enhanceImportPage(page) {
-  const titleRow = page.querySelector(':scope > .section-title-row');
-  setText(titleRow?.querySelector('h2'), 'Import & Restore');
-  setText(titleRow?.querySelector('p'), 'Compare profile revisions, prepare a metadata-only dry run, move sanitized profile definitions, add reviewed missing transactions, or switch to full restore.');
-  setText(titleRow?.querySelector('.section-meta'), 'Revision-gated profile metadata');
+  if (!v120OwnsPresentation()) {
+    const titleRow = page.querySelector(':scope > .section-title-row');
+    setText(titleRow?.querySelector('h2'), 'Import & Restore');
+    setText(titleRow?.querySelector('p'), 'Compare profile revisions, prepare a metadata-only dry run, move sanitized profile definitions, add reviewed missing transactions, or switch to full restore.');
+    setText(titleRow?.querySelector('.section-meta'), 'Revision-gated profile metadata');
+  }
   loadProfileFeatures()
     .then((module) => module.enhanceProfileVersioning(page))
     .catch((error) => announce(error?.message || 'Profile versioning and dry-run diagnostics could not be loaded'));
 }
 
 function enhanceRoadmap(root) {
+  if (v120OwnsPresentation()) return;
   const section = [...root.querySelectorAll('.section.active')]
     .find((candidate) => candidate.querySelector('h2')?.textContent?.trim() === 'Roadmap');
   if (!section || section.dataset.v119RoadmapEnhanced === 'true') return;
@@ -240,7 +247,9 @@ function enhanceRoadmap(root) {
 
 function enhanceMain(root = document.getElementById('main')) {
   if (!root) return;
-  root.querySelectorAll('.report-kicker').forEach((node) => setText(node, 'Profile Versioning & Dry-Run Diagnostics v119'));
+  if (!v120OwnsPresentation()) {
+    root.querySelectorAll('.report-kicker').forEach((node) => setText(node, 'Profile Versioning & Dry-Run Diagnostics v119'));
+  }
   const importPage = root.querySelector('.v116-import-page, .v115-import-page');
   if (importPage) enhanceImportPage(importPage);
   enhanceRoadmap(root);
