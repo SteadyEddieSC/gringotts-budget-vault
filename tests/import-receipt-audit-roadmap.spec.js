@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { test, expect, openPrimary, waitForApp } from './helpers/app.js';
+import { test, expect, openPrimary } from './helpers/app.js';
 
 async function seedReceipts(page) {
   await page.evaluate(() => {
@@ -33,8 +33,6 @@ async function seedReceipts(page) {
 
 async function openImportWithReceipts(page) {
   await seedReceipts(page);
-  await page.reload();
-  await waitForApp(page);
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Import receipt audit', exact: true })).toBeVisible();
