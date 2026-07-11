@@ -1,0 +1,167 @@
+.account-cleanup-card {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.account-cleanup-card > h4 {
+  margin: .25rem 0 0;
+}
+
+.account-cleanup-actions {
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.account-cleanup-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.account-cleanup-kpi {
+  min-width: 0;
+}
+
+.account-cleanup-filters {
+  display: grid;
+  gap: .75rem;
+}
+
+.account-cleanup-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  align-items: end;
+}
+
+.account-cleanup-control {
+  display: grid;
+  gap: .35rem;
+  min-width: 0;
+  font-weight: 650;
+}
+
+.account-cleanup-control > span {
+  font-size: .86rem;
+}
+
+.account-cleanup-control select,
+.account-cleanup-control input {
+  width: 100%;
+  min-width: 0;
+}
+
+.account-inventory-table-wrap {
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.account-inventory-table {
+  min-width: 760px;
+}
+
+.account-candidate-picker {
+  max-width: 48rem;
+}
+
+.account-candidate-detail {
+  display: grid;
+  gap: 1rem;
+  scroll-margin-top: 1rem;
+}
+
+.account-candidate-evidence ul,
+.account-cleanup-decision ul {
+  margin-bottom: 0;
+}
+
+.account-impact-grid {
+  align-items: stretch;
+}
+
+.account-impact-card {
+  min-width: 0;
+}
+
+.account-impact-card .action-list {
+  margin-bottom: 0;
+}
+
+.account-cleanup-decision {
+  display: grid;
+  gap: .75rem;
+}
+
+.account-cleanup-decision .account-cleanup-control {
+  max-width: 44rem;
+}
+
+.account-cleanup-decision .btn {
+  justify-self: start;
+}
+
+.v122-workbook-sheet-list {
+  margin: .75rem 0 1rem;
+}
+
+.v122-roadmap-page .roadmap-horizon-card.current {
+  border-width: 2px;
+}
+
+@media (max-width: 900px) {
+  .account-cleanup-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .account-cleanup-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-cleanup-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .account-cleanup-card .section-title-row {
+    align-items: stretch;
+  }
+
+  .account-cleanup-actions,
+  .account-cleanup-actions .btn,
+  .account-cleanup-filters > .btn,
+  .account-cleanup-decision .btn {
+    width: 100%;
+  }
+
+  .account-cleanup-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .account-cleanup-summary,
+  .account-cleanup-filter-grid,
+  .account-impact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-cleanup-search {
+    grid-column: auto;
+  }
+
+  .account-inventory-table {
+    min-width: 680px;
+  }
+}
+
+@media print {
+  .account-cleanup-card {
+    break-inside: avoid;
+  }
+
+  .account-cleanup-actions,
+  .account-cleanup-filters,
+  .account-cleanup-decision button {
+    display: none !important;
+  }
+}
