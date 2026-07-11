@@ -52,8 +52,8 @@ test('inventories masked accounts and surfaces an explainable cleanup candidate'
   const { page } = app;
   await openCleanup(page);
   await expect(page.locator('.account-inventory-table tbody tr')).toHaveCount(4);
-  await expect(page.getByText('Fictional Family Checking ••••1234', { exact: true })).toBeVisible();
-  await expect(page.getByText('Fictional Family Chking ••••1234', { exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Fictional Family Checking ••••1234', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Fictional Family Chking ••••1234', exact: true })).toBeVisible();
   await expect(page.locator('#accountCleanupCandidate')).toBeVisible();
   await expect(page.getByText(/Why this pair was surfaced/i)).toBeVisible();
   await expect(page.getByText(/Planning only: v122 cannot automatically rename accounts/i)).toBeVisible();
@@ -66,7 +66,8 @@ test('saves only a bounded cleanup decision and leaves the vault unchanged', asy
   const beforeVault = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   await page.locator('#accountCleanupDecision').selectOption('investigate');
   await page.locator('#saveAccountCleanupDecision').click();
-  await expect(page.getByText(/Decision saved/i)).toBeVisible();
+  await expect(page.locator('#accountCleanupCandidateDetail .section-meta')).toHaveText('Decision saved');
+  await expect(page.locator('#toast')).toContainText('Cleanup-plan decision saved and verified');
   const result = await page.evaluate(() => ({
     vault: localStorage.getItem('gringottsBudgetVault.latest'),
     plan: JSON.parse(localStorage.getItem('gringottsAccountCleanupPlan.v1') || '{}')
