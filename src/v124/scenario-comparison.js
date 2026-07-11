@@ -46,9 +46,7 @@ function verifiedWrite(nextValue) {
   try {
     localStorage.setItem(SCENARIO_STORE_KEY, JSON.stringify(next));
     const verified = sanitizeScenarioStore(JSON.parse(localStorage.getItem(SCENARIO_STORE_KEY) || '{}'));
-    if (JSON.stringify(verified) !== JSON.stringify(next)) {
-      throw new Error('Scenario metadata read-back verification failed.');
-    }
+    if (JSON.stringify(verified) !== JSON.stringify(next)) throw new Error('Scenario metadata read-back verification failed.');
     return verified;
   } catch (error) {
     try {
@@ -60,33 +58,31 @@ function verifiedWrite(nextValue) {
 }
 
 function emptyDraft() {
-  const settings = forecastSettings();
   return {
     id: '',
     name: 'Household what-if',
     notes: '',
-    assumptions: sanitizeScenarioAssumptions({ horizonDays: settings.horizonDays })
+    assumptions: sanitizeScenarioAssumptions({ horizonDays: forecastSettings().horizonDays })
   };
 }
 
 function currentDraft(store = readStore()) {
   if (draft) return draft;
   const selected = store.items.find((item) => item.id === selectedScenarioId) || store.items[0];
-  if (selected) {
-    selectedScenarioId = selected.id;
-    draft = { ...selected, assumptions: { ...selected.assumptions } };
+  if (!selected) {
+    draft = emptyDraft();
     return draft;
   }
-  draft = emptyDraft();
+  selectedScenarioId = selected.id;
+  draft = { ...selected, assumptions: { ...selected.assumptions } };
   return draft;
 }
 
 export function scenarioComparisonAnalysis(value = currentDraft()) {
   const assumptions = sanitizeScenarioAssumptions(value?.assumptions);
   const settings = { ...forecastSettings(), horizonDays: assumptions.horizonDays };
-  const baselineForecast = cashForecast(settings);
   return compareScenario({
-    baselineForecast,
+    baselineForecast: cashForecast(settings),
     assumptions,
     debts: debtPlan().debts,
     goals: activeGoals()
@@ -169,11 +165,8 @@ function comparisonTable(comparison) {
   return wrap;
 }
 
-function scenarioPicker(store, selected) {
-  const picker = select([
-    ['', 'New unsaved scenario'],
-    ...store.items.map((item) => [item.id, item.name])
-  ], selected?.id || '');
+function scenarioPicker(store, value) {
+  const picker = select([['', 'New unsaved scenario'], ...store.items.map((item) => [item.id, item.name])], value?.id || '');
   picker.id = 'scenarioSavedSelect';
   return control('Saved scenario', picker, 'scenario-saved-picker');
 }
@@ -182,11 +175,10 @@ function assumptionForm(value) {
   const assumptions = value.assumptions;
   const section = element('section', 'scenario-form');
   const grid = element('div', 'scenario-form-grid');
-  const name = input('text', value.name, 'scenarioName', { maxlength: '100' });
   const horizon = select([['30', '30 days'], ['60', '60 days'], ['90', '90 days']], String(assumptions.horizonDays));
   horizon.id = 'scenarioHorizon';
   grid.append(
-    control('Scenario name', name),
+    control('Scenario name', input('text', value.name, 'scenarioName', { maxlength: '100' })),
     control('Horizon', horizon),
     control('Starting cash change', input('number', assumptions.startingCashDelta, 'scenarioStartingCashDelta', { step: '0.01' })),
     control('Monthly income change', input('number', assumptions.monthlyIncomeDelta, 'scenarioMonthlyIncomeDelta', { step: '0.01' })),
@@ -204,16 +196,12 @@ function assumptionForm(value) {
   notes.value = value.notes || '';
   notes.placeholder = 'What decision is this scenario meant to support?';
   const actions = element('div', 'scenario-actions');
-  const preview = element('button', 'btn primary', 'Preview Scenario');
-  preview.type = 'button';
-  preview.id = 'previewScenario';
-  const save = element('button', 'btn secondary', 'Save Assumptions');
-  save.type = 'button';
-  save.id = 'saveScenario';
-  const fresh = element('button', 'btn secondary', 'New Scenario');
-  fresh.type = 'button';
-  fresh.id = 'newScenario';
-  actions.append(preview, save, fresh);
+  [['previewScenario', 'primary', 'Preview Scenario'], ['saveScenario', 'secondary', 'Save Assumptions'], ['newScenario', 'secondary', 'New Scenario']].forEach(([id, kind, label]) => {
+    const button = element('button', `btn ${kind}`, label);
+    button.type = 'button';
+    button.id = id;
+    actions.append(button);
+  });
   if (value.id) {
     const remove = element('button', 'btn danger', 'Delete Saved Scenario');
     remove.type = 'button';
@@ -244,10 +232,7 @@ function renderWorkspace(workspace) {
   const comparison = scenarioComparisonAnalysis(value);
   const titleRow = element('div', 'section-title-row');
   const title = element('div');
-  title.append(
-    element('h3', '', 'Household scenario comparison'),
-    element('p', '', 'Compare temporary assumptions with the current cash forecast without changing the real household plan.')
-  );
+  title.append(element('h3', '', 'Household scenario comparison'), element('p', '', 'Compare temporary assumptions with the current cash forecast without changing the real household plan.'));
   titleRow.append(title, element('div', 'section-meta', `${comparison.start} to ${comparison.end}`));
   const metrics = element('div', 'import-summary-grid scenario-summary');
   metrics.append(
@@ -258,18 +243,8 @@ function renderWorkspace(workspace) {
     metric(signedMoney(comparison.monthlyNetImpact), 'Monthly cash impact')
   );
   workspace.dataset.v124ScenarioWorkspace = 'true';
-  workspace.replaceChildren(
-    titleRow,
-    metrics,
-    element('p', 'scenario-summary-text', scenarioSummaryText(comparison)),
-    scenarioPicker(store, value),
-    assumptionForm(value),
-    comparisonTable(comparison),
-    disclosure(comparison)
-  );
-  if (store.items.length) {
-    workspace.append(element('p', 'muted-note', `${store.items.length} of 24 saved assumption set${store.items.length === 1 ? '' : 's'} retained locally. Saved scenarios contain assumptions and notes only—not transaction rows or copied vault data.`));
-  }
+  workspace.replaceChildren(titleRow, metrics, element('p', 'scenario-summary-text', scenarioSummaryText(comparison)), scenarioPicker(store, value), assumptionForm(value), comparisonTable(comparison), disclosure(comparison));
+  if (store.items.length) workspace.append(element('p', 'muted-note', `${store.items.length} of 24 saved assumption set${store.items.length === 1 ? '' : 's'} retained locally. Saved scenarios contain assumptions and notes only—not transaction rows or copied vault data.`));
 }
 
 function readForm() {
@@ -303,11 +278,10 @@ function refreshWorkspace() {
 
 export function enhanceScenarioPage(page) {
   if (!page || page.querySelector('h2')?.textContent?.trim() !== 'Close & Forecast') return false;
-  let workspace = page.querySelector('.scenario-comparison-workspace');
-  if (!workspace) {
-    workspace = element('article', 'card scenario-comparison-workspace');
-    page.append(workspace);
-  }
+  const existing = page.querySelector('.scenario-comparison-workspace');
+  if (existing?.dataset.v124ScenarioWorkspace === 'true') return true;
+  const workspace = existing || element('article', 'card scenario-comparison-workspace');
+  if (!existing) page.append(workspace);
   renderWorkspace(workspace);
   return true;
 }
@@ -340,9 +314,8 @@ export function enhanceScenarioGuidedPlan(page) {
   title.append(element('h3', '', 'Scenario discussion'), element('p', '', 'Saved what-if assumptions for household review. No scenario is applied automatically.'));
   row.append(title, element('div', 'section-meta', `${store.items.length} saved`));
   section.append(row);
-  if (!store.items.length) {
-    section.append(element('div', 'note good-note', 'No saved scenario currently needs household discussion.'));
-  } else {
+  if (!store.items.length) section.append(element('div', 'note good-note', 'No saved scenario currently needs household discussion.'));
+  else {
     const list = element('div', 'scenario-plan-list');
     store.items.slice(0, 6).forEach((item) => list.append(scenarioActionCard(item, scenarioComparisonAnalysis(item))));
     section.append(list);
@@ -354,33 +327,23 @@ export function enhanceScenarioGuidedPlan(page) {
 function reportSection(titleText, description, store) {
   const section = element('section', 'report-section v124-scenario-report-section');
   section.append(element('h3', '', titleText), element('p', '', description));
-  if (!store.items.length) {
-    section.append(element('p', '', 'No saved household scenario is available.'));
-    return section;
+  if (!store.items.length) section.append(element('p', '', 'No saved household scenario is available.'));
+  else {
+    const list = element('ul');
+    store.items.slice(0, 6).forEach((item) => list.append(element('li', '', `${item.name}: ${scenarioSummaryText(scenarioComparisonAnalysis(item))}`)));
+    section.append(list, element('p', 'muted-note', 'Scenario results are simplified discussion projections. They do not alter the real vault or guarantee an outcome.'));
   }
-  const list = element('ul');
-  store.items.slice(0, 6).forEach((item) => {
-    const comparison = scenarioComparisonAnalysis(item);
-    list.append(element('li', '', `${item.name}: ${scenarioSummaryText(comparison)}`));
-  });
-  section.append(list, element('p', 'muted-note', 'Scenario results are simplified discussion projections. They do not alter the real vault or guarantee an outcome.'));
   return section;
 }
 
 export function enhanceScenarioReportPages(root) {
   const store = readStore();
-  const planningHeading = [...(root?.querySelectorAll('.report-page h2, .report-page h3') || [])]
-    .find((node) => node.textContent?.trim() === 'Month close, forecast, and debt');
+  const planningHeading = [...(root?.querySelectorAll('.report-page h2, .report-page h3') || [])].find((node) => node.textContent?.trim() === 'Month close, forecast, and debt');
   const planningPage = planningHeading?.closest('.report-page');
-  if (planningPage && !planningPage.querySelector('.v124-scenario-report-section')) {
-    planningPage.append(reportSection('Household scenario comparisons', 'Saved baseline-versus-scenario projections for discussion.', store));
-  }
-  const meetingHeading = [...(root?.querySelectorAll('.report-page h2, .report-page h3') || [])]
-    .find((node) => node.textContent?.trim() === 'Family meeting brief');
+  if (planningPage && !planningPage.querySelector('.v124-scenario-report-section')) planningPage.append(reportSection('Household scenario comparisons', 'Saved baseline-versus-scenario projections for discussion.', store));
+  const meetingHeading = [...(root?.querySelectorAll('.report-page h2, .report-page h3') || [])].find((node) => node.textContent?.trim() === 'Family meeting brief');
   const meetingPage = meetingHeading?.closest('.report-page');
-  if (meetingPage && !meetingPage.querySelector('.v124-scenario-report-section')) {
-    meetingPage.append(reportSection('Scenario conversation', 'Review assumptions, trade-offs, and whether a separate real-world change should be planned.', store));
-  }
+  if (meetingPage && !meetingPage.querySelector('.v124-scenario-report-section')) meetingPage.append(reportSection('Scenario conversation', 'Review assumptions, trade-offs, and whether a separate real-world change should be planned.', store));
   return Boolean(planningPage || meetingPage);
 }
 
@@ -402,7 +365,8 @@ function installHandlers() {
     event.preventDefault();
     try {
       if (preview) {
-        draft = { ...readForm(), assumptions: sanitizeScenarioAssumptions(readForm().assumptions) };
+        const form = readForm();
+        draft = { ...form, assumptions: sanitizeScenarioAssumptions(form.assumptions) };
         scenarioComparisonAnalysis(draft);
         announce('Scenario preview refreshed in memory');
       } else if (save) {
