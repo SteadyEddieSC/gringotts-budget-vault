@@ -71,18 +71,32 @@ test('v123 owns presentation without activating the v122 observer', () => {
   assert.match(boot, /\['money', 'reports', 'activity', 'tools'\]\.includes\(route\)/);
 });
 
-test('v122 account cleanup and v123 recurring decisions read active core state without a second transaction engine', () => {
+test('v124 owns presentation without activating the v123 release observer', () => {
+  const boot = read('src/boot-v124.js');
+  assert.match(boot, /import\('\.\/v123\/recurring-decisions\.js\?v=124scenario1'\)/);
+  assert.match(boot, /import\('\.\/v124\/release\.js\?v=124scenario1'\)/);
+  assert.doesNotMatch(boot, /import\('\.\/v123\/release\.js\?v=124/);
+  assert.match(boot, /accountCleanup\.installAccountCleanupFeatures\(\);[\s\S]*recurring\.installRecurringDecisionFeatures\(\);[\s\S]*await v124\.prepareV124Interceptors\(\);/);
+  assert.match(boot, /v118\.activateV118\(\);[\s\S]*v119\.activateV119\(\);[\s\S]*v120\.activateV120\(\);[\s\S]*v121\.activateV121\(\);[\s\S]*v124\.activateV124\(\)/);
+  assert.match(boot, /\['money', 'reports', 'activity', 'tools'\]\.includes\(route\)/);
+});
+
+test('v122 cleanup, v123 recurring decisions, and v124 scenarios read active local models without a second transaction engine', () => {
   const cleanup = read('src/v122/account-cleanup.js');
   const cleanupExport = read('src/v122/account-cleanup-export-controller.js');
   const recurring = read('src/v123/recurring-decisions.js');
-  for (const source of [cleanup, recurring]) {
-    assert.match(source, /from '\.\.\/v103\/core\.js'/);
+  const scenarios = read('src/v124/scenario-comparison.js');
+  for (const source of [cleanup, recurring, scenarios]) {
     assert.doesNotMatch(source, /bank-import\.js/);
     assert.doesNotMatch(source, /import-profiles\.js/);
     assert.doesNotMatch(source, /runtime-v111-reporting\.js/);
   }
+  assert.match(cleanup, /from '\.\.\/v103\/core\.js'/);
+  assert.match(recurring, /from '\.\.\/v103\/core\.js'/);
+  assert.match(scenarios, /from '\.\.\/v110\/planning\.js'/);
   assert.match(cleanupExport, /buildAccountCleanupPackage/);
   assert.match(cleanupExport, /stopImmediatePropagation/);
-  assert.match(recurring, /RECURRING_DECISION_KEY/);
   assert.match(recurring, /The previous decision metadata was restored/);
+  assert.match(scenarios, /The previous scenario metadata was restored/);
+  assert.doesNotMatch(scenarios, /localStorage\.setItem\('gringottsBudgetVault\.latest'/);
 });
