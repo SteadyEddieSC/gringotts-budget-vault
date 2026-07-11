@@ -2,53 +2,42 @@
 
 ## Purpose
 
-The quality system protects parser, profile, portability, revision, dry-run, receipt-audit, batch-lineage, account-cleanup, recurring-decision, roadmap, accessibility, performance, responsive-layout, and local-first data boundaries across v123.
+The quality system protects parser, profile, portability, revision, dry-run, receipt-audit, batch-lineage, account-cleanup, recurring-decision, scenario-comparison, roadmap, accessibility, performance, responsive-layout, and local-first data boundaries across v124.
 
 Syntax and pure-model defects stop before browser installation. Draft pull requests skip protected jobs.
 
-## v123 recurring-decision contracts
+## v124 scenario contracts
 
 The release must prove that:
 
-- pending, income, transfer-like, and unsupported one-time rows do not enter the decision queue;
-- recurring candidates are separated by normalized merchant and account;
-- cadence, amount stability, latest price change, and annualization assumptions are explainable;
-- account labels are masked;
-- decision metadata is capped at 120 records and history at 240 entries;
+- scenario assumptions are sanitized and limited to 30-, 60-, or 90-day horizons;
+- starting cash, monthly income, recurring savings, flexible spending, one-time expense, extra debt payment, and extra goal contribution remain temporary assumptions;
+- cash, low point, buffer pressure, negative days, debt direction, goal timing, and flexibility are explainable;
+- debt direction excludes interest, fees, amortization, and minimum-payment recalculation;
+- scenario metadata is capped at 24 records and history at 80 entries;
 - writes are read-back verified and restore the prior raw value after failure;
-- dormant decisions are never applied to another candidate;
-- saving decisions leaves the vault byte-for-byte unchanged;
-- no merchant cancellation, contact, email, payment change, external account connection, or transaction write exists;
-- open Cancel, Renegotiate, and Investigate decisions appear in Guided Plan and reports;
-- the workbook contains 39 sheets;
-- v123 owns presentation without activating the v122 observer.
+- saving a scenario leaves vault, forecast, debt, goal, and recurring stores byte-for-byte unchanged;
+- no Apply Scenario control, external account connection, or financial write exists;
+- Guided Plan and reports identify projections and assumptions;
+- the workbook contains 41 sheets;
+- v124 owns presentation without activating the v123 release observer.
 
 ## Accessibility
 
-Fresh v123 axe coverage scans:
+Fresh v124 axe coverage scans:
 
-- recurring filters and candidate selection;
-- the focusable recurring evidence table;
-- decision, status, owner, date, and notes controls;
-- Guided Plan recurring follow-up;
-- report integration;
-- the v123–v129 Roadmap;
+- scenario assumptions and native controls;
+- the labeled focusable comparison table;
+- Guided Plan scenario discussion;
+- planning and Family Meeting report integration;
+- the v124–v130 Roadmap;
 - desktop and phone layouts.
 
-The gate blocks serious or critical WCAG and best-practice findings. Existing coverage remains for every primary destination, report page, import/restore task, profiles, dry runs, receipt lineage, account cleanup, Insights, and Guided Plan.
+The gate blocks serious or critical WCAG and best-practice findings. Existing coverage remains for every primary destination, report page, import/restore task, profiles, dry runs, receipt lineage, account cleanup, recurring decisions, Insights, and Guided Plan.
 
 ## Responsive and observer stability
 
-The suite verifies:
-
-- Chromium, Firefox, and WebKit desktop;
-- Android Chromium, iPad WebKit, and iPhone WebKit;
-- no document-level horizontal overflow;
-- internal table scrolling on narrow viewports;
-- one recurring workspace per Money render;
-- one cleanup card per Tools render;
-- idempotent report and Roadmap enhancements;
-- no mutation-observer ping-pong.
+The suite verifies Chromium, Firefox, and WebKit desktop; Android Chromium, iPad WebKit, and iPhone WebKit; no document-level overflow; internal table scrolling; one scenario workspace per Close & Forecast render; one recurring workspace per Money render; one cleanup card per Tools render; idempotent report and Roadmap enhancements; and no observer ping-pong.
 
 ## Lighthouse
 
@@ -69,21 +58,11 @@ The original budgets remain:
 - console errors zero;
 - network requests maximum 45.
 
-v118–v123 route code and CSS remain absent from the initial Dashboard request set and load only when Money, Reports, Activity, or Tools opens.
+v118–v124 route code and CSS remain absent from the initial Dashboard request set and load only when Money, Reports, Activity, or Tools opens.
 
 ## Privacy and supply chain
 
-Protected workflows verify:
-
-- full-history financial-data and identifier scanning;
-- Gitleaks;
-- Dependency Review and high/critical npm audit;
-- CodeQL `security-extended`;
-- SHA-pinned Actions and least privilege;
-- CSP and local-first headers;
-- metadata-store separation;
-- no raw transaction copies in planning stores;
-- no service worker or external financial action.
+Protected workflows verify full-history financial-data and identifier scanning, Gitleaks, Dependency Review and high/critical npm audit, CodeQL `security-extended`, SHA-pinned Actions and least privilege, CSP and local-first headers, metadata-store separation, no raw transaction copies in planning stores, no service worker, and no external financial action.
 
 ## Merge criteria
 
