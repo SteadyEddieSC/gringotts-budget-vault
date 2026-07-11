@@ -76,8 +76,10 @@ test('v124 owns presentation without activating the v123 release observer', () =
   assert.match(boot, /import\('\.\/v123\/recurring-decisions\.js\?v=124scenario1'\)/);
   assert.match(boot, /import\('\.\/v124\/release\.js\?v=124scenario1'\)/);
   assert.doesNotMatch(boot, /import\('\.\/v123\/release\.js\?v=124/);
-  assert.match(boot, /accountCleanup\.installAccountCleanupFeatures\(\);[\s\S]*recurring\.installRecurringDecisionFeatures\(\);[\s\S]*await v124\.prepareV124Interceptors\(\);/);
-  assert.match(boot, /v118\.activateV118\(\);[\s\S]*v119\.activateV119\(\);[\s\S]*v120\.activateV120\(\);[\s\S]*v121\.activateV121\(\);[\s\S]*v124\.activateV124\(\)/);
+  assert.match(boot, /accountCleanup\.installAccountCleanupFeatures\(\);[\s\S]*recurring\.installRecurringDecisionFeatures\(\);/);
+  assert.match(boot, /await layers\.v124\.prepareV124Interceptors\(\);[\s\S]*await layers\.v121\.prepareV121Interceptors\(\);/);
+  assert.match(boot, /layers\.v118\.activateV118\(\);[\s\S]*layers\.v119\.activateV119\(\);[\s\S]*layers\.v120\.activateV120\(\);[\s\S]*layers\.v121\.activateV121\(\);[\s\S]*layers\.v124\.activateV124\(\)/);
+  assert.match(boot, /openPreparedRoute\(requestedRoute\);[\s\S]*prepareAndActivateAfterRender\(layers\);/);
   assert.match(boot, /\['money', 'reports', 'activity', 'tools'\]\.includes\(route\)/);
 });
 
