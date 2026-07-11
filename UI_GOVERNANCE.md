@@ -6,176 +6,112 @@ The interface must evolve with the feature set. New capabilities should not auto
 
 ## Release-level UI quality gate
 
-Every release reviews:
+Every release reviews navigation fit, content value, action placement, responsive behavior, feature consolidation, accessibility, working controls, print/export completeness, state restraint, and observer stability.
 
-1. **Navigation fit** — use an existing destination when the user goal is already represented.
-2. **Content value** — keep text that explains a decision, risk, limitation, or next action.
-3. **Action placement** — put guarded actions beside the workflow they affect.
-4. **Responsive behavior** — test phone, tablet, laptop, and wide desktop without document overflow.
-5. **Feature consolidation** — group related functions rather than scattering them.
-6. **Accessibility** — preserve keyboard access, focus, labels, contrast, native controls, and state.
-7. **No informational-pill clutter** — prefer headings, lists, status panels, and tables.
-8. **Working-control review** — test every action, filter, picker, download, and metadata write.
-9. **Print/export completeness** — screen simplification must not remove required output.
-10. **State restraint** — persistent metadata must provide clear value and never duplicate transactions.
-11. **Explain remembered choices** — restored settings remain attributable and editable.
-12. **No silent compatibility guesses** — automatic profile use requires one exact match.
-13. **No silent portable merges** — every definition requires Add, Replace, or Skip.
-14. **Review revisions** — Update and Replace show field changes before storage.
-15. **Explicit diagnostics** — preparing and downloading a dry run are separate actions.
-16. **Consequence-first controls** — Replace, Delete, Restore, and transaction writes are visibly distinct.
-17. **Manual rollback boundary** — audits and timelines may guide restore but never impersonate automatic undo.
-18. **Roadmap depth without clutter** — releases include scope, dependencies, safeguards, and outcomes.
-19. **Derived evidence labels** — continuity, similarity, repeated source, and readiness are evidence rather than certainty.
-20. **No automatic history repair** — integrity findings never offer one-click repair.
-21. **Planning is not execution** — a merge or rename plan must not look like an applied account change.
-22. **One candidate at a time** — dense review work should focus the household on one decision rather than scatter controls across the page.
+Additional standing rules:
+
+- planning must never look like execution;
+- derived evidence must be labeled as evidence rather than certainty;
+- guarded writes must state consequences before confirmation;
+- dense review work should focus on one candidate or scenario at a time;
+- local metadata must never duplicate transaction rows;
+- tables belong in labeled focusable scroll regions;
+- native selects, date inputs, and number inputs are preferred over decorative controls;
+- roadmap cards require purpose, capabilities, dependencies, safeguards, and outcome.
 
 ## Current information architecture
 
 The six primary destinations remain:
 
 - **Dashboard** — selected-month overview and report-quality signals.
-- **Money** — budgets, recurring charges, bills, paydays, goals, close, forecast, and debt.
+- **Money** — budgets, recurring decisions, bills, paydays, goals, close, forecast, debt, and scenarios.
 - **Calendar** — date-based household cash-flow activity.
 - **Reports** — range, one-page preview, annual tracker, workbook, and exports.
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
 - **Tools** — Import & Restore, account cleanup planning, Exports & Backup, Diagnostics, and Roadmap.
 
-v122 adds no primary destination. Account cleanup belongs in Tools → Import & Restore because it concerns transaction-account organization and future data maintenance. Receipt integrity and Full Vault Restore remain on the same page but retain distinct tasks and safety boundaries.
+v124 adds no primary destination. Household Scenario Comparison belongs in **Money → Close & Forecast** because it evaluates forecast, debt, goal, and flexibility assumptions before any real plan change.
 
-## Account cleanup planning
+## Household Scenario Comparison
 
-The v122 cleanup surface must:
+The v124 scenario surface must:
 
-- appear once near the top of Tools → Import & Restore;
-- inventory accounts before presenting candidate decisions;
-- mask identifier-like account labels;
-- explain why a pair was surfaced;
-- show confidence and date-range relationship without claiming certainty;
-- show downstream reference counts without exposing copied values;
-- review one candidate at a time with a native select;
-- distinguish Keep Separate, Rename Plan, Merge Plan, and Investigate decisions;
-- state that automatic rename, merge, deletion, and transaction writes are unavailable;
-- offer a populated backup separately from the sanitized cleanup-plan download;
-- avoid any Apply, Merge Now, Rename Now, or one-click repair control;
-- reset stale decisions when the account inventory changes;
-- keep dense inventory tables in labeled, focusable scroll regions;
-- stack filters and actions on narrow phones.
+- appear once inside Close & Forecast;
+- use the current forecast as the visible baseline;
+- use native controls for all assumptions;
+- show baseline, scenario, and difference columns together;
+- show the horizon and explicit model limitations;
+- keep one saved scenario selected at a time;
+- separate Preview, Save Assumptions, New Scenario, and Delete Saved Scenario;
+- provide no Apply Scenario, Change Plan, or automatic execution control;
+- state that forecast settings, debts, goals, recurring decisions, budgets, and transactions remain unchanged;
+- keep the comparison table horizontally scrollable inside its own region on narrow screens;
+- stack form and action controls on phones;
+- treat debt and goal outputs as simplified planning estimates rather than professional advice.
 
-The plan store may persist only candidate IDs, decisions, timestamps, and the inventory signature. Filters, search text, selected candidate, transaction rows, raw labels, balances, and merchant names remain ephemeral or excluded.
+The scenario store may persist only IDs, names, assumptions, notes, and timestamps. Baseline transaction rows, merchant names, account labels, balances, credentials, and vault contents are excluded.
 
 ## Reports
 
 Reports separates range selection, family-report preview, and downloads. Eight pages remain one report. A native page select and Previous/Next controls are appropriate on screen; print includes all pages.
 
-The workbook card must advertise the actual release artifact. v122 shows 37 sheets and names Account Inventory and Account Cleanup Plan while retaining Receipt Integrity and Batch Lineage.
+The workbook card must advertise the actual artifact. v124 shows **41 sheets** and names Scenario Comparisons and Scenario Assumptions while retaining receipt, lineage, account-cleanup, and recurring-decision sheets.
 
-Route-specific v118–v122 code loads only after Reports or Tools opens.
+Scenario summaries belong on the planning and Family Meeting pages. They must identify assumptions and projection limits rather than imply an applied plan.
 
-## Import and restore
+## Import, restore, and cleanup
 
-Incremental import and full restore remain different tasks:
+Incremental import and Full Vault Restore remain different tasks. Account cleanup and receipt integrity remain review/planning surfaces, not additional write engines.
 
-- import adds reviewed missing rows;
-- restore replaces the destination vault.
-
-They share a Tools section but not a single uninterrupted workflow. Restore remains hidden until deliberately selected. Account cleanup planning does not become a third write workflow; it is a read-only evidence and decision surface.
-
-## Import batch timeline
-
-The v121 timeline remains visible under v122 and must continue to:
-
-- summarize retained batches, verified items, review items, dry-run links, and continuity breaks;
-- offer native filters for integrity, result, lineage, dry-run state, and destination family;
-- provide local search without persisting the query;
-- show source filename, fingerprint, and destination key only in local browser detail;
-- keep dense tables in labeled focusable scroll regions;
-- explain continuity states in plain language;
-- distinguish informational repeated-source evidence from a failure;
-- state that no automatic repair or rollback is available;
-- retain backup filename and expected pre-import count guidance;
-- open the existing Full Vault Restore task rather than creating another restore engine.
+- Import adds reviewed missing rows with backup, acknowledgement, confirmation, verification, and rollback.
+- Restore replaces the destination vault only after readable populated-file preview and confirmation.
+- Cleanup planning cannot rename, merge, delete, or rewrite transactions.
+- Receipt integrity cannot repair history or roll back automatically.
 
 ## Local and downloaded privacy
 
-Local on-screen review may show information needed to identify a receipt or account. Downloads must be more restrictive.
+Local on-screen review may show information needed for household decisions. Downloads and stored metadata must be more restrictive.
 
-Timeline packages omit rows, filenames, fingerprints, mappings, destination keys, identifiers, merchants, and vault contents.
-
-Cleanup-plan packages omit transaction rows, raw account labels, full identifiers, balances, merchant names, source files, credentials, tokens, and vault contents.
+- Timeline packages omit rows, filenames, fingerprints, mappings, destination keys, identifiers, merchants, and vault contents.
+- Cleanup packages omit rows, raw account labels, full identifiers, balances, merchants, source files, credentials, tokens, and vault contents.
+- Scenario metadata and workbook sheets contain assumption values and derived results but no copied transaction rows or account identifiers.
 
 ## Detailed Roadmap
 
-The Roadmap page displays the seven-release v122–v128 horizon.
+The Roadmap displays the seven-release **v124–v130** horizon. Every card includes purpose, capabilities, dependencies, safety boundaries, outcome, and current/planned status.
 
-Every release requires:
-
-- purpose;
-- meaningful capabilities;
-- dependencies;
-- safety boundaries;
-- expected household outcome;
-- current/planned status.
-
-The page states that v123 is the strongest next commitment and later entries may move. Cards use readable lists rather than pills. The same horizon remains in `ROADMAP.md`.
-
-## Profiles, portability, revisions, and dry runs
-
-Saved profiles remain Import configuration, not a destination. Portable bundles require Add, Replace, or Skip for each definition. Existing-profile Update and portable Replace pause for field-by-field revision review with acknowledgement and confirmation.
-
-Prepare/Refresh Dry Run and Download Dry Run remain separate controls. Mapping or reconciliation changes invalidate the prepared result.
+The page states that v125 is the strongest next commitment and later entries may move. The same horizon remains in `ROADMAP.md`.
 
 ## Responsive navigation and density
 
 - Desktop uses six primary destinations.
-- Phone/tablet use the compact menu.
+- Phone and tablet use the compact menu.
 - Secondary navigation may scroll horizontally on narrow phones.
-- Dense tables scroll within their own labeled containers.
-- Report download cards use three, two, or one columns.
-- Timeline and cleanup filters use compact multi-column layouts wide and one column on phones.
-- Candidate impact cards stack on phones.
+- Dense tables scroll within labeled containers.
+- Report cards use three, two, or one columns.
+- Filters and forms collapse to one column on phones.
 - Action rows become full-width on narrow screens.
 - Roadmap note grids collapse from three columns to one.
-- Destructive confirmations remain distinct without dominating the page.
+- Destructive controls remain distinct without dominating the page.
 
 ## Architecture result
 
-The v116 architecture remains authoritative:
+The v116 information architecture remains authoritative. v111 remains the runtime foundation, v115 remains the parser/writer/receipt authority, and release layers remain lazy and idempotent.
 
-- six primary destinations are correct;
-- the persistent shell remains;
-- Reports uses progressive presentation;
-- Import/Restore uses task separation;
-- Activity phone subnavigation uses compact overflow;
-- v115 remains the authoritative parser, writer, and receipt store;
-- v111 remains the runtime foundation;
-- release layers stay small and idempotent.
-
-v122 identifies the app at boot and lazy-loads v118 portability, v119 revisions/dry run, v120 audit support, v121 lineage, and v122 cleanup planning only for Tools or Reports.
-
-v122 owns current presentation. v121 yields page-level presentation while v122 explicitly retains the v121 receipt-timeline enhancer. Account cleanup is inserted only when the current rendered Tools page does not already contain the card, preventing observer ping-pong.
+v124 owns presentation. It directly reuses v123 recurring features without activating the v123 release observer, retains v122 cleanup and v121 lineage, and creates only one v124 observer. Route-specific v118–v124 code loads only after Money, Reports, Activity, or Tools opens.
 
 ## Larger overhaul cadence
 
-A deeper UI review should occur every 10–20 releases, or sooner if:
-
-- primary destinations exceed seven;
-- mobile overflow repeats;
-- multiple pages serve the same goal;
-- major actions appear in unrelated places;
-- explanatory copy repeats;
-- Tools becomes a dumping ground;
-- navigation or observer regressions recur.
+A deeper UI review should occur every 10–20 releases, or sooner if primary destinations exceed seven, mobile overflow repeats, multiple pages serve the same goal, controls become scattered, explanatory copy repeats, Tools becomes a dumping ground, or observer regressions recur.
 
 The next scheduled deeper review remains approximately v126, with an acceptable v126–v136 range.
 
 ## Architecture boundaries
 
-- Local-first transaction, profile, revision, diagnostic, receipt, audit, batch-lineage, and cleanup-planning processing.
+- Local-first processing only.
 - No transaction or profile uploads.
-- Metadata channels never duplicate source rows.
-- No automatic receipt repair, rollback, account merge, rename, deletion, or backup-directory scanning.
+- Metadata stores never duplicate source rows.
+- No automatic receipt repair, rollback, account merge, scenario application, merchant action, or backup-directory scanning.
 - No service worker or offline cache.
 - One live ES-module runtime.
 - Never auto-save an empty vault.
