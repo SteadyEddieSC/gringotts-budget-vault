@@ -2,51 +2,44 @@
 
 ## Current architecture
 
+### v122 — Account Cleanup & Merge Planning
+
+v122 adds a planning layer above the existing transaction, profile, receipt, and batch-lineage architecture. It does not replace the parser, duplicate engine, writer, receipt history, or restore task.
+
+The cleanup surface derives:
+
+- masked account-label inventory;
+- transaction, pending, owner, and date-range counts;
+- likely label drift, spelling drift, possible renames, and possible duplicates;
+- explainable confidence evidence;
+- reference counts across recurring items, rules, budgets, bills and paydays, goals, planning, and other metadata;
+- explicit household cleanup decisions.
+
+Decision metadata is stored under `gringottsAccountCleanupPlan.v1`, capped at 120 records, read-back verified, and restored to the previous raw value after failure.
+
+The plan store contains candidate IDs, decisions, timestamps, and an inventory signature. It excludes transaction rows, raw labels, full account identifiers, merchants, balances, source files, credentials, tokens, and vault contents.
+
+v122 has no account-write engine. A Merge Plan or Rename Plan is household intent only. No account history, rule, budget, receipt, or transaction is changed.
+
+The workbook contains 37 sheets, adding Account Inventory and Account Cleanup Plan while preserving Import Receipts, Receipt Integrity, and Batch Lineage.
+
 ### v121 — Receipt Integrity & Import Batch Reconciliation
 
-v121 adds a derived timeline above the existing v115 metadata-only receipt history. Existing receipts remain authoritative and are never rewritten, repaired, or deleted.
+v121 derives a timeline above the v115 metadata-only receipt history. Existing receipts remain authoritative and are never rewritten, repaired, or deleted.
 
 The timeline derives:
 
 - destination-family sequence;
-- receipt integrity status;
+- receipt integrity state;
 - before/after-count continuity;
-- predecessor and successor batch references;
+- predecessor and successor references;
 - duplicate receipt identities;
 - repeated source-fingerprint notes;
 - optional verified dry-run lineage.
 
-Continuity states are earliest retained, continuous, legacy counts, untracked increase, and count decrease. They are review evidence only and never trigger a write, restore, deletion, or repair.
+A dry-run link is stored only when format, schema, normalized row count, would-insert count, and would-skip count reconcile to the resulting receipt.
 
-#### Verified dry-run links
-
-The v121 route layer observes the existing explicit Prepare Dry Run and Confirm Missing-Only Import actions. It does not replace the v119 diagnostic generator or v115 writer.
-
-A link is stored only when the resulting receipt reconciles to the staged dry run on:
-
-- source format;
-- schema label;
-- normalized row count;
-- would-insert count;
-- would-skip count.
-
-Links are stored under `gringottsImportBatchIndex.v1`, capped at 80 records, read-back verified, and restored to the prior raw value after failure.
-
-The index stores references, timestamps, a non-reversible signature, format/schema labels, counts, readiness flags, and explicit privacy declarations. It excludes transaction rows, filenames, fingerprints, mappings, destination keys, account identifiers, merchants, balances, credentials, and vault contents.
-
-A missing link does not invalidate an older import. v121 does not infer or backfill dry-run history.
-
-#### Timeline outputs
-
-The user can:
-
-- filter by integrity, result, lineage, dry-run state, destination family, and local search;
-- download a sanitized full timeline;
-- download a sanitized selected batch;
-- copy a local batch summary;
-- open the separate Full vault restore task.
-
-The workbook now contains 35 sheets, adding Receipt Integrity and Batch Lineage while preserving Import Receipts.
+Links are stored under `gringottsImportBatchIndex.v1`, capped at 80, read-back verified, and restored after failure. They exclude transaction rows, filenames, fingerprints, mappings, destination keys, identifiers, merchants, balances, credentials, and vault contents.
 
 ### v120 — Import Receipt Audit & Rollback Guidance
 
@@ -150,6 +143,12 @@ v115 remains the authoritative local parser, reconciliation engine, guarded writ
    - Produces sanitized timeline outputs.
    - Never repairs receipts or changes transactions.
 
+10. **Account cleanup planning**
+    - Inventories masked account labels and downstream references.
+    - Surfaces explainable cleanup candidates.
+    - Records planning decisions only.
+    - Never renames, merges, deletes, or rewrites account history.
+
 ## Preserved restore boundary
 
 Full restore:
@@ -161,14 +160,14 @@ Full restore:
 - performs read-back verification;
 - blocks an empty transaction array.
 
-Profiles, bundles, revisions, dry runs, receipts, audits, and batch links are not restore operations.
+Profiles, bundles, revisions, dry runs, receipts, audits, batch links, and cleanup plans are not restore operations.
 
 ## Safety requirements
 
 - No import content leaves the browser except an explicit download.
 - No remote parser, analytics, or institution connection.
-- No raw rows in profiles, revisions, bundles, dry runs, receipts, audits, or batch links.
-- No automatic profile replacement, account merge, receipt repair, or rollback.
+- No raw rows in profiles, revisions, bundles, dry runs, receipts, audits, batch links, or cleanup plans.
+- No automatic profile replacement, account merge, account rename, receipt repair, or rollback.
 - No empty-vault overwrite.
 - No write with unresolved mapping, date, sign, or duplicate decisions.
 - No transaction write without a populated backup.
@@ -183,28 +182,31 @@ Synthetic coverage includes:
 - exact, fuzzy, pending-to-posted, coverage, and overlap cases;
 - verified/no-change receipt arithmetic;
 - dry-run-to-receipt reconciliation and mismatch rejection;
-- bounded index storage and rollback;
+- bounded batch-index storage and rollback;
 - continuous, legacy, increase, and decrease lineage;
 - timeline filters and privacy-safe downloads;
-- 35-sheet workbook generation;
+- masked account inventory, candidate evidence, and downstream reference counts;
+- bounded cleanup decisions, stale-plan reset, vault noninterference, and privacy-safe cleanup downloads;
+- 37-sheet workbook generation;
 - desktop, phone, tablet, Android, iPhone, axe, and observer-stability checks;
 - repository security and no-network-write contracts.
 
-Real household exports, profiles, revisions, dry runs, receipts, timelines, backups, and reports must never be committed or uploaded to CI artifacts.
+Real household exports, profiles, revisions, dry runs, receipts, timelines, cleanup plans, backups, and reports must never be committed or uploaded to CI artifacts.
 
 ## Next planned release
 
-### v122 — Account Cleanup & Merge Planning
+### v123 — Recurring Cost Decisions & Subscription Review
 
 Planned focus:
 
-- inventory account labels, masked identifiers, counts, and date ranges;
-- explain likely duplicates and naming drift;
-- preview rename/merge effects before any write;
-- require backup, acknowledgement, confirmation, and read-back verification;
-- never merge accounts automatically.
+- group recurring merchants by cadence, account, amount stability, and price changes;
+- track Keep, Cancel, Renegotiate, Investigate, and Completed decisions;
+- estimate annualized impact with visible assumptions;
+- assign owners and follow-up dates;
+- feed selected actions into Guided Plan and reports;
+- never contact merchants or change payments automatically.
 
-See `ROADMAP.md` for the detailed v122–v127 horizon.
+See `ROADMAP.md` for the detailed v122–v128 horizon.
 
 ## Candidate future formats
 
