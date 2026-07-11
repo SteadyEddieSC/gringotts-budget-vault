@@ -9,6 +9,7 @@ const fixture = (name) => path.join(root, 'tests', 'fixtures', 'bank-import', na
 async function openImport(page) {
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
 }
 
@@ -189,34 +190,37 @@ test('downloads sanitized full and selected timeline packages', async ({ app }) 
   }
 });
 
-test('shows the detailed v121 through v127 roadmap horizon', async ({ app }) => {
+test('shows the detailed v122 through v128 roadmap horizon while retaining v121 lineage', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v121 — Receipt Integrity/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v127 — Family Review Cadence/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(7);
+  await expect(page.getByRole('heading', { name: /v122 — Account Cleanup/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v128 — Household Data Quality/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
   await expect(page.getByRole('heading', { name: 'Depends on', exact: true })).toHaveCount(7);
   await expect(page.getByRole('heading', { name: 'Safety boundaries', exact: true })).toHaveCount(7);
 });
 
-test('downloads the v121 35-sheet workbook', async ({ app }, testInfo) => {
+test('downloads the v122 37-sheet workbook with retained receipt lineage sheets', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook smoke coverage.');
   const { page } = app;
   await seedTimeline(page);
   await openPrimary(page, 'Reports');
-  await expect(page.getByText(/35-sheet Vault Workbook/i)).toBeVisible();
+  await expect(page.getByText(/37-sheet Vault Workbook/i)).toBeVisible();
   await expect(page.getByText('Receipt Integrity', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Account Inventory', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Account Cleanup Plan', { exact: true }).last()).toBeVisible();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     page.locator('#vaultXlsx').click()
   ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v121_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v122_.*\.xlsx/i);
 });
 
-test('keeps timeline filters, details, and roadmap inside a phone viewport', async ({ app }) => {
+test('keeps timeline filters, details, account planning, and roadmap inside a phone viewport', async ({ app }) => {
   const { page } = app;
   await page.setViewportSize({ width: 390, height: 844 });
   await seedTimeline(page);
