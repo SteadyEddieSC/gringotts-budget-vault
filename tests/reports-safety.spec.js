@@ -1,17 +1,17 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('downloads the v121 35-sheet Vault Workbook and exposes the annual tracker input', async ({ app }, testInfo) => {
+test('downloads the v122 37-sheet Vault Workbook and exposes the annual tracker input', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openPrimary(page, 'Reports');
   await expect(page.locator('#annualTrackerFile')).toBeAttached();
-  await expect(page.getByText(/35-sheet workbook/i)).toBeVisible();
+  await expect(page.getByText(/37-sheet Vault Workbook/i)).toBeVisible();
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     page.locator('#vaultXlsx').click()
   ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v121_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v122_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 });
 
 test('blocks an empty restore and preserves the populated vault', async ({ app }) => {
@@ -36,7 +36,7 @@ test('blocks an empty restore and preserves the populated vault', async ({ app }
   expect(count).toBe(12);
 });
 
-test('downloads a v121 full backup from Tools instead of the header', async ({ app }, testInfo) => {
+test('downloads a v122 full backup from Tools instead of the header', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for download placement coverage.');
   const { page } = app;
   await expect(page.locator('#topBackup')).toHaveCount(0);
@@ -47,5 +47,5 @@ test('downloads a v121 full backup from Tools instead of the header', async ({ a
     page.waitForEvent('download'),
     page.locator('#exportBackup').click()
   ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_v121_backup_12_/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_v122_backup_12_/i);
 });
