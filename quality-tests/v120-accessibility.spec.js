@@ -39,8 +39,7 @@ async function seedReceipt(page) {
         earliestDate: '2026-06-01', latestDate: '2026-06-30', exactDuplicates: 2, fuzzyCandidates: 0,
         insertedCount: 3, skippedCount: 2, selectedDestinationVault: 'gringottsBudgetVault.latest',
         destinationBeforeCount: after - 3, destinationAfterCount: after, verificationResult: 'verified'
-      }],
-      updatedAt: '2026-07-10T12:00:00.000Z'
+      }], updatedAt: '2026-07-10T12:00:00.000Z'
     }));
   });
 }
@@ -49,7 +48,7 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'The preserved v120 audit surface runs once in the desktop quality project.');
 }
 
-test('axe scans v120 receipt arithmetic and rollback guidance within v123', async ({ page }, testInfo) => {
+test('axe scans v120 receipt arithmetic and rollback guidance within v124', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
@@ -68,8 +67,8 @@ test('axe scans the advanced multi-release roadmap from a fresh render', async (
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
 });
