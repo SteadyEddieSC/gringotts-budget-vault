@@ -37,7 +37,7 @@ test('shows evidence-backed recurring costs and excludes pending and one-time no
   await openRecurring(page);
   await expect(page.locator('.recurring-decision-workspace')).toBeVisible();
   await expect(page.locator('[data-v123-legacy-recurring-hidden="true"]')).toBeHidden();
-  await expect(page.getByText(/1 pending excluded/i)).toBeVisible();
+  await expect(page.locator('.recurring-decision-workspace > .section-title-row .section-meta')).toContainText(/pending excluded/i);
   await expect(page.getByRole('option', { name: /Synthetic Stream Plan/i })).toBeAttached();
   await expect(page.getByRole('option', { name: /Synthetic Utility Plan/i })).toBeAttached();
   await expect(page.getByText('Synthetic One Time Appliance', { exact: true })).toHaveCount(0);
@@ -106,8 +106,9 @@ test('adds recurring decisions to reports and the 39-sheet workbook', async ({ a
   await expect(page.getByText('Recurring Decisions', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Recurring Decision History', { exact: true }).last()).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('plan');
-  await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
-  await expect(page.getByText(/Review cancellation steps/i)).toBeVisible();
+  const guidedPlanReport = page.locator('.guided-plan-report');
+  await expect(guidedPlanReport.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
+  await expect(guidedPlanReport.getByText(/Review cancellation steps/i)).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('meeting');
   await expect(page.getByRole('heading', { name: 'Recurring-cost conversation', exact: true })).toBeVisible();
 
