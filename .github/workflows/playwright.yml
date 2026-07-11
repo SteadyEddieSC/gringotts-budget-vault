@@ -65,6 +65,8 @@ jobs:
           node --check src/v121/reporting.js
           node --check src/v121/release.js
           node --check src/v122/account-cleanup-model.js
+          node --check src/v122/account-cleanup-export.js
+          node --check src/v122/account-cleanup-export-controller.js
           node --check src/v122/account-cleanup.js
           node --check src/v122/roadmap-horizon.js
           node --check src/v122/reporting.js
