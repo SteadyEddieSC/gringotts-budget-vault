@@ -258,6 +258,8 @@ function enhanceToolsPage(page) {
   setText(titleRow?.querySelector('h2'), 'Import & Restore');
   setText(titleRow?.querySelector('p'), 'Plan account-label cleanup, review receipt integrity, import missing transactions, or use the separate full-vault restore task.');
   setText(titleRow?.querySelector('.section-meta'), 'Local planning · guarded writes');
+  window.GringottsV121?.enhanceReceiptTimeline?.(page);
+  if (page.querySelector('.account-cleanup-card')) return;
   loadAccountCleanupFeatures()
     .then((module) => module.enhanceAccountCleanup(page))
     .catch((error) => announce(error?.message || 'Account cleanup planning could not be loaded'));
