@@ -40,6 +40,7 @@ document.addEventListener('input', (event) => {
 let routeLayersPromise = null;
 let routeLayersReady = false;
 let routeLayersActivated = false;
+let routeActivationScheduled = false;
 let routeReplayAttached = false;
 let pendingRoute = '';
 
@@ -52,6 +53,21 @@ function activateRouteLayers(layers) {
   v120.activateV120();
   v121.activateV121();
   v124.activateV124();
+}
+
+function scheduleRouteLayerActivation(layers) {
+  if (routeLayersActivated || routeActivationScheduled) return;
+  routeActivationScheduled = true;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      routeActivationScheduled = false;
+      try {
+        activateRouteLayers(layers);
+      } catch (error) {
+        renderFailure(error);
+      }
+    });
+  });
 }
 
 function loadRouteLayers() {
@@ -125,7 +141,7 @@ document.addEventListener('click', (event) => {
       const requestedRoute = pendingRoute || route;
       pendingRoute = '';
       openPreparedRoute(requestedRoute);
-      activateRouteLayers(layers);
+      scheduleRouteLayerActivation(layers);
     })
     .catch(renderFailure)
     .finally(() => { routeReplayAttached = false; });
