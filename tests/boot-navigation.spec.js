@@ -11,9 +11,9 @@ const destinations = [
 
 test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v122/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v123/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v122');
+  await expect(page.locator('.version-text')).toHaveText('v123');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
@@ -23,6 +23,9 @@ test('boots without module errors and exposes the consolidated navigation', asyn
     await openPrimary(page, name);
     await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
   }
+
+  await openPrimary(page, 'Money');
+  await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
 
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
@@ -35,6 +38,7 @@ test('boots without module errors and exposes the consolidated navigation', asyn
   await expect(page.getByRole('heading', { name: 'Household Insights', exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recurring-cost follow-up', exact: true })).toBeVisible();
 
   const unsafe = methods.filter(({ method, url }) => method !== 'GET' && !url.startsWith('blob:'));
   expect(unsafe, 'The local-first app should not make write network requests').toEqual([]);
