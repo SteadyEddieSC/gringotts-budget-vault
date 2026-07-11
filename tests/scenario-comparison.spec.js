@@ -52,7 +52,7 @@ test('previews a side-by-side scenario without an apply action', async ({ app })
   const { page } = app;
   await openScenario(page);
   await expect(page.locator('.scenario-comparison-table tbody tr')).toHaveCount(7);
-  await expect(page.getByRole('cell', { name: 'Ending cash', exact: true })).toBeVisible();
+  await expect(page.getByRole('rowheader', { name: 'Ending cash', exact: true })).toBeVisible();
   await page.locator('#scenarioMonthlyIncomeDelta').fill('400');
   await page.locator('#scenarioOneTimeExpense').fill('500');
   await page.locator('#scenarioOneTimeDate').fill('2026-07-20');
