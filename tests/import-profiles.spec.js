@@ -8,6 +8,9 @@ const signedFixture = path.join(root, 'tests', 'fixtures', 'bank-import', 'synth
 async function openImport(page) {
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
+  await expect(page.locator('#profilePortabilityCard')).toBeVisible();
+  await expect(page.locator('#profileRevisionHistory')).toBeVisible();
 }
 
 async function setCurrentBankFile(page, file) {
