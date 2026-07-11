@@ -45,6 +45,10 @@ function requiredFeature(name) {
   return value;
 }
 
+function v122OwnsPresentation() {
+  return window.GringottsV122?.release === 'v122';
+}
+
 function installCss() {
   if (cssInstalled) return;
   cssInstalled = true;
@@ -268,7 +272,7 @@ function enhanceReports(root) {
 }
 
 function enhanceMain(root = document.getElementById('main')) {
-  if (!root) return;
+  if (!root || v122OwnsPresentation()) return;
   root.querySelectorAll('.report-kicker').forEach((node) => setText(node, 'Receipt Integrity & Import Batch Reconciliation v121'));
   const importPage = root.querySelector('.v116-import-page, .v115-import-page');
   if (importPage) enhanceImportPage(importPage);
