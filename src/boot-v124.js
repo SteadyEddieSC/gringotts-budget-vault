@@ -45,6 +45,30 @@ let routePreparationPromise = null;
 let routeReplayAttached = false;
 let pendingRoute = '';
 
+function installRecurringObserverGuard(registry) {
+  if (registry.v124RecurringObserverGuard === true) return;
+  const inheritedEnhancer = registry.enhanceRecurringDecisionPage;
+  if (typeof inheritedEnhancer !== 'function') {
+    throw new Error('The recurring decision page enhancer is unavailable.');
+  }
+  Object.assign(registry, {
+    v124RecurringObserverGuard: true,
+    enhanceRecurringDecisionPage(page) {
+      if (!page || page.querySelector('h2')?.textContent?.trim() !== 'Bills, Recurring & Budgets') return false;
+      if (page.dataset.v124RecurringEnhanced === 'true') return true;
+      page.dataset.v124RecurringEnhanced = 'true';
+      try {
+        const enhanced = inheritedEnhancer(page);
+        if (!enhanced) delete page.dataset.v124RecurringEnhanced;
+        return enhanced;
+      } catch (error) {
+        delete page.dataset.v124RecurringEnhanced;
+        throw error;
+      }
+    }
+  });
+}
+
 function registerRouteFeatures(layers) {
   const { accountCleanup, cleanupExport, recurring } = layers;
   cleanupExport.installAccountCleanupExportController();
@@ -60,6 +84,7 @@ function registerRouteFeatures(layers) {
 
   const recurringPromise = Promise.resolve(recurring);
   const v123Registry = window.GringottsV123 || (window.GringottsV123 = {});
+  installRecurringObserverGuard(v123Registry);
   Object.assign(v123Registry, {
     release: 'v123',
     loadFeatures: () => recurringPromise
