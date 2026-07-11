@@ -39,6 +39,20 @@ document.addEventListener('input', (event) => {
 
 let routeLayersPromise = null;
 let routeLayersReady = false;
+let routeLayersActivated = false;
+let routeReplayAttached = false;
+let pendingRoute = '';
+
+function activateRouteLayers(layers) {
+  if (routeLayersActivated) return;
+  routeLayersActivated = true;
+  const { v118, v119, v120, v121, v124 } = layers;
+  v118.activateV118();
+  v119.activateV119();
+  v120.activateV120();
+  v121.activateV121();
+  v124.activateV124();
+}
 
 function loadRouteLayers() {
   if (!routeLayersPromise) {
@@ -75,19 +89,26 @@ function loadRouteLayers() {
       v120.prepareV120Interceptors();
       v119.prepareV119Interceptors();
       v118.prepareV118Interceptors();
-      v118.activateV118();
-      v119.activateV119();
-      v120.activateV120();
-      v121.activateV121();
-      const build = v124.activateV124();
+
       routeLayersReady = true;
-      return build;
+      return { v118, v119, v120, v121, v124 };
     }).catch((error) => {
       routeLayersPromise = null;
+      routeLayersReady = false;
       throw error;
     });
   }
   return routeLayersPromise;
+}
+
+function openPreparedRoute(route) {
+  const currentButton = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
+  if (!currentButton) throw new Error(`The prepared route button is unavailable: ${route}`);
+  currentButton.dispatchEvent(new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    view: window
+  }));
 }
 
 document.addEventListener('click', (event) => {
@@ -96,9 +117,18 @@ document.addEventListener('click', (event) => {
   if (!routeButton || !['money', 'reports', 'activity', 'tools'].includes(route) || routeLayersReady) return;
   event.preventDefault();
   event.stopImmediatePropagation();
+  pendingRoute = route;
+  if (routeReplayAttached) return;
+  routeReplayAttached = true;
   loadRouteLayers()
-    .then(() => routeButton.click())
-    .catch(renderFailure);
+    .then((layers) => {
+      const requestedRoute = pendingRoute || route;
+      pendingRoute = '';
+      openPreparedRoute(requestedRoute);
+      activateRouteLayers(layers);
+    })
+    .catch(renderFailure)
+    .finally(() => { routeReplayAttached = false; });
 }, true);
 
 import('./runtime-v111-reporting.js?v=124scenario1')
