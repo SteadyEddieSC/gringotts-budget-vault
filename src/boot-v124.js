@@ -39,33 +39,69 @@ document.addEventListener('input', (event) => {
 
 let routeLayersPromise = null;
 let routeLayersReady = false;
+let routeLayersPrepared = false;
 let routeLayersActivated = false;
-let routeActivationScheduled = false;
+let routePreparationPromise = null;
 let routeReplayAttached = false;
 let pendingRoute = '';
+
+function registerRouteFeatures(layers) {
+  const { accountCleanup, cleanupExport, recurring } = layers;
+  cleanupExport.installAccountCleanupExportController();
+  accountCleanup.installAccountCleanupFeatures();
+  recurring.installRecurringDecisionFeatures();
+
+  const cleanupPromise = Promise.resolve(accountCleanup);
+  const v122Registry = window.GringottsV122 || (window.GringottsV122 = {});
+  Object.assign(v122Registry, {
+    release: 'v122',
+    loadAccountCleanupFeatures: () => cleanupPromise
+  });
+
+  const recurringPromise = Promise.resolve(recurring);
+  const v123Registry = window.GringottsV123 || (window.GringottsV123 = {});
+  Object.assign(v123Registry, {
+    release: 'v123',
+    loadFeatures: () => recurringPromise
+  });
+}
+
+async function prepareRouteLayers(layers) {
+  if (routeLayersPrepared) return layers;
+  if (!routePreparationPromise) {
+    routePreparationPromise = (async () => {
+      registerRouteFeatures(layers);
+      await layers.v124.prepareV124Interceptors();
+      await layers.v121.prepareV121Interceptors();
+      layers.v120.prepareV120Interceptors();
+      layers.v119.prepareV119Interceptors();
+      layers.v118.prepareV118Interceptors();
+      routeLayersPrepared = true;
+      return layers;
+    })().catch((error) => {
+      routePreparationPromise = null;
+      throw error;
+    });
+  }
+  return routePreparationPromise;
+}
 
 function activateRouteLayers(layers) {
   if (routeLayersActivated) return;
   routeLayersActivated = true;
-  const { v118, v119, v120, v121, v124 } = layers;
-  v118.activateV118();
-  v119.activateV119();
-  v120.activateV120();
-  v121.activateV121();
-  v124.activateV124();
+  layers.v118.activateV118();
+  layers.v119.activateV119();
+  layers.v120.activateV120();
+  layers.v121.activateV121();
+  layers.v124.activateV124();
 }
 
-function scheduleRouteLayerActivation(layers) {
-  if (routeLayersActivated || routeActivationScheduled) return;
-  routeActivationScheduled = true;
+function prepareAndActivateAfterRender(layers) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      routeActivationScheduled = false;
-      try {
-        activateRouteLayers(layers);
-      } catch (error) {
-        renderFailure(error);
-      }
+      prepareRouteLayers(layers)
+        .then(() => activateRouteLayers(layers))
+        .catch(renderFailure);
     });
   });
 }
@@ -81,33 +117,9 @@ function loadRouteLayers() {
       import('./v122/account-cleanup-export-controller.js?v=124scenario1'),
       import('./v123/recurring-decisions.js?v=124scenario1'),
       import('./v124/release.js?v=124scenario1')
-    ]).then(async ([v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124]) => {
-      cleanupExport.installAccountCleanupExportController();
-      accountCleanup.installAccountCleanupFeatures();
-      recurring.installRecurringDecisionFeatures();
-
-      const cleanupPromise = Promise.resolve(accountCleanup);
-      const v122Registry = window.GringottsV122 || (window.GringottsV122 = {});
-      Object.assign(v122Registry, {
-        release: 'v122',
-        loadAccountCleanupFeatures: () => cleanupPromise
-      });
-
-      const recurringPromise = Promise.resolve(recurring);
-      const v123Registry = window.GringottsV123 || (window.GringottsV123 = {});
-      Object.assign(v123Registry, {
-        release: 'v123',
-        loadFeatures: () => recurringPromise
-      });
-
-      await v124.prepareV124Interceptors();
-      await v121.prepareV121Interceptors();
-      v120.prepareV120Interceptors();
-      v119.prepareV119Interceptors();
-      v118.prepareV118Interceptors();
-
+    ]).then(([v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124]) => {
       routeLayersReady = true;
-      return { v118, v119, v120, v121, v124 };
+      return { v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124 };
     }).catch((error) => {
       routeLayersPromise = null;
       routeLayersReady = false;
@@ -141,7 +153,7 @@ document.addEventListener('click', (event) => {
       const requestedRoute = pendingRoute || route;
       pendingRoute = '';
       openPreparedRoute(requestedRoute);
-      scheduleRouteLayerActivation(layers);
+      prepareAndActivateAfterRender(layers);
     })
     .catch(renderFailure)
     .finally(() => { routeReplayAttached = false; });
