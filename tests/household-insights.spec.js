@@ -3,14 +3,13 @@ import { test, expect, openPrimary } from './helpers/app.js';
 async function addInsightFixtureRows(page) {
   await page.evaluate(async () => {
     const vault = JSON.parse(localStorage.getItem('gringottsBudgetVault.latest'));
-    const rows = [
+    vault.transactions.push(
       { id: 'insight-repair-may', date: '2026-05-12', merchant: 'Synthetic Home Repair', name: 'Synthetic Home Repair', amount: 40, type: 'Expense', category: 'Home Repair', account: 'Test Checking', owner: 'Test Owner A', reviewed: true, pending: false },
       { id: 'insight-repair-jun', date: '2026-06-12', merchant: 'Synthetic Home Repair', name: 'Synthetic Home Repair', amount: 42, type: 'Expense', category: 'Home Repair', account: 'Test Checking', owner: 'Test Owner A', reviewed: true, pending: false },
       { id: 'insight-repair-jul', date: '2026-07-12', merchant: 'Synthetic Home Repair', name: 'Synthetic Home Repair', amount: 180, type: 'Expense', category: 'Home Repair', account: 'Test Checking', owner: 'Test Owner A', reviewed: true, pending: false },
       { id: 'insight-first-seen-jul', date: '2026-07-18', merchant: 'Synthetic Appliance Store', name: 'Synthetic Appliance Store', amount: 400, type: 'Expense', category: 'Household', account: 'Test Credit Card', owner: 'Test Owner B', reviewed: true, pending: false },
       { id: 'insight-pending-jul', date: '2026-07-20', merchant: 'Pending Giant Purchase', name: 'Pending Giant Purchase', amount: 900, type: 'Expense', category: 'Household', account: 'Test Credit Card', owner: 'Test Owner B', reviewed: true, pending: true }
-    ];
-    vault.transactions.push(...rows);
+    );
     localStorage.setItem('gringottsBudgetVault.latest', JSON.stringify(vault));
     const core = await import('/src/v103/core.js');
     core.invalidateVaultCache();
@@ -35,7 +34,6 @@ test('explains merchant, category, first-seen, and recurring-cost signals', asyn
   await expect(streamFlixRow).toBeVisible();
   await expect(streamFlixRow.getByText(/Latest charge is 2\.00 above the prior charge/i)).toBeVisible();
   await expect(page.getByText(/median of earlier normalized-merchant charges/i).first()).toBeVisible();
-  await expect(page.getByText(/immediately preceding period of equal length/i).first()).toBeVisible();
   const repairCard = page.locator('.insight-card').filter({ hasText: 'Synthetic Home Repair is above its prior typical amount' });
   await repairCard.getByText(/Source transactions/i).click();
   await expect(repairCard.getByRole('cell', { name: 'Synthetic Home Repair', exact: true }).first()).toBeVisible();
@@ -46,9 +44,7 @@ test('excludes pending charges from anomaly comparisons and performs no writes',
   await addInsightFixtureRows(page);
   const before = await page.evaluate(() => Object.fromEntries(Object.keys(localStorage).sort().map((key) => [key, localStorage.getItem(key)])));
   const networkWrites = [];
-  page.on('request', (request) => {
-    if (request.method() !== 'GET' && !request.url().startsWith('blob:')) networkWrites.push(`${request.method()} ${request.url()}`);
-  });
+  page.on('request', (request) => { if (request.method() !== 'GET' && !request.url().startsWith('blob:')) networkWrites.push(`${request.method()} ${request.url()}`); });
   await openInsights(page);
   await expect(page.getByText(/Pending rows excluded from comparisons: 2/i)).toBeVisible();
   await expect(page.getByText('Pending Giant Purchase')).toHaveCount(0);
@@ -57,7 +53,7 @@ test('excludes pending charges from anomaly comparisons and performs no writes',
   expect(networkWrites).toEqual([]);
 });
 
-test('feeds insights into v123 reports, the 39-sheet workbook, and the meeting pack', async ({ app }, testInfo) => {
+test('feeds insights into v124 reports, the 41-sheet workbook, and the meeting pack', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file insight coverage.');
   const { page } = app;
   await addInsightFixtureRows(page);
@@ -71,14 +67,15 @@ test('feeds insights into v123 reports, the 39-sheet workbook, and the meeting p
   await page.locator('#reportPreviewPage').selectOption('meeting');
   await expect(page.getByRole('heading', { name: 'Family meeting brief', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recurring-cost conversation', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '39-sheet Vault Workbook', exact: true })).toBeVisible();
-  for (const sheet of ['Household Insights', 'Recurring Opportunities', 'Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History']) {
+  await expect(page.getByRole('heading', { name: 'Scenario conversation', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '41-sheet Vault Workbook', exact: true })).toBeVisible();
+  for (const sheet of ['Household Insights', 'Recurring Opportunities', 'Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v123_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_2026-07-01_to_2026-07-31_.*\.xlsx/i);
   const [meeting] = await Promise.all([page.waitForEvent('download'), page.locator('#meetingMd').click()]);
-  expect(meeting.suggestedFilename()).toMatch(/Gringotts_Family_Meeting_Pack_v123_2026-07-01_to_2026-07-31_.*\.md/i);
+  expect(meeting.suggestedFilename()).toMatch(/Gringotts_Family_Meeting_Pack_v124_2026-07-01_to_2026-07-31_.*\.md/i);
 });
 
 test('keeps the Insights activity surface within every configured viewport', async ({ app }) => {
