@@ -96,7 +96,8 @@ async function prepareRouteLayers(layers) {
   if (!routePreparationPromise) {
     routePreparationPromise = (async () => {
       registerRouteFeatures(layers);
-      await layers.v124.prepareV124Interceptors();
+      const { v124 } = layers;
+      await v124.prepareV124Interceptors();
       await layers.v121.prepareV121Interceptors();
       layers.v120.prepareV120Interceptors();
       layers.v119.prepareV119Interceptors();
@@ -111,6 +112,14 @@ async function prepareRouteLayers(layers) {
   return routePreparationPromise;
 }
 
+function markRouteEnhancementsReady() {
+  requestAnimationFrame(() => {
+    const registry = window.GringottsV124 || (window.GringottsV124 = {});
+    registry.routeEnhancementsReady = true;
+    document.dispatchEvent(new CustomEvent('gringotts:v124-route-enhancements-ready'));
+  });
+}
+
 function activateRouteLayers(layers) {
   if (routeLayersActivated) return;
   routeLayersActivated = true;
@@ -119,6 +128,7 @@ function activateRouteLayers(layers) {
   layers.v120.activateV120();
   layers.v121.activateV121();
   layers.v124.activateV124();
+  markRouteEnhancementsReady();
 }
 
 function prepareAndActivateAfterRender(layers) {
@@ -199,7 +209,7 @@ import('./runtime-v111-reporting.js?v=124scenario1')
     });
     if (window.GringottsCleanRuntime?.BUILD) Object.assign(window.GringottsCleanRuntime.BUILD, build);
     const registry = window.GringottsV124 || (window.GringottsV124 = {});
-    Object.assign(registry, { release: 'v124', loadRouteLayers });
+    Object.assign(registry, { release: 'v124', loadRouteLayers, routeEnhancementsReady: false });
     installAccessibilityEnhancements();
     document.title = `Gringotts Budget Vault ${build.version}`;
     const version = document.querySelector('.version-text');
