@@ -22,15 +22,20 @@ const validIso = (value) => Number.isFinite(Date.parse(clean(value)));
 
 function fnv1a(value) {
   let hash = 2166136261;
-  for (const char of String(value ?? '')) {
-    hash ^= char.codePointAt(0);
+  for (const character of String(value ?? '')) {
+    hash ^= character.codePointAt(0);
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
 function transactionDate(transaction = {}) {
-  return clean(transaction.date || transaction.posted_datetime || transaction.authorized_date || transaction.datetime).slice(0, 10);
+  return clean(
+    transaction.date
+    || transaction.posted_datetime
+    || transaction.authorized_date
+    || transaction.datetime
+  ).slice(0, 10);
 }
 
 function transactionAccount(transaction = {}) {
@@ -42,7 +47,9 @@ function transactionAccount(transaction = {}) {
     ['account_id', transaction.account_id]
   ];
   const found = candidates.find(([, value]) => clean(value));
-  return found ? { field: found[0], label: clean(found[1]) } : { field: 'unlabeled', label: 'Unlabeled account' };
+  return found
+    ? { field: found[0], label: clean(found[1]) }
+    : { field: 'unlabeled', label: 'Unlabeled account' };
 }
 
 function transactionOwner(transaction = {}) {
@@ -65,7 +72,7 @@ function numericSuffix(value) {
 
 function maskAccountLabel(value) {
   const source = clean(value) || 'Unlabeled account';
-  return source.replace(/[A-Za-z]*\d[A-Za-z0-9-]{3,}|\d{4,}/g, (token) => {
+  return source.replace(/[A-Za-z]*\d[A-Za-z0-9-]{3,}|(?:[•*xX]{2,}\s*)?\d{4,}/g, (token) => {
     const digits = token.match(/\d/g)?.join('') || '';
     return digits.length >= 4 ? `••••${digits.slice(-4)}` : '••••';
   });
@@ -107,7 +114,11 @@ function levenshtein(leftValue, rightValue) {
     for (let column = 1; column <= right.length; column += 1) {
       const above = previous[column];
       const cost = left[row - 1] === right[column - 1] ? 0 : 1;
-      previous[column] = Math.min(previous[column] + 1, previous[column - 1] + 1, diagonal + cost);
+      previous[column] = Math.min(
+        previous[column] + 1,
+        previous[column - 1] + 1,
+        diagonal + cost
+      );
       diagonal = above;
     }
   }
@@ -119,36 +130,29 @@ function editSimilarity(left, right) {
   return maximum ? 1 - (levenshtein(left, right) / maximum) : 1;
 }
 
-function rangesOverlap(left, right) {
-  if (!left.firstDate || !left.lastDate || !right.firstDate || !right.lastDate) return null;
-  return left.firstDate <= right.lastDate && right.firstDate <= left.lastDate;
-}
-
-function dateRelationship(left, right) {
-  const overlap = rangesOverlap(left, right);
-  if (overlap === true) return 'overlapping';
-  if (overlap === false) return 'sequential';
-  return 'unknown';
-}
-
 function accountId(label) {
   return `account-${fnv1a(clean(label).toLowerCase())}`;
 }
 
+function dateRelationship(left, right) {
+  if (!left.firstDate || !left.lastDate || !right.firstDate || !right.lastDate) return 'unknown';
+  return left.firstDate <= right.lastDate && right.firstDate <= left.lastDate
+    ? 'overlapping'
+    : 'sequential';
+}
+
 export function buildAccountInventory(transactionsValue = []) {
-  const rows = Array.isArray(transactionsValue) ? transactionsValue : [];
   const groups = new Map();
-  rows.forEach((transaction) => {
-    if (!transaction || typeof transaction !== 'object' || Array.isArray(transaction)) return;
+  for (const transaction of Array.isArray(transactionsValue) ? transactionsValue : []) {
+    if (!transaction || typeof transaction !== 'object' || Array.isArray(transaction)) continue;
     const account = transactionAccount(transaction);
-    const key = account.label;
-    const entry = groups.get(key) || {
-      accountId: accountId(key),
-      localLabel: key,
-      displayLabel: maskAccountLabel(key),
-      normalizedLabel: normalizeLabel(key),
-      suffix: numericSuffix(key),
-      kind: accountKind(key),
+    const entry = groups.get(account.label) || {
+      accountId: accountId(account.label),
+      localLabel: account.label,
+      displayLabel: maskAccountLabel(account.label),
+      normalizedLabel: normalizeLabel(account.label),
+      suffix: numericSuffix(account.label),
+      kind: accountKind(account.label),
       transactionCount: 0,
       pendingCount: 0,
       firstDate: '',
@@ -158,16 +162,19 @@ export function buildAccountInventory(transactionsValue = []) {
       identifierLikeSource: false
     };
     entry.transactionCount += 1;
-    if (transaction.pending === true || clean(transaction.status).toLowerCase() === 'pending') entry.pendingCount += 1;
+    if (transaction.pending === true || clean(transaction.status).toLowerCase() === 'pending') {
+      entry.pendingCount += 1;
+    }
     const date = transactionDate(transaction);
     if (date && (!entry.firstDate || date < entry.firstDate)) entry.firstDate = date;
     if (date && (!entry.lastDate || date > entry.lastDate)) entry.lastDate = date;
     const owner = transactionOwner(transaction);
     if (owner) entry.ownerValues.add(owner);
     entry.sourceFields.add(account.field);
-    if (account.field === 'account_id' || /\d{4,}/.test(key)) entry.identifierLikeSource = true;
-    groups.set(key, entry);
-  });
+    if (account.field === 'account_id' || /\d{4,}/.test(account.label)) entry.identifierLikeSource = true;
+    groups.set(account.label, entry);
+  }
+
   return [...groups.values()].map((entry) => ({
     accountId: entry.accountId,
     localLabel: entry.localLabel,
@@ -182,17 +189,17 @@ export function buildAccountInventory(transactionsValue = []) {
     ownerCount: entry.ownerValues.size,
     sourceFields: [...entry.sourceFields].sort(),
     identifierMasked: entry.identifierLikeSource || entry.displayLabel !== entry.localLabel
-  })).sort((left, right) => right.transactionCount - left.transactionCount || left.displayLabel.localeCompare(right.displayLabel));
+  })).sort((left, right) => right.transactionCount - left.transactionCount
+    || left.displayLabel.localeCompare(right.displayLabel));
 }
 
 function classifyPair(left, right) {
-  const leftTokens = semanticTokens(left.localLabel);
-  const rightTokens = semanticTokens(right.localLabel);
-  const tokenSimilarity = jaccard(leftTokens, rightTokens);
+  const tokenSimilarity = jaccard(semanticTokens(left.localLabel), semanticTokens(right.localLabel));
   const textSimilarity = editSimilarity(left.normalizedLabel, right.normalizedLabel);
   const suffixMatch = Boolean(left.suffix && right.suffix && left.suffix === right.suffix);
   const kindMatch = left.kind !== 'unknown' && left.kind === right.kind;
   const normalizedMatch = Boolean(left.normalizedLabel && left.normalizedLabel === right.normalizedLabel);
+  const relationship = dateRelationship(left, right);
   const evidence = [];
   let classification = '';
   let confidence = '';
@@ -207,9 +214,11 @@ function classifyPair(left, right) {
   if (tokenSimilarity >= 0.75) evidence.push('Most meaningful label words are shared.');
   else if (tokenSimilarity >= 0.5) evidence.push('Several meaningful label words are shared.');
   if (textSimilarity >= 0.86 && !normalizedMatch) evidence.push('The normalized labels are very similar.');
-  const relationship = dateRelationship(left, right);
-  if (relationship === 'sequential') evidence.push('The retained transaction date ranges do not overlap, which can indicate a rename or replacement.');
-  if (relationship === 'overlapping') evidence.push('The retained transaction date ranges overlap, so the accounts may be distinct even when labels are similar.');
+  if (relationship === 'sequential') {
+    evidence.push('The retained transaction date ranges do not overlap, which can indicate a rename or replacement.');
+  } else if (relationship === 'overlapping') {
+    evidence.push('The retained transaction date ranges overlap, so the accounts may be distinct even when labels are similar.');
+  }
 
   if (!classification && suffixMatch && (tokenSimilarity >= 0.5 || kindMatch)) {
     classification = relationship === 'sequential' ? 'possible-rename' : 'possible-duplicate';
@@ -345,7 +354,9 @@ export function sanitizeCleanupPlan(value = {}) {
   }
   return {
     version: ACCOUNT_CLEANUP_PLAN_VERSION,
-    inventorySignature: /^fnv1a-[0-9a-f]{8}$/.test(clean(value?.inventorySignature)) ? clean(value.inventorySignature) : '',
+    inventorySignature: /^fnv1a-[0-9a-f]{8}$/.test(clean(value?.inventorySignature))
+      ? clean(value.inventorySignature)
+      : '',
     decisions,
     updatedAt: validIso(value?.updatedAt) ? new Date(value.updatedAt).toISOString() : ''
   };
@@ -358,8 +369,12 @@ export function setCleanupDecision(planValue, candidateIdValue, decisionValue, {
   const plan = sanitizeCleanupPlan(planValue);
   const candidateId = clean(candidateIdValue).slice(0, 100);
   const decision = clean(decisionValue);
-  if (!candidateId || !CLEANUP_DECISIONS.includes(decision)) throw new Error('A valid cleanup candidate and explicit decision are required.');
-  if (!/^fnv1a-[0-9a-f]{8}$/.test(signature)) throw new Error('The account inventory signature is invalid.');
+  if (!candidateId || !CLEANUP_DECISIONS.includes(decision)) {
+    throw new Error('A valid cleanup candidate and explicit decision are required.');
+  }
+  if (!/^fnv1a-[0-9a-f]{8}$/.test(signature)) {
+    throw new Error('The account inventory signature is invalid.');
+  }
   if (!validIso(now)) throw new Error('The cleanup decision timestamp is invalid.');
   return sanitizeCleanupPlan({
     version: ACCOUNT_CLEANUP_PLAN_VERSION,
@@ -377,7 +392,9 @@ export function reconcileCleanupPlan(planValue, candidatesValue = [], signature 
   const candidates = Array.isArray(candidatesValue) ? candidatesValue : [];
   const candidateIds = new Set(candidates.map((candidate) => candidate.candidateId));
   const current = plan.inventorySignature === signature;
-  const decisions = current ? plan.decisions.filter((decision) => candidateIds.has(decision.candidateId)) : [];
+  const decisions = current
+    ? plan.decisions.filter((decision) => candidateIds.has(decision.candidateId))
+    : [];
   const decided = new Set(decisions.map((decision) => decision.candidateId));
   return {
     version: ACCOUNT_CLEANUP_PLAN_VERSION,
@@ -406,7 +423,7 @@ function publicAccount(account, impact = {}) {
     ownerCount: account.ownerCount,
     identifierMasked: true,
     referenceImpact: {
-      transactions: finiteCount(impact.transactions),
+      transactionReferenceCount: finiteCount(impact.transactions),
       rules: finiteCount(impact.rules),
       recurring: finiteCount(impact.recurring),
       budgets: finiteCount(impact.budgets),
@@ -430,7 +447,9 @@ export function buildAccountCleanupPackage({
   const result = {
     kind: ACCOUNT_CLEANUP_PACKAGE_KIND,
     version: ACCOUNT_CLEANUP_PACKAGE_VERSION,
-    generatedAt: validIso(generatedAt) ? new Date(generatedAt).toISOString() : new Date().toISOString(),
+    generatedAt: validIso(generatedAt)
+      ? new Date(generatedAt).toISOString()
+      : new Date().toISOString(),
     summary: {
       accounts: inventory.length,
       candidates: candidates.length,
@@ -471,14 +490,21 @@ export function buildAccountCleanupPackage({
 }
 
 export function assertAccountCleanupPackageSafe(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Account cleanup package must be an object.');
-  if (value.kind !== ACCOUNT_CLEANUP_PACKAGE_KIND || Number(value.version) !== ACCOUNT_CLEANUP_PACKAGE_VERSION) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Account cleanup package must be an object.');
+  }
+  if (value.kind !== ACCOUNT_CLEANUP_PACKAGE_KIND
+      || Number(value.version) !== ACCOUNT_CLEANUP_PACKAGE_VERSION) {
     throw new Error('Account cleanup package kind or version is invalid.');
   }
   const serialized = JSON.stringify(value);
   const forbiddenKeys = /"(?:transactions|rows|localLabel|rawLabel|accountNumber|account_id|balance|merchant|sourceFilename|destinationStorageKey|vaultContents|credentials|tokens)"\s*:/i;
-  if (forbiddenKeys.test(serialized)) throw new Error('Account cleanup package contains a forbidden household-data field.');
+  if (forbiddenKeys.test(serialized)) {
+    throw new Error('Account cleanup package contains a forbidden household-data field.');
+  }
   const boundary = value.dataBoundary || {};
-  if (!Object.values(boundary).every((entry) => entry === false)) throw new Error('Account cleanup package does not declare the required privacy boundary.');
+  if (!Object.values(boundary).every((entry) => entry === false)) {
+    throw new Error('Account cleanup package does not declare the required privacy boundary.');
+  }
   return true;
 }
