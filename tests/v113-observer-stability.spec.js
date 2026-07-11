@@ -39,7 +39,7 @@ test('settles the Reports architecture without a recursive mutation loop', async
   const { page } = app;
   await openPrimary(page, 'Reports');
   await expect(page.locator('#reportPreviewPage')).toBeVisible();
-  await expect(page.getByRole('heading', { name: '35-sheet Vault Workbook', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '37-sheet Vault Workbook', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Family Financial Report', exact: true })).toBeVisible();
   expect(await settledMutationCount(page), 'The Reports page must settle instead of continuously rewriting identical content.').toBe(0);
 
