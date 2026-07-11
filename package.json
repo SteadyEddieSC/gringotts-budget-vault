@@ -1,6 +1,6 @@
 {
   "name": "gringotts-budget-vault-tests",
-  "version": "122.0.0",
+  "version": "123.0.0",
   "private": true,
   "description": "Parser, Playwright, accessibility, visual-contract, Lighthouse, and local-first security tests for Gringotts Budget Vault",
   "type": "module",
@@ -11,12 +11,12 @@
     "test": "playwright test",
     "test:parser": "node --test tests-node/*.test.mjs",
     "test:local": "playwright test --grep-invert @live",
-    "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/profile-versioning-diagnostics.spec.js tests/import-receipt-audit-roadmap.spec.js tests/receipt-integrity-batch.spec.js tests/account-cleanup-planning.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
+    "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/profile-versioning-diagnostics.spec.js tests/import-receipt-audit-roadmap.spec.js tests/receipt-integrity-batch.spec.js tests/account-cleanup-planning.spec.js tests/recurring-cost-decisions.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "test:quality": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/v121-accessibility.spec.js quality-tests/v122-accessibility.spec.js quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js",
-    "test:a11y": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/v121-accessibility.spec.js quality-tests/v122-accessibility.spec.js quality-tests/tab-semantics.spec.js",
+    "test:quality": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/v121-accessibility.spec.js quality-tests/v122-accessibility.spec.js quality-tests/v123-accessibility.spec.js quality-tests/tab-semantics.spec.js quality-tests/visual-contracts.spec.js",
+    "test:a11y": "playwright test --config=playwright.quality.config.js quality-tests/accessibility.spec.js quality-tests/v120-accessibility.spec.js quality-tests/v121-accessibility.spec.js quality-tests/v122-accessibility.spec.js quality-tests/v123-accessibility.spec.js quality-tests/tab-semantics.spec.js",
     "test:visual": "playwright test --config=playwright.quality.config.js quality-tests/visual-contracts.spec.js",
     "report": "playwright show-report",
     "privacy:history": "node scripts/privacy-history-scan.mjs"
