@@ -2,10 +2,30 @@
   display: grid;
   gap: 1rem;
   margin-bottom: 1rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.recurring-decision-workspace > *,
+.recurring-decision-workspace .section-title-row,
+.recurring-decision-filters,
+.recurring-decision-filter-grid,
+.recurring-candidate-detail,
+.recurring-evidence-grid,
+.recurring-decision-form,
+.recurring-decision-form-grid,
+.v123-recurring-plan-section,
+.v123-recurring-report-section,
+.recurring-plan-action-list,
+.recurring-plan-action {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .recurring-decision-summary {
   grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-width: 0;
 }
 
 .recurring-decision-kpi {
@@ -33,6 +53,7 @@
   display: grid;
   gap: .35rem;
   min-width: 0;
+  max-width: 100%;
   font-weight: 650;
 }
 
@@ -45,9 +66,12 @@
 .recurring-decision-control textarea {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
 }
 
 .recurring-candidate-picker {
+  width: 100%;
+  min-width: 0;
   max-width: 52rem;
 }
 
@@ -62,9 +86,12 @@
 }
 
 .recurring-evidence-table-wrap {
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
   overflow: auto;
   overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .recurring-evidence-table {
@@ -78,6 +105,7 @@
 .recurring-evidence-card,
 .recurring-decision-form {
   min-width: 0;
+  max-width: 100%;
 }
 
 .recurring-evidence-card ul,
@@ -96,6 +124,7 @@
 }
 
 .recurring-decision-notes {
+  width: 100%;
   max-width: 64rem;
 }
 
@@ -136,7 +165,7 @@
 @media (max-width: 760px) {
   .recurring-decision-filter-grid,
   .recurring-evidence-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -149,7 +178,7 @@
 
   .recurring-decision-summary,
   .recurring-decision-form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .recurring-decision-filters > .btn,
