@@ -1,124 +1,68 @@
 # Gringotts Budget Vault Roadmap
 
-This roadmap separates delivered work from the forward planning horizon. **v123 is the strongest next commitment.** v124–v128 are directional and may move when real household use, testing, or safety findings reveal a better order.
+This roadmap separates delivered work from the forward planning horizon. **v124 is the strongest next commitment.** v125–v129 are directional and may move when real household use, testing, or safety findings reveal a better order.
 
 ## Current release
-
-### v122 — Account Cleanup & Merge Planning
-
-**Purpose**
-
-Help households understand duplicate or inconsistent account labels and make explicit cleanup decisions without silently combining transaction histories.
-
-**Delivered capabilities**
-
-- Inventory masked account labels, transaction counts, pending counts, owner counts, and retained date ranges.
-- Count references across rules, recurring items, budgets, bills and paydays, goals, planning metadata, and other browser-local metadata.
-- Detect label drift, spelling differences, possible renames, and possible duplicates with explainable evidence and confidence.
-- Explain matching masked final-four values, shared meaningful words, inferred type, text similarity, and overlapping or sequential date ranges.
-- Review one candidate at a time with compact native controls.
-- Save an explicit Keep Separate, Rename, Merge Plan, or Investigate decision for every current candidate.
-- Store bounded metadata under `gringottsAccountCleanupPlan.v1`, capped at 120 decisions.
-- Reset stale decisions when the account-inventory signature changes instead of silently applying them to a different inventory.
-- Read back every plan write and restore the prior raw metadata value after failure.
-- Download a separate populated pre-cleanup vault backup.
-- Download a sanitized cleanup-plan package with masked labels, counts, evidence, and decisions.
-- Expand the Vault Workbook from 35 to 37 sheets with Account Inventory and Account Cleanup Plan.
-- Preserve v121 receipt integrity, batch lineage, profiles, dry runs, guarded import, and separate Full Vault Restore.
-
-**Dependencies**
-
-- v121 receipt integrity and destination continuity evidence.
-- Stable account-label behavior from the current transaction and reporting models.
-- Synthetic multi-account fixtures covering overlap, renames, spelling drift, and genuinely distinct accounts.
-
-**Safety boundaries**
-
-- No automatic account rename, merge, deletion, or transaction rewrite.
-- Similarity evidence never authorizes a write.
-- Overlapping date ranges remain an explicit caution that two similar labels may represent distinct accounts.
-- The decision store excludes transaction rows, balances, merchants, raw labels, and full account identifiers.
-- Rules, budgets, goals, recurring decisions, and planning metadata are never silently rewritten.
-- Any future cleanup execution requires a separate populated-backup, preview, acknowledgement, confirmation, read-back verification, and rollback workflow.
-
-**Expected household outcome**
-
-The household gains a clear account inventory and complete decision plan while all transaction history remains unchanged.
-
-## Previously shipped foundation
-
-### v121 — Receipt Integrity & Import Batch Reconciliation
-
-- Replaced the passive receipt list with a filterable import-batch timeline.
-- Derived per-destination sequence and before/after-count continuity.
-- Added earliest-retained, continuous, legacy-count, untracked-increase, and count-decrease lineage states.
-- Added duplicate receipt identity failures and repeated-source information.
-- Added an optional verified metadata-only link from explicit Prepare Dry Run to the resulting receipt.
-- Stored bounded links under `gringottsImportBatchIndex.v1` with read-back verification and prior-value restoration.
-- Added sanitized timeline downloads and Receipt Integrity / Batch Lineage workbook sheets.
-- Preserved the v115 guarded writer, separate restore task, six primary destinations, one runtime, and stable v105 rescue.
-
-### v120 — Import Receipt Audit & Rollback Guidance
-
-- Added read-only receipt arithmetic and verification reconciliation.
-- Identified expected pre-import backup patterns.
-- Added privacy-safe receipt audit downloads and manual rollback guidance.
-- Kept Full Vault Restore separate and explicitly confirmed.
-
-### v119 — Profile Versioning & Dry-Run Diagnostics
-
-- Added field-by-field revision review before profile Update or bundle Replace.
-- Added bounded redacted revision history.
-- Added explicit metadata-only dry-run diagnostics without transaction writes.
-
-### v118 — Profile Portability & Institution Patterns
-
-- Added sanitized portable profile definitions.
-- Required explicit Add, Replace, or Skip for every imported definition.
-- Added synthetic institution-pattern coverage.
-
-### v117 — Import Profiles & Field Validation
-
-- Added exact-compatible browser-local mapping profiles.
-- Added field explanations, safe profile application, and bounded metadata storage.
-
-### v116 and earlier
-
-- Separated transaction import from full-vault restore.
-- Established six primary destinations, report preview architecture, local-only workflows, insights, planning, close history, forecast, goals, debt, recurring review, and stable rescue behavior.
-
-## Forward horizon
 
 ### v123 — Recurring Cost Decisions & Subscription Review
 
 **Purpose**
 
-Turn recurring-charge detection into an explainable household decision workflow instead of a passive list.
+Turn recurring-charge detection into an explainable household decision and follow-up workflow instead of a passive list.
 
-**Planned capabilities**
+**Delivered capabilities**
 
-- Group recurring merchants by cadence, amount stability, account, and recent price changes.
+- Group posted recurring expenses by normalized merchant and account.
+- Exclude pending charges, income and transfer-like rows, and unsupported one-time purchases.
+- Explain occurrence count, month coverage, cadence, typical day gap, amount stability, and latest price changes.
+- Show masked account, detected owner, first and latest dates, and simple cadence-based annual footprint.
 - Track Keep, Cancel, Renegotiate, Investigate, and Completed decisions.
-- Estimate annualized impact while clearly labeling assumptions and incomplete evidence.
-- Assign owner, target date, status, notes, and follow-up.
-- Feed selected actions into Guided Plan, reports, and family meeting preparation.
+- Assign household owner, target date, Not Started / Planned / Waiting / Done status, and notes.
+- Preserve dormant decisions without applying them to another merchant or account.
+- Feed open Cancel, Renegotiate, and Investigate decisions into Guided Plan, report pages, Family Meeting preparation, and Markdown downloads.
+- Store bounded read-back-verified metadata under `gringottsRecurringDecisions.v1`.
+- Expand the Vault Workbook from 37 to 39 sheets with Recurring Decisions and Recurring Decision History.
+- Preserve account cleanup, receipt lineage, guarded import, separate restore, and six primary destinations.
 
 **Dependencies**
 
-- Existing recurring and amount-change detection.
-- Guided Plan state and reporting.
-- Account inventory and label decisions from v122.
+- Existing recurring and amount-change evidence.
+- Guided Plan and reporting foundations.
+- Account masking and cleanup-planning boundaries from v122.
 
 **Safety boundaries**
 
-- No merchant cancellation, payment change, email, or external account connection.
-- Savings estimates remain assumptions, not guarantees.
-- Pending and one-time charges are not promoted as subscriptions without evidence.
-- Decision history remains separate from transaction rows.
+- No merchant cancellation, payment change, email, phone call, or external account connection.
+- Pending transactions and unsupported one-time charges remain outside the decision queue.
+- Annual figures are discussion estimates rather than guaranteed savings or forecasts.
+- Decision metadata remains separate from transaction rows and restores the prior raw value after write failure.
 
 **Expected household outcome**
 
-The household receives a manageable recurring-cost queue with owners, estimated impact, and visible follow-through.
+The household gains an owned recurring-cost queue with visible evidence, estimated footprint, and practical follow-through while all merchant and payment actions remain outside Gringotts.
+
+## Previously shipped foundation
+
+### v122 — Account Cleanup & Merge Planning
+
+- Added masked account inventory and downstream reference counts.
+- Surfaced explainable label drift, spelling drift, possible rename, and possible duplicate candidates.
+- Added explicit Keep Separate, Rename Plan, Merge Plan, and Investigate decisions.
+- Stored bounded metadata without renaming accounts or rewriting transactions.
+- Added separate backup and sanitized cleanup-plan downloads.
+- Added Account Inventory and Account Cleanup Plan workbook sheets.
+
+### v121 — Receipt Integrity & Import Batch Reconciliation
+
+- Added receipt sequence, continuity, repeated-source, and optional verified dry-run lineage.
+- Added sanitized timeline downloads and Receipt Integrity / Batch Lineage workbook sheets.
+- Preserved the v115 guarded writer and separate restore task.
+
+### v120 and earlier
+
+- Added receipt audit and rollback guidance, profile versioning, dry-run diagnostics, profile portability, explicit mapping, guarded import and restore, reports, insights, planning, close history, forecast, goals, debt, and stable rescue behavior.
+
+## Forward horizon
 
 ### v124 — Household Scenario Comparison
 
@@ -167,9 +111,9 @@ Use immutable month-close history to explain how the household plan changed and 
 
 **Dependencies**
 
-- Immutable close revisions from v110.
-- Insight evidence rules from v113.
-- Scenario and recurring-decision context from v123–v124.
+- Immutable close revisions.
+- Insight evidence rules.
+- Scenario and recurring-decision context.
 
 **Safety boundaries**
 
@@ -217,7 +161,7 @@ The tool remains recoverable and maintainable as browser-local data evolves with
 
 **Purpose**
 
-Turn existing reports, closes, decisions, goals, and audit evidence into a repeatable household review rhythm without background automation.
+Turn reports, closes, decisions, goals, and audit evidence into a repeatable household review rhythm without background automation.
 
 **Planned capabilities**
 
@@ -225,7 +169,7 @@ Turn existing reports, closes, decisions, goals, and audit evidence into a repea
 - Track which household questions were reviewed, deferred, or assigned.
 - Assemble local governance packs containing selected reports, decisions, assumptions, and follow-ups.
 - Show stale decisions, overdue review items, and unresolved evidence gaps.
-- Keep review-cadence settings separate from transactions and financial calculations.
+- Keep review-cadence settings separate from transactions and calculations.
 
 **Dependencies**
 
@@ -255,7 +199,7 @@ Provide a periodic local review of stale metadata, orphaned decisions, backup re
 
 - Inventory stale or orphaned planning metadata across account, recurring, scenario, close, and governance stores.
 - Explain which records still connect to current transactions and which require household review.
-- Assess backup recency and export coverage using explicit local evidence rather than background scanning.
+- Assess backup recency and export coverage using explicit local evidence.
 - Generate a stewardship checklist for retain, archive, migrate, or investigate decisions.
 - Add privacy-safe maintenance summaries to the workbook and governance pack.
 
@@ -263,15 +207,46 @@ Provide a periodic local review of stale metadata, orphaned decisions, backup re
 
 - Versioned metadata portability from v126.
 - Review cadence and governance packs from v127.
-- Stable orphan-detection rules across v122–v127 metadata stores.
+- Stable orphan-detection rules across planning stores.
 
 **Safety boundaries**
 
 - No automatic deletion, compaction, archive, or migration.
-- Backup age is reported only from explicit local evidence and never inferred from remote storage.
+- Backup age is reported only from explicit local evidence.
 - Orphan labels are review prompts, not proof that data is unnecessary.
 - Any cleanup write requires a separate backup-first confirmed workflow.
 
 **Expected household outcome**
 
 The household can maintain a trustworthy local vault over time with visible ownership of every retention or cleanup decision.
+
+### v129 — Decision Outcome Review & Forecast Calibration
+
+**Purpose**
+
+Compare completed household decisions with later posted evidence so assumptions and forecasts can be improved without claiming causation.
+
+**Planned capabilities**
+
+- Review whether completed recurring, scenario, debt, goal, and close decisions are reflected in later posted data.
+- Compare estimated and observed changes with clearly labeled timing and attribution limits.
+- Capture household explanations for partial, delayed, or unrelated outcomes.
+- Suggest forecast-assumption updates for explicit review rather than applying them automatically.
+- Add outcome-review summaries to governance packs and family meeting preparation.
+
+**Dependencies**
+
+- Completed recurring decisions from v123.
+- Scenario assumptions from v124.
+- Close and governance history from v125–v128.
+
+**Safety boundaries**
+
+- Observed changes are not automatically attributed to a prior decision.
+- No forecast, transaction, budget, goal, debt, or decision record is silently rewritten.
+- Sparse or delayed evidence produces an inconclusive result rather than a success or failure claim.
+- Any calibration change requires explicit preview and confirmation.
+
+**Expected household outcome**
+
+The household can learn from completed decisions and improve future assumptions without turning correlation into a financial claim.

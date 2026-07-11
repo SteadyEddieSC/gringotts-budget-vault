@@ -11,25 +11,14 @@ function summarizeViolations(violations) {
     impact: violation.impact,
     help: violation.help,
     helpUrl: violation.helpUrl,
-    nodes: violation.nodes.map((node) => ({
-      target: node.target,
-      failureSummary: node.failureSummary,
-      html: node.html
-    }))
+    nodes: violation.nodes.map((node) => ({ target: node.target, failureSummary: node.failureSummary, html: node.html }))
   }));
 }
 
 async function scanSurface(page, testInfo, name) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   await testInfo.attach(`${safeArtifactName(`${testInfo.project.name}-${name}`)}-axe.json`, {
-    body: Buffer.from(JSON.stringify({
-      surface: name,
-      project: testInfo.project.name,
-      url: page.url(),
-      timestamp: new Date().toISOString(),
-      violations: summarizeViolations(results.violations),
-      incomplete: summarizeViolations(results.incomplete)
-    }, null, 2)),
+    body: Buffer.from(JSON.stringify({ surface: name, project: testInfo.project.name, url: page.url(), timestamp: new Date().toISOString(), violations: summarizeViolations(results.violations), incomplete: summarizeViolations(results.incomplete) }, null, 2)),
     contentType: 'application/json'
   });
   const blocking = results.violations.filter((violation) => BLOCKING_IMPACTS.has(violation.impact));
@@ -60,7 +49,7 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'The preserved v120 audit surface runs once in the desktop quality project.');
 }
 
-test('axe scans v120 receipt arithmetic and rollback guidance within v122', async ({ page }, testInfo) => {
+test('axe scans v120 receipt arithmetic and rollback guidance within v123', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
@@ -79,8 +68,8 @@ test('axe scans the advanced multi-release roadmap from a fresh render', async (
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v122 — Account Cleanup/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v128 — Household Data Quality/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
 });

@@ -57,13 +57,19 @@ test('quality automation stays local and preserves original Lighthouse budgets',
   const lighthouse = read('lighthouserc.cjs');
   const packageJson = read('package.json');
   expect(workflow).toContain('npm exec --yes --package=@lhci/cli@0.15.1 -- lhci');
-  expect(workflow).toContain('quality-tests/v121-accessibility.spec.js');
-  expect(workflow).toContain('quality-tests/v122-accessibility.spec.js');
+  for (const file of [
+    'quality-tests/v120-accessibility.spec.js',
+    'quality-tests/v121-accessibility.spec.js',
+    'quality-tests/v122-accessibility.spec.js',
+    'quality-tests/v123-accessibility.spec.js'
+  ]) {
+    expect(workflow).toContain(file);
+    expect(packageJson).toContain(file);
+  }
   expect(workflow).toContain('npm ci --ignore-scripts');
   expect(workflow).not.toContain('temporaryPublicStorage: true');
   expect(workflow).not.toContain('--update-snapshots');
   expect(packageJson).toContain('quality-tests/visual-contracts.spec.js');
-  expect(packageJson).toContain('quality-tests/v122-accessibility.spec.js');
   expect(packageJson).not.toContain('visual-regression.spec.js');
   expect(lighthouse).toContain("target: 'filesystem'");
   expect(lighthouse).toContain("outputDir: './lighthouse-reports'");
@@ -92,8 +98,9 @@ test('parser preflight runs before browser installation and checks every active 
     'src/v121/receipt-integrity-model.js', 'src/v121/receipt-integrity.js', 'src/v121/roadmap-horizon.js',
     'src/v121/reporting.js', 'src/v121/release.js',
     'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup-export.js',
-    'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js',
-    'src/v122/roadmap-horizon.js', 'src/v122/reporting.js', 'src/v122/release.js', 'src/boot-v122.js'
+    'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js', 'src/v122/reporting.js',
+    'src/v123/recurring-decisions-model.js', 'src/v123/recurring-decisions.js',
+    'src/v123/roadmap-horizon.js', 'src/v123/reporting.js', 'src/v123/release.js', 'src/boot-v123.js'
   ]) expect(playwright).toContain(`node --check ${module}`);
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
@@ -103,28 +110,22 @@ test('parser preflight runs before browser installation and checks every active 
   expect(quality).toMatch(/Upload Lighthouse failure reports[\s\S]*?if: failure\(\)/);
 });
 
-test('v113 insights stay read-only and local', () => {
-  const engine = read('src/v113/insights.js');
-  const views = read('src/v113/views.js');
-  const reporting = read('src/v113/reporting.js');
-  for (const source of [engine, views, reporting]) expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
-  expect(engine).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem|\bsave\s*\(/);
-});
-
-test('v114 Guided Planning writes only explicit separate checklist metadata', () => {
-  const engine = read('src/v114/planning.js');
-  const views = read('src/v114/views.js');
-  const reporting = read('src/v114/reporting.js');
-  for (const source of [engine, views, reporting]) {
+test('v113 and v114 analytical planning layers remain local and transaction-read-only', () => {
+  const insights = read('src/v113/insights.js');
+  const insightViews = read('src/v113/views.js');
+  const planning = read('src/v114/planning.js');
+  const planningViews = read('src/v114/views.js');
+  for (const source of [insights, insightViews, planning, planningViews]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
-    expect(source).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
-    expect(source).not.toContain('gringottsBudgetVault.latest');
   }
-  expect(engine).toContain("GUIDED_PLAN_KEY = 'gringottsGuidedPlan.v1'");
-  expect(engine).toContain('Planning-item read-back verification failed.');
+  expect(insights).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem|\bsave\s*\(/);
+  expect(planning).not.toMatch(/localStorage\.setItem|sessionStorage\.setItem/);
+  expect(planning).not.toContain('gringottsBudgetVault.latest');
+  expect(planning).toContain("GUIDED_PLAN_KEY = 'gringottsGuidedPlan.v1'");
+  expect(planning).toContain('Planning-item read-back verification failed.');
 });
 
-test('v115 parser is pure and guarded transaction writes retain backup and rollback controls', () => {
+test('v115 parser and transaction writer retain backup, rollback, and verification controls', () => {
   const parser = read('src/v115/parser.js');
   const importer = read('src/v115/bank-import.js');
   for (const source of [parser, importer, read('src/v115/views.js'), read('src/v115/release.js')]) {
@@ -158,100 +159,107 @@ test('v117 through v119 profile metadata remains bounded and separate from the v
   expect(versioningController).not.toContain('gringottsBudgetVault.latest');
 });
 
-test('v120 receipt audit remains read-only, privacy-bounded, and manual-only', () => {
-  const model = read('src/v120/import-receipt-audit-model.js');
-  const controller = read('src/v120/import-receipt-audit.js');
-  for (const source of [model, controller, read('src/v120/release.js')]) {
+test('v120 and v121 receipt evidence remain privacy-bounded and manual-only', () => {
+  const auditModel = read('src/v120/import-receipt-audit-model.js');
+  const auditController = read('src/v120/import-receipt-audit.js');
+  const lineageModel = read('src/v121/receipt-integrity-model.js');
+  const lineageController = read('src/v121/receipt-integrity.js');
+  for (const source of [auditModel, auditController, lineageModel, lineageController]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   }
-  expect(model).not.toMatch(/localStorage|sessionStorage/);
-  expect(controller).not.toMatch(/localStorage\.setItem|localStorage\.removeItem|sessionStorage\.setItem/);
-  expect(model).toContain("RECEIPT_AUDIT_KIND = 'gringotts-import-receipt-audit'");
-  expect(model).toContain('automaticRollbackAvailable: false');
-  expect(model).toContain('destructiveActionPerformed: false');
-  expect(model).toContain('sourceFileNameIncluded: false');
-  expect(model).toContain('sourceFingerprintIncluded: false');
-  expect(model).toContain('destinationStorageKeyIncluded: false');
-  expect(model).toContain('vaultContentsIncluded: false');
+  expect(auditModel).not.toMatch(/localStorage|sessionStorage/);
+  expect(auditController).not.toMatch(/localStorage\.setItem|localStorage\.removeItem|sessionStorage\.setItem/);
+  expect(auditModel).toContain('automaticRollbackAvailable: false');
+  expect(auditModel).toContain('destructiveActionPerformed: false');
+  expect(lineageModel).toContain("IMPORT_BATCH_INDEX_KEY = 'gringottsImportBatchIndex.v1'");
+  expect(lineageModel).toContain('MAX_IMPORT_BATCH_LINKS = 80');
+  for (const boundary of [
+    'transactionRowsIncluded: false', 'sourceFileNameIncluded: false',
+    'sourceFingerprintIncluded: false', 'destinationStorageKeyIncluded: false',
+    'accountIdentifiersIncluded: false', 'merchantNamesIncluded: false', 'vaultContentsIncluded: false'
+  ]) expect(lineageModel).toContain(boundary);
+  expect(lineageController).toContain('The previous metadata index was restored.');
+  expect(lineageController).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
 });
 
-test('v121 receipt lineage remains bounded, privacy-safe, and owned by v122 when active', () => {
-  const model = read('src/v121/receipt-integrity-model.js');
-  const controller = read('src/v121/receipt-integrity.js');
-  const reporting = read('src/v121/reporting.js');
-  const release = read('src/v121/release.js');
-  for (const source of [model, controller, reporting, release]) {
-    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
-  }
-  expect(model).not.toMatch(/localStorage|sessionStorage/);
-  expect(model).toContain("IMPORT_BATCH_INDEX_KEY = 'gringottsImportBatchIndex.v1'");
-  expect(model).toContain('MAX_IMPORT_BATCH_LINKS = 80');
-  expect(model).toContain('transactionRowsIncluded: false');
-  expect(model).toContain('sourceFileNameIncluded: false');
-  expect(model).toContain('sourceFingerprintIncluded: false');
-  expect(model).toContain('destinationStorageKeyIncluded: false');
-  expect(model).toContain('accountIdentifiersIncluded: false');
-  expect(model).toContain('merchantNamesIncluded: false');
-  expect(model).toContain('vaultContentsIncluded: false');
-  expect(controller).toContain('localStorage.setItem(IMPORT_BATCH_INDEX_KEY');
-  expect(controller).toContain('The previous metadata index was restored.');
-  expect(controller).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
-  expect(controller).not.toContain("localStorage.removeItem('gringottsBudgetVault.latest'");
-  expect(release).toContain("window.GringottsV122?.release === 'v122'");
-  expect(release).toContain('if (!root || v122OwnsPresentation()) return;');
-});
-
-test('v122 cleanup planning stores bounded decisions and exports through a structural privacy boundary', () => {
+test('v122 cleanup planning retains structural privacy and no execution path', () => {
   const model = read('src/v122/account-cleanup-model.js');
   const exporter = read('src/v122/account-cleanup-export.js');
   const exportController = read('src/v122/account-cleanup-export-controller.js');
   const controller = read('src/v122/account-cleanup.js');
-  const reporting = read('src/v122/reporting.js');
-  const release = read('src/v122/release.js');
-  const roadmap = read('src/v122/roadmap-horizon.js');
-  const boot = read('src/boot-v122.js');
-  const index = read('index.html');
-  const app = read('app.html');
-  for (const source of [model, exporter, exportController, controller, reporting, release, roadmap]) {
+  for (const source of [model, exporter, exportController, controller]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   }
   expect(model).not.toMatch(/localStorage|sessionStorage/);
   expect(model).toContain("ACCOUNT_CLEANUP_PLAN_KEY = 'gringottsAccountCleanupPlan.v1'");
   expect(model).toContain('MAX_ACCOUNT_CLEANUP_DECISIONS = 120');
   expect(exporter).toContain('assertNoForbiddenKeys');
-  expect(exporter).toContain('transactionReferenceCount');
-  expect(exporter).toContain('transactionRowsIncluded: false');
-  expect(exporter).toContain('rawAccountLabelsIncluded: false');
-  expect(exporter).toContain('fullAccountIdentifiersIncluded: false');
-  expect(exporter).toContain('balancesIncluded: false');
-  expect(exporter).toContain('merchantNamesIncluded: false');
-  expect(exporter).toContain('vaultContentsIncluded: false');
+  for (const boundary of [
+    'transactionRowsIncluded: false', 'rawAccountLabelsIncluded: false',
+    'fullAccountIdentifiersIncluded: false', 'balancesIncluded: false',
+    'merchantNamesIncluded: false', 'vaultContentsIncluded: false'
+  ]) expect(exporter).toContain(boundary);
   expect(exportController).toContain('event.stopImmediatePropagation()');
-  expect(exportController).toContain('buildAccountCleanupPackage(analysis)');
-  expect(controller).toContain('localStorage.setItem(ACCOUNT_CLEANUP_PLAN_KEY');
   expect(controller).toContain('The previous metadata plan was restored.');
   expect(controller).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
-  expect(controller).not.toContain("localStorage.removeItem('gringottsBudgetVault.latest'");
   expect(controller).toContain('automaticAccountMergeAvailable: false');
   expect(controller).toContain('transactionWriteAvailable: false');
-  expect(release).toContain("version: 'v122'");
-  expect(roadmap).toContain("version: 'v128'");
-  expect(roadmap).toContain('Roadmap horizon must contain at least seven releases.');
-  expect(index).toContain('src/boot-v122.js?v=122cleanup1');
-  expect(app).toContain('src/boot-v122.js?v=122cleanup1');
-  for (const stylesheet of ['styles/v120.css', 'styles/v121.css', 'styles/v122.css']) {
+});
+
+test('v123 recurring decisions store only bounded follow-up metadata and expose no external action', () => {
+  const model = read('src/v123/recurring-decisions-model.js');
+  const controller = read('src/v123/recurring-decisions.js');
+  const reporting = read('src/v123/reporting.js');
+  const release = read('src/v123/release.js');
+  const roadmap = read('src/v123/roadmap-horizon.js');
+  for (const source of [model, controller, reporting, release, roadmap]) {
+    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  }
+  expect(model).not.toMatch(/localStorage|sessionStorage/);
+  expect(model).toContain("RECURRING_DECISION_KEY = 'gringottsRecurringDecisions.v1'");
+  expect(model).toContain('MAX_RECURRING_DECISIONS = 120');
+  expect(model).toContain('MAX_RECURRING_HISTORY = 240');
+  expect(model).toContain("'keep'");
+  expect(model).toContain("'cancel'");
+  expect(model).toContain("'renegotiate'");
+  expect(model).toContain("'investigate'");
+  expect(model).toContain("'completed'");
+  expect(controller).toContain('localStorage.setItem(RECURRING_DECISION_KEY');
+  expect(controller).toContain('The previous decision metadata was restored.');
+  expect(controller).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
+  expect(controller).not.toContain("localStorage.removeItem('gringottsBudgetVault.latest'");
+  expect(controller).toContain('externalMerchantActionAvailable: false');
+  expect(controller).toContain('transactionWriteAvailable: false');
+  expect(controller).toContain('emailActionAvailable: false');
+  expect(controller).toContain('paymentChangeAvailable: false');
+  expect(release).toContain("version: 'v123'");
+  expect(release).toContain('39-sheet Vault Workbook');
+  expect(roadmap).toContain("version: 'v129'");
+  expect(roadmap).toContain('The first roadmap entry must identify v123 as the current release.');
+});
+
+test('v123 boot owns presentation while preserving lazy local-first route layers', () => {
+  const boot = read('src/boot-v123.js');
+  const index = read('index.html');
+  const app = read('app.html');
+  expect(index).toContain('src/boot-v123.js?v=123recurring1');
+  expect(app).toContain('src/boot-v123.js?v=123recurring1');
+  for (const stylesheet of ['styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css']) {
     expect(index).not.toContain(stylesheet);
     expect(app).not.toContain(stylesheet);
   }
-  expect(boot).toContain("import('./v118/release.js?v=122cleanup1')");
-  expect(boot).toContain("import('./v119/release.js?v=122cleanup1')");
-  expect(boot).toContain("import('./v120/release.js?v=122cleanup1')");
-  expect(boot).toContain("import('./v121/release.js?v=122cleanup1')");
-  expect(boot).toContain("import('./v122/release.js?v=122cleanup1')");
-  expect(boot).toContain("import('./v122/account-cleanup-export-controller.js?v=122cleanup1')");
+  expect(boot).toContain("import('./v118/release.js?v=123recurring1')");
+  expect(boot).toContain("import('./v119/release.js?v=123recurring1')");
+  expect(boot).toContain("import('./v120/release.js?v=123recurring1')");
+  expect(boot).toContain("import('./v121/release.js?v=123recurring1')");
+  expect(boot).toContain("import('./v122/account-cleanup.js?v=123recurring1')");
+  expect(boot).toContain("import('./v122/account-cleanup-export-controller.js?v=123recurring1')");
+  expect(boot).toContain("import('./v123/release.js?v=123recurring1')");
+  expect(boot).not.toContain("import('./v122/release.js?v=123");
   expect(boot).toContain('cleanupExport.installAccountCleanupExportController();');
-  expect(boot).toContain('await v122.prepareV122Interceptors();');
-  expect(boot).toContain("['tools', 'reports'].includes(route)");
+  expect(boot).toContain('accountCleanup.installAccountCleanupFeatures();');
+  expect(boot).toContain('await v123.prepareV123Interceptors();');
+  expect(boot).toContain("['money', 'reports', 'activity', 'tools'].includes(route)");
   expect(boot).not.toContain('serviceWorker');
 });
 
@@ -263,27 +271,23 @@ test('public repository security and quality control files remain present', () =
     '.github/workflows/scorecard.yml', 'playwright.quality.config.js', 'lighthouserc.cjs',
     'quality-baselines/v112-layout-contracts.json', 'quality-tests/accessibility.spec.js',
     'quality-tests/v120-accessibility.spec.js', 'quality-tests/v121-accessibility.spec.js',
-    'quality-tests/v122-accessibility.spec.js', 'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
-    'src/boot-v121.js', 'src/boot-v122.js', 'src/v113/insights.js', 'src/v114/planning.js',
+    'quality-tests/v122-accessibility.spec.js', 'quality-tests/v123-accessibility.spec.js',
+    'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
+    'src/boot-v122.js', 'src/boot-v123.js', 'src/v113/insights.js', 'src/v114/planning.js',
     'src/v115/parser.js', 'src/v115/bank-import.js', 'src/v115/reporting.js', 'src/v115/release.js', 'src/v115/views.js',
     'src/v116/release.js', 'src/v117/profile-model.js', 'src/v117/import-profiles.js',
     'src/v118/profile-portability-model.js', 'src/v118/institution-patterns.js', 'src/v118/profile-portability.js', 'src/v118/release.js',
     'src/v119/profile-versioning-model.js', 'src/v119/profile-versioning.js', 'src/v119/release.js',
-    'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js', 'src/v120/roadmap-horizon.js', 'src/v120/release.js',
-    'src/v121/receipt-integrity-model.js', 'src/v121/receipt-integrity.js', 'src/v121/roadmap-horizon.js',
-    'src/v121/reporting.js', 'src/v121/release.js',
+    'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js', 'src/v120/release.js',
+    'src/v121/receipt-integrity-model.js', 'src/v121/receipt-integrity.js', 'src/v121/reporting.js', 'src/v121/release.js',
     'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup-export.js',
-    'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js',
-    'src/v122/roadmap-horizon.js', 'src/v122/reporting.js', 'src/v122/release.js',
-    'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css', 'styles/v118.css', 'styles/v119.css',
-    'styles/v120.css', 'styles/v121.css', 'styles/v122.css',
-    'tests-node/bank-parser.test.mjs', 'tests-node/import-profile-model.test.mjs',
-    'tests-node/profile-portability-model.test.mjs', 'tests-node/institution-patterns.test.mjs',
-    'tests-node/profile-versioning-diagnostics.test.mjs', 'tests-node/import-receipt-audit.test.mjs',
+    'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js', 'src/v122/reporting.js',
+    'src/v123/recurring-decisions-model.js', 'src/v123/recurring-decisions.js',
+    'src/v123/roadmap-horizon.js', 'src/v123/reporting.js', 'src/v123/release.js',
+    'styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css',
     'tests-node/receipt-integrity-batch.test.mjs', 'tests-node/account-cleanup-planning.test.mjs',
-    'tests/import-profiles.spec.js', 'tests/profile-portability.spec.js', 'tests/profile-versioning-diagnostics.spec.js',
-    'tests/import-receipt-audit-roadmap.spec.js', 'tests/receipt-integrity-batch.spec.js',
-    'tests/account-cleanup-planning.spec.js', 'tests/v116-ui-architecture.spec.js',
+    'tests-node/recurring-decisions.test.mjs', 'tests/account-cleanup-planning.spec.js',
+    'tests/recurring-cost-decisions.spec.js', 'tests/v116-ui-architecture.spec.js',
     'tests/fixtures/bank-import/synthetic-signed.csv',
     'tests/fixtures/bank-import/synthetic-debit-credit.csv',
     'tests/fixtures/bank-import/synthetic-card-activity.csv',

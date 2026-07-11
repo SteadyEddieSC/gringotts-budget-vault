@@ -28,7 +28,6 @@ test('explains merchant, category, first-seen, and recurring-cost signals', asyn
   const { page } = app;
   await addInsightFixtureRows(page);
   await openInsights(page);
-
   await expect(page.getByText(/Synthetic Home Repair is above its prior typical amount/i)).toBeVisible();
   await expect(page.getByText(/Home Repair spending increased/i)).toBeVisible();
   await expect(page.getByText(/Synthetic Appliance Store is a large first-seen merchant/i)).toBeVisible();
@@ -37,7 +36,6 @@ test('explains merchant, category, first-seen, and recurring-cost signals', asyn
   await expect(streamFlixRow.getByText(/Latest charge is 2\.00 above the prior charge/i)).toBeVisible();
   await expect(page.getByText(/median of earlier normalized-merchant charges/i).first()).toBeVisible();
   await expect(page.getByText(/immediately preceding period of equal length/i).first()).toBeVisible();
-
   const repairCard = page.locator('.insight-card').filter({ hasText: 'Synthetic Home Repair is above its prior typical amount' });
   await repairCard.getByText(/Source transactions/i).click();
   await expect(repairCard.getByRole('cell', { name: 'Synthetic Home Repair', exact: true }).first()).toBeVisible();
@@ -51,43 +49,36 @@ test('excludes pending charges from anomaly comparisons and performs no writes',
   page.on('request', (request) => {
     if (request.method() !== 'GET' && !request.url().startsWith('blob:')) networkWrites.push(`${request.method()} ${request.url()}`);
   });
-
   await openInsights(page);
   await expect(page.getByText(/Pending rows excluded from comparisons: 2/i)).toBeVisible();
   await expect(page.getByText('Pending Giant Purchase')).toHaveCount(0);
-
   const after = await page.evaluate(() => Object.fromEntries(Object.keys(localStorage).sort().map((key) => [key, localStorage.getItem(key)])));
   expect(after).toEqual(before);
   expect(networkWrites).toEqual([]);
 });
 
-test('feeds insights into v122 reports, the 37-sheet workbook, and the meeting pack', async ({ app }, testInfo) => {
+test('feeds insights into v123 reports, the 39-sheet workbook, and the meeting pack', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file insight coverage.');
   const { page } = app;
   await addInsightFixtureRows(page);
   await openPrimary(page, 'Reports');
-
   await page.locator('#reportPreviewPage').selectOption('insights');
   await expect(page.getByRole('heading', { name: 'Household insights', exact: true })).toBeVisible();
   await expect(page.getByText(/Synthetic Home Repair is above its prior typical amount/i).first()).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('meeting');
   await expect(page.getByRole('heading', { name: 'Family meeting brief', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '37-sheet Vault Workbook', exact: true })).toBeVisible();
-  await expect(page.getByText('Household Insights', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Recurring Opportunities', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Receipt Integrity', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Account Inventory', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Account Cleanup Plan', { exact: true }).last()).toBeVisible();
-
+  await expect(page.getByRole('heading', { name: 'Recurring-cost conversation', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '39-sheet Vault Workbook', exact: true })).toBeVisible();
+  for (const sheet of ['Household Insights', 'Recurring Opportunities', 'Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History']) {
+    await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
+  }
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v122_2026-07-01_to_2026-07-31_.*\.xlsx/i);
-
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v123_2026-07-01_to_2026-07-31_.*\.xlsx/i);
   const [meeting] = await Promise.all([page.waitForEvent('download'), page.locator('#meetingMd').click()]);
-  expect(meeting.suggestedFilename()).toMatch(/Gringotts_Family_Meeting_Pack_v122_2026-07-01_to_2026-07-31_.*\.md/i);
+  expect(meeting.suggestedFilename()).toMatch(/Gringotts_Family_Meeting_Pack_v123_2026-07-01_to_2026-07-31_.*\.md/i);
 });
 
 test('keeps the Insights activity surface within every configured viewport', async ({ app }) => {

@@ -39,13 +39,21 @@ test('settles the Reports architecture without a recursive mutation loop', async
   const { page } = app;
   await openPrimary(page, 'Reports');
   await expect(page.locator('#reportPreviewPage')).toBeVisible();
-  await expect(page.getByRole('heading', { name: '37-sheet Vault Workbook', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '39-sheet Vault Workbook', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Family Financial Report', exact: true })).toBeVisible();
   expect(await settledMutationCount(page), 'The Reports page must settle instead of continuously rewriting identical content.').toBe(0);
-
   await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
   expect(await settledMutationCount(page), 'Changing the report preview must settle after the explicit selection.').toBe(0);
+});
+
+test('settles the recurring decision workspace without a recursive mutation loop', async ({ app }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
+  const { page } = app;
+  await openPrimary(page, 'Money');
+  await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
+  expect(await settledMutationCount(page), 'The recurring decision workspace must not repeatedly replace itself.').toBe(0);
 });
 
 test('settles portability, import, restore, profiles, and field validation without a recursive mutation loop', async ({ app }, testInfo) => {
@@ -54,8 +62,8 @@ test('settles portability, import, restore, profiles, and field validation witho
   await openPrimary(page, 'Tools');
   await expect(page.locator('.v116-task-switcher')).toBeVisible();
   await expect(page.locator('#profilePortabilityCard')).toBeVisible();
-  expect(await settledMutationCount(page), 'The initial portability and import enhancement must settle.').toBe(0);
-
+  await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
+  expect(await settledMutationCount(page), 'The initial portability, cleanup, and import enhancement must settle.').toBe(0);
   await page.locator('#profileBundleFile').setInputFiles({
     name: 'observer-profile-bundle.json',
     mimeType: 'application/json',
@@ -63,7 +71,6 @@ test('settles portability, import, restore, profiles, and field validation witho
   });
   await expect(page.locator('#profileBundlePreview')).toBeVisible();
   expect(await settledMutationCount(page), 'The portability conflict preview must settle after insertion.').toBe(0);
-
   await page.locator('#bankImportFile').setInputFiles({
     name: 'observer-profile.csv',
     mimeType: 'text/csv',
@@ -72,7 +79,6 @@ test('settles portability, import, restore, profiles, and field validation witho
   await expect(page.locator('#importProfileCard')).toBeVisible();
   await expect(page.locator('.field-validation')).toHaveCount(11);
   expect(await settledMutationCount(page), 'The profile and validation enhancement must settle after insertion.').toBe(0);
-
   await page.getByRole('button', { name: /Restore full vault/i }).click();
   await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
   expect(await settledMutationCount(page)).toBe(0);

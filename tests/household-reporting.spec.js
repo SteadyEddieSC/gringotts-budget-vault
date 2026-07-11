@@ -29,9 +29,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v122 and navigates the complete household report preview', async ({ app }) => {
+test('boots v123 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v122/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v123/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
@@ -49,7 +49,7 @@ test('boots v122 and navigates the complete household report preview', async ({ 
     const visiblePage = page.locator('.report-preview-deck > .report-page:not([hidden])');
     await expect(visiblePage.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
-  await expect(page.getByText(/37-sheet Vault Workbook/i)).toBeVisible();
+  await expect(page.getByText(/39-sheet Vault Workbook/i)).toBeVisible();
   await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Planning History', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
@@ -57,6 +57,8 @@ test('boots v122 and navigates the complete household report preview', async ({ 
   await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Account Inventory', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Account Cleanup Plan', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Recurring Decisions', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Recurring Decision History', { exact: true }).last()).toBeVisible();
 });
 
 test('saves a custom range and compares equivalent prior-year dates without network writes', async ({ app }, testInfo) => {
@@ -83,6 +85,7 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   await expect(page.getByText(/equivalent prior-year range/i).first()).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
   expect(saved).toMatchObject({ preset: 'custom', start: '2026-05-01', end: '2026-07-31', comparePriorYear: true });
@@ -135,15 +138,15 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
   await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
 });
 
-test('downloads the 37-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
+test('downloads the 39-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v122_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v123_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v122_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v123_2026-07_.*\.md/i);
 
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
@@ -158,6 +161,7 @@ test('uses eight report pages for print and hides screen-only controls', async (
   await expect(page.locator('.report-page')).toHaveCount(8);
   for (let index = 0; index < 8; index += 1) await expect(page.locator('.report-page').nth(index)).toBeVisible();
   await expect(page.locator('.guided-plan-report')).toBeVisible();
+  await expect(page.locator('.v123-recurring-report-section').first()).toBeVisible();
 });
 
 test('keeps reporting inside every configured viewport', async ({ app }) => {
