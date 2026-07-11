@@ -91,8 +91,9 @@ test('parser preflight runs before browser installation and checks every active 
     'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js', 'src/v120/roadmap-horizon.js', 'src/v120/release.js',
     'src/v121/receipt-integrity-model.js', 'src/v121/receipt-integrity.js', 'src/v121/roadmap-horizon.js',
     'src/v121/reporting.js', 'src/v121/release.js',
-    'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup.js', 'src/v122/roadmap-horizon.js',
-    'src/v122/reporting.js', 'src/v122/release.js', 'src/boot-v122.js'
+    'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup-export.js',
+    'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js',
+    'src/v122/roadmap-horizon.js', 'src/v122/reporting.js', 'src/v122/release.js', 'src/boot-v122.js'
   ]) expect(playwright).toContain(`node --check ${module}`);
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
@@ -200,8 +201,10 @@ test('v121 receipt lineage remains bounded, privacy-safe, and owned by v122 when
   expect(release).toContain('if (!root || v122OwnsPresentation()) return;');
 });
 
-test('v122 cleanup planning stores only bounded decisions and cannot modify the vault', () => {
+test('v122 cleanup planning stores bounded decisions and exports through a structural privacy boundary', () => {
   const model = read('src/v122/account-cleanup-model.js');
+  const exporter = read('src/v122/account-cleanup-export.js');
+  const exportController = read('src/v122/account-cleanup-export-controller.js');
   const controller = read('src/v122/account-cleanup.js');
   const reporting = read('src/v122/reporting.js');
   const release = read('src/v122/release.js');
@@ -209,18 +212,22 @@ test('v122 cleanup planning stores only bounded decisions and cannot modify the 
   const boot = read('src/boot-v122.js');
   const index = read('index.html');
   const app = read('app.html');
-  for (const source of [model, controller, reporting, release, roadmap]) {
+  for (const source of [model, exporter, exportController, controller, reporting, release, roadmap]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   }
   expect(model).not.toMatch(/localStorage|sessionStorage/);
   expect(model).toContain("ACCOUNT_CLEANUP_PLAN_KEY = 'gringottsAccountCleanupPlan.v1'");
   expect(model).toContain('MAX_ACCOUNT_CLEANUP_DECISIONS = 120');
-  expect(model).toContain('transactionRowsIncluded: false');
-  expect(model).toContain('rawAccountLabelsIncluded: false');
-  expect(model).toContain('fullAccountIdentifiersIncluded: false');
-  expect(model).toContain('balancesIncluded: false');
-  expect(model).toContain('merchantNamesIncluded: false');
-  expect(model).toContain('vaultContentsIncluded: false');
+  expect(exporter).toContain('assertNoForbiddenKeys');
+  expect(exporter).toContain('transactionReferenceCount');
+  expect(exporter).toContain('transactionRowsIncluded: false');
+  expect(exporter).toContain('rawAccountLabelsIncluded: false');
+  expect(exporter).toContain('fullAccountIdentifiersIncluded: false');
+  expect(exporter).toContain('balancesIncluded: false');
+  expect(exporter).toContain('merchantNamesIncluded: false');
+  expect(exporter).toContain('vaultContentsIncluded: false');
+  expect(exportController).toContain('event.stopImmediatePropagation()');
+  expect(exportController).toContain('buildAccountCleanupPackage(analysis)');
   expect(controller).toContain('localStorage.setItem(ACCOUNT_CLEANUP_PLAN_KEY');
   expect(controller).toContain('The previous metadata plan was restored.');
   expect(controller).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
@@ -241,6 +248,8 @@ test('v122 cleanup planning stores only bounded decisions and cannot modify the 
   expect(boot).toContain("import('./v120/release.js?v=122cleanup1')");
   expect(boot).toContain("import('./v121/release.js?v=122cleanup1')");
   expect(boot).toContain("import('./v122/release.js?v=122cleanup1')");
+  expect(boot).toContain("import('./v122/account-cleanup-export-controller.js?v=122cleanup1')");
+  expect(boot).toContain('cleanupExport.installAccountCleanupExportController();');
   expect(boot).toContain('await v122.prepareV122Interceptors();');
   expect(boot).toContain("['tools', 'reports'].includes(route)");
   expect(boot).not.toContain('serviceWorker');
@@ -263,8 +272,9 @@ test('public repository security and quality control files remain present', () =
     'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js', 'src/v120/roadmap-horizon.js', 'src/v120/release.js',
     'src/v121/receipt-integrity-model.js', 'src/v121/receipt-integrity.js', 'src/v121/roadmap-horizon.js',
     'src/v121/reporting.js', 'src/v121/release.js',
-    'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup.js', 'src/v122/roadmap-horizon.js',
-    'src/v122/reporting.js', 'src/v122/release.js',
+    'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup-export.js',
+    'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js',
+    'src/v122/roadmap-horizon.js', 'src/v122/reporting.js', 'src/v122/release.js',
     'styles/v114.css', 'styles/v115.css', 'styles/v116.css', 'styles/v117.css', 'styles/v118.css', 'styles/v119.css',
     'styles/v120.css', 'styles/v121.css', 'styles/v122.css',
     'tests-node/bank-parser.test.mjs', 'tests-node/import-profile-model.test.mjs',
