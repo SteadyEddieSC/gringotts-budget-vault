@@ -74,7 +74,8 @@ test('filters retained batches and explains continuity and repeated source use',
   await expect(page.locator('.receipt-timeline-table').getByText('Linked · ready', { exact: true })).toBeVisible();
   await page.locator('#clearReceiptTimelineFilters').click();
   await page.locator('[data-v121-filter-query]').fill('SECRET-third.csv');
-  await page.locator('[data-v121-batch-select]').click();
+  await expect(page.locator('.receipt-timeline-table tbody tr')).toHaveCount(1);
+  await page.locator('[data-v121-batch-select]').first().click();
   await expect(page.getByText(/Repeated local source detected: Yes/i)).toBeVisible();
 });
 
