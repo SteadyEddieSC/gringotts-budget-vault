@@ -43,7 +43,7 @@ async function seedCleanupAccounts(page) {
     vault.transactions.push(
       { id: 'quality-cleanup-1', date: '2026-01-05', name: 'Synthetic expense', amount: 20, type: 'Expense', category: 'Household', account: 'Quality Family Checking 1234', owner: 'Adult A', reviewed: true, pending: false },
       { id: 'quality-cleanup-2', date: '2026-02-05', name: 'Synthetic expense', amount: 25, type: 'Expense', category: 'Household', account: 'Quality Family Checking 1234', owner: 'Adult A', reviewed: true, pending: false },
-      { id: 'quality-cleanup-3', date: '2026-03-05', name: 'Synthetic expense', amount: 30, type: 'Expense', category: 'Household', account: 'Quality Family Chking ••••1234', owner: 'Adult A', reviewed: true, pending: false }
+      { id: 'quality-cleanup-3', date: '2026-03-05', name: 'Synthetic expense', amount: 30, type: 'Expense', category: 'Household', account: 'Quality Family Checking ••••1234', owner: 'Adult A', reviewed: true, pending: false }
     );
     localStorage.setItem('gringottsBudgetVault.latest', JSON.stringify(vault));
     const core = await import('/src/v103/core.js');
@@ -52,7 +52,7 @@ async function seedCleanupAccounts(page) {
 }
 
 function desktopOnly(testInfo) {
-  test.skip(testInfo.project.name !== 'quality-desktop', 'Detailed v122 desktop surfaces run once.');
+  test.skip(testInfo.project.name !== 'quality-desktop', 'Detailed inherited account-cleanup surfaces run once.');
 }
 
 test('axe scans account inventory, candidate evidence, and decision controls', async ({ page }, testInfo) => {
@@ -66,18 +66,20 @@ test('axe scans account inventory, candidate evidence, and decision controls', a
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the detailed v122 through v128 roadmap', async ({ page }, testInfo) => {
+test('axe scans the detailed v123 through v129 roadmap', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await scanSurface(page, testInfo, 'Tools — v122 Detailed Roadmap');
+  await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
+  await scanSurface(page, testInfo, 'Tools — v123 Detailed Roadmap');
   await expectNoBrowserErrors(errors);
 });
 
 test('axe scans account planning and roadmap on the phone layout', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific v122 coverage runs in the mobile quality project.');
+  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific inherited account-cleanup coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await seedCleanupAccounts(page);
   await openPrimary(page, 'Tools');
@@ -85,6 +87,6 @@ test('axe scans account planning and roadmap on the phone layout', async ({ page
   await scanSurface(page, testInfo, 'Mobile Tools — Account Cleanup Planning');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await scanSurface(page, testInfo, 'Mobile Tools — v122 Detailed Roadmap');
+  await scanSurface(page, testInfo, 'Mobile Tools — v123 Detailed Roadmap');
   await expectNoBrowserErrors(errors);
 });

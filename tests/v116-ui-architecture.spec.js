@@ -10,7 +10,7 @@ async function visibleCount(locator) {
 
 test('preserves six primary destinations and browser-local vault state', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v122/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v123/i);
   const labels = await page.locator('[data-tab]').allTextContents();
   expect(labels.map((value) => value.trim())).toEqual(['Dashboard', 'Money', 'Calendar', 'Reports', 'Activity', 'Tools']);
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
@@ -41,11 +41,15 @@ test('shows one report preview page on screen while preserving all eight print p
   expect(await visibleCount(page.locator('.report-preview-deck > .report-page'))).toBe(8);
 });
 
-test('separates account planning and receipt-lineage review from full vault restore without changing data', async ({ app }) => {
+test('keeps recurring decisions separate from account cleanup, import, and full restore', async ({ app }) => {
   const { page } = app;
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
-  await openPrimary(page, 'Tools');
 
+  await openPrimary(page, 'Money');
+  await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
+  await expect(page.getByText(/cannot cancel a service, change a payment, contact a merchant/i)).toBeVisible();
+
+  await openPrimary(page, 'Tools');
   const bankButton = page.getByRole('button', { name: /Import transactions/i });
   const restoreButton = page.getByRole('button', { name: /Restore full vault/i });
   await expect(bankButton).toHaveAttribute('aria-pressed', 'true');
@@ -80,6 +84,7 @@ test('keeps phone secondary navigation compact and prevents page overflow', asyn
   expect(await subnav.evaluate((element) => getComputedStyle(element).overflowX)).toMatch(/auto|scroll/);
   await page.getByRole('tab', { name: 'Plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recurring-cost follow-up', exact: true })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 });

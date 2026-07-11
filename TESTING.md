@@ -2,18 +2,7 @@
 
 ## Data boundary
 
-All tests use fictional fixtures and isolated browser contexts.
-
-Tests must never read, commit, upload, or publish a real vault, bank export, statement, account-cleanup plan, profile, revision history, profile bundle, dry-run diagnostic, import receipt, receipt audit, batch index, timeline package, backup, report, screenshot, or account identifier.
-
-Synthetic sources include:
-
-- `tests/fixtures/synthetic-vault.json`;
-- signed and separate debit/credit CSV;
-- fictional card, ledger, wallet, and OFX/QFX data;
-- fictional legacy Gringotts JSON packages;
-- inline profile, revision, dry-run, receipt, audit, batch-link, and account-cleanup metadata;
-- deterministic malformed-input mutations.
+All tests use fictional fixtures and isolated browser contexts. Tests must never read, commit, upload, or publish a real vault, bank export, recurring-decision store, account-cleanup plan, profile, revision history, dry-run diagnostic, import receipt, batch index, timeline package, backup, report, screenshot, or real account identifier.
 
 ## Requirements
 
@@ -27,197 +16,96 @@ Synthetic sources include:
 npm run test:parser
 ```
 
-Node's built-in runner covers:
+The Node suite covers parser behavior plus:
 
-- parser format, delimiter, mapping, date, sign, size, and row-limit behavior;
-- profile compatibility and portable-bundle review;
-- revision redaction and bounded history;
-- dry-run privacy and stale signatures;
-- receipt arithmetic, batch continuity, and timeline privacy;
-- masked account inventory and date coverage;
-- explainable duplicate-label, spelling-drift, and possible-rename candidates;
-- downstream reference counting without copied values;
-- bounded cleanup decisions and stale-inventory reset;
-- sanitized cleanup-plan packages;
-- the detailed v122–v128 Roadmap;
-- module-instance and presentation-ownership contracts.
+- recurring candidate grouping by normalized merchant and account;
+- pending, income, transfer-like, and one-time exclusions;
+- cadence and amount-stability evidence;
+- latest-charge and annualized-increase evidence;
+- masked account labels;
+- bounded recurring decisions and history;
+- completed and dormant decision behavior;
+- Guided Plan action generation;
+- account cleanup, receipt lineage, profile, and dry-run regressions;
+- v123–v129 Roadmap validation;
+- module identity and presentation ownership.
 
-GitHub also runs `node --check` against all active v115–v122 modules and `src/boot-v122.js` before installing browsers.
+GitHub runs `node --check` against active v115–v123 modules and `src/boot-v123.js` before installing browsers.
 
-## Local setup
+## Local commands
 
 ```bash
 npm ci --ignore-scripts
 npx playwright install chromium
+npm run test:parser
 npm run test:preflight
 npm run test:quality
 npm run privacy:history
 npm audit --audit-level=high
 ```
 
-Complete matrix:
+Complete cross-browser matrix:
 
 ```bash
 npx playwright install firefox webkit
 npm run test:local
 ```
 
-Additional commands:
+## v123 recurring-decision coverage
 
-```bash
-npm run test:a11y
-npm run test:visual
-npm run test:headed
-npm run test:ui
-npm run report
-```
+Tests verify:
 
-## v122 account-cleanup coverage
-
-Pure-model and browser tests verify:
-
-- account labels are inventoried from the current readable vault;
-- displayed identifiers are masked;
-- transaction rows are never copied to the plan store or sanitized download;
-- candidate evidence includes shared words, text similarity, masked final-four, inferred type, and date relationship;
-- distinct synthetic accounts are not surfaced merely because both are cards or checking accounts;
-- overlapping date ranges remain a caution rather than merge authorization;
-- reference impact covers transactions, rules, recurring items, budgets, bills and paydays, goals, planning, and other metadata;
-- every decision is explicit;
-- the metadata store is capped at 120 decisions;
-- changed inventory signatures reset stale decisions;
-- plan writes are read-back verified and restore the prior raw value after failure;
+- only posted expense evidence enters the decision queue;
+- pending charges and unsupported one-time purchases remain excluded;
+- the same merchant on two accounts remains two candidates;
+- cadence and annualization assumptions are visible;
+- Keep, Cancel, Renegotiate, Investigate, and Completed decisions are explicit;
+- owner, status, target date, and notes persist separately from transactions;
+- the store is capped at 120 records and 240 history entries;
+- writes are read-back verified and restore the previous raw value after failure;
+- dormant decisions are never applied to another candidate;
 - saving a decision leaves the vault byte-for-byte unchanged;
-- no Apply Merge, Rename Now, delete, or transaction-write action exists;
-- a populated backup and sanitized plan are separate downloads;
-- plan packages omit raw labels, full identifiers, rows, balances, merchants, files, credentials, tokens, and vault contents.
+- no cancel-service, contact-merchant, payment-change, email, or external-account action exists;
+- open actionable decisions appear in Guided Plan, reports, and meeting preparation;
+- the workbook contains 39 sheets.
 
-## Preserved v121 receipt-integrity coverage
+## Preserved coverage
 
-The v121 regression suite continues to verify:
+The existing suites continue to verify:
 
-- receipts remain authoritative and unchanged;
-- destination-family sequence and continuity states;
-- duplicate receipt identities and repeated-source notes;
-- all timeline filters;
-- explicit dry-run-to-receipt reconciliation;
-- bounded batch-index storage and prior-value restoration;
-- manual-only rollback and separate Full Vault Restore;
-- sanitized timeline downloads;
-- the unchanged v115 backup, acknowledgement, confirmation, write, rollback, and verification controls.
+- account cleanup planning and sanitized exports;
+- receipt arithmetic, continuity, and dry-run lineage;
+- profile portability, revisions, and diagnostics;
+- guarded missing-only import and separate full restore;
+- six primary destinations and eight report pages;
+- goals, forecast, debt, close/reopen, Insights, Guided Plan, and annual tracking;
+- no service worker and no write network requests.
 
-## Workbook and Roadmap coverage
+## Accessibility and responsive quality
 
-Tests verify:
+The quality suite scans recurring evidence, filters, decision controls, Guided Plan follow-up, report integration, account cleanup, receipt lineage, and the v123–v129 Roadmap on desktop and phone.
 
-- the workbook advertises and downloads 37 sheets;
-- Account Inventory and Account Cleanup Plan are included;
-- Import Receipts, Receipt Integrity, and Batch Lineage remain;
-- the Roadmap displays v122 through v128;
-- each release includes capabilities, dependencies, safety boundaries, and household outcome;
-- v122 is current, v123 is next, and later releases are directional;
-- desktop and phone layouts remain inside the viewport.
+The full matrix includes:
 
-## Lazy loading and route stability
-
-Tests verify:
-
-- v118–v122 route code and CSS are absent from the initial Dashboard request set;
-- route layers load only when Tools or Reports opens;
-- the Lighthouse request budget remains 45;
-- v121 reuses the active v115 and v117 module identities;
-- v122 reads active core state rather than creating another transaction engine;
-- v122 interceptors load before inherited route controls;
-- v120 yields to v121 and v121 yields presentation ownership to v122;
-- v122 explicitly retains the v121 receipt timeline;
-- account cleanup, profiles, dry runs, timeline, Roadmap, reports, and task switching settle without mutation-observer loops.
-
-## Preserved functional coverage
-
-The established suite continues to verify:
-
-- six primary destinations and persistent shell;
-- one report page on screen and all eight print pages;
-- separate transaction import and full restore tasks;
-- signed CSV, debit/credit, OFX/QFX, and legacy JSON imports;
-- exact, fuzzy, and pending-to-posted duplicate handling;
-- missing-only insertion, populated backup, rollback, and read-back verification;
-- restore destination `gringottsBudgetVault.latest` and empty-restore blocking;
-- Review Queue, goals, Vault Health, close, reopen, forecast, bills, paydays, debt, Insights, Guided Plan, and annual tracker;
-- phone navigation and no document-level overflow.
-
-## Accessibility and visual quality
-
-The quality suite blocks serious or critical axe findings for configured WCAG and best-practice tags.
-
-Fresh v122 coverage scans:
-
-- account inventory and focusable table region;
-- cleanup filters and native candidate selector;
-- evidence, impact, and decision controls;
-- v122–v128 Roadmap;
-- desktop and phone layouts.
-
-Existing axe coverage remains for all primary and secondary sections, eight report pages, import and restore, profiles, mappings, bundles, revisions, dry runs, receipt timeline, and rollback guidance.
-
-Keyboard coverage includes Skip to content, visible focus, tabs, arrow navigation, labeled scroll regions, native controls, mobile-menu Escape, acknowledgements, and explicit actions.
-
-No PNG baseline is committed. Screenshots, traces, video, axe JSON, Playwright reports, and Lighthouse files upload only on failure.
-
-## Staged GitHub Actions
-
-Draft PRs skip protected jobs. When ready:
-
-1. syntax and browser-free models;
-2. Chromium desktop and Android Chromium;
-3. Firefox/WebKit desktop and iPad/iPhone WebKit;
-4. keyboard and visual contracts;
-5. axe inventories and focused v122 scans;
-6. Lighthouse budgets;
-7. privacy, supply-chain, and CodeQL.
-
-Concurrency cancellation stops superseded runs.
-
-## Security gates
-
-The final candidate runs:
-
-- full-history financial-data and identifier scanning;
-- Gitleaks;
-- Dependency Review;
-- locked npm audit with scripts disabled;
-- CodeQL `security-extended` queries;
-- action pinning and least-privilege checks;
-- CSP/header checks;
-- parser/model purity;
-- metadata-only storage boundaries;
-- required-file and staged-workflow drift tests.
-
-## Production smoke
-
-After merge, the main smoke verifies:
-
-- v122 startup and hardened headers;
-- all six destinations;
-- account cleanup, batch timeline, profiles, revisions, dry run, bundle picker, import, and full restore;
-- v122–v128 Roadmap;
-- Guided Plan and report pages;
-- Import Receipts, Receipt Integrity, Batch Lineage, Account Inventory, and Account Cleanup Plan;
-- no page errors.
+- Chromium, Firefox, and WebKit desktop;
+- Android Chromium;
+- iPad and iPhone WebKit;
+- keyboard and tab semantics;
+- visual layout contracts;
+- serious/critical axe gates;
+- Lighthouse performance, accessibility, best-practice, SEO, byte, and request budgets.
 
 ## Final merge gate
 
 The exact final head must pass:
 
-1. Parser and static preflight;
-2. Local source — desktop;
-3. Local source — responsive;
-4. Accessibility and visual contracts;
-5. Lighthouse CI budgets;
-6. Full-history privacy and secret scan;
-7. CodeQL;
-8. Dependency Review;
-9. npm audit;
-10. repository security-drift tests;
-11. exact-head Cloudflare preview;
-12. no unresolved review threads.
+1. parser and static preflight;
+2. desktop and responsive Playwright matrices;
+3. accessibility and visual contracts;
+4. Lighthouse budgets;
+5. full-history privacy and secret scan;
+6. CodeQL;
+7. Dependency Review and npm audit;
+8. repository security-drift tests;
+9. exact-head Cloudflare preview;
+10. no unresolved review threads.

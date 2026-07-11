@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v122/);
+    await expect(page.locator('.version-text')).toContainText(/^v123/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -41,6 +41,10 @@ test.describe('@live Cloudflare deployment', () => {
       await openPrimary(page, name);
       await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
     }
+
+    await openPrimary(page, 'Money');
+    await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
+    await expect(page.getByText(/Pending transactions and single-month one-time charges/i)).toBeVisible();
 
     await openPrimary(page, 'Tools');
     await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
@@ -65,12 +69,13 @@ test.describe('@live Cloudflare deployment', () => {
 
     await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
     await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-    await expect(page.getByRole('heading', { name: /v122 — Account Cleanup/i })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /v128 — Household Data Quality/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Recurring-cost follow-up', exact: true })).toBeVisible();
 
     await openPrimary(page, 'Reports');
     await expect(page.getByRole('heading', { name: 'Family Financial Report' })).toBeVisible();
@@ -78,11 +83,14 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByRole('heading', { name: 'Household insights', exact: true })).toBeVisible();
     await page.locator('#reportPreviewPage').selectOption('plan');
     await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
     await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
     await expect(page.getByText('Receipt Integrity', { exact: true }).last()).toBeVisible();
     await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
     await expect(page.getByText('Account Inventory', { exact: true }).last()).toBeVisible();
     await expect(page.getByText('Account Cleanup Plan', { exact: true }).last()).toBeVisible();
+    await expect(page.getByText('Recurring Decisions', { exact: true }).last()).toBeVisible();
+    await expect(page.getByText('Recurring Decision History', { exact: true }).last()).toBeVisible();
     await expect(page.locator('#reportPreset')).toBeVisible();
 
     expect(errors, 'Deployed page errors').toEqual([]);
