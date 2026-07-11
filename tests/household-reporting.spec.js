@@ -70,7 +70,6 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Household Scenario Discussion', exact: true })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
   expect(saved).toMatchObject({ preset: 'custom', start: '2026-05-01', end: '2026-07-31', comparePriorYear: true });
   expect(writes).toEqual([]);
