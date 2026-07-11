@@ -16,6 +16,8 @@ const primaryHeadings = {
   Tools: /Import & Restore/i
 };
 
+const enhancedPrimaryDestinations = new Set(['Money', 'Reports', 'Activity', 'Tools']);
+
 export async function seedVault(page, month = '2026-07') {
   await page.addInitScript(({ vault, selectedMonth }) => {
     localStorage.clear();
@@ -28,6 +30,13 @@ export async function waitForApp(page) {
   await expect(page.locator('.version-text')).toContainText(/^v124/);
   await expect(page.locator('#main')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
+}
+
+async function waitForRouteEnhancements(page) {
+  await expect.poll(
+    () => page.evaluate(() => window.GringottsV124?.routeEnhancementsReady === true),
+    { timeout: 15000, message: 'v124 route enhancements should finish before route interactions continue' }
+  ).toBe(true);
 }
 
 export async function openPrimary(page, name) {
@@ -43,6 +52,7 @@ export async function openPrimary(page, name) {
     try {
       await button.click({ timeout: 3000 });
       await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible({ timeout: 12000 });
+      if (enhancedPrimaryDestinations.has(name)) await waitForRouteEnhancements(page);
       return;
     } catch (error) {
       lastError = error;
