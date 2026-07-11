@@ -47,8 +47,10 @@ function loadRouteLayers() {
       import('./v119/release.js?v=122cleanup1'),
       import('./v120/release.js?v=122cleanup1'),
       import('./v121/release.js?v=122cleanup1'),
-      import('./v122/release.js?v=122cleanup1')
-    ]).then(async ([v118, v119, v120, v121, v122]) => {
+      import('./v122/release.js?v=122cleanup1'),
+      import('./v122/account-cleanup-export-controller.js?v=122cleanup1')
+    ]).then(async ([v118, v119, v120, v121, v122, cleanupExport]) => {
+      cleanupExport.installAccountCleanupExportController();
       await v122.prepareV122Interceptors();
       await v121.prepareV121Interceptors();
       v120.prepareV120Interceptors();
