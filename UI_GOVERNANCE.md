@@ -26,8 +26,10 @@ Every release reviews:
 16. **Consequence-first controls** — Replace, Delete, Restore, and transaction writes are visibly distinct.
 17. **Manual rollback boundary** — audits and timelines may guide restore but never impersonate automatic undo.
 18. **Roadmap depth without clutter** — releases include scope, dependencies, safeguards, and outcomes.
-19. **Derived evidence labels** — continuity, repeated source, and readiness must be explained as evidence rather than certainty.
-20. **No automatic history repair** — receipt integrity can flag gaps but must not offer one-click repair.
+19. **Derived evidence labels** — continuity, similarity, repeated source, and readiness are evidence rather than certainty.
+20. **No automatic history repair** — integrity findings never offer one-click repair.
+21. **Planning is not execution** — a merge or rename plan must not look like an applied account change.
+22. **One candidate at a time** — dense review work should focus the household on one decision rather than scatter controls across the page.
 
 ## Current information architecture
 
@@ -38,17 +40,38 @@ The six primary destinations remain:
 - **Calendar** — date-based household cash-flow activity.
 - **Reports** — range, one-page preview, annual tracker, workbook, and exports.
 - **Activity** — transactions, Review Queue, Rules, Insights, and Guided Plan.
-- **Tools** — Import / Restore, Exports & Backup, Diagnostics, and Roadmap.
+- **Tools** — Import & Restore, account cleanup planning, Exports & Backup, Diagnostics, and Roadmap.
 
-v121 adds no primary destination. Receipt integrity belongs in Tools → Import & Restore because it explains outcomes of prior import activity. The release horizon remains under Tools → Roadmap.
+v122 adds no primary destination. Account cleanup belongs in Tools → Import & Restore because it concerns transaction-account organization and future data maintenance. Receipt integrity and Full Vault Restore remain on the same page but retain distinct tasks and safety boundaries.
+
+## Account cleanup planning
+
+The v122 cleanup surface must:
+
+- appear once near the top of Tools → Import & Restore;
+- inventory accounts before presenting candidate decisions;
+- mask identifier-like account labels;
+- explain why a pair was surfaced;
+- show confidence and date-range relationship without claiming certainty;
+- show downstream reference counts without exposing copied values;
+- review one candidate at a time with a native select;
+- distinguish Keep Separate, Rename Plan, Merge Plan, and Investigate decisions;
+- state that automatic rename, merge, deletion, and transaction writes are unavailable;
+- offer a populated backup separately from the sanitized cleanup-plan download;
+- avoid any Apply, Merge Now, Rename Now, or one-click repair control;
+- reset stale decisions when the account inventory changes;
+- keep dense inventory tables in labeled, focusable scroll regions;
+- stack filters and actions on narrow phones.
+
+The plan store may persist only candidate IDs, decisions, timestamps, and the inventory signature. Filters, search text, selected candidate, transaction rows, raw labels, balances, and merchant names remain ephemeral or excluded.
 
 ## Reports
 
 Reports separates range selection, family-report preview, and downloads. Eight pages remain one report. A native page select and Previous/Next controls are appropriate on screen; print includes all pages.
 
-The workbook card must advertise the actual release artifact. v121 shows 35 sheets and names Receipt Integrity and Batch Lineage.
+The workbook card must advertise the actual release artifact. v122 shows 37 sheets and names Account Inventory and Account Cleanup Plan while retaining Receipt Integrity and Batch Lineage.
 
-Route-specific v118–v121 code loads only after Reports or Tools opens.
+Route-specific v118–v122 code loads only after Reports or Tools opens.
 
 ## Import and restore
 
@@ -57,43 +80,34 @@ Incremental import and full restore remain different tasks:
 - import adds reviewed missing rows;
 - restore replaces the destination vault.
 
-They share a Tools section but not a single uninterrupted workflow. Restore remains hidden until deliberately selected.
+They share a Tools section but not a single uninterrupted workflow. Restore remains hidden until deliberately selected. Account cleanup planning does not become a third write workflow; it is a read-only evidence and decision surface.
 
 ## Import batch timeline
 
-The v121 timeline replaces the passive receipt/audit card while preserving v120 receipt checks and manual rollback guidance.
-
-It must:
+The v121 timeline remains visible under v122 and must continue to:
 
 - summarize retained batches, verified items, review items, dry-run links, and continuity breaks;
 - offer native filters for integrity, result, lineage, dry-run state, and destination family;
-- provide a local search field without persisting the query;
-- show source filename, fingerprint, and destination key only in the local browser detail;
-- keep dense receipt and check tables in labeled focusable scroll regions;
-- explain every continuity state in plain language;
+- provide local search without persisting the query;
+- show source filename, fingerprint, and destination key only in local browser detail;
+- keep dense tables in labeled focusable scroll regions;
+- explain continuity states in plain language;
 - distinguish informational repeated-source evidence from a failure;
 - state that no automatic repair or rollback is available;
 - retain backup filename and expected pre-import count guidance;
-- open the existing Full vault restore task rather than creating a second restore engine;
-- avoid persisting selected batch, filters, or transaction copies.
-
-## Dry-run lineage
-
-Prepare Dry Run remains an explicit existing action. v121 may stage sanitized readiness metadata only after that action.
-
-The UI must not claim a link unless format, schema, normalized rows, insert count, and skip count reconcile to the resulting receipt.
-
-A missing link must be described as valid for older or no-dry-run imports. The UI must not imply that v121 can reconstruct a historical dry run.
+- open the existing Full Vault Restore task rather than creating another restore engine.
 
 ## Local and downloaded privacy
 
-Source filenames, fingerprints, and local destination keys may appear on screen for identification. Full-timeline and selected-batch downloads must omit them.
+Local on-screen review may show information needed to identify a receipt or account. Downloads must be more restrictive.
 
-Download descriptions should state that rows, filenames, fingerprints, mappings, destination keys, identifiers, merchants, and vault contents are excluded.
+Timeline packages omit rows, filenames, fingerprints, mappings, destination keys, identifiers, merchants, and vault contents.
+
+Cleanup-plan packages omit transaction rows, raw account labels, full identifiers, balances, merchant names, source files, credentials, tokens, and vault contents.
 
 ## Detailed Roadmap
 
-The Roadmap page must display the seven-release v121–v127 horizon.
+The Roadmap page displays the seven-release v122–v128 horizon.
 
 Every release requires:
 
@@ -104,15 +118,11 @@ Every release requires:
 - expected household outcome;
 - current/planned status.
 
-The page must state that the next release is the strongest commitment and later entries may move. Cards use readable lists rather than pills. The same horizon must remain in `ROADMAP.md`.
+The page states that v123 is the strongest next commitment and later entries may move. Cards use readable lists rather than pills. The same horizon remains in `ROADMAP.md`.
 
 ## Profiles, portability, revisions, and dry runs
 
-Saved profiles remain Import configuration, not a destination. The library distinguishes name, destination label, source pattern/schema, and non-reversible header identity.
-
-Portable bundles require Add, Replace, or Skip for each definition. Replace remains identity-matched.
-
-Existing-profile Update and portable Replace pause for a field-by-field revision review with acknowledgement and confirmation.
+Saved profiles remain Import configuration, not a destination. Portable bundles require Add, Replace, or Skip for each definition. Existing-profile Update and portable Replace pause for field-by-field revision review with acknowledgement and confirmation.
 
 Prepare/Refresh Dry Run and Download Dry Run remain separate controls. Mapping or reconciliation changes invalidate the prepared result.
 
@@ -123,15 +133,15 @@ Prepare/Refresh Dry Run and Download Dry Run remain separate controls. Mapping o
 - Secondary navigation may scroll horizontally on narrow phones.
 - Dense tables scroll within their own labeled containers.
 - Report download cards use three, two, or one columns.
-- Timeline filters use three columns wide, two on tablet, and one on phone.
-- Timeline overview cards stack on phones.
-- Timeline and rollback action rows become full-width on narrow screens.
+- Timeline and cleanup filters use compact multi-column layouts wide and one column on phones.
+- Candidate impact cards stack on phones.
+- Action rows become full-width on narrow screens.
 - Roadmap note grids collapse from three columns to one.
 - Destructive confirmations remain distinct without dominating the page.
 
 ## Architecture result
 
-The v116 architecture review remains authoritative:
+The v116 architecture remains authoritative:
 
 - six primary destinations are correct;
 - the persistent shell remains;
@@ -142,9 +152,9 @@ The v116 architecture review remains authoritative:
 - v111 remains the runtime foundation;
 - release layers stay small and idempotent.
 
-v121 identifies the app at boot and lazy-loads v118 portability, v119 revisions/dry run, v120 audit support, and v121 lineage only for Tools or Reports.
+v122 identifies the app at boot and lazy-loads v118 portability, v119 revisions/dry run, v120 audit support, v121 lineage, and v122 cleanup planning only for Tools or Reports.
 
-v121 owns current presentation. v120 must yield Reports, Import, and Roadmap writing when v121 is active so observers cannot alternate content.
+v122 owns current presentation. v121 yields page-level presentation while v122 explicitly retains the v121 receipt-timeline enhancer. Account cleanup is inserted only when the current rendered Tools page does not already contain the card, preventing observer ping-pong.
 
 ## Larger overhaul cadence
 
@@ -162,11 +172,10 @@ The next scheduled deeper review remains approximately v126, with an acceptable 
 
 ## Architecture boundaries
 
-- Local-first transaction, profile, revision, diagnostic, receipt, audit, and batch-lineage processing.
+- Local-first transaction, profile, revision, diagnostic, receipt, audit, batch-lineage, and cleanup-planning processing.
 - No transaction or profile uploads.
 - Metadata channels never duplicate source rows.
-- No filenames, fingerprints, destination keys, credentials, tokens, balances, full identifiers, or vault contents in timeline downloads.
-- No automatic receipt repair, rollback, account merge, or backup-directory scanning.
+- No automatic receipt repair, rollback, account merge, rename, deletion, or backup-directory scanning.
 - No service worker or offline cache.
 - One live ES-module runtime.
 - Never auto-save an empty vault.

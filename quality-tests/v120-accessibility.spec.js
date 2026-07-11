@@ -60,7 +60,7 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'The preserved v120 audit surface runs once in the desktop quality project.');
 }
 
-test('axe scans v120 receipt arithmetic and rollback guidance within v121', async ({ page }, testInfo) => {
+test('axe scans v120 receipt arithmetic and rollback guidance within v122', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
@@ -79,7 +79,8 @@ test('axe scans the advanced multi-release roadmap from a fresh render', async (
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v121 — Receipt Integrity/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v122 — Account Cleanup/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v128 — Household Data Quality/i })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
 });

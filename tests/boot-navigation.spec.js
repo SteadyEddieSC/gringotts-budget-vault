@@ -11,9 +11,9 @@ const destinations = [
 
 test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v121/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v122/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v121');
+  await expect(page.locator('.version-text')).toHaveText('v122');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
@@ -23,6 +23,10 @@ test('boots without module errors and exposes the consolidated navigation', asyn
     await openPrimary(page, name);
     await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
   }
+
+  await openPrimary(page, 'Tools');
+  await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
 
   await openPrimary(page, 'Activity');
   await expect(page.getByRole('tab', { name: 'Insights', exact: true })).toBeVisible();
