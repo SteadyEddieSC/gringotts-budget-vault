@@ -277,6 +277,7 @@ function enhanceToolsPage(page) {
   setText(titleRow?.querySelector('p'), 'Review account cleanup and receipt integrity, import missing transactions, or use the separate full-vault restore task.');
   setText(titleRow?.querySelector('.section-meta'), 'Local review · guarded writes');
   window.GringottsV121?.enhanceReceiptTimeline?.(page);
+  if (page.querySelector('.account-cleanup-card')) return;
   window.GringottsV122?.loadAccountCleanupFeatures?.()
     .then((module) => module.enhanceAccountCleanup(page))
     .catch((error) => announce(error?.message || 'Account cleanup planning could not be loaded'));
@@ -287,7 +288,8 @@ function enhanceMain(root = document.getElementById('main')) {
   root.querySelectorAll('.report-kicker').forEach((node) => setText(node, 'Recurring Cost Decisions & Subscription Review v123'));
   loadFeatures().then((features) => {
     const active = root.querySelector('.section.active');
-    if (active?.querySelector('h2')?.textContent?.trim() === 'Bills, Recurring & Budgets') {
+    if (active?.querySelector('h2')?.textContent?.trim() === 'Bills, Recurring & Budgets'
+        && !active.querySelector('.recurring-decision-workspace')) {
       features.enhanceRecurringDecisionPage(active);
     }
     if (active?.querySelector('h2')?.textContent?.trim() === 'Guided Household Plan') {
