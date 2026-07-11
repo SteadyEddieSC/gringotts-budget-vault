@@ -6,26 +6,8 @@ async function seedReceipts(page) {
     const vault = JSON.parse(localStorage.getItem('gringottsBudgetVault.latest'));
     const after = vault.transactions.length;
     const receipts = [
-      {
-        importId: 'import_v121_verified', timestamp: '2026-07-10T12:00:00.000Z',
-        sourceFilename: 'SECRET-household-card.csv', sourceFingerprint: 'SECRET-FINGERPRINT-123456789',
-        source: 'Synthetic card activity', format: 'delimited', detectedSchema: 'Card activity export',
-        schemaConfidence: 'high', encoding: 'UTF-8', mappingSummary: 'date:Date; description:SECRET MERCHANT; amount:Amount',
-        signMode: 'bank', dateOrder: 'mdy', warningCount: 1, transactionCount: 6,
-        earliestDate: '2026-06-01', latestDate: '2026-06-30', exactDuplicates: 2, fuzzyCandidates: 1,
-        insertedCount: 2, skippedCount: 4, selectedDestinationVault: 'gringottsBudgetVault.latest',
-        destinationBeforeCount: after - 2, destinationAfterCount: after, verificationResult: 'verified'
-      },
-      {
-        importId: 'import_v121_no_change', timestamp: '2026-07-10T13:00:00.000Z',
-        sourceFilename: 'SECRET-no-change.csv', sourceFingerprint: 'SECRET-NO-CHANGE-FINGERPRINT',
-        source: 'Synthetic deposit ledger', format: 'delimited', detectedSchema: 'Deposit and withdrawal ledger',
-        schemaConfidence: 'high', encoding: 'UTF-8', mappingSummary: 'date:Date; debit:Withdrawal; credit:Deposit',
-        signMode: 'separate', dateOrder: 'mdy', warningCount: 0, transactionCount: 4,
-        earliestDate: '2026-06-01', latestDate: '2026-06-30', exactDuplicates: 4, fuzzyCandidates: 0,
-        insertedCount: 0, skippedCount: 4, selectedDestinationVault: 'gringottsBudgetVault.latest',
-        destinationBeforeCount: after, destinationAfterCount: after, verificationResult: 'verified-no-change'
-      }
+      { importId: 'import_v121_verified', timestamp: '2026-07-10T12:00:00.000Z', sourceFilename: 'SECRET-household-card.csv', sourceFingerprint: 'SECRET-FINGERPRINT-123456789', source: 'Synthetic card activity', format: 'delimited', detectedSchema: 'Card activity export', schemaConfidence: 'high', encoding: 'UTF-8', mappingSummary: 'date:Date; description:SECRET MERCHANT; amount:Amount', signMode: 'bank', dateOrder: 'mdy', warningCount: 1, transactionCount: 6, earliestDate: '2026-06-01', latestDate: '2026-06-30', exactDuplicates: 2, fuzzyCandidates: 1, insertedCount: 2, skippedCount: 4, selectedDestinationVault: 'gringottsBudgetVault.latest', destinationBeforeCount: after - 2, destinationAfterCount: after, verificationResult: 'verified' },
+      { importId: 'import_v121_no_change', timestamp: '2026-07-10T13:00:00.000Z', sourceFilename: 'SECRET-no-change.csv', sourceFingerprint: 'SECRET-NO-CHANGE-FINGERPRINT', source: 'Synthetic deposit ledger', format: 'delimited', detectedSchema: 'Deposit and withdrawal ledger', schemaConfidence: 'high', encoding: 'UTF-8', mappingSummary: 'date:Date; debit:Withdrawal; credit:Deposit', signMode: 'separate', dateOrder: 'mdy', warningCount: 0, transactionCount: 4, earliestDate: '2026-06-01', latestDate: '2026-06-30', exactDuplicates: 4, fuzzyCandidates: 0, insertedCount: 0, skippedCount: 4, selectedDestinationVault: 'gringottsBudgetVault.latest', destinationBeforeCount: after, destinationAfterCount: after, verificationResult: 'verified-no-change' }
     ];
     localStorage.setItem('gringottsImportHistory.v1', JSON.stringify({ imports: receipts, updatedAt: '2026-07-10T13:00:00.000Z' }));
   });
@@ -43,7 +25,6 @@ test('preserves receipt arithmetic and manual rollback guidance without changing
   const { page } = app;
   const vaultBefore = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   await openImportWithReceipts(page);
-
   await expect(page.locator('.receipt-timeline-table tbody tr')).toHaveCount(2);
   await expect(page.getByText('Verified', { exact: true }).first()).toBeVisible();
   await page.locator('[data-v121-batch-select]').last().click();
@@ -51,54 +32,38 @@ test('preserves receipt arithmetic and manual rollback guidance without changing
   await expect(page.locator('.receipt-lineage-rollback .summary-box')).toContainText('Gringotts_v115_pre_import_');
   await expect(page.getByText(/No automatic rollback/i)).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Destination count arithmetic', exact: true })).toBeVisible();
-
-  const vaultAfter = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
-  expect(vaultAfter).toBe(vaultBefore);
+  expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(vaultBefore);
 });
 
 test('downloads a sanitized selected batch and opens only the separate restore task', async ({ app }) => {
   const { page } = app;
   await openImportWithReceipts(page);
   await page.locator('[data-v121-batch-select]').last().click();
-
-  const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page.locator('#downloadSelectedReceiptBatch').click()
-  ]);
+  const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#downloadSelectedReceiptBatch').click()]);
   expect(download.suggestedFilename()).toMatch(/Gringotts_v121_import_batch_.*\.json/i);
   const payload = JSON.parse(await fs.readFile(await download.path(), 'utf8'));
   expect(payload.kind).toBe('gringotts-import-receipt-timeline');
   expect(payload.batches).toHaveLength(1);
-  expect(payload.dataBoundary).toMatchObject({
-    transactionRowsIncluded: false,
-    sourceFileNameIncluded: false,
-    sourceFingerprintIncluded: false,
-    destinationStorageKeyIncluded: false,
-    accountIdentifiersIncluded: false,
-    merchantNamesIncluded: false,
-    vaultContentsIncluded: false
-  });
-  const text = JSON.stringify(payload);
-  expect(text).not.toMatch(/SECRET-household-card|SECRET-FINGERPRINT|SECRET MERCHANT|"transactions"\s*:|"records"\s*:|"rows"\s*:/i);
-
+  expect(payload.dataBoundary).toMatchObject({ transactionRowsIncluded: false, sourceFileNameIncluded: false, sourceFingerprintIncluded: false, destinationStorageKeyIncluded: false, accountIdentifiersIncluded: false, merchantNamesIncluded: false, vaultContentsIncluded: false });
+  expect(JSON.stringify(payload)).not.toMatch(/SECRET-household-card|SECRET-FINGERPRINT|SECRET MERCHANT|"transactions"\s*:|"records"\s*:|"rows"\s*:/i);
   await page.locator('#openReceiptTimelineRestore').click();
   await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
   await expect(page.locator('#restoreVault')).toBeDisabled();
 });
 
-test('shows the detailed v122 through v128 roadmap horizon', async ({ app }) => {
+test('shows the detailed v123 through v129 roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Roadmap', exact: true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v122 — Account Cleanup/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v128 — Household Data Quality/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
   await expect(page.getByRole('heading', { name: 'Depends on', exact: true })).toHaveCount(7);
   await expect(page.getByRole('heading', { name: 'Safety boundaries', exact: true })).toHaveCount(7);
-  await expect(page.getByText(/Later releases are a directional planning horizon/i)).toBeVisible();
+  await expect(page.getByText(/v124 is the strongest next commitment/i)).toBeVisible();
 });
 
 test('keeps timeline and roadmap notes inside a phone viewport', async ({ app }) => {
@@ -108,7 +73,6 @@ test('keeps timeline and roadmap notes inside a phone viewport', async ({ app })
   await page.locator('[data-v121-batch-select]').first().click();
   let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
-
   await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
   overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
