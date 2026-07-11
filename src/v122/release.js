@@ -255,7 +255,7 @@ function enhanceRoadmap(root) {
 
 function enhanceToolsPage(page) {
   const titleRow = page.querySelector(':scope > .section-title-row');
-  setText(titleRow?.querySelector('h2'), 'Data Tools');
+  setText(titleRow?.querySelector('h2'), 'Import & Restore');
   setText(titleRow?.querySelector('p'), 'Plan account-label cleanup, review receipt integrity, import missing transactions, or use the separate full-vault restore task.');
   setText(titleRow?.querySelector('.section-meta'), 'Local planning · guarded writes');
   loadAccountCleanupFeatures()
