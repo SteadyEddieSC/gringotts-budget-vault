@@ -40,9 +40,10 @@ test('v121 reuses the authoritative v115 and v117 module instances', () => {
   assert.doesNotMatch(controller, /import-profiles\.js\?v=121/);
 });
 
-test('v122 interceptors load before inherited route controls attach', () => {
+test('v122 export privacy installs before inherited route controls attach', () => {
   const boot = read('src/boot-v122.js');
-  assert.match(boot, /await v122\.prepareV122Interceptors\(\);[\s\S]*await v121\.prepareV121Interceptors\(\);[\s\S]*v120\.prepareV120Interceptors\(\);[\s\S]*v119\.prepareV119Interceptors\(\);[\s\S]*v118\.prepareV118Interceptors\(\);/);
+  assert.match(boot, /import\('\.\/v122\/account-cleanup-export-controller\.js\?v=122cleanup1'\)/);
+  assert.match(boot, /cleanupExport\.installAccountCleanupExportController\(\);[\s\S]*await v122\.prepareV122Interceptors\(\);[\s\S]*await v121\.prepareV121Interceptors\(\);[\s\S]*v120\.prepareV120Interceptors\(\);[\s\S]*v119\.prepareV119Interceptors\(\);[\s\S]*v118\.prepareV118Interceptors\(\);/);
   assert.match(boot, /v118\.activateV118\(\);[\s\S]*v119\.activateV119\(\);[\s\S]*v120\.activateV120\(\);[\s\S]*v121\.activateV121\(\);[\s\S]*v122\.activateV122\(\)/);
   assert.match(boot, /import\('\.\/v115\/release\.js\?v=122cleanup1'\)/);
   assert.doesNotMatch(boot, /bank-import\.js\?v=122/);
@@ -65,8 +66,11 @@ test('v121 defers presentation writes while v122 owns the route', () => {
 
 test('v122 account cleanup reads the active core state without importing a second transaction engine', () => {
   const controller = read('src/v122/account-cleanup.js');
+  const exportController = read('src/v122/account-cleanup-export-controller.js');
   assert.match(controller, /from '\.\.\/v103\/core\.js'/);
   assert.doesNotMatch(controller, /bank-import\.js/);
   assert.doesNotMatch(controller, /import-profiles\.js/);
   assert.doesNotMatch(controller, /runtime-v111-reporting\.js/);
+  assert.match(exportController, /buildAccountCleanupPackage/);
+  assert.match(exportController, /stopImmediatePropagation/);
 });
