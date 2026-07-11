@@ -1,9 +1,10 @@
 import fs from 'node:fs/promises';
-import { test, expect, openPrimary, waitForApp } from './helpers/app.js';
+import { test, expect, openPrimary } from './helpers/app.js';
 
 async function seedAccountCleanup(page) {
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const vault = JSON.parse(localStorage.getItem('gringottsBudgetVault.latest'));
+    vault.transactions = vault.transactions.filter((transaction) => !String(transaction.id || '').startsWith('cleanup-checking-'));
     vault.transactions.push(
       {
         id: 'cleanup-checking-old-1', date: '2026-01-05', name: 'Synthetic Home Expense',
@@ -36,9 +37,9 @@ async function seedAccountCleanup(page) {
     localStorage.setItem('gringottsGuidedPlan.v1', JSON.stringify({
       items: [{ id: 'cleanup-plan-item', account: 'Fictional Family Chking ••••1234', status: 'open' }]
     }));
+    const core = await import('/src/v103/core.js');
+    core.invalidateVaultCache();
   });
-  await page.reload();
-  await waitForApp(page);
 }
 
 async function openCleanup(page) {
@@ -115,6 +116,8 @@ test('shows the v122 through v128 roadmap and the 37-sheet workbook', async ({ a
   const { page } = app;
   await openPrimary(page, 'Reports');
   await expect(page.getByText(/37-sheet Vault Workbook/i)).toBeVisible();
+  await expect(page.getByText('Receipt Integrity', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Account Inventory', { exact: true }).last()).toBeVisible();
   await expect(page.getByText('Account Cleanup Plan', { exact: true }).last()).toBeVisible();
   const [download] = await Promise.all([
