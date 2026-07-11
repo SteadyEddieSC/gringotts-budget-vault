@@ -37,16 +37,18 @@ async function scanSurface(page, testInfo, name) {
 }
 
 async function seedCleanupAccounts(page) {
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const vault = JSON.parse(localStorage.getItem('gringottsBudgetVault.latest'));
+    vault.transactions = vault.transactions.filter((transaction) => !String(transaction.id || '').startsWith('quality-cleanup-'));
     vault.transactions.push(
       { id: 'quality-cleanup-1', date: '2026-01-05', name: 'Synthetic expense', amount: 20, type: 'Expense', category: 'Household', account: 'Quality Family Checking 1234', owner: 'Adult A', reviewed: true, pending: false },
       { id: 'quality-cleanup-2', date: '2026-02-05', name: 'Synthetic expense', amount: 25, type: 'Expense', category: 'Household', account: 'Quality Family Checking 1234', owner: 'Adult A', reviewed: true, pending: false },
       { id: 'quality-cleanup-3', date: '2026-03-05', name: 'Synthetic expense', amount: 30, type: 'Expense', category: 'Household', account: 'Quality Family Chking ••••1234', owner: 'Adult A', reviewed: true, pending: false }
     );
     localStorage.setItem('gringottsBudgetVault.latest', JSON.stringify(vault));
+    const core = await import('/src/v103/core.js');
+    core.invalidateVaultCache();
   });
-  await page.reload();
 }
 
 function desktopOnly(testInfo) {
