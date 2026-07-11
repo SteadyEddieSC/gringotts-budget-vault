@@ -2,6 +2,19 @@
   display: grid;
   gap: 1rem;
   margin-bottom: 1rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.account-cleanup-card > *,
+.account-cleanup-card .section-title-row,
+.account-cleanup-filters,
+.account-cleanup-filter-grid,
+.account-candidate-detail,
+.account-impact-grid,
+.account-cleanup-decision {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .account-cleanup-card > h4 {
@@ -11,10 +24,12 @@
 .account-cleanup-actions {
   align-items: flex-start;
   justify-content: flex-end;
+  min-width: 0;
 }
 
 .account-cleanup-summary {
   grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-width: 0;
 }
 
 .account-cleanup-kpi {
@@ -37,6 +52,7 @@
   display: grid;
   gap: .35rem;
   min-width: 0;
+  max-width: 100%;
   font-weight: 650;
 }
 
@@ -48,12 +64,16 @@
 .account-cleanup-control input {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
 }
 
 .account-inventory-table-wrap {
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
   overflow: auto;
   overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .account-inventory-table {
@@ -61,6 +81,8 @@
 }
 
 .account-candidate-picker {
+  width: 100%;
+  min-width: 0;
   max-width: 48rem;
 }
 
@@ -81,6 +103,7 @@
 
 .account-impact-card {
   min-width: 0;
+  max-width: 100%;
 }
 
 .account-impact-card .action-list {
@@ -93,6 +116,7 @@
 }
 
 .account-cleanup-decision .account-cleanup-control {
+  width: 100%;
   max-width: 44rem;
 }
 
@@ -136,13 +160,13 @@
 
   .account-cleanup-actions {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .account-cleanup-summary,
   .account-cleanup-filter-grid,
   .account-impact-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .account-cleanup-search {
