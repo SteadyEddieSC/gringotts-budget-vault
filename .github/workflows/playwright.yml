@@ -74,8 +74,12 @@ jobs:
           node --check src/v123/recurring-decisions.js
           node --check src/v123/roadmap-horizon.js
           node --check src/v123/reporting.js
-          node --check src/v123/release.js
-          node --check src/boot-v123.js
+          node --check src/v124/scenario-model.js
+          node --check src/v124/scenario-comparison.js
+          node --check src/v124/roadmap-horizon.js
+          node --check src/v124/reporting.js
+          node --check src/v124/release.js
+          node --check src/boot-v124.js
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests
