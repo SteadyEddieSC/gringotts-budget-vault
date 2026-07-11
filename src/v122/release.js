@@ -270,11 +270,16 @@ function enhanceReports(root) {
   const card = button?.closest('.report-option');
   if (!card) return;
   setText(card.querySelector('h3'), '37-sheet Vault Workbook');
-  setText(card.querySelector('p'), 'Includes the existing 35 sheets plus account inventory and cleanup-planning visibility.');
+  setText(card.querySelector('p'), 'Includes the existing 33 sheets plus receipt lineage, account inventory, and cleanup-planning visibility.');
   let list = card.querySelector('.v122-workbook-sheet-list');
   if (!list) {
     list = element('ul', 'v122-workbook-sheet-list');
-    list.append(element('li', '', 'Account Inventory'), element('li', '', 'Account Cleanup Plan'));
+    list.append(
+      element('li', '', 'Receipt Integrity'),
+      element('li', '', 'Batch Lineage'),
+      element('li', '', 'Account Inventory'),
+      element('li', '', 'Account Cleanup Plan')
+    );
     button.before(list);
   }
   setText(button, 'Download 37-sheet Workbook');
