@@ -25,6 +25,13 @@ async function openRecurring(page) {
   await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
 }
 
+async function selectCandidate(page, merchantName) {
+  const option = page.locator('#recurringDecisionCandidate option').filter({ hasText: merchantName }).first();
+  const value = await option.getAttribute('value');
+  expect(value, `Recurring candidate option for ${merchantName}`).toBeTruthy();
+  await page.locator('#recurringDecisionCandidate').selectOption(value);
+}
+
 test('shows evidence-backed recurring costs and excludes pending and one-time noise', async ({ app }) => {
   const { page } = app;
   await openRecurring(page);
@@ -34,6 +41,7 @@ test('shows evidence-backed recurring costs and excludes pending and one-time no
   await expect(page.getByRole('option', { name: /Synthetic Stream Plan/i })).toBeAttached();
   await expect(page.getByRole('option', { name: /Synthetic Utility Plan/i })).toBeAttached();
   await expect(page.getByText('Synthetic One Time Appliance', { exact: true })).toHaveCount(0);
+  await selectCandidate(page, 'Synthetic Stream Plan');
   await expect(page.getByRole('cell', { name: 'Family Card ••••1234', exact: true })).toBeVisible();
   await expect(page.getByRole('cell', { name: /monthly · about 31 days/i })).toBeVisible();
   await expect(page.getByText(/Only posted expense rows provide evidence/i)).toBeVisible();
@@ -43,7 +51,7 @@ test('shows evidence-backed recurring costs and excludes pending and one-time no
 test('saves bounded decision metadata without changing the vault', async ({ app }) => {
   const { page } = app;
   await openRecurring(page);
-  await page.locator('#recurringDecisionCandidate').selectOption({ label: /Synthetic Stream Plan/i });
+  await selectCandidate(page, 'Synthetic Stream Plan');
   const beforeVault = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   await page.locator('#recurringDecisionChoice').selectOption('renegotiate');
   await page.locator('#recurringDecisionStatus').selectOption('planned');
@@ -70,7 +78,7 @@ test('saves bounded decision metadata without changing the vault', async ({ app 
 test('feeds open recurring decisions into Guided Household Plan', async ({ app }) => {
   const { page } = app;
   await openRecurring(page);
-  await page.locator('#recurringDecisionCandidate').selectOption({ label: /Synthetic Utility Plan/i });
+  await selectCandidate(page, 'Synthetic Utility Plan');
   await page.locator('#recurringDecisionChoice').selectOption('investigate');
   await page.locator('#recurringDecisionStatus').selectOption('waiting');
   await page.locator('#recurringDecisionOwner').fill('Adult B');
@@ -88,6 +96,7 @@ test('adds recurring decisions to reports and the 39-sheet workbook', async ({ a
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and report integration coverage.');
   const { page } = app;
   await openRecurring(page);
+  await selectCandidate(page, 'Synthetic Stream Plan');
   await page.locator('#recurringDecisionChoice').selectOption('cancel');
   await page.locator('#recurringDecisionStatus').selectOption('planned');
   await page.locator('#saveRecurringDecision').click();
