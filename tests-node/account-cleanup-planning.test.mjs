@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import {
   ACCOUNT_CLEANUP_PLAN_KEY,
   MAX_ACCOUNT_CLEANUP_DECISIONS,
-  assertAccountCleanupPackageSafe,
-  buildAccountCleanupPackage,
   buildAccountInventory,
   buildAccountReferenceImpact,
   detectAccountCandidates,
@@ -13,6 +11,10 @@ import {
   sanitizeCleanupPlan,
   setCleanupDecision
 } from '../src/v122/account-cleanup-model.js';
+import {
+  assertAccountCleanupPackageSafe,
+  buildAccountCleanupPackage
+} from '../src/v122/account-cleanup-export.js';
 
 const transactions = [
   { date: '2026-01-05', account: 'Fictional Everyday Checking 1234', owner: 'Adult A', amount: 40 },
@@ -140,4 +142,23 @@ test('exports a privacy-safe plan with masked labels and no automatic merge capa
     vaultContentsIncluded: false
   });
   assert.doesNotMatch(JSON.stringify(payload), /"(?:transactions|rows|localLabel|account_id|balance|merchant|vaultContents)"\s*:/i);
+});
+
+test('structural export validation rejects forbidden keys even when nested', () => {
+  assert.throws(() => assertAccountCleanupPackageSafe({
+    kind: 'gringotts-account-cleanup-plan',
+    version: 1,
+    accounts: [{ referenceImpact: { rows: [] } }],
+    dataBoundary: {
+      transactionRowsIncluded: false,
+      rawAccountLabelsIncluded: false,
+      fullAccountIdentifiersIncluded: false,
+      balancesIncluded: false,
+      merchantNamesIncluded: false,
+      sourceFilesIncluded: false,
+      credentialsIncluded: false,
+      tokensIncluded: false,
+      vaultContentsIncluded: false
+    }
+  }), /forbidden field root\.accounts\[0\]\.referenceImpact\.rows/i);
 });
