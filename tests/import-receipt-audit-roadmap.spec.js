@@ -35,6 +35,7 @@ async function openImportWithReceipts(page) {
   await seedReceipts(page);
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
 }
 
@@ -85,18 +86,19 @@ test('downloads a sanitized selected batch and opens only the separate restore t
   await expect(page.locator('#restoreVault')).toBeDisabled();
 });
 
-test('shows the detailed v121 through v127 roadmap horizon', async ({ app }) => {
+test('shows the detailed v122 through v128 roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Roadmap', exact: true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v121 — Receipt Integrity/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v127 — Family Review Cadence/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(7);
+  await expect(page.getByRole('heading', { name: /v122 — Account Cleanup/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v128 — Household Data Quality/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
   await expect(page.getByRole('heading', { name: 'Depends on', exact: true })).toHaveCount(7);
   await expect(page.getByRole('heading', { name: 'Safety boundaries', exact: true })).toHaveCount(7);
-  await expect(page.getByText(/Later releases are a planning horizon/i)).toBeVisible();
+  await expect(page.getByText(/Later releases are a directional planning horizon/i)).toBeVisible();
 });
 
 test('keeps timeline and roadmap notes inside a phone viewport', async ({ app }) => {
