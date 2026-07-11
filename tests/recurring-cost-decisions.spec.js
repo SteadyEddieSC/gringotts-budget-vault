@@ -43,7 +43,7 @@ test('shows evidence-backed recurring costs and excludes pending and one-time no
   await expect(page.getByText('Synthetic One Time Appliance', { exact: true })).toHaveCount(0);
   await selectCandidate(page, 'Synthetic Stream Plan');
   await expect(page.getByRole('cell', { name: 'Family Card ••••1234', exact: true })).toBeVisible();
-  await expect(page.getByRole('cell', { name: /monthly · about 31 days/i })).toBeVisible();
+  await expect(page.getByRole('cell', { name: /monthly · about 30\.5 days/i })).toBeVisible();
   await expect(page.getByText(/Only posted expense rows provide evidence/i)).toBeVisible();
   await expect(page.getByRole('button', { name: /Cancel service|Contact merchant|Change payment|Send email/i })).toHaveCount(0);
 });
