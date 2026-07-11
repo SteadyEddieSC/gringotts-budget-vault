@@ -7,6 +7,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = path.join(__dirname, '..', 'fixtures', 'synthetic-vault.json');
 export const syntheticVault = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
 
+const primaryHeadings = {
+  Dashboard: /Vault Dashboard/i,
+  Money: /Bills, Recurring & Budgets/i,
+  Calendar: /Calendar & Cash Flow/i,
+  Reports: /^Reports$/i,
+  Activity: /Ledger/i,
+  Tools: /Import & Restore/i
+};
+
 export async function seedVault(page, month = '2026-07') {
   await page.addInitScript(({ vault, selectedMonth }) => {
     localStorage.clear();
@@ -22,6 +31,8 @@ export async function waitForApp(page) {
 }
 
 export async function openPrimary(page, name) {
+  const heading = primaryHeadings[name];
+  if (!heading) throw new Error(`Unknown primary destination: ${name}`);
   let lastError;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const button = page.getByRole('button', { name, exact: true });
@@ -31,7 +42,7 @@ export async function openPrimary(page, name) {
     }
     try {
       await button.click({ timeout: 3000 });
-      await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-current', 'page', { timeout: 12000 });
+      await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible({ timeout: 12000 });
       return;
     } catch (error) {
       lastError = error;
