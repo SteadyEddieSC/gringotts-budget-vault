@@ -256,7 +256,8 @@ test('v124 scenarios are bounded, assumption-only, and cannot apply financial ch
   expect(controller).toContain('forecastWriteAvailable: false');
   expect(controller).toContain('debtWriteAvailable: false');
   expect(controller).toContain('goalWriteAvailable: false');
-  expect(controller).not.toMatch(/Apply Scenario/);
+  expect(controller).not.toMatch(/id\s*=\s*['"]applyScenario/i);
+  expect(controller).not.toMatch(/#applyScenario/i);
   expect(release).toContain("version: 'v124'");
   expect(release).toContain('41-sheet Vault Workbook');
   expect(roadmap).toContain("version: 'v130'");
