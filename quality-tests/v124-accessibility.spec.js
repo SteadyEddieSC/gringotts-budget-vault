@@ -55,7 +55,7 @@ async function seedScenarioContext(page) {
 async function openScenario(page) {
   await seedScenarioContext(page);
   await openPrimary(page, 'Money');
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
 }
 
