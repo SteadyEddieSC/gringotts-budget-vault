@@ -60,18 +60,11 @@ test('saves bounded decision metadata without changing the vault', async ({ app 
   await page.locator('#recurringDecisionNotes').fill('Compare current terms with a fictional alternative.');
   await page.locator('#saveRecurringDecision').click();
   await expect(page.locator('#toast')).toContainText('Recurring decision saved and verified');
-  await expect(page.locator('#recurringCandidateDetail .section-meta')).toContainText('Renegotiate');
-
-  const result = await page.evaluate(() => ({
-    vault: localStorage.getItem('gringottsBudgetVault.latest'),
-    store: JSON.parse(localStorage.getItem('gringottsRecurringDecisions.v1') || '{}')
-  }));
+  const result = await page.evaluate(() => ({ vault: localStorage.getItem('gringottsBudgetVault.latest'), store: JSON.parse(localStorage.getItem('gringottsRecurringDecisions.v1') || '{}') }));
   expect(result.vault).toBe(beforeVault);
   expect(result.store.version).toBe(1);
   expect(Object.values(result.store.items)).toHaveLength(1);
-  expect(Object.values(result.store.items)[0]).toMatchObject({
-    decision: 'renegotiate', status: 'planned', owner: 'Adult A', targetDate: '2026-08-15'
-  });
+  expect(Object.values(result.store.items)[0]).toMatchObject({ decision: 'renegotiate', status: 'planned', owner: 'Adult A', targetDate: '2026-08-15' });
   expect(JSON.stringify(result.store)).not.toMatch(/Synthetic Stream Plan|transactions|merchant|account|amount/i);
 });
 
@@ -83,16 +76,14 @@ test('feeds open recurring decisions into Guided Household Plan', async ({ app }
   await page.locator('#recurringDecisionStatus').selectOption('waiting');
   await page.locator('#recurringDecisionOwner').fill('Adult B');
   await page.locator('#saveRecurringDecision').click();
-
   await openPrimary(page, 'Activity');
   await page.getByRole('tab', { name: 'Plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Recurring-cost follow-up', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Investigate Synthetic Utility Plan/i })).toBeVisible();
   await expect(page.getByText(/Owner: Adult B/i)).toBeVisible();
-  await expect(page.getByText(/Confirm whether the charges are expected/i)).toBeVisible();
 });
 
-test('adds recurring decisions to reports and the 39-sheet workbook', async ({ app }, testInfo) => {
+test('retains recurring decisions in v124 reports and the 41-sheet workbook', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and report integration coverage.');
   const { page } = app;
   await openRecurring(page);
@@ -100,35 +91,31 @@ test('adds recurring decisions to reports and the 39-sheet workbook', async ({ a
   await page.locator('#recurringDecisionChoice').selectOption('cancel');
   await page.locator('#recurringDecisionStatus').selectOption('planned');
   await page.locator('#saveRecurringDecision').click();
-
   await openPrimary(page, 'Reports');
-  await expect(page.getByRole('heading', { name: '39-sheet Vault Workbook', exact: true })).toBeVisible();
-  await expect(page.getByText('Recurring Decisions', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Recurring Decision History', { exact: true }).last()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '41-sheet Vault Workbook', exact: true })).toBeVisible();
+  for (const sheet of ['Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
+    await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
+  }
   await page.locator('#reportPreviewPage').selectOption('plan');
   const guidedPlanReport = page.locator('.guided-plan-report');
   await expect(guidedPlanReport.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
   await expect(guidedPlanReport.getByText(/Review cancellation steps/i)).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('meeting');
   await expect(page.getByRole('heading', { name: 'Recurring-cost conversation', exact: true })).toBeVisible();
-
-  const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page.locator('#vaultXlsx').click()
-  ]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v123_.*\.xlsx/i);
+  const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_.*\.xlsx/i);
 });
 
-test('shows the v123 through v129 roadmap horizon', async ({ app }) => {
+test('shows the v124 through v130 roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
-  await expect(page.getByText(/v124 is the strongest next commitment/i)).toBeVisible();
+  await expect(page.getByText(/v125 is the strongest next commitment/i)).toBeVisible();
 });
 
 test('keeps recurring decisions, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {

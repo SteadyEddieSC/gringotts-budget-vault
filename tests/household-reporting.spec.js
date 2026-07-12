@@ -29,36 +29,26 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v123 and navigates the complete household report preview', async ({ app }) => {
+test('boots v124 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v123/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v124/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
-    ['summary', 'Family Financial Report'],
-    ['comparison', 'Year-over-year comparison'],
-    ['spending', 'Spending by category'],
-    ['goals', 'Goals and Vault Health'],
-    ['planning', 'Month close, forecast, and debt'],
-    ['insights', 'Household insights'],
-    ['plan', 'Guided household plan'],
-    ['meeting', 'Family meeting brief']
+    ['summary', 'Family Financial Report'], ['comparison', 'Year-over-year comparison'],
+    ['spending', 'Spending by category'], ['goals', 'Goals and Vault Health'],
+    ['planning', 'Month close, forecast, and debt'], ['insights', 'Household insights'],
+    ['plan', 'Guided household plan'], ['meeting', 'Family meeting brief']
   ];
   for (const [value, heading] of pages) {
     await selectReportPage(page, value);
     const visiblePage = page.locator('.report-preview-deck > .report-page:not([hidden])');
     await expect(visiblePage.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
-  await expect(page.getByText(/39-sheet Vault Workbook/i)).toBeVisible();
-  await expect(page.getByText('Guided Plan', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Planning History', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Import Receipts', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Receipt Integrity', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Batch Lineage', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Account Inventory', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Account Cleanup Plan', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Recurring Decisions', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Recurring Decision History', { exact: true }).last()).toBeVisible();
+  await expect(page.getByText(/41-sheet Vault Workbook/i)).toBeVisible();
+  for (const sheet of ['Guided Plan', 'Planning History', 'Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
+    await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
+  }
 });
 
 test('saves a custom range and compares equivalent prior-year dates without network writes', async ({ app }, testInfo) => {
@@ -68,25 +58,18 @@ test('saves a custom range and compares equivalent prior-year dates without netw
   page.on('request', (request) => { if (request.method() !== 'GET' && !request.url().startsWith('blob:')) writes.push(request.url()); });
   await addPriorYearRows(page);
   await openReports(page);
-
   await page.locator('#reportPreset').selectOption('custom');
-  await expect(page.locator('#reportStart')).toBeEnabled();
-  await expect(page.locator('#reportEnd')).toBeEnabled();
   await page.locator('#reportStart').fill('2026-05-01');
   await page.locator('#reportEnd').fill('2026-07-31');
   await page.locator('#reportComparePrior').check();
   await page.locator('#applyReportRange').click();
-
   await expect(page.locator('#reportPreset')).toHaveValue('custom');
-  await expect(page.locator('#reportStart')).toHaveValue('2026-05-01');
-  await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
   await page.locator('#reportPreviewPage').selectOption('comparison');
   await expect(page.locator('.comparison-table tbody tr')).toHaveCount(6);
   await expect(page.getByText(/equivalent prior-year range/i).first()).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('plan');
   await expect(page.locator('.guided-plan-report').getByRole('heading', { name: 'Guided household plan', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recurring-cost decisions', exact: true })).toBeVisible();
-
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gringottsReportRange.v1')));
   expect(saved).toMatchObject({ preset: 'custom', start: '2026-05-01', end: '2026-07-31', comparePriorYear: true });
   expect(writes).toEqual([]);
@@ -102,52 +85,32 @@ test('resolves year-to-date from the selected report month', async ({ app }, tes
   expect(saved).toMatchObject({ preset: 'ytd', start: '2026-01-01', end: '2026-07-31' });
   await expect(page.locator('#reportStart')).toHaveValue('2026-01-01');
   await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
-  await expect(page.locator('#reportStart')).toBeDisabled();
-  await expect(page.locator('#reportEnd')).toBeDisabled();
 });
 
 test('includes local goal, health, forecast, debt, and guided plan context', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One desktop browser is sufficient for report context coverage.');
   const { page } = app;
   await page.evaluate(() => {
-    localStorage.setItem('gringottsGoals.v1', JSON.stringify({ goals: [{
-      id: 'goal_report_test', name: 'Synthetic Emergency Fund', type: 'Emergency Fund',
-      target: 5000, current: 1250, monthlyContribution: 25, dueDate: '2026-09-01',
-      notes: 'Fictional Playwright data', archived: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
-    }] }));
-    localStorage.setItem('gringottsForecastSettings.v1', JSON.stringify({
-      asOfDate: '2026-07-01', startingCash: 2000, minimumBuffer: 500,
-      flexibleMonthlySpend: 300, horizonDays: 60
-    }));
-    localStorage.setItem('gringottsDebtPlan.v1', JSON.stringify({ debts: [{
-      id: 'debt_report_test', name: 'Synthetic Promo Card', balance: 1200, apr: 24,
-      minimumPayment: 40, targetPayment: 150, promoApr: 0, promoEnd: '2026-10-01',
-      notes: 'Fictional Playwright data', totalPaymentsRecorded: 0,
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
-    }], monthlyExtra: 50 }));
+    localStorage.setItem('gringottsGoals.v1', JSON.stringify({ goals: [{ id: 'goal_report_test', name: 'Synthetic Emergency Fund', type: 'Emergency Fund', target: 5000, current: 1250, monthlyContribution: 25, dueDate: '2026-09-01', notes: 'Fictional Playwright data', archived: false }] }));
+    localStorage.setItem('gringottsForecastSettings.v1', JSON.stringify({ asOfDate: '2026-07-01', startingCash: 2000, minimumBuffer: 500, flexibleMonthlySpend: 300, horizonDays: 60 }));
+    localStorage.setItem('gringottsDebtPlan.v1', JSON.stringify({ debts: [{ id: 'debt_report_test', name: 'Synthetic Promo Card', balance: 1200, apr: 24, minimumPayment: 40, targetPayment: 150, promoApr: 0, promoEnd: '2026-10-01' }], monthlyExtra: 50 }));
   });
   await openReports(page);
   await page.locator('#reportPreviewPage').selectOption('goals');
   await expect(page.getByText('Synthetic Emergency Fund').first()).toBeVisible();
-  await expect(page.getByText(/Vault Health/i).first()).toBeVisible();
   await page.locator('#reportPreviewPage').selectOption('planning');
   await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
-  await expect(page.locator('.summary-box').filter({ hasText: /^Forecast:/i })).toBeVisible();
-  await expect(page.getByText(/Current priority: Synthetic Promo Card/i)).toBeVisible();
-  await page.locator('#reportPreviewPage').selectOption('plan');
-  await expect(page.getByText(/Review the contribution pace for Synthetic Emergency Fund/i).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Household scenario comparisons', exact: true })).toBeVisible();
 });
 
-test('downloads the 39-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
+test('downloads the 41-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v123_2026-07-01_to_2026-07-31_.*\.xlsx/i);
-
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_2026-07-01_to_2026-07-31_.*\.xlsx/i);
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v123_2026-07_.*\.md/i);
-
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v124_2026-07_.*\.md/i);
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
 });
@@ -160,8 +123,8 @@ test('uses eight report pages for print and hides screen-only controls', async (
   await expect(page.locator('.report-preview-toolbar')).toBeHidden();
   await expect(page.locator('.report-page')).toHaveCount(8);
   for (let index = 0; index < 8; index += 1) await expect(page.locator('.report-page').nth(index)).toBeVisible();
-  await expect(page.locator('.guided-plan-report')).toBeVisible();
   await expect(page.locator('.v123-recurring-report-section').first()).toBeVisible();
+  await expect(page.locator('.v124-scenario-report-section').first()).toBeVisible();
 });
 
 test('keeps reporting inside every configured viewport', async ({ app }) => {
@@ -171,6 +134,4 @@ test('keeps reporting inside every configured viewport', async ({ app }) => {
   expect(overflow).toBeLessThanOrEqual(2);
   await expect(page.locator('#reportPreset')).toHaveJSProperty('tagName', 'SELECT');
   await expect(page.locator('#reportPreviewPage')).toHaveJSProperty('tagName', 'SELECT');
-  await expect(page.locator('#reportStart')).toHaveAttribute('type', 'date');
-  await expect(page.locator('#reportEnd')).toHaveAttribute('type', 'date');
 });

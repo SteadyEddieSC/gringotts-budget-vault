@@ -1,0 +1,164 @@
+.scenario-comparison-workspace,
+.v124-scenario-plan-section,
+.v124-scenario-report-section {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.scenario-comparison-workspace {
+  margin-top: 1rem;
+  overflow-x: hidden;
+}
+
+.scenario-comparison-workspace > *,
+.scenario-form,
+.scenario-form-grid,
+.scenario-actions,
+.scenario-plan-list,
+.scenario-plan-action,
+.scenario-disclosure {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.scenario-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.scenario-kpi {
+  min-width: 0;
+}
+
+.scenario-summary-text {
+  margin: 0;
+  font-weight: 650;
+}
+
+.scenario-saved-picker {
+  width: 100%;
+  max-width: 44rem;
+}
+
+.scenario-form {
+  display: grid;
+  gap: .85rem;
+}
+
+.scenario-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.scenario-control {
+  display: grid;
+  gap: .35rem;
+  min-width: 0;
+  font-weight: 650;
+}
+
+.scenario-control > span {
+  font-size: .86rem;
+}
+
+.scenario-control input,
+.scenario-control select,
+.scenario-control textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.scenario-notes {
+  width: 100%;
+  max-width: 64rem;
+}
+
+.scenario-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  align-items: center;
+}
+
+.scenario-comparison-table-wrap {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scenario-comparison-table {
+  min-width: 760px;
+}
+
+.scenario-disclosure ul,
+.scenario-plan-action ul {
+  margin-bottom: 0;
+}
+
+.scenario-plan-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.v124-workbook-sheet-list {
+  margin: .75rem 0 1rem;
+}
+
+.v124-roadmap-page .roadmap-horizon-card.current {
+  border-width: 2px;
+}
+
+@media (max-width: 980px) {
+  .scenario-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .scenario-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .scenario-comparison-workspace .section-title-row,
+  .scenario-plan-action .section-title-row {
+    align-items: stretch;
+  }
+
+  .scenario-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .scenario-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .scenario-actions .btn {
+    width: 100%;
+  }
+
+  .scenario-comparison-table {
+    min-width: 680px;
+  }
+}
+
+@media print {
+  .scenario-form,
+  .scenario-actions {
+    display: none !important;
+  }
+
+  .scenario-comparison-workspace,
+  .v124-scenario-plan-section,
+  .v124-scenario-report-section {
+    break-inside: avoid;
+  }
+}

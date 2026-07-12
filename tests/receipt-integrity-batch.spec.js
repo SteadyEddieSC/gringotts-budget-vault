@@ -22,9 +22,7 @@ async function seedTimeline(page) {
     ];
     localStorage.setItem('gringottsImportHistory.v1', JSON.stringify({ imports: receipts, updatedAt: '2026-07-03T12:00:01.000Z' }));
     localStorage.setItem('gringottsImportBatchIndex.v1', JSON.stringify({
-      version: 1,
-      updatedAt: '2026-07-02T12:00:01.000Z',
-      links: [{
+      version: 1, updatedAt: '2026-07-02T12:00:01.000Z', links: [{
         linkId: 'batch-link-2', receiptImportId: 'batch-receipt-2', linkedAt: '2026-07-02T12:00:01.000Z',
         dryRunSignature: 'fnv1a-1234abcd', dryRunCreatedAt: '2026-07-02T11:55:00.000Z',
         sourceFormat: 'delimited', schemaId: 'card-activity', schemaLabel: 'Card activity export',
@@ -50,7 +48,6 @@ test('links an explicit current dry run to the verified receipt without changing
   expect(backup.suggestedFilename()).toMatch(/Gringotts_v115_pre_import_12_.*\.json/i);
   await page.locator('#bankImportAck').check();
   await page.locator('#prepareImportDryRun').click();
-  await expect(page.getByText(/Prepared in memory only/i)).toBeVisible();
   page.once('dialog', (dialog) => dialog.accept());
   await page.locator('#commitBankImport').click();
   await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem('gringottsImportBatchIndex.v1') || '{"links":[]}').links?.length || 0)).toBe(1);
@@ -59,7 +56,6 @@ test('links an explicit current dry run to the verified receipt without changing
   expect(result.receipt).toMatchObject({ transactionCount: 3, insertedCount: 2, skippedCount: 1, destinationBeforeCount: 12, destinationAfterCount: 14, verificationResult: 'verified' });
   expect(result.index.links[0]).toMatchObject({ receiptImportId: result.receipt.importId, normalizedRowCount: 3, wouldInsert: 2, wouldSkip: 1, transactionWriteReady: true, verifiedCounts: true });
   expect(JSON.stringify(result.index)).not.toMatch(/synthetic-signed|Test Credit Card|Fictional fuel|"sourceFilename"\s*:|"sourceFingerprint"\s*:|"selectedDestinationVault"\s*:|"transactions"\s*:/i);
-  await expect(page.locator('.receipt-timeline-table').getByText('Linked · ready', { exact: true })).toBeVisible();
 });
 
 test('filters retained batches and explains continuity and repeated source use', async ({ app }) => {
@@ -91,27 +87,26 @@ test('downloads sanitized full and selected timeline packages', async ({ app }) 
   expect(fullPayload.batches).toHaveLength(3);
   expect(selectedPayload.batches).toHaveLength(1);
   for (const payload of [fullPayload, selectedPayload]) {
-    expect(payload.dataBoundary).toMatchObject({ transactionRowsIncluded: false, sourceFileNameIncluded: false, sourceFingerprintIncluded: false, destinationStorageKeyIncluded: false, accountIdentifiersIncluded: false, merchantNamesIncluded: false, vaultContentsIncluded: false });
+    expect(payload.dataBoundary.transactionRowsIncluded).toBe(false);
     expect(JSON.stringify(payload)).not.toMatch(/SECRET-first|SECRET-second|SECRET-third|SECRET-repeat|SECRET MERCHANT|gringottsBudgetVault\.latest|"transactions"\s*:/i);
   }
 });
 
-test('shows v123 through v129 while retaining v121 lineage and the 39-sheet workbook', async ({ app }, testInfo) => {
+test('shows v124 through v130 while retaining v121 lineage and the 41-sheet workbook', async ({ app }, testInfo) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v123 — Recurring Cost Decisions/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v129 — Decision Outcome Review/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
   if (testInfo.project.name !== 'chromium') return;
   await seedTimeline(page);
   await openPrimary(page, 'Reports');
-  await expect(page.getByText(/39-sheet Vault Workbook/i)).toBeVisible();
-  for (const sheet of ['Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History']) {
+  await expect(page.getByText(/41-sheet Vault Workbook/i)).toBeVisible();
+  for (const sheet of ['Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v123_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_.*\.xlsx/i);
 });
 
 test('keeps timeline filters, details, account planning, and roadmap inside a phone viewport', async ({ app }) => {

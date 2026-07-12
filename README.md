@@ -7,77 +7,91 @@
 [![CodeQL](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml)
 
-A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household transaction data is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
+A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household financial data is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
 
-Current release: **v123 — Recurring Cost Decisions & Subscription Review**
+Current release: **v124 — Household Scenario Comparison**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v123 recurring-cost workflow
+## v124 scenario comparison
 
-Inside **Money → Bills, Recurring & Budgets**, v123 turns recurring-charge evidence into an owned household decision queue.
+Inside **Money → Close & Forecast**, v124 compares the current cash-forecast baseline with temporary household assumptions.
 
-It provides:
+A scenario can model:
 
-- posted-charge grouping by normalized merchant and account;
-- pending, income, transfer-like, and weak one-time exclusions;
-- cadence, typical-day-gap, amount-stability, and latest-price-change evidence;
-- masked account and detected owner context;
-- simple cadence-based annual footprint and annualized increase estimates;
-- Keep, Cancel, Renegotiate, Investigate, and Completed decisions;
-- owner, target date, follow-up status, notes, and bounded decision history;
-- Guided Plan, report, Family Meeting, and Markdown integration.
+- starting-cash changes;
+- monthly income changes;
+- recurring-cost savings;
+- flexible-spending changes;
+- one dated purchase or expense;
+- extra monthly debt payments;
+- extra monthly goal contributions;
+- 30-, 60-, or 90-day horizons.
 
-Gringotts does **not** cancel services, contact merchants, send emails, change payments, or connect to external accounts. Annual amounts are discussion estimates rather than guaranteed savings.
+The side-by-side comparison shows ending cash, the low point, buffer-pressure days, negative days, monthly flexibility, modeled debt direction, and aggregate goal timing.
 
-## Browser-local metadata boundary
+## Planning-only safety boundary
 
-The v123 store is:
+v124 provides **no Apply Scenario action**. Preview and Save Assumptions affect only scenario metadata.
 
-`gringottsRecurringDecisions.v1`
+The feature cannot automatically change:
 
-It is capped at 120 decision records and 240 history entries. Stored values contain candidate IDs, decisions, status, owner, target date, notes, and timestamps—not transaction rows, merchant names, account labels, amounts, balances, credentials, or institution identifiers.
+- transactions or budgets;
+- forecast settings;
+- debt records or payments;
+- goals or contributions;
+- recurring-cost decisions;
+- merchant, institution, or account activity.
 
-Writes are read-back verified. If a write fails, the prior raw value is restored. Decisions that no longer match current evidence remain dormant and are never silently applied to another merchant or account.
+Debt direction models extra principal only. It does not model interest, fees, changing minimums, or full amortization. Outputs are household discussion projections, not guarantees or financial advice.
 
-## Preserved v122 and import capabilities
+## Browser-local metadata
 
-v123 retains:
+The v124 store is:
 
-- masked account inventory and account cleanup planning;
-- receipt integrity and import batch lineage;
-- profiles, portability, revisions, and metadata-only dry runs;
+`gringottsScenarioComparisons.v1`
+
+It is capped at 24 scenarios and 80 history entries. Stored values contain scenario IDs, names, assumptions, notes, and timestamps—not transaction rows, merchant names, account labels, balances, credentials, tokens, or vault contents.
+
+Writes are read-back verified. If a write fails, the prior raw value is restored.
+
+## Guided Plan, reports, and workbook
+
+Saved scenarios appear in Guided Household Plan, the planning report page, Family Meeting preparation, and local Markdown downloads.
+
+The Vault Workbook now contains **41 sheets**. v124 adds:
+
+- **Scenario Comparisons**;
+- **Scenario Assumptions**.
+
+Receipt Integrity, Batch Lineage, Account Inventory, Account Cleanup Plan, Recurring Decisions, and Recurring Decision History remain.
+
+## Preserved capabilities
+
+v124 retains:
+
+- recurring-cost decisions and follow-up;
+- masked account cleanup planning;
+- receipt integrity and batch lineage;
+- import profiles, portability, revisions, and dry runs;
 - backup-first missing-only import with rollback and read-back verification;
-- a separate Full Vault Restore task targeting `gringottsBudgetVault.latest`;
+- separate Full Vault Restore targeting `gringottsBudgetVault.latest`;
 - six primary destinations and stable v105 rescue behavior.
-
-## Workbook and reports
-
-The local Vault Workbook now contains **39 sheets**.
-
-v123 adds:
-
-- **Recurring Decisions**;
-- **Recurring Decision History**.
-
-The existing Receipt Integrity, Batch Lineage, Account Inventory, and Account Cleanup Plan sheets remain.
-
-Open Cancel, Renegotiate, and Investigate decisions also appear in Guided Household Plan, report previews, the Family Meeting Pack, and local Markdown downloads.
 
 ## Roadmap
 
-The detailed horizon in Tools → Roadmap and [`ROADMAP.md`](ROADMAP.md) covers v123 through v129.
+Tools → Roadmap and [`ROADMAP.md`](ROADMAP.md) cover v124 through v130.
 
-- v124 — Household Scenario Comparison
 - v125 — Close History & Trend Explainability
 - v126 — Data Portability & Long-Term Maintenance
 - v127 — Family Review Cadence & Governance Packs
 - v128 — Household Data Quality & Stewardship Review
 - v129 — Decision Outcome Review & Forecast Calibration
+- v130 — Household Resilience & Contingency Planning
 
-v124 is the strongest next commitment. Later entries remain directional.
+v125 is the strongest next commitment. Later entries remain directional.
 
 ## Privacy and architecture
 
@@ -95,19 +109,7 @@ The application remains local-first:
 
 ## Automated validation
 
-The release gate covers:
-
-- pure recurring-model tests;
-- pending, income, transfer, and one-time exclusions;
-- cadence, amount stability, price change, annualization, and account separation;
-- bounded metadata, dormant decisions, history, and rollback;
-- vault byte-for-byte noninterference;
-- Guided Plan, reports, Markdown, and 39-sheet workbook integration;
-- Chromium, Firefox, and WebKit desktop;
-- Android Chromium, iPad WebKit, and iPhone WebKit;
-- keyboard, visual, axe, and Lighthouse gates;
-- privacy, Gitleaks, Dependency Review, npm audit, Supply Chain, and CodeQL;
-- Cloudflare preview and production smoke.
+The release gate covers pure model and browser tests, store rollback and noninterference, 41-sheet reporting, desktop and responsive browser matrices, keyboard and axe accessibility, visual contracts, Lighthouse budgets, full-history privacy scanning, Gitleaks, dependency review, npm audit, supply-chain checks, CodeQL, Cloudflare preview, and production smoke.
 
 ## Local testing
 
@@ -121,4 +123,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See [`TESTING.md`](TESTING.md), [`QUALITY_GATES.md`](QUALITY_GATES.md), [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md), and [`RELEASE_NOTES_v123_RECURRING_COST_DECISIONS.md`](RELEASE_NOTES_v123_RECURRING_COST_DECISIONS.md).
+See [`TESTING.md`](TESTING.md), [`QUALITY_GATES.md`](QUALITY_GATES.md), [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md), and [`RELEASE_NOTES_v124_HOUSEHOLD_SCENARIO_COMPARISON.md`](RELEASE_NOTES_v124_HOUSEHOLD_SCENARIO_COMPARISON.md).

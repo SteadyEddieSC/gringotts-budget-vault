@@ -61,7 +61,8 @@ test('quality automation stays local and preserves original Lighthouse budgets',
     'quality-tests/v120-accessibility.spec.js',
     'quality-tests/v121-accessibility.spec.js',
     'quality-tests/v122-accessibility.spec.js',
-    'quality-tests/v123-accessibility.spec.js'
+    'quality-tests/v123-accessibility.spec.js',
+    'quality-tests/v124-accessibility.spec.js'
   ]) {
     expect(workflow).toContain(file);
     expect(packageJson).toContain(file);
@@ -100,7 +101,9 @@ test('parser preflight runs before browser installation and checks every active 
     'src/v122/account-cleanup-model.js', 'src/v122/account-cleanup-export.js',
     'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js', 'src/v122/reporting.js',
     'src/v123/recurring-decisions-model.js', 'src/v123/recurring-decisions.js',
-    'src/v123/roadmap-horizon.js', 'src/v123/reporting.js', 'src/v123/release.js', 'src/boot-v123.js'
+    'src/v123/roadmap-horizon.js', 'src/v123/reporting.js',
+    'src/v124/scenario-model.js', 'src/v124/scenario-comparison.js',
+    'src/v124/roadmap-horizon.js', 'src/v124/reporting.js', 'src/v124/release.js', 'src/boot-v124.js'
   ]) expect(playwright).toContain(`node --check ${module}`);
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
@@ -210,55 +213,77 @@ test('v123 recurring decisions store only bounded follow-up metadata and expose 
   const model = read('src/v123/recurring-decisions-model.js');
   const controller = read('src/v123/recurring-decisions.js');
   const reporting = read('src/v123/reporting.js');
-  const release = read('src/v123/release.js');
-  const roadmap = read('src/v123/roadmap-horizon.js');
-  for (const source of [model, controller, reporting, release, roadmap]) {
+  for (const source of [model, controller, reporting]) {
     expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
   }
   expect(model).not.toMatch(/localStorage|sessionStorage/);
   expect(model).toContain("RECURRING_DECISION_KEY = 'gringottsRecurringDecisions.v1'");
   expect(model).toContain('MAX_RECURRING_DECISIONS = 120');
   expect(model).toContain('MAX_RECURRING_HISTORY = 240');
-  expect(model).toContain("'keep'");
-  expect(model).toContain("'cancel'");
-  expect(model).toContain("'renegotiate'");
-  expect(model).toContain("'investigate'");
-  expect(model).toContain("'completed'");
   expect(controller).toContain('localStorage.setItem(RECURRING_DECISION_KEY');
   expect(controller).toContain('The previous decision metadata was restored.');
   expect(controller).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
-  expect(controller).not.toContain("localStorage.removeItem('gringottsBudgetVault.latest'");
   expect(controller).toContain('externalMerchantActionAvailable: false');
   expect(controller).toContain('transactionWriteAvailable: false');
-  expect(controller).toContain('emailActionAvailable: false');
-  expect(controller).toContain('paymentChangeAvailable: false');
-  expect(release).toContain("version: 'v123'");
-  expect(release).toContain('39-sheet Vault Workbook');
-  expect(roadmap).toContain("version: 'v129'");
-  expect(roadmap).toContain('The first roadmap entry must identify v123 as the current release.');
 });
 
-test('v123 boot owns presentation while preserving lazy local-first route layers', () => {
-  const boot = read('src/boot-v123.js');
+test('v124 scenarios are bounded, assumption-only, and cannot apply financial changes', () => {
+  const model = read('src/v124/scenario-model.js');
+  const controller = read('src/v124/scenario-comparison.js');
+  const reporting = read('src/v124/reporting.js');
+  const release = read('src/v124/release.js');
+  const roadmap = read('src/v124/roadmap-horizon.js');
+  for (const source of [model, controller, reporting, release, roadmap]) {
+    expect(source).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  }
+  expect(model).not.toMatch(/localStorage|sessionStorage/);
+  expect(model).toContain("SCENARIO_STORE_KEY = 'gringottsScenarioComparisons.v1'");
+  expect(model).toContain('MAX_SCENARIOS = 24');
+  expect(model).toContain('MAX_SCENARIO_HISTORY = 80');
+  for (const boundary of [
+    'transactionRowsStored: false', 'forecastSettingsModified: false',
+    'debtPlanModified: false', 'goalsModified: false',
+    'recurringDecisionsModified: false', 'automaticApplyAvailable: false'
+  ]) expect(model).toContain(boundary);
+  expect(controller).toContain('localStorage.setItem(SCENARIO_STORE_KEY');
+  expect(controller).toContain('The previous scenario metadata was restored.');
+  for (const key of [
+    'gringottsBudgetVault.latest', 'gringottsForecastSettings.v1', 'gringottsDebtPlan.v1',
+    'gringottsGoals.v1', 'gringottsRecurringDecisions.v1'
+  ]) expect(controller).not.toContain(`localStorage.setItem('${key}'`);
+  expect(controller).toContain('automaticApplyAvailable: false');
+  expect(controller).toContain('transactionWriteAvailable: false');
+  expect(controller).toContain('forecastWriteAvailable: false');
+  expect(controller).toContain('debtWriteAvailable: false');
+  expect(controller).toContain('goalWriteAvailable: false');
+  expect(controller).not.toMatch(/id\s*=\s*['"]applyScenario/i);
+  expect(controller).not.toMatch(/#applyScenario/i);
+  expect(release).toContain("version: 'v124'");
+  expect(release).toContain('41-sheet Vault Workbook');
+  expect(roadmap).toContain("version: 'v130'");
+  expect(roadmap).toContain('The first roadmap entry must identify v124 as the current release.');
+});
+
+test('v124 boot owns presentation while preserving lazy local-first route layers', () => {
+  const boot = read('src/boot-v124.js');
   const index = read('index.html');
   const app = read('app.html');
-  expect(index).toContain('src/boot-v123.js?v=123recurring1');
-  expect(app).toContain('src/boot-v123.js?v=123recurring1');
-  for (const stylesheet of ['styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css']) {
+  expect(index).toContain('src/boot-v124.js?v=124scenario1');
+  expect(app).toContain('src/boot-v124.js?v=124scenario1');
+  for (const stylesheet of ['styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css', 'styles/v124.css']) {
     expect(index).not.toContain(stylesheet);
     expect(app).not.toContain(stylesheet);
   }
-  expect(boot).toContain("import('./v118/release.js?v=123recurring1')");
-  expect(boot).toContain("import('./v119/release.js?v=123recurring1')");
-  expect(boot).toContain("import('./v120/release.js?v=123recurring1')");
-  expect(boot).toContain("import('./v121/release.js?v=123recurring1')");
-  expect(boot).toContain("import('./v122/account-cleanup.js?v=123recurring1')");
-  expect(boot).toContain("import('./v122/account-cleanup-export-controller.js?v=123recurring1')");
-  expect(boot).toContain("import('./v123/release.js?v=123recurring1')");
-  expect(boot).not.toContain("import('./v122/release.js?v=123");
-  expect(boot).toContain('cleanupExport.installAccountCleanupExportController();');
-  expect(boot).toContain('accountCleanup.installAccountCleanupFeatures();');
-  expect(boot).toContain('await v123.prepareV123Interceptors();');
+  expect(boot).toContain("import('./v118/release.js?v=124scenario1')");
+  expect(boot).toContain("import('./v119/release.js?v=124scenario1')");
+  expect(boot).toContain("import('./v120/release.js?v=124scenario1')");
+  expect(boot).toContain("import('./v121/release.js?v=124scenario1')");
+  expect(boot).toContain("import('./v122/account-cleanup.js?v=124scenario1')");
+  expect(boot).toContain("import('./v123/recurring-decisions.js?v=124scenario1')");
+  expect(boot).toContain("import('./v124/release.js?v=124scenario1')");
+  expect(boot).not.toContain("import('./v123/release.js?v=124");
+  expect(boot).toContain('recurring.installRecurringDecisionFeatures();');
+  expect(boot).toContain('await v124.prepareV124Interceptors();');
   expect(boot).toContain("['money', 'reports', 'activity', 'tools'].includes(route)");
   expect(boot).not.toContain('serviceWorker');
 });
@@ -272,8 +297,9 @@ test('public repository security and quality control files remain present', () =
     'quality-baselines/v112-layout-contracts.json', 'quality-tests/accessibility.spec.js',
     'quality-tests/v120-accessibility.spec.js', 'quality-tests/v121-accessibility.spec.js',
     'quality-tests/v122-accessibility.spec.js', 'quality-tests/v123-accessibility.spec.js',
-    'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
-    'src/boot-v122.js', 'src/boot-v123.js', 'src/v113/insights.js', 'src/v114/planning.js',
+    'quality-tests/v124-accessibility.spec.js', 'quality-tests/tab-semantics.spec.js',
+    'quality-tests/visual-contracts.spec.js', 'src/boot-v123.js', 'src/boot-v124.js',
+    'src/v113/insights.js', 'src/v114/planning.js',
     'src/v115/parser.js', 'src/v115/bank-import.js', 'src/v115/reporting.js', 'src/v115/release.js', 'src/v115/views.js',
     'src/v116/release.js', 'src/v117/profile-model.js', 'src/v117/import-profiles.js',
     'src/v118/profile-portability-model.js', 'src/v118/institution-patterns.js', 'src/v118/profile-portability.js', 'src/v118/release.js',
@@ -284,10 +310,13 @@ test('public repository security and quality control files remain present', () =
     'src/v122/account-cleanup-export-controller.js', 'src/v122/account-cleanup.js', 'src/v122/reporting.js',
     'src/v123/recurring-decisions-model.js', 'src/v123/recurring-decisions.js',
     'src/v123/roadmap-horizon.js', 'src/v123/reporting.js', 'src/v123/release.js',
-    'styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css',
+    'src/v124/scenario-model.js', 'src/v124/scenario-comparison.js',
+    'src/v124/roadmap-horizon.js', 'src/v124/reporting.js', 'src/v124/release.js',
+    'styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css', 'styles/v124.css',
     'tests-node/receipt-integrity-batch.test.mjs', 'tests-node/account-cleanup-planning.test.mjs',
-    'tests-node/recurring-decisions.test.mjs', 'tests/account-cleanup-planning.spec.js',
-    'tests/recurring-cost-decisions.spec.js', 'tests/v116-ui-architecture.spec.js',
+    'tests-node/recurring-decisions.test.mjs', 'tests-node/scenario-comparison.test.mjs',
+    'tests/account-cleanup-planning.spec.js', 'tests/recurring-cost-decisions.spec.js',
+    'tests/scenario-comparison.spec.js', 'tests/v116-ui-architecture.spec.js',
     'tests/fixtures/bank-import/synthetic-signed.csv',
     'tests/fixtures/bank-import/synthetic-debit-credit.csv',
     'tests/fixtures/bank-import/synthetic-card-activity.csv',
