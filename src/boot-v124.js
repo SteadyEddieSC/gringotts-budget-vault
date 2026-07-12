@@ -152,9 +152,11 @@ function loadRouteLayers() {
       import('./v122/account-cleanup-export-controller.js?v=124scenario1'),
       import('./v123/recurring-decisions.js?v=124scenario1'),
       import('./v124/release.js?v=124scenario1')
-    ]).then(([v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124]) => {
+    ]).then(async ([v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124]) => {
+      const layers = { v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124 };
+      await prepareRouteLayers(layers);
       routeLayersReady = true;
-      return { v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, v124 };
+      return layers;
     }).catch((error) => {
       routeLayersPromise = null;
       routeLayersReady = false;
