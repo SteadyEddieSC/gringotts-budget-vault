@@ -107,4 +107,8 @@
   .close-history-table-wrap {
     margin-inline: -.25rem;
   }
+
+  .v125-close-trend-report .close-driver-table-wrap {
+    margin-inline: 0;
+  }
 }
