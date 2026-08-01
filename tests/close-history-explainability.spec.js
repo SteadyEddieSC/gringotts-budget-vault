@@ -1,4 +1,4 @@
-import { test, expect } from './helpers/app.js';
+import { test, expect, openPrimary } from './helpers/app.js';
 
 async function seedCloseHistory(page) {
   await page.evaluate(() => {
@@ -30,7 +30,7 @@ test('explains a closed month with transfer-neutral aggregate drivers', async ({
   await seedCloseHistory(page);
   await page.reload();
   await expect(page.locator('.version-text')).toContainText(/^v125/);
-  await page.getByRole('button', { name: 'Money', exact: true }).click();
+  await openPrimary(page, 'Money');
   await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
   await expect(page.locator('.close-driver-table')).toBeVisible();
@@ -45,10 +45,24 @@ test('changes review month without writing to the vault', async ({ app }) => {
   await seedCloseHistory(page);
   await page.reload();
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
-  await page.getByRole('button', { name: 'Money', exact: true }).click();
+  await openPrimary(page, 'Money');
   await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await page.locator('#closeTrendMonth').selectOption('2026-05');
   await expect(page.locator('#closeTrendMonth')).toHaveValue('2026-05');
   const after = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   expect(after).toBe(before);
+});
+
+test('keeps the close-trend report hidden until selected and contained on phone', async ({ app }) => {
+  const { page } = app;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openPrimary(page, 'Reports');
+  const trendReport = page.locator('.v125-close-trend-report');
+  await expect(trendReport).toBeHidden();
+  let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(2);
+  await page.locator('#reportPreviewPage').selectOption('close-trends');
+  await expect(trendReport).toBeVisible();
+  overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(2);
 });
