@@ -8,7 +8,7 @@ async function visibleCount(locator) {
 
 test('preserves six primary destinations and browser-local vault state', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v124/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v125/i);
   const labels = await page.locator('[data-tab]').allTextContents();
   expect(labels.map((value) => value.trim())).toEqual(['Dashboard', 'Money', 'Calendar', 'Reports', 'Activity', 'Tools']);
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
@@ -16,26 +16,29 @@ test('preserves six primary destinations and browser-local vault state', async (
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(before);
 });
 
-test('shows one report preview page on screen while preserving all eight print pages', async ({ app }) => {
+test('shows one report preview at a time while preserving the eight inherited print pages', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Reports');
   const select = page.locator('#reportPreviewPage');
-  await expect(select.locator('option')).toHaveCount(8);
+  await expect(select.locator('option')).toHaveCount(9);
   expect(await visibleCount(page.locator('.report-preview-deck > .report-page'))).toBe(1);
   await select.selectOption('comparison');
   await expect(page.getByRole('heading', { name: 'Year-over-year comparison', exact: true })).toBeVisible();
+  await select.selectOption('close-trends');
+  await expect(page.locator('.v125-close-trend-report:not([hidden])')).toBeVisible();
   await page.emulateMedia({ media: 'print' });
   expect(await visibleCount(page.locator('.report-preview-deck > .report-page'))).toBe(8);
 });
 
-test('keeps scenarios and recurring decisions separate from cleanup, import, and restore', async ({ app }) => {
+test('keeps trends, scenarios, and recurring decisions separate from cleanup, import, and restore', async ({ app }) => {
   const { page } = app;
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   await openPrimary(page, 'Money');
   await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Apply Scenario|Change Forecast/i })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Apply Scenario|Change Forecast|Apply Trend/i })).toHaveCount(0);
 
   await openPrimary(page, 'Tools');
   const bankButton = page.getByRole('button', { name: /Import transactions/i });
@@ -48,11 +51,11 @@ test('keeps scenarios and recurring decisions separate from cleanup, import, and
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(before);
 });
 
-test('keeps phone secondary navigation and scenario surfaces compact', async ({ app }) => {
+test('keeps phone secondary navigation and planning surfaces compact', async ({ app }) => {
   const { page } = app;
   await page.setViewportSize({ width: 390, height: 844 });
   await openPrimary(page, 'Money');
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
   await openPrimary(page, 'Activity');
@@ -60,6 +63,7 @@ test('keeps phone secondary navigation and scenario surfaces compact', async ({ 
   expect(await subnav.evaluate((element) => getComputedStyle(element).overflowX)).toMatch(/auto|scroll/);
   await page.getByRole('tab', { name: 'Plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Scenario discussion', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Close trend conversation', exact: true })).toBeVisible();
   overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 });
