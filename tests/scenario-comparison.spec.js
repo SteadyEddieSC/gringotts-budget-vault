@@ -3,12 +3,8 @@ import { test, expect, openPrimary } from './helpers/app.js';
 async function seedScenarioContext(page) {
   await page.evaluate(() => {
     localStorage.setItem('gringottsForecastSettings.v1', JSON.stringify({
-      asOfDate: '2026-07-01',
-      startingCash: 1800,
-      minimumBuffer: 600,
-      flexibleMonthlySpend: 450,
-      horizonDays: 60,
-      updatedAt: '2026-07-11T12:00:00.000Z'
+      asOfDate: '2026-07-01', startingCash: 1800, minimumBuffer: 600,
+      flexibleMonthlySpend: 450, horizonDays: 60, updatedAt: '2026-07-11T12:00:00.000Z'
     }));
     localStorage.setItem('gringottsDebtPlan.v1', JSON.stringify({
       debts: [{
@@ -32,7 +28,7 @@ async function seedScenarioContext(page) {
 async function openScenario(page) {
   await seedScenarioContext(page);
   await openPrimary(page, 'Money');
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
 }
 
@@ -91,11 +87,8 @@ test('saves bounded scenario metadata without changing financial stores', async 
   expect(after.scenarios.items[0]).toMatchObject({
     name: 'Synthetic resilience option',
     assumptions: {
-      monthlyIncomeDelta: 300,
-      monthlyRecurringSavings: 75,
-      flexibleSpendDelta: -50,
-      extraDebtPaymentMonthly: 125,
-      extraGoalContributionMonthly: 100
+      monthlyIncomeDelta: 300, monthlyRecurringSavings: 75, flexibleSpendDelta: -50,
+      extraDebtPaymentMonthly: 125, extraGoalContributionMonthly: 100
     }
   });
   expect(JSON.stringify(after.scenarios)).not.toMatch(/transactions|merchant|account|balance|credential|token/i);
@@ -105,12 +98,10 @@ test('adds saved scenarios to Guided Plan and report discussion surfaces', async
   const { page } = app;
   await openScenario(page);
   await saveScenario(page, 'Synthetic family discussion');
-
   await openPrimary(page, 'Activity');
   await page.getByRole('tab', { name: 'Plan', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Scenario discussion', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Review scenario: Synthetic family discussion/i })).toBeVisible();
-
   await openPrimary(page, 'Reports');
   await page.locator('#reportPreviewPage').selectOption('planning');
   await expect(page.getByRole('heading', { name: 'Household scenario comparisons', exact: true })).toBeVisible();
@@ -118,24 +109,24 @@ test('adds saved scenarios to Guided Plan and report discussion surfaces', async
   await expect(page.getByRole('heading', { name: 'Scenario conversation', exact: true })).toBeVisible();
 });
 
-test('exports a 41-sheet v124 workbook and shows the v124 through v130 roadmap', async ({ app }, testInfo) => {
+test('exports a 43-sheet v125 workbook and shows the v125 through v131 roadmap', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and roadmap release coverage.');
   const { page } = app;
   await openScenario(page);
   await saveScenario(page);
   await openPrimary(page, 'Reports');
-  await expect(page.getByRole('heading', { name: '41-sheet Vault Workbook', exact: true })).toBeVisible();
-  await expect(page.getByText('Scenario Comparisons', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('Scenario Assumptions', { exact: true }).last()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '43-sheet Vault Workbook', exact: true })).toBeVisible();
+  for (const sheet of ['Scenario Comparisons', 'Scenario Assumptions', 'Close Trends', 'Close Drivers']) {
+    await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
+  }
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_.*\.xlsx/i);
-
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
-  await expect(page.getByText(/v125 is the strongest next commitment/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
+  await expect(page.getByText(/v126 is the strongest next commitment/i)).toBeVisible();
 });
 
 test('keeps scenario, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {

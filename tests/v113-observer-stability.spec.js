@@ -30,27 +30,34 @@ test('settles the Reports architecture without a recursive mutation loop', async
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Reports');
-  await expect(page.getByRole('heading', { name: '41-sheet Vault Workbook', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '43-sheet Vault Workbook', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Family Financial Report', exact: true })).toBeVisible();
   expect(await settledMutationCount(page), 'Reports must settle instead of continuously rewriting identical content.').toBe(0);
   await page.locator('#reportPreviewPage').selectOption('planning');
   await expect(page.getByRole('heading', { name: 'Household scenario comparisons', exact: true })).toBeVisible();
   expect(await settledMutationCount(page), 'Changing the report preview must settle after the explicit selection.').toBe(0);
+  await page.locator('#reportPreviewPage').selectOption('close-trends');
+  await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
+  expect(await settledMutationCount(page), 'The close-trend report must settle after explicit selection.').toBe(0);
 });
 
-test('settles recurring and scenario workspaces without recursive mutation loops', async ({ app }, testInfo) => {
+test('settles recurring, scenario, and close-trend workspaces without recursive mutation loops', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for deterministic render stability.');
   const { page } = app;
   await openPrimary(page, 'Money');
   await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
   expect(await settledMutationCount(page), 'The recurring decision workspace must not repeatedly replace itself.').toBe(0);
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
-  expect(await settledMutationCount(page), 'The scenario workspace must not repeatedly replace itself.').toBe(0);
+  await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
+  expect(await settledMutationCount(page), 'The scenario and trend workspaces must not repeatedly replace themselves.').toBe(0);
   await page.locator('#scenarioMonthlyIncomeDelta').fill('125');
   await page.locator('#previewScenario').click();
   await expect(page.locator('#toast')).toContainText('Scenario preview refreshed in memory');
   expect(await settledMutationCount(page), 'An explicit scenario preview must settle after one refresh.').toBe(0);
+  const month = await page.locator('#closeTrendMonth').inputValue();
+  await page.locator('#closeTrendMonth').selectOption(month);
+  expect(await settledMutationCount(page), 'An explicit trend selection must settle after one refresh.').toBe(0);
 });
 
 test('settles portability, import, restore, profiles, and field validation without a recursive mutation loop', async ({ app }, testInfo) => {

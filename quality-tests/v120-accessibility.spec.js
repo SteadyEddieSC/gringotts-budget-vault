@@ -7,10 +7,7 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 function summarizeViolations(violations) {
   return violations.map((violation) => ({
-    id: violation.id,
-    impact: violation.impact,
-    help: violation.help,
-    helpUrl: violation.helpUrl,
+    id: violation.id, impact: violation.impact, help: violation.help, helpUrl: violation.helpUrl,
     nodes: violation.nodes.map((node) => ({ target: node.target, failureSummary: node.failureSummary, html: node.html }))
   }));
 }
@@ -48,7 +45,7 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'The preserved v120 audit surface runs once in the desktop quality project.');
 }
 
-test('axe scans v120 receipt arithmetic and rollback guidance within v124', async ({ page }, testInfo) => {
+test('axe scans v120 receipt arithmetic and rollback guidance within v125', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
@@ -61,14 +58,14 @@ test('axe scans v120 receipt arithmetic and rollback guidance within v124', asyn
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the advanced multi-release roadmap from a fresh render', async ({ page }, testInfo) => {
+test('axe scans the current reliability-first roadmap from a fresh render', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
 });

@@ -65,20 +65,20 @@ test('downloads a sanitized cleanup plan and a separate populated backup', async
   expect(backupDownload.suggestedFilename()).toMatch(/Gringotts_v122_pre_cleanup_backup_\d+_.*\.json/i);
 });
 
-test('retains account cleanup visibility in the v124 41-sheet workbook and roadmap', async ({ app }, testInfo) => {
+test('retains account cleanup visibility in the v125 43-sheet workbook and reliability roadmap', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for roadmap and workbook release coverage.');
   const { page } = app;
   await openPrimary(page, 'Reports');
-  await expect(page.getByText(/41-sheet Vault Workbook/i)).toBeVisible();
-  for (const sheet of ['Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Scenario Comparisons', 'Scenario Assumptions']) {
+  await expect(page.getByText(/43-sheet Vault Workbook/i)).toBeVisible();
+  for (const sheet of ['Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Scenario Comparisons', 'Scenario Assumptions', 'Close Trends', 'Close Drivers']) {
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
   await openPrimary(page, 'Tools');
-  await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
+  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
+  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
 });
 
 test('keeps account planning and roadmap inside a narrow phone viewport', async ({ app }) => {
@@ -87,7 +87,7 @@ test('keeps account planning and roadmap inside a narrow phone viewport', async 
   await openCleanup(page);
   let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
-  await page.getByRole('button', { name: 'Roadmap', exact: true }).click();
+  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 });

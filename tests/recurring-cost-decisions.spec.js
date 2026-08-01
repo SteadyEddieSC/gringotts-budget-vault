@@ -83,7 +83,7 @@ test('feeds open recurring decisions into Guided Household Plan', async ({ app }
   await expect(page.getByText(/Owner: Adult B/i)).toBeVisible();
 });
 
-test('retains recurring decisions in v124 reports and the 41-sheet workbook', async ({ app }, testInfo) => {
+test('retains recurring decisions in v125 reports and the 43-sheet workbook', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and report integration coverage.');
   const { page } = app;
   await openRecurring(page);
@@ -92,8 +92,8 @@ test('retains recurring decisions in v124 reports and the 41-sheet workbook', as
   await page.locator('#recurringDecisionStatus').selectOption('planned');
   await page.locator('#saveRecurringDecision').click();
   await openPrimary(page, 'Reports');
-  await expect(page.getByRole('heading', { name: '41-sheet Vault Workbook', exact: true })).toBeVisible();
-  for (const sheet of ['Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
+  await expect(page.getByRole('heading', { name: '43-sheet Vault Workbook', exact: true })).toBeVisible();
+  for (const sheet of ['Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions', 'Close Trends', 'Close Drivers']) {
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   await page.locator('#reportPreviewPage').selectOption('plan');
@@ -103,19 +103,19 @@ test('retains recurring decisions in v124 reports and the 41-sheet workbook', as
   await page.locator('#reportPreviewPage').selectOption('meeting');
   await expect(page.getByRole('heading', { name: 'Recurring-cost conversation', exact: true })).toBeVisible();
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
 });
 
-test('shows the v124 through v130 roadmap horizon', async ({ app }) => {
+test('shows the v125 through v131 reliability-first roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
-  await expect(page.getByText(/v125 is the strongest next commitment/i)).toBeVisible();
+  await expect(page.getByText(/v126 is the strongest next commitment/i)).toBeVisible();
 });
 
 test('keeps recurring decisions, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {

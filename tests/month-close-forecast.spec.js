@@ -2,7 +2,7 @@ import { test, expect, openPrimary } from './helpers/app.js';
 
 async function openCloseForecast(page) {
   await openPrimary(page, 'Money');
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Close & Forecast' })).toBeVisible();
 }
 
@@ -19,22 +19,23 @@ async function cleanSelectedMonth(page) {
   });
 }
 
-test('preserves v110 close, forecast, and debt features under v124', async ({ app }) => {
+test('preserves close, forecast, debt, scenario, and trend features under v125', async ({ app }) => {
   const { page } = app;
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
-  await expect(page.locator('.version-text')).toHaveText('v124');
+  await expect(page.locator('.version-text')).toHaveText('v125');
   await openCloseForecast(page);
   await expect(page.getByRole('heading', { name: /Month close — July 2026/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Cash-flow forecast' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Debt and promotional APR plan' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
 });
 
 test('blocks close for pending and unreviewed rows', async ({ app }) => {
   const { page } = app;
   await openCloseForecast(page);
   await expect(page.getByText(/pending transaction must post/i)).toBeVisible();
-  await expect(page.getByText(/still need review/i)).toBeVisible();
+  await expect(page.locator('.note.risk-note:not(.compact-note)').filter({ hasText: /still need review/i })).toBeVisible();
   await expect(page.locator('#closeMonth')).toBeDisabled();
 });
 
@@ -87,7 +88,7 @@ test('projects recurring bills and paydays and stores forecast settings locally'
   await page.locator('#payDate').fill('2026-07-01');
   await page.locator('#payFrequency').selectOption('biweekly');
   await page.locator('#addPay').click();
-  await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await page.locator('#forecastAsOf').fill('2026-07-01');
   await page.locator('#forecastStartingCash').fill('1000');
   await page.locator('#forecastMinimumBuffer').fill('500');
@@ -124,11 +125,12 @@ test('adds a promotional APR debt and records a payment without touching the vau
   expect(writes).toEqual([]);
 });
 
-test('keeps close, forecast, debt, and scenario surfaces inside every configured viewport', async ({ app }) => {
+test('keeps close, forecast, debt, scenario, and trend surfaces inside every configured viewport', async ({ app }) => {
   const { page } = app;
   await openCloseForecast(page);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
   await expect(page.locator('#forecastHorizon')).toHaveJSProperty('tagName', 'SELECT');
   await expect(page.locator('#scenarioHorizon')).toHaveJSProperty('tagName', 'SELECT');
+  await expect(page.locator('#closeTrendMonth')).toHaveJSProperty('tagName', 'SELECT');
 });

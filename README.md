@@ -7,111 +7,78 @@
 [![CodeQL](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml)
 
-A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household financial data is intended to remain inside the user's browser unless the user explicitly downloads a local backup or report.
+A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household financial data remains inside the browser unless the user explicitly downloads a local backup or report.
 
-Current release: **v124 — Household Scenario Comparison**
+Current release: **v125 — Close History & Trend Explainability**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v124 scenario comparison
+## v125 close-history explainability
 
-Inside **Money → Close & Forecast**, v124 compares the current cash-forecast baseline with temporary household assumptions.
+Inside **Money → Close & Forecast**, v125 compares household months using two clearly separated evidence sources:
 
-A scenario can model:
+- **closed months:** immutable close snapshots retained by the existing month-close workflow;
+- **open months:** currently posted rows, with pending rows excluded and lower confidence.
 
-- starting-cash changes;
-- monthly income changes;
-- recurring-cost savings;
-- flexible-spending changes;
-- one dated purchase or expense;
-- extra monthly debt payments;
-- extra monthly goal contributions;
-- 30-, 60-, or 90-day horizons.
+The review shows:
 
-The side-by-side comparison shows ending cash, the low point, buffer-pressure days, negative days, monthly flexibility, modeled debt direction, and aggregate goal timing.
+- selected and comparison periods;
+- close state, close revision, and reopen-event counts;
+- income, recurring-expense, variable-expense, and transfer-neutral operating-net change;
+- ranked aggregate drivers;
+- account and date coverage;
+- high, medium, or low confidence with explicit reasons;
+- warnings when current row coverage no longer matches a retained close snapshot.
 
-## Planning-only safety boundary
+Ranked drivers describe aggregate correlation between months. They are not claims that a transaction, category, decision, or outside event caused the change.
 
-v124 provides **no Apply Scenario action**. Preview and Save Assumptions affect only scenario metadata.
+## Reporting and exports
 
-The feature cannot automatically change:
+Close-trend context appears in Guided Plan, Reports, Family Meeting Markdown, Guided Plan Markdown, diagnostics, and aggregate-only JSON.
 
-- transactions or budgets;
-- forecast settings;
-- debt records or payments;
-- goals or contributions;
-- recurring-cost decisions;
-- merchant, institution, or account activity.
+The Vault Workbook contains **43 sheets**. v125 adds:
 
-Debt direction models extra principal only. It does not model interest, fees, changing minimums, or full amortization. Outputs are household discussion projections, not guarantees or financial advice.
+- **Close Trends**;
+- **Close Drivers**.
 
-## Browser-local metadata
+The close-trend export excludes transaction rows, merchants, account labels, filenames, fingerprints, credentials, tokens, vault contents, and other household-detail fields.
 
-The v124 store is:
+## Safety boundaries
 
-`gringottsScenarioComparisons.v1`
+v125 does not provide or perform:
 
-It is capped at 24 scenarios and 80 history entries. Stored values contain scenario IDs, names, assumptions, notes, and timestamps—not transaction rows, merchant names, account labels, balances, credentials, tokens, or vault contents.
+- transaction rewriting;
+- silent close-history mutation;
+- automatic reopen;
+- automatic forecast, budget, debt, goal, scenario, or recurring-decision changes;
+- transfers, payments, cancellations, borrowing, merchant contact, or institution actions.
 
-Writes are read-back verified. If a write fails, the prior raw value is restored.
+Full Vault Restore remains separate and continues to target `gringottsBudgetVault.latest`. Empty-vault overwrite remains blocked. Stable v105 rescue remains available.
 
-## Guided Plan, reports, and workbook
+## Strategic direction
 
-Saved scenarios appear in Guided Household Plan, the planning report page, Family Meeting preparation, and local Markdown downloads.
+The product is now in a feature-freeze phase. The next releases prioritize:
 
-The Vault Workbook now contains **41 sheets**. v124 adds:
+1. **v126 — Runtime Consolidation & Reliability**;
+2. **v127 — UX Polish & Simplification**;
+3. **v128 — Data Portability & Recovery**;
+4. observed workflow needs and maintenance evidence before any additional household-finance feature.
 
-- **Scenario Comparisons**;
-- **Scenario Assumptions**.
-
-Receipt Integrity, Batch Lineage, Account Inventory, Account Cleanup Plan, Recurring Decisions, and Recurring Decision History remain.
-
-## Preserved capabilities
-
-v124 retains:
-
-- recurring-cost decisions and follow-up;
-- masked account cleanup planning;
-- receipt integrity and batch lineage;
-- import profiles, portability, revisions, and dry runs;
-- backup-first missing-only import with rollback and read-back verification;
-- separate Full Vault Restore targeting `gringottsBudgetVault.latest`;
-- six primary destinations and stable v105 rescue behavior.
-
-## Roadmap
-
-Tools → Roadmap and [`ROADMAP.md`](ROADMAP.md) cover v124 through v130.
-
-- v125 — Close History & Trend Explainability
-- v126 — Data Portability & Long-Term Maintenance
-- v127 — Family Review Cadence & Governance Packs
-- v128 — Household Data Quality & Stewardship Review
-- v129 — Decision Outcome Review & Forecast Calibration
-- v130 — Household Resilience & Contingency Planning
-
-v125 is the strongest next commitment. Later entries remain directional.
+The current 43-sheet workbook is the cap. A later sheet addition requires consolidation or removal unless a strong documented household need justifies it.
 
 ## Privacy and architecture
 
-Do not commit or attach real bank exports, vault backups, planning metadata exports, screenshots containing household financial data, filled workbooks, or generated reports.
-
-The application remains local-first:
-
-- no transaction upload or remote parser;
-- no institution credential connection;
 - no analytics endpoint;
-- no service worker or offline application cache;
-- no empty-vault overwrite;
-- one live ES-module runtime;
+- no remote financial parser;
+- no institution credential storage;
+- no service worker;
+- no real household data, bank exports, filled reports, or screenshots in source control or CI artifacts;
+- one active transaction engine and one live runtime;
 - broad transaction writes remain backup-first and read-back verified.
 
-## Automated validation
-
-The release gate covers pure model and browser tests, store rollback and noninterference, 41-sheet reporting, desktop and responsive browser matrices, keyboard and axe accessibility, visual contracts, Lighthouse budgets, full-history privacy scanning, Gitleaks, dependency review, npm audit, supply-chain checks, CodeQL, Cloudflare preview, and production smoke.
-
-## Local testing
+## Local validation
 
 Requirements: Node.js 24 and Python 3.
 
@@ -123,4 +90,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See [`TESTING.md`](TESTING.md), [`QUALITY_GATES.md`](QUALITY_GATES.md), [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md), and [`RELEASE_NOTES_v124_HOUSEHOLD_SCENARIO_COMPARISON.md`](RELEASE_NOTES_v124_HOUSEHOLD_SCENARIO_COMPARISON.md).
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, and `RELEASE_NOTES_v125_CLOSE_HISTORY_TREND_EXPLAINABILITY.md`.

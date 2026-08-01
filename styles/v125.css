@@ -1,0 +1,181 @@
+.close-trend-card {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.close-trend-card,
+.close-trend-card > *,
+.close-history-details,
+.close-history-details > *,
+.v125-close-trend-report,
+.v125-close-trend-report > *,
+.v125-close-trend-plan-card,
+.v125-close-trend-plan-card > * {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.close-trend-card,
+.v125-close-trend-report,
+.v125-close-trend-plan-card {
+  overflow: hidden;
+  width: 100%;
+}
+
+.close-trend-controls {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  justify-content: space-between;
+}
+
+.close-trend-month-control {
+  display: grid;
+  gap: .35rem;
+  min-width: min(100%, 16rem);
+}
+
+.close-trend-month-control span {
+  color: var(--muted, #94a3b8);
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.close-trend-month-control select {
+  min-height: 2.75rem;
+}
+
+.close-trend-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.close-trend-kpi small {
+  color: var(--muted, #94a3b8);
+  display: block;
+  font-size: .75rem;
+  margin-top: .35rem;
+}
+
+.close-trend-headline {
+  display: grid;
+  gap: .35rem;
+}
+
+.close-driver-table td:last-child,
+.close-history-table td:nth-child(2) {
+  text-transform: capitalize;
+}
+
+.close-trend-warnings {
+  display: grid;
+  gap: .5rem;
+}
+
+.close-history-details > summary {
+  cursor: pointer;
+  font-weight: 800;
+  margin-bottom: .75rem;
+}
+
+.v125-close-trend-report:not([hidden]),
+.v125-close-trend-plan-card {
+  display: grid;
+  gap: .8rem;
+}
+
+.v125-close-trend-report[hidden] {
+  display: none !important;
+}
+
+.v125-close-trend-report .table-wrap,
+.close-trend-card .table-wrap {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.v125-close-trend-report table,
+.close-trend-card table {
+  max-width: none;
+}
+
+.v125-close-trend-plan-card,
+.guided-planning-page,
+.guided-planning-page > *,
+.guided-action-list,
+.guided-action-card,
+.guided-action-card > *,
+.guided-plan-form,
+.guided-plan-form > * {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.guided-planning-page,
+.guided-action-list,
+.guided-action-card,
+.guided-plan-form {
+  width: 100%;
+}
+
+.guided-plan-form input,
+.guided-plan-form select,
+.guided-plan-form textarea,
+.guided-action-card .button-row,
+.guided-action-card .button-row .btn {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.guided-action-copy,
+.v125-close-trend-plan-card {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 920px) {
+  .close-trend-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .close-trend-controls {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .close-trend-controls .btn,
+  .close-trend-month-control,
+  .close-trend-month-control select {
+    width: 100%;
+  }
+
+  .close-trend-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .close-driver-table-wrap,
+  .close-history-table-wrap {
+    margin-inline: 0;
+  }
+
+  .guided-plan-form,
+  .guided-action-card .button-row {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .guided-plan-form input,
+  .guided-plan-form select,
+  .guided-plan-form textarea,
+  .guided-action-card .button-row .btn {
+    width: 100%;
+  }
+}

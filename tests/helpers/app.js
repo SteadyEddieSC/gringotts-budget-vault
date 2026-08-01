@@ -27,15 +27,15 @@ export async function seedVault(page, month = '2026-07') {
 }
 
 export async function waitForApp(page) {
-  await expect(page.locator('.version-text')).toContainText(/^v124/);
+  await expect(page.locator('.version-text')).toContainText(/^v125/);
   await expect(page.locator('#main')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 }
 
 async function waitForRouteEnhancements(page) {
   await expect.poll(
-    () => page.evaluate(() => window.GringottsV124?.routeEnhancementsReady === true),
-    { timeout: 15000, message: 'v124 route enhancements should finish before route interactions continue' }
+    () => page.evaluate(() => window.GringottsV125?.routeEnhancementsReady === true),
+    { timeout: 15000, message: 'v125 route enhancements should finish before route interactions continue' }
   ).toBe(true);
 }
 
