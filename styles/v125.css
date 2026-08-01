@@ -4,6 +4,26 @@
   margin-top: 1rem;
 }
 
+.close-trend-card,
+.close-trend-card > *,
+.close-history-details,
+.close-history-details > *,
+.v125-close-trend-report,
+.v125-close-trend-report > *,
+.v125-close-trend-plan-card,
+.v125-close-trend-plan-card > * {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.close-trend-card,
+.v125-close-trend-report,
+.v125-close-trend-plan-card {
+  overflow: hidden;
+  width: 100%;
+}
+
 .close-trend-controls {
   align-items: end;
   display: flex;
@@ -60,11 +80,6 @@
   margin-bottom: .75rem;
 }
 
-.v125-close-trend-report,
-.v125-close-trend-plan-card {
-  min-width: 0;
-}
-
 .v125-close-trend-report:not([hidden]),
 .v125-close-trend-plan-card {
   display: grid;
@@ -77,8 +92,51 @@
 
 .v125-close-trend-report .table-wrap,
 .close-trend-card .table-wrap {
+  box-sizing: border-box;
   max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  width: 100%;
+}
+
+.v125-close-trend-report table,
+.close-trend-card table {
+  max-width: none;
+}
+
+.v125-close-trend-plan-card,
+.guided-planning-page,
+.guided-planning-page > *,
+.guided-action-list,
+.guided-action-card,
+.guided-action-card > *,
+.guided-plan-form,
+.guided-plan-form > * {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.guided-planning-page,
+.guided-action-list,
+.guided-action-card,
+.guided-plan-form {
+  width: 100%;
+}
+
+.guided-plan-form input,
+.guided-plan-form select,
+.guided-plan-form textarea,
+.guided-action-card .button-row,
+.guided-action-card .button-row .btn {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.guided-action-copy,
+.v125-close-trend-plan-card {
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 920px) {
@@ -105,10 +163,19 @@
 
   .close-driver-table-wrap,
   .close-history-table-wrap {
-    margin-inline: -.25rem;
+    margin-inline: 0;
   }
 
-  .v125-close-trend-report .close-driver-table-wrap {
-    margin-inline: 0;
+  .guided-plan-form,
+  .guided-action-card .button-row {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .guided-plan-form input,
+  .guided-plan-form select,
+  .guided-plan-form textarea,
+  .guided-action-card .button-row .btn {
+    width: 100%;
   }
 }
