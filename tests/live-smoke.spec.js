@@ -24,7 +24,7 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v124/);
+    await expect(page.locator('.version-text')).toContainText(/^v125/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
 
@@ -40,9 +40,11 @@ test.describe('@live Cloudflare deployment', () => {
 
     await openPrimary(page, 'Money');
     await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Close & Forecast', exact: true }).click();
+    await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
     await expect(page.getByText(/There is no Apply Scenario action/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
+    await expect(page.getByText(/Pending rows are excluded/i).last()).toBeVisible();
 
     await openPrimary(page, 'Tools');
     await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
@@ -64,18 +66,20 @@ test.describe('@live Cloudflare deployment', () => {
 
     await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
     await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-    await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Recurring-cost follow-up', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Scenario discussion', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Close trend conversation', exact: true })).toBeVisible();
 
     await openPrimary(page, 'Reports');
-    await expect(page.getByRole('heading', { name: '41-sheet Vault Workbook', exact: true })).toBeVisible();
-    for (const sheet of ['Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
+    await expect(page.getByRole('heading', { name: '43-sheet Vault Workbook', exact: true })).toBeVisible();
+    for (const sheet of ['Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions', 'Close Trends', 'Close Drivers']) {
       await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
     }
     await expect(page.locator('#reportPreset')).toBeVisible();
