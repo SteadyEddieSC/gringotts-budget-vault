@@ -35,7 +35,7 @@ test('blocks close for pending and unreviewed rows', async ({ app }) => {
   const { page } = app;
   await openCloseForecast(page);
   await expect(page.getByText(/pending transaction must post/i)).toBeVisible();
-  await expect(page.locator('.note.risk-note').filter({ hasText: /still need review/i })).toBeVisible();
+  await expect(page.locator('.note.risk-note:not(.compact-note)').filter({ hasText: /still need review/i })).toBeVisible();
   await expect(page.locator('#closeMonth')).toBeDisabled();
 });
 
