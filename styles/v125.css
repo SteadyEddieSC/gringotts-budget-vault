@@ -62,8 +62,23 @@
 
 .v125-close-trend-report,
 .v125-close-trend-plan-card {
+  min-width: 0;
+}
+
+.v125-close-trend-report:not([hidden]),
+.v125-close-trend-plan-card {
   display: grid;
   gap: .8rem;
+}
+
+.v125-close-trend-report[hidden] {
+  display: none !important;
+}
+
+.v125-close-trend-report .table-wrap,
+.close-trend-card .table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 @media (max-width: 920px) {
