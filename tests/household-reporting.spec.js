@@ -29,9 +29,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v124 and navigates the complete household report preview', async ({ app }) => {
+test('boots v125 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v124/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v125/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
@@ -45,8 +45,10 @@ test('boots v124 and navigates the complete household report preview', async ({ 
     const visiblePage = page.locator('.report-preview-deck > .report-page:not([hidden])');
     await expect(visiblePage.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
-  await expect(page.getByText(/41-sheet Vault Workbook/i)).toBeVisible();
-  for (const sheet of ['Guided Plan', 'Planning History', 'Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions']) {
+  await selectReportPage(page, 'close-trends');
+  await expect(page.locator('.v125-close-trend-report:not([hidden])').getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
+  await expect(page.getByText(/43-sheet Vault Workbook/i)).toBeVisible();
+  for (const sheet of ['Guided Plan', 'Planning History', 'Import Receipts', 'Receipt Integrity', 'Batch Lineage', 'Account Inventory', 'Account Cleanup Plan', 'Recurring Decisions', 'Recurring Decision History', 'Scenario Comparisons', 'Scenario Assumptions', 'Close Trends', 'Close Drivers']) {
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
 });
@@ -87,7 +89,7 @@ test('resolves year-to-date from the selected report month', async ({ app }, tes
   await expect(page.locator('#reportEnd')).toHaveValue('2026-07-31');
 });
 
-test('includes local goal, health, forecast, debt, and guided plan context', async ({ app }, testInfo) => {
+test('includes local goal, health, forecast, debt, scenario, and close-trend context', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One desktop browser is sufficient for report context coverage.');
   const { page } = app;
   await page.evaluate(() => {
@@ -101,21 +103,23 @@ test('includes local goal, health, forecast, debt, and guided plan context', asy
   await page.locator('#reportPreviewPage').selectOption('planning');
   await expect(page.getByRole('cell', { name: 'Synthetic Promo Card', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Household scenario comparisons', exact: true })).toBeVisible();
+  await page.locator('#reportPreviewPage').selectOption('close-trends');
+  await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
 });
 
-test('downloads the 41-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
+test('downloads the 43-sheet workbook, guided plan, and range CSV', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for generated-file smoke coverage.');
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v124_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_2026-07-01_to_2026-07-31_.*\.xlsx/i);
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v124_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v125_2026-07_.*\.md/i);
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
 });
 
-test('uses eight report pages for print and hides screen-only controls', async ({ app }) => {
+test('keeps the eight inherited printable pages and hides screen-only controls', async ({ app }) => {
   const { page } = app;
   await openReports(page);
   await page.emulateMedia({ media: 'print' });
