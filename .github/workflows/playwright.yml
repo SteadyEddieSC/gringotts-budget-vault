@@ -78,6 +78,8 @@ jobs:
           node --check src/v124/scenario-comparison.js
           node --check src/v124/roadmap-horizon.js
           node --check src/v124/reporting.js
+          node --check src/v124/release.js
+          node --check src/boot-v124.js
           node --check src/v125/close-history-model.js
           node --check src/v125/close-trends.js
           node --check src/v125/roadmap-horizon.js
