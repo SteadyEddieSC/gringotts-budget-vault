@@ -11,11 +11,7 @@ function summarizeViolations(violations) {
     impact: violation.impact,
     help: violation.help,
     helpUrl: violation.helpUrl,
-    nodes: violation.nodes.map((node) => ({
-      target: node.target,
-      failureSummary: node.failureSummary,
-      html: node.html
-    }))
+    nodes: violation.nodes.map((node) => ({ target: node.target, failureSummary: node.failureSummary, html: node.html }))
   }));
 }
 
@@ -23,11 +19,8 @@ async function scanSurface(page, testInfo, name) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   await testInfo.attach(`${safeArtifactName(`${testInfo.project.name}-${name}`)}-axe.json`, {
     body: Buffer.from(JSON.stringify({
-      surface: name,
-      project: testInfo.project.name,
-      url: page.url(),
-      timestamp: new Date().toISOString(),
-      violations: summarizeViolations(results.violations),
+      surface: name, project: testInfo.project.name, url: page.url(),
+      timestamp: new Date().toISOString(), violations: summarizeViolations(results.violations),
       incomplete: summarizeViolations(results.incomplete)
     }, null, 2)),
     contentType: 'application/json'
@@ -69,7 +62,7 @@ async function saveScenario(page) {
 }
 
 function desktopOnly(testInfo) {
-  test.skip(testInfo.project.name !== 'quality-desktop', 'Detailed v124 desktop surfaces run once.');
+  test.skip(testInfo.project.name !== 'quality-desktop', 'Detailed scenario surfaces run once.');
 }
 
 test('axe scans scenario assumptions and comparison table', async ({ page }, testInfo) => {
@@ -97,26 +90,26 @@ test('axe scans saved scenario discussion in Guided Plan and reports', async ({ 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the v124 through v130 roadmap', async ({ page }, testInfo) => {
+test('axe scans the v125 through v131 reliability-first roadmap', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v124 — Household Scenario Comparison/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v130 — Household Resilience/i })).toBeVisible();
-  await scanSurface(page, testInfo, 'Tools — v124 Detailed Roadmap');
+  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
+  await scanSurface(page, testInfo, 'Tools — v125 Detailed Roadmap');
   await expectNoBrowserErrors(errors);
 });
 
 test('axe scans scenario comparison and roadmap on the phone layout', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific v124 coverage runs in the mobile quality project.');
+  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone-specific scenario coverage runs in the mobile quality project.');
   const errors = await bootQualityPage(page);
   await openScenario(page);
   await scanSurface(page, testInfo, 'Mobile Money — Household Scenario Comparison');
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await scanSurface(page, testInfo, 'Mobile Tools — v124 Detailed Roadmap');
+  await scanSurface(page, testInfo, 'Mobile Tools — v125 Detailed Roadmap');
   await expectNoBrowserErrors(errors);
 });
