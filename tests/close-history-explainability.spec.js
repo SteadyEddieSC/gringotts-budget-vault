@@ -35,7 +35,7 @@ test('explains a closed month with transfer-neutral aggregate drivers', async ({
   await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
   await expect(page.locator('.close-driver-table')).toBeVisible();
   await expect(page.locator('.close-trend-card')).toContainText('Transfers excluded');
-  await expect(page.locator('.close-trend-card')).toContainText('Pending rows are excluded');
+  await expect(page.locator('.close-trend-card')).toContainText(/pending excluded/i);
   await expect(page.locator('.close-trend-card')).not.toContainText('Synthetic Income');
   await expect(page.locator('.close-trend-card')).not.toContainText('Synthetic Checking');
 });
