@@ -44,6 +44,7 @@ let routeLayersReady = false;
 let routeLayersPrepared = false;
 let routeLayersActivated = false;
 let routeReplayInProgress = false;
+let v119GateAdaptersInstalled = false;
 let pendingRoute = '';
 const legacyAdapters = [];
 
@@ -109,6 +110,53 @@ function registerLegacyEnhancer(id, title, order) {
   coordinator.registerRelease({ id, title, order, enhance: registry.enhance });
 }
 
+function installV119GateAdapters(loadProfileFeatures) {
+  if (v119GateAdaptersInstalled || typeof loadProfileFeatures !== 'function') return;
+  v119GateAdaptersInstalled = true;
+
+  dispatcher.register('change', 'v126-v119-bundle-memory', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || target.id !== 'profileBundleFile') return false;
+    loadProfileFeatures()
+      .then((module) => module.rememberBundleFile(target.files?.[0] || null))
+      .catch((error) => renderFailure(error));
+    return false;
+  }, 70);
+
+  dispatcher.register('click', 'v126-v119-revision-gates', (event) => {
+    const button = event.target.closest?.('button');
+    if (!button) return false;
+
+    if (button.id === 'saveBankImportProfile') {
+      const profileId = document.getElementById('bankImportProfileSelect')?.value || '';
+      if (!profileId) return false;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const liveAccountLabel = document.querySelector('[data-bank-option="accountLabel"]')?.value;
+      if (liveAccountLabel !== undefined) window.GringottsV115?.updateBankOption?.('accountLabel', liveAccountLabel);
+      const name = document.getElementById('bankImportProfileName')?.value || '';
+      loadProfileFeatures()
+        .then((module) => module.interceptProfileUpdate({ profileId, name }))
+        .catch((error) => renderFailure(error));
+      return true;
+    }
+
+    if (button.id === 'commitProfileBundle') {
+      const replacementSelected = [...document.querySelectorAll('[data-profile-bundle-action]')]
+        .some((select) => select.value === 'replace');
+      if (!replacementSelected) return false;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      loadProfileFeatures()
+        .then((module) => module.interceptBundleReplace(document))
+        .catch((error) => renderFailure(error));
+      return true;
+    }
+
+    return false;
+  }, 70);
+}
+
 async function installLayer(name, priority, install) {
   const result = await installLegacyLayer({ name, dispatcher, priority, install });
   legacyAdapters.push({
@@ -125,7 +173,7 @@ async function prepareRouteLayers(layers) {
   if (!routePreparationPromise) {
     routePreparationPromise = (async () => {
       await installLayer('v126-feature-prepare', 40, () => registerRouteFeatures(layers));
-      await installLayer('v125-prepare', 10, () => layers.v125.prepareV125Interceptors());
+      await installLayer('v125-prepare', 50, () => layers.v125.prepareV125Interceptors());
       await installLayer('v121-prepare', 10, () => layers.v121.prepareV121Interceptors());
       await installLayer('v120-prepare', 10, () => layers.v120.prepareV120Interceptors());
       await installLayer('v119-prepare', 30, () => layers.v119.prepareV119Interceptors());
@@ -150,6 +198,7 @@ async function activateRouteLayers(layers) {
       registerLegacyEnhancer('v118', 'Profile Portability & Institution Patterns', 118);
       await installLayer('v119-activate', 30, () => layers.v119.activateV119());
       registerLegacyEnhancer('v119', 'Profile Versioning & Dry-Run Diagnostics', 119);
+      installV119GateAdapters(window.GringottsV119?.loadProfileFeatures);
       await installLayer('v120-activate', 10, () => layers.v120.activateV120());
       registerLegacyEnhancer('v120', 'Import Receipt Audit & Rollback Guidance', 120);
       await installLayer('v121-activate', 10, () => layers.v121.activateV121());
