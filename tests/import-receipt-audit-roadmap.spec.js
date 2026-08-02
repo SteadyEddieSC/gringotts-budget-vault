@@ -48,19 +48,19 @@ test('downloads a sanitized selected batch and opens only the separate restore t
   await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
 });
 
-test('shows the detailed v125 through v131 reliability-first roadmap horizon', async ({ app }) => {
+test('shows the detailed v126 through v131 reliability-first roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
   await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
-  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
-  await expect(page.getByRole('heading', { name: 'Depends on', exact: true })).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: 'Safety boundaries', exact: true })).toHaveCount(7);
-  await expect(page.getByText(/v126 is the strongest next commitment/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(5);
+  await expect(page.getByRole('heading', { name: 'Depends on', exact: true })).toHaveCount(6);
+  await expect(page.getByRole('heading', { name: 'Safety boundaries', exact: true })).toHaveCount(6);
+  await expect(page.getByText(/v126 completed the runtime consolidation commitment/i)).toBeVisible();
 });
 
 test('keeps timeline and roadmap notes inside a phone viewport', async ({ app }) => {
