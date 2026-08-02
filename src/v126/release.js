@@ -1,8 +1,206 @@
 import {
   BUILD, best, debugReport, download, downloadJson, getMonth, ics, reviewPackage, stamp
 } from '../v103/core.js';
-import { ROADMAP_HORIZON, validateRoadmapHorizon } from './roadmap-horizon.js';
-import { STORAGE_INVENTORY, storageInventorySummary, validateStorageInventory } from './storage-inventory.js';
+
+const domain = (key, name, authority, recovery, options = {}) => Object.freeze({
+  key,
+  domain: name,
+  authority,
+  recovery,
+  transactionCopies: options.transactionCopies === true,
+  resettable: options.resettable !== false
+});
+
+export const STORAGE_INVENTORY = Object.freeze([
+  domain('gringottsBudgetVault.latest', 'vault', 'authoritative', 'Full Vault Restore targets this key only. Empty transaction arrays are blocked; broad writes require backup, rollback, and read-back verification.', { transactionCopies: true, resettable: false }),
+  domain('gringottsRulesIII.preview.v1', 'rules', 'metadata', 'Invalid JSON falls back to an empty rule set.'),
+  domain('gringottsCashflowManual.v1', 'planning-events', 'metadata', 'Invalid JSON falls back to an empty planning-event set.'),
+  domain('gringottsCleanMonth.v1', 'navigation', 'preference', 'Invalid values fall back to the latest available month.'),
+  domain('gringottsGoals.v1', 'goals', 'metadata', 'Invalid JSON falls back to an empty goal collection.'),
+  domain('gringottsVaultHealthHistory.v1', 'health-history', 'metadata-history', 'Invalid JSON falls back to empty history without changing the vault.'),
+  domain('gringottsMonthClose.v1', 'month-close', 'immutable-history', 'Malformed records are sanitized; close snapshots are never recomputed or silently rewritten.', { resettable: false }),
+  domain('gringottsForecastSettings.v1', 'forecast', 'metadata', 'Invalid values are sanitized to bounded defaults.'),
+  domain('gringottsDebtPlan.v1', 'debt-plan', 'metadata', 'Invalid JSON falls back to an empty plan; transactions are not changed.'),
+  domain('gringottsReportRange.v1', 'reports', 'preference', 'Invalid ranges fall back to a valid selected-month range.'),
+  domain('gringottsGuidedPlan.v1', 'guided-plan', 'metadata', 'Unknown or stale actions are reconciled without changing transactions.'),
+  domain('gringottsImportProfiles.v1', 'import-profiles', 'metadata', 'Profiles are capped and sanitized; replacement requires explicit review.'),
+  domain('gringottsImportProfileRevisions.v1', 'profile-revisions', 'metadata-history', 'Invalid entries are discarded without touching profiles or the vault.'),
+  domain('gringottsImportHistory.v1', 'import-receipts', 'metadata-history', 'Read-only audit and manual rollback guidance remain available; no automatic receipt repair.', { resettable: false }),
+  domain('gringottsImportBatchIndex.v1', 'import-batch-index', 'metadata-history', 'Invalid links are sanitized; receipts and transactions are never rewritten.'),
+  domain('gringottsAccountCleanupPlan.v1', 'account-cleanup', 'metadata', 'Read-back verification restores the previous raw value after write failure.'),
+  domain('gringottsRecurringDecisions.v1', 'recurring-decisions', 'metadata', 'Read-back verification restores the previous raw value after write failure.'),
+  domain('gringottsScenarioComparisons.v1', 'scenarios', 'metadata', 'Read-back verification restores the previous raw value after write failure.')
+]);
+
+export function validateStorageInventory(inventory = STORAGE_INVENTORY) {
+  const keys = new Set();
+  for (const entry of inventory) {
+    if (!entry?.key || !entry.domain || !entry.authority || !entry.recovery) {
+      throw new Error('Every storage domain requires a key, domain, authority, and recovery contract.');
+    }
+    if (keys.has(entry.key)) throw new Error(`Duplicate storage key in inventory: ${entry.key}`);
+    keys.add(entry.key);
+  }
+  const vault = inventory.find((entry) => entry.key === 'gringottsBudgetVault.latest');
+  if (!vault || vault.authority !== 'authoritative' || vault.resettable !== false) {
+    throw new Error('The authoritative vault must remain non-resettable.');
+  }
+  if (inventory.filter((entry) => entry.transactionCopies).length !== 1) {
+    throw new Error('Only the authoritative vault may contain transaction copies.');
+  }
+  if (!keys.has('gringottsImportHistory.v1')) throw new Error('The import receipt history key must remain inventoried.');
+  return true;
+}
+
+export function storageInventorySummary(inventory = STORAGE_INVENTORY) {
+  validateStorageInventory(inventory);
+  return {
+    domains: inventory.length,
+    authoritativeKeys: inventory.filter((entry) => entry.authority === 'authoritative').map((entry) => entry.key),
+    immutableHistoryKeys: inventory.filter((entry) => entry.authority === 'immutable-history').map((entry) => entry.key),
+    resettableDomains: inventory.filter((entry) => entry.resettable).length,
+    transactionCopyDomains: inventory.filter((entry) => entry.transactionCopies).map((entry) => entry.key),
+    inventory: inventory.map((entry) => ({ ...entry }))
+  };
+}
+
+export const ROADMAP_HORIZON = [
+  {
+    version: 'v126', status: 'current', title: 'Runtime Consolidation & Reliability',
+    purpose: 'Freeze feature growth and replace implicit release-layer timing with one explicit route, readiness, action-ownership, recovery, and performance lifecycle.',
+    scope: ['Authoritative route lifecycle events', 'Single owned enhancement observer', 'Single specialist action and download dispatcher', 'Consolidated release registry', 'Storage and recovery inventory', 'Render and enhancement budgets'],
+    dependencies: ['v125 household capabilities', 'Existing protected browser matrix', 'Stable v105 rescue', 'Single v111 transaction runtime'],
+    safeguards: ['No second runtime', 'No new primary destination', 'No financial automation', 'No timeout-based readiness masking', '43-sheet workbook cap'],
+    outcome: 'Navigation, lazy enhancement, recovery, and downloads have one inspectable owner and deterministic readiness contract.'
+  },
+  {
+    version: 'v127', status: 'planned', title: 'UX Polish & Simplification',
+    purpose: 'Reduce visible complexity and make every action, state, and advanced control easier to understand across desktop, keyboard, phone, and tablet use.',
+    scope: ['Consistent action language', 'Loading, empty, partial, failure, and success states', 'Progressive disclosure', 'Mobile and keyboard polish', 'Focus restoration and accessible dialogs'],
+    dependencies: ['v126 lifecycle and dispatcher contracts', 'Cross-browser interaction evidence'],
+    safeguards: ['No new primary destination', 'Planning actions never resemble financial execution', 'Critical safety boundaries remain visible'],
+    outcome: 'The application feels calmer, clearer, and more responsive without adding features.'
+  },
+  {
+    version: 'v128', status: 'planned', title: 'Data Portability & Recovery',
+    purpose: 'Version every browser-local metadata domain and provide bounded migration, corruption recovery, rollback, and domain-specific reset behavior.',
+    scope: ['Storage schema registry', 'Bounded-store documentation', 'Migration previews', 'Read-back verification and rollback', 'One-domain recovery without clearing the vault'],
+    dependencies: ['v126 release registry and storage inventory', 'Existing backup-first broad writes', 'Stable restore destination'],
+    safeguards: ['Never clear all local storage', 'Preserve gringottsBudgetVault.latest', 'No empty-vault overwrite', 'No migration without explicit review'],
+    outcome: 'Upgrades and recovery become safer even as long-lived local data evolves.'
+  },
+  {
+    version: 'v129', status: 'directional', title: 'Household Workflow Evidence Review',
+    purpose: 'Observe real household use and identify repeated confusion, abandoned surfaces, slow paths, and unmet needs before approving more product scope.',
+    scope: ['Workflow friction review', 'Feature-use evidence', 'Support and failure pattern review', 'Consolidation candidates'],
+    dependencies: ['v126–v128 stabilized runtime, UX, and recovery'],
+    safeguards: ['No analytics endpoint', 'No private financial data in repository evidence', 'No feature approved from roadmap momentum alone'],
+    outcome: 'Future work is based on observed needs instead of a longer feature list.'
+  },
+  {
+    version: 'v130', status: 'directional', title: 'Performance & Maintenance Hardening',
+    purpose: 'Protect boot, route, report, export, observer, byte, and network budgets while reducing historical release-layer maintenance cost.',
+    scope: ['Performance budget enforcement', 'Historical layer consolidation', 'Workbook restraint', 'Dependency and supply-chain review', 'Recovery drills'],
+    dependencies: ['v126 lifecycle metrics', 'v129 workflow evidence'],
+    safeguards: ['No eager loading of historical release layers', 'No service worker without separate review', 'No new sheet without consolidation'],
+    outcome: 'The application stays fast, supportable, and recoverable over time.'
+  },
+  {
+    version: 'v131', status: 'directional', title: 'Observed Needs Decision Gate',
+    purpose: 'Decide whether any new household-finance capability is justified after reliability, simplicity, portability, and maintenance goals are met.',
+    scope: ['Unmet-needs evidence', 'Consolidate-or-remove review', 'Safety and privacy impact', 'Release-size and maintenance-cost estimate'],
+    dependencies: ['v126–v130 evidence and protected quality gates'],
+    safeguards: ['Feature freeze remains the default', 'No automatic financial action', 'No new metadata store without schema, cap, migration, recovery, and privacy contracts'],
+    outcome: 'New features resume only when a clear household need outweighs added complexity.'
+  }
+];
+
+export function validateRoadmapHorizon() {
+  if (ROADMAP_HORIZON.length !== 6) throw new Error('v126 roadmap horizon must contain exactly six releases.');
+  ROADMAP_HORIZON.forEach((entry, index) => {
+    const expected = `v${126 + index}`;
+    if (entry.version !== expected) throw new Error(`Roadmap version order mismatch: expected ${expected}.`);
+    for (const field of ['title', 'purpose', 'scope', 'dependencies', 'safeguards', 'outcome']) {
+      if (!entry[field] || (Array.isArray(entry[field]) && entry[field].length < 1)) throw new Error(`Roadmap entry ${entry.version} is missing ${field}.`);
+    }
+  });
+  if (ROADMAP_HORIZON[0].status !== 'current') throw new Error('v126 must be the current release.');
+  if (ROADMAP_HORIZON[0].title !== 'Runtime Consolidation & Reliability') throw new Error('v126 must remain the reliability release.');
+  return true;
+}
+
+const V126_CSS = `.v126-runtime-health-card {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  min-width: 0;
+}
+
+.v126-runtime-health-card > *,
+.v126-runtime-metrics,
+.v126-runtime-metrics > * {
+  min-width: 0;
+}
+
+.v126-runtime-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.v126-runtime-health-card .button-row {
+  align-items: stretch;
+}
+
+.v126-route-failure {
+  display: grid;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.v126-route-failure .button-row {
+  margin-top: 0;
+}
+
+.v126-workbook-cap-note {
+  margin: .75rem 0;
+}
+
+.v126-roadmap-page,
+.v126-roadmap-page .roadmap-horizon,
+.v126-roadmap-page .roadmap-horizon-card,
+.v126-roadmap-page .roadmap-notes-grid {
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .v126-runtime-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .v126-runtime-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .v126-runtime-health-card .button-row,
+  .v126-route-failure .button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .v126-runtime-health-card .button-row > *,
+  .v126-route-failure .button-row > * {
+    width: 100%;
+  }
+}
+
+@media print {
+  .v126-runtime-health-card,
+  .v126-route-failure,
+  .v126-workbook-cap-note {
+    display: none !important;
+  }
+}`;
 
 const DOWNLOAD_IDS = new Set([
   'vaultXlsx', 'meetingMd', 'planMd', 'exportBackup', 'importBackup', 'backupRules',
@@ -34,13 +232,12 @@ function announce(message) {
 }
 
 function installCss() {
-  if (cssInstalled || document.querySelector('link[data-v126-styles]')) return;
+  if (cssInstalled || document.querySelector('style[data-v126-styles]')) return;
   cssInstalled = true;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'styles/v126.css?v=126runtime1';
-  link.dataset.v126Styles = 'true';
-  document.head.append(link);
+  const style = document.createElement('style');
+  style.dataset.v126Styles = 'true';
+  style.textContent = V126_CSS;
+  document.head.append(style);
 }
 
 function requiredFeature(name) {
