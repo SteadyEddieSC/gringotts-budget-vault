@@ -92,11 +92,11 @@ test('downloads sanitized full and selected timeline packages', async ({ app }) 
   }
 });
 
-test('shows v125 through v131 while retaining v121 lineage and the 43-sheet workbook', async ({ app }, testInfo) => {
+test('shows v126 through v131 while retaining v121 lineage and the 43-sheet workbook', async ({ app }, testInfo) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
   if (testInfo.project.name !== 'chromium') return;
   await seedTimeline(page);
@@ -106,7 +106,7 @@ test('shows v125 through v131 while retaining v121 lineage and the 43-sheet work
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_.*\.xlsx/i);
 });
 
 test('keeps timeline filters, details, account planning, and roadmap inside a phone viewport', async ({ app }) => {
