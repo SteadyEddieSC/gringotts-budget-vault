@@ -23,7 +23,17 @@ function eventDetail(target, detail) {
 export function createActionDispatcher({ target = globalThis.document, performanceApi = globalThis.performance } = {}) {
   const registrations = new Map(ACTION_TYPES.map((type) => [type, []]));
   const listeners = new Map();
-  const metrics = { installed: false, registered: 0, dispatched: 0, handled: 0, errors: 0, lastAction: '', lastDurationMs: 0 };
+  let suspended = false;
+  const metrics = {
+    installed: false,
+    suspended: false,
+    registered: 0,
+    dispatched: 0,
+    handled: 0,
+    errors: 0,
+    lastAction: '',
+    lastDurationMs: 0
+  };
 
   function register(type, name, handler, priority = 0) {
     if (!registrations.has(type)) throw new Error(`Unsupported dispatcher event type: ${type}`);
@@ -37,6 +47,7 @@ export function createActionDispatcher({ target = globalThis.document, performan
   }
 
   function dispatch(type, event) {
+    if (suspended) return false;
     metrics.dispatched += 1;
     const started = clock(performanceApi);
     for (const entry of registrations.get(type) || []) {
@@ -71,9 +82,23 @@ export function createActionDispatcher({ target = globalThis.document, performan
     return api;
   }
 
+  function suspend() {
+    suspended = true;
+    metrics.suspended = true;
+    return api;
+  }
+
+  function resume() {
+    suspended = false;
+    metrics.suspended = false;
+    return api;
+  }
+
   function dispose() {
     listeners.forEach((listener, type) => target?.removeEventListener?.(type, listener, true));
     listeners.clear();
+    suspended = false;
+    metrics.suspended = false;
     metrics.installed = false;
   }
 
@@ -87,7 +112,7 @@ export function createActionDispatcher({ target = globalThis.document, performan
     };
   }
 
-  const api = { register, dispatch, install, dispose, snapshot };
+  const api = { register, dispatch, install, suspend, resume, dispose, snapshot };
   return api;
 }
 
