@@ -24,9 +24,10 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v125/);
+    await expect(page.locator('.version-text')).toContainText(/^v126/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => window.GringottsV126?.coordinator?.status)).toBe('ready');
 
     const destinations = [
       ['Dashboard', /Vault Dashboard/i], ['Money', /Bills, Recurring & Budgets/i],
@@ -65,10 +66,15 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByRole('heading', { name: 'Full vault restore', exact: true })).toBeVisible();
 
     await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-    await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-    await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+    await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
     await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Runtime ownership & recovery', exact: true })).toBeVisible();
+    const lifecycle = await page.evaluate(() => window.GringottsV126.coordinator.snapshot());
+    expect(lifecycle.observerCount).toBe(1);
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();
