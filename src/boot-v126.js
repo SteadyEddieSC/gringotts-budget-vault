@@ -217,15 +217,14 @@ document.addEventListener('gringotts:v126-route-failed', handleRouteFailure);
 Promise.all([
   import('./runtime-v111-reporting.js?v=126runtime1'),
   import('./v126/runtime.js?v=126runtime1'),
-  import('./v126/legacy-adapter.js?v=126runtime1'),
   import('./v126/release.js?v=126runtime1'),
   import('./v115/release.js?v=126runtime1'),
   import('./v112/accessibility.js?v=126runtime1')
-]).then(async ([, runtimeModule, adapterModule, releaseModule, v115, accessibility]) => {
+]).then(async ([, runtimeModule, releaseModule, v115, accessibility]) => {
   const build = v115.activateV115();
   dispatcher = runtimeModule.createActionDispatcher({ target: document }).install();
   coordinator = runtimeModule.createRuntimeCoordinator({ documentRef: document }).install();
-  installLegacyLayer = adapterModule.installLegacyLayer;
+  installLegacyLayer = runtimeModule.installLegacyLayer;
   installV126Runtime = releaseModule.installV126Runtime;
 
   dispatcher.register('click', 'v126-route-lifecycle', handleRouteAction, 1000);
