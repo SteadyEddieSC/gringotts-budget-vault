@@ -86,13 +86,13 @@ test('axe scans recurring follow-up inside Guided Household Plan', async ({ page
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the v126 through v131 reliability roadmap', async ({ page }, testInfo) => {
+test('axe scans the v127 through v136 reliability roadmap', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await scanSurface(page, testInfo, 'Tools — v126 Reliability Roadmap');
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await scanSurface(page, testInfo, 'Tools — v127 Reliability Roadmap');
   await expectNoBrowserErrors(errors);
 });
 
@@ -105,7 +105,7 @@ test('axe scans recurring decisions and roadmap on the phone layout', async ({ p
   await scanSurface(page, testInfo, 'Mobile Money — Recurring Cost Decisions');
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await scanSurface(page, testInfo, 'Mobile Tools — v126 Reliability Roadmap');
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await scanSurface(page, testInfo, 'Mobile Tools — v127 Reliability Roadmap');
   await expectNoBrowserErrors(errors);
 });
