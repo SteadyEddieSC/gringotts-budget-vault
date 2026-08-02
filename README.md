@@ -9,32 +9,33 @@
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household financial data remains inside the browser unless the user explicitly downloads a local backup or report.
 
-Current release: **v126 — Runtime Consolidation & Reliability**
+Current release: **v127 — UX Polish & Simplification**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v126 reliability release
+## v127 simplification release
 
-v126 freezes feature growth and consolidates the runtime lifecycle behind the existing six primary destinations.
+v127 keeps the v126 runtime consolidation and feature freeze while making the existing six primary destinations calmer and easier to operate.
 
 The release provides:
 
-- one authoritative route-enhancement coordinator;
-- one owned `MutationObserver` for rendered-route stabilization;
-- one priority-ordered capture dispatcher for specialist actions and current-release downloads;
-- deterministic route states: rendering, enhancing, ready, or failed;
-- bounded enhancement passes and route-readiness budgets;
-- a consolidated release registry for inherited v118–v125 capabilities;
-- an inventory of 18 browser-local storage domains and their recovery boundaries;
-- non-destructive retry and stable v105 rescue paths.
+- one shared action-intent policy for primary, preview, export, recovery, destructive, cancel, and secondary controls;
+- clearer visual hierarchy without changing the underlying financial action;
+- one polite status region for route, export, recovery, and destructive-action feedback;
+- route-heading focus after deliberate primary navigation;
+- focus restoration for supported dialogs;
+- labeled, keyboard-reachable table regions that retain native table semantics;
+- progressive-disclosure styling for details and diagnostics;
+- responsive touch targets, dialogs, action rows, roadmap cards, and reduced-motion behavior;
+- an official ten-release reliability roadmap through v136.
 
-Historical release modules still provide their tested household capabilities. Their overlapping observers and global action listeners are suppressed or adapted so v126 owns the live lifecycle.
+v126 remains the only live route coordinator and continues to own the single enhancement `MutationObserver` and specialist action dispatcher.
 
 ## Preserved household capabilities
 
-v126 does not add a household-finance feature. It preserves the v125 product surface, including:
+v127 adds no household-finance feature. It preserves:
 
 - immutable close-history trend explainability;
 - scenario comparison;
@@ -44,7 +45,7 @@ v126 does not add a household-finance feature. It preserves the v125 product sur
 - guarded import and separate Full Vault Restore;
 - Guided Plan, Reports, Family Meeting exports, diagnostics, and workbook reporting.
 
-The Vault Workbook remains capped at **43 sheets**. No sheet was added in v126.
+The Vault Workbook remains capped at **43 sheets**.
 
 ## Safety and recovery boundaries
 
@@ -52,18 +53,12 @@ The Vault Workbook remains capped at **43 sheets**. No sheet was added in v126.
 - Full Vault Restore continues to target that exact key and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
-- No automatic payment, transfer, borrowing, cancellation, merchant contact, account connection, plan application, or close mutation exists.
-- No analytics endpoint, remote parser, service worker, or second transaction runtime is introduced.
+- v127 introduces no storage writes, automatic financial actions, analytics endpoint, remote parser, service worker, or second runtime.
 - Stable `rescue-v105.html` remains available if the current shell cannot initialize.
 
 ## Strategic direction
 
-The feature freeze remains active. The roadmap now prioritizes:
-
-1. **v127 — UX Polish & Simplification**;
-2. **v128 — Data Portability & Recovery**;
-3. workflow evidence and performance/maintenance hardening;
-4. an explicit observed-needs decision gate before additional finance scope.
+The feature freeze remains active. The next committed release is **v128 — Data Portability & Recovery**. Releases v129–v136 are directional reliability, evidence, maintenance, data-longevity, export-consolidation, cross-device, and architecture decision gates. See `ROADMAP.md`.
 
 ## Local validation
 
@@ -77,4 +72,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, and `RELEASE_NOTES_v126_RUNTIME_CONSOLIDATION_RELIABILITY.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, and `RELEASE_NOTES_v127_UX_POLISH_SIMPLIFICATION.md`.
