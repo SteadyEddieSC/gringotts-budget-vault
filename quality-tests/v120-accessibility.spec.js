@@ -45,7 +45,7 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== 'quality-desktop', 'The preserved v120 audit surface runs once in the desktop quality project.');
 }
 
-test('axe scans v120 receipt arithmetic and rollback guidance within v125', async ({ page }, testInfo) => {
+test('axe scans v120 receipt arithmetic and rollback guidance within v126', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await seedReceipt(page);
@@ -63,8 +63,8 @@ test('axe scans the current reliability-first roadmap from a fresh render', asyn
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
+  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
   await scanSurface(page, testInfo, 'Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
@@ -78,7 +78,7 @@ test('axe scans preserved audit safety and roadmap on the phone layout', async (
   await expect(page.locator('#receiptTimelineDetail')).toBeVisible();
   await scanSurface(page, testInfo, 'Mobile Tools — Preserved Receipt Audit and Rollback');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
   await scanSurface(page, testInfo, 'Mobile Tools — Detailed Roadmap Horizon');
   await expectNoBrowserErrors(errors);
 });

@@ -86,6 +86,12 @@ jobs:
           node --check src/v125/reporting.js
           node --check src/v125/release.js
           node --check src/boot-v125.js
+          node --check src/v126/runtime.js
+          node --check src/v126/legacy-adapter.js
+          node --check src/v126/storage-inventory.js
+          node --check src/v126/roadmap-horizon.js
+          node --check src/v126/release.js
+          node --check src/boot-v126.js
           node --check src/v111/views.js
 
       - name: Run browser-free parser tests

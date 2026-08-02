@@ -109,7 +109,7 @@ test('adds saved scenarios to Guided Plan and report discussion surfaces', async
   await expect(page.getByRole('heading', { name: 'Scenario conversation', exact: true })).toBeVisible();
 });
 
-test('exports a 43-sheet v125 workbook and shows the v125 through v131 roadmap', async ({ app }, testInfo) => {
+test('exports a 43-sheet v126 workbook and shows the v126 through v131 roadmap', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and roadmap release coverage.');
   const { page } = app;
   await openScenario(page);
@@ -120,13 +120,13 @@ test('exports a 43-sheet v125 workbook and shows the v125 through v131 roadmap',
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_.*\.xlsx/i);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
+  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
-  await expect(page.getByText(/v126 is the strongest next commitment/i)).toBeVisible();
+  await expect(page.getByText(/v126 completed the runtime consolidation commitment/i)).toBeVisible();
 });
 
 test('keeps scenario, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {

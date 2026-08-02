@@ -29,9 +29,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v125 and navigates the complete household report preview', async ({ app }) => {
+test('boots v126 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v125/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v126/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
@@ -112,9 +112,9 @@ test('downloads the 43-sheet workbook, guided plan, and range CSV', async ({ app
   const { page } = app;
   await openReports(page);
   const [workbook] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_2026-07-01_to_2026-07-31_.*\.xlsx/i);
+  expect(workbook.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_2026-07-01_to_2026-07-31_.*\.xlsx/i);
   const [plan] = await Promise.all([page.waitForEvent('download'), page.locator('#planMd').click()]);
-  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v125_2026-07_.*\.md/i);
+  expect(plan.suggestedFilename()).toMatch(/Gringotts_Guided_Household_Plan_v126_2026-07_.*\.md/i);
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('#familyCsv').click()]);
   expect(csv.suggestedFilename()).toMatch(/Income_Expenses_Range_2026-07-01_to_2026-07-31_.*\.csv/i);
 });

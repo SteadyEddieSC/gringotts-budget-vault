@@ -22,12 +22,12 @@ test('axe scans close history trend explainability', async ({ page }, testInfo) 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans v125 through v131 roadmap on mobile', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone v125 roadmap coverage runs in the mobile project.');
+test('axe keeps the inherited close-trend report accessible on mobile', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone v125 report coverage runs in the mobile project.');
   const errors = await bootQualityPage(page);
-  await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await scan(page, 'Mobile Tools — v125 Roadmap');
+  await openPrimary(page, 'Reports');
+  await page.locator('#reportPreviewPage').selectOption('close-trends');
+  await expect(page.locator('.v125-close-trend-report:not([hidden])')).toBeVisible();
+  await scan(page, 'Mobile Reports — v125 Close Trends');
   await expectNoBrowserErrors(errors);
 });

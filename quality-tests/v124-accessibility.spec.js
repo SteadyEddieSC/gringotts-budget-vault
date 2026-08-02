@@ -90,15 +90,15 @@ test('axe scans saved scenario discussion in Guided Plan and reports', async ({ 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the v125 through v131 reliability-first roadmap', async ({ page }, testInfo) => {
+test('axe scans the v126 through v131 reliability-first roadmap', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
+  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
-  await scanSurface(page, testInfo, 'Tools — v125 Detailed Roadmap');
+  await scanSurface(page, testInfo, 'Tools — v126 Detailed Roadmap');
   await expectNoBrowserErrors(errors);
 });
 
@@ -109,7 +109,7 @@ test('axe scans scenario comparison and roadmap on the phone layout', async ({ p
   await scanSurface(page, testInfo, 'Mobile Money — Household Scenario Comparison');
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await scanSurface(page, testInfo, 'Mobile Tools — v125 Detailed Roadmap');
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
+  await scanSurface(page, testInfo, 'Mobile Tools — v126 Detailed Roadmap');
   await expectNoBrowserErrors(errors);
 });

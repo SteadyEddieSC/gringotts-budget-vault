@@ -65,7 +65,7 @@ test('downloads a sanitized cleanup plan and a separate populated backup', async
   expect(backupDownload.suggestedFilename()).toMatch(/Gringotts_v122_pre_cleanup_backup_\d+_.*\.json/i);
 });
 
-test('retains account cleanup visibility in the v125 43-sheet workbook and reliability roadmap', async ({ app }, testInfo) => {
+test('retains account cleanup visibility in the v126 43-sheet workbook and reliability roadmap', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for roadmap and workbook release coverage.');
   const { page } = app;
   await openPrimary(page, 'Reports');
@@ -74,11 +74,11 @@ test('retains account cleanup visibility in the v125 43-sheet workbook and relia
     await expect(page.getByText(sheet, { exact: true }).last()).toBeVisible();
   }
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_.*\.xlsx/i);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
 });
 
 test('keeps account planning and roadmap inside a narrow phone viewport', async ({ app }) => {
