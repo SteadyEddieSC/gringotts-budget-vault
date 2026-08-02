@@ -36,6 +36,7 @@ let dispatcher = null;
 let coordinator = null;
 let installLegacyLayer = null;
 let installV126Runtime = null;
+let prepareV115Route = null;
 let routeLayersPromise = null;
 let routePreparationPromise = null;
 let routeActivationPromise = null;
@@ -209,26 +210,43 @@ async function replayRoute(route) {
   if (renderedRoute !== route) throw new Error(`The base route renderer did not activate ${route}.`);
 }
 
+async function navigatePrimaryRoute(route) {
+  const needsV115 = route === 'reports' || route === 'tools';
+  const needsLayers = lazyRoutes.has(route);
+  coordinator.beginRoute(route, needsLayers && !routeLayersReady ? 'lazy-navigation' : 'navigation');
+
+  if (needsV115 && typeof prepareV115Route === 'function' && !window.GringottsV115?.featuresReady) {
+    await prepareV115Route();
+  }
+
+  let layers = null;
+  if (needsLayers && !routeLayersReady) layers = await loadRouteLayers();
+  else if (routeLayersReady) layers = await routeLayersPromise;
+
+  await replayRoute(route);
+  if (layers && !routeLayersActivated) await activateRouteLayers(layers);
+  await coordinator.enhance(routeLayersActivated ? 'primary-navigation' : 'base-navigation');
+  window.GringottsV126.routeEnhancementsReady = routeLayersActivated;
+}
+
 function handleRouteAction(event) {
   const button = event.target.closest?.('[data-tab]');
   const route = button?.dataset.tab;
   if (!button || !route) return false;
-  coordinator.beginRoute(route, routeLayersReady ? 'navigation' : 'lazy-navigation');
-  if (!lazyRoutes.has(route) || routeLayersReady) return false;
 
   event.preventDefault();
   event.stopImmediatePropagation();
   pendingRoute = route;
   if (routeReplayInProgress) return true;
+
   routeReplayInProgress = true;
-  loadRouteLayers()
-    .then(async (layers) => {
-      const requestedRoute = pendingRoute || route;
-      pendingRoute = '';
-      await replayRoute(requestedRoute);
-      await activateRouteLayers(layers);
-      await coordinator.enhance('route-layers-activated');
-      window.GringottsV126.routeEnhancementsReady = true;
+  Promise.resolve()
+    .then(async () => {
+      while (pendingRoute) {
+        const requestedRoute = pendingRoute;
+        pendingRoute = '';
+        await navigatePrimaryRoute(requestedRoute);
+      }
     })
     .catch(renderFailure)
     .finally(() => { routeReplayInProgress = false; });
@@ -259,7 +277,7 @@ function handleRouteFailure(event) {
 document.addEventListener('gringotts:v126-route-ready', () => {
   document.querySelector('.v126-route-failure')?.remove();
   const registry = window.GringottsV126 || (window.GringottsV126 = {});
-  registry.routeEnhancementsReady = true;
+  registry.routeEnhancementsReady = routeLayersActivated;
 });
 document.addEventListener('gringotts:v126-route-failed', handleRouteFailure);
 
@@ -271,6 +289,7 @@ Promise.all([
   import('./v112/accessibility.js?v=126runtime1')
 ]).then(async ([, runtimeModule, releaseModule, v115, accessibility]) => {
   const build = v115.activateV115();
+  prepareV115Route = v115.prepareV115Route;
   dispatcher = runtimeModule.createActionDispatcher({ target: document }).install();
   coordinator = runtimeModule.createRuntimeCoordinator({ documentRef: document }).install();
   installLegacyLayer = runtimeModule.installLegacyLayer;
