@@ -214,6 +214,12 @@ export function createRuntimeCoordinator({
     return entry;
   }
 
+  function alignRouteCycle(reason) {
+    const route = activeRoute(documentRef);
+    if (state.status === 'idle') beginRoute(route, reason || 'observed-render');
+    else if (route !== state.route) beginRoute(route, reason || 'observed-route-change');
+  }
+
   async function enhance(reason = 'rendered') {
     const root = rootProvider();
     if (!root) return snapshot();
@@ -221,9 +227,7 @@ export function createRuntimeCoordinator({
       dirty = true;
       return snapshot();
     }
-    if (state.status !== 'rendering' && state.status !== 'rendered' && reason !== 'retry') {
-      beginRoute(activeRoute(documentRef), 'observed-render');
-    }
+    alignRouteCycle('observed-route-change');
     if (state.enhancementPasses >= budgets.maxEnhancementPasses) {
       state.status = 'ready';
       state.reason = 'stabilization-cap';
@@ -290,15 +294,21 @@ export function createRuntimeCoordinator({
   function observe() {
     const root = rootProvider();
     if (!root || observer || typeof MutationObserver !== 'function') return;
-    observer = new MutationObserver(() => {
+    observer = new MutationObserver((records) => {
       state.observerCallbacks += 1;
+      const route = activeRoute(documentRef);
+      const baseRender = records.some((record) => record.target === root);
+
+      if (route !== state.route) beginRoute(route, 'observed-route-change');
+      else if (baseRender && state.status === 'ready') beginRoute(route, 'observed-base-render');
+
       if (running) {
         dirty = true;
         return;
       }
-      if (state.status !== 'rendering') beginRoute(activeRoute(documentRef), 'observed-render');
+      if (state.status === 'failed') return;
       state.status = 'rendered';
-      queue('dom-rendered');
+      queue(baseRender ? 'base-rendered' : 'dom-stabilize');
     });
     observer.observe(root, { childList: true, subtree: true });
   }
