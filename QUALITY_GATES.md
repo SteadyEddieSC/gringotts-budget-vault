@@ -2,14 +2,14 @@
 
 A release is promotable only when the exact final head passes every required gate.
 
-## v125 required gates
+## v126 required gates
 
-- parser and static syntax;
-- browser-free close-history model and release-contract tests;
+- parser and static syntax for inherited and v126 runtime modules;
+- browser-free coordinator, dispatcher, storage-inventory, roadmap, and release-contract tests;
 - Chromium, Firefox, and desktop WebKit;
 - Android Chromium, iPad WebKit, and iPhone WebKit;
 - keyboard and visual contracts;
-- axe accessibility;
+- axe accessibility for runtime diagnostics and the v126 roadmap;
 - Lighthouse budgets;
 - public-repository security and full-history privacy/secret scanning;
 - dependency review and high/critical npm audit;
@@ -19,11 +19,15 @@ A release is promotable only when the exact final head passes every required gat
 
 ## Release assertions
 
-- current version is v125 in both HTML shells, runtime metadata, tests, and package metadata;
-- workbook labels, filenames, tests, and generated output agree on 43 sheets;
-- inherited exports preserve historical schemas where intended while current-release filenames belong to v125;
-- close-trend exports are aggregate-only;
-- closed figures use immutable close snapshots;
-- open-month estimates are labeled as open and exclude pending rows;
-- no financial or close-history write is introduced;
-- `gringottsBudgetVault.latest`, empty-vault protection, backup-first broad writes, and stable rescue remain unchanged.
+- current version is v126 in both HTML shells, runtime metadata, tests, and package metadata;
+- one coordinator owns rendered-route enhancement readiness;
+- one live `MutationObserver` is reported by the coordinator;
+- one dispatcher owns specialist capture actions and current-release downloads;
+- inherited release observers are suppressed while their tested capabilities remain available;
+- route enhancement states and failures are inspectable and retryable without clearing local storage;
+- the storage inventory contains the authoritative vault and bounded metadata/history domains;
+- only `gringottsBudgetVault.latest` may contain transaction copies;
+- workbook labels, filenames, tests, and generated output remain capped at 43 sheets;
+- inherited exports preserve historical schemas where intended while current-release filenames belong to v126;
+- no second transaction runtime, new financial feature, remote endpoint, service worker, or automatic financial action is introduced;
+- empty-vault protection, backup-first broad writes, immutable close history, and stable v105 rescue remain unchanged.
