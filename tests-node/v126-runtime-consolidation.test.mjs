@@ -11,10 +11,9 @@ import {
 import {
   STORAGE_INVENTORY,
   storageInventorySummary,
-  validateStorageInventory,
-  ROADMAP_HORIZON,
-  validateRoadmapHorizon
-} from '../src/v126/release.js';
+  validateStorageInventory
+} from '../src/v126/storage-inventory.js';
+import { ROADMAP_HORIZON, validateRoadmapHorizon } from '../src/v126/roadmap-horizon.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
