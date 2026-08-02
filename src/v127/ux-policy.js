@@ -28,8 +28,9 @@ const PATTERNS = Object.freeze({
 export function normalizeActionLabel(value) {
   return String(value ?? '')
     .replace(/\s+/g, ' ')
+    .trim()
     .replace(/[.…]+$/u, '')
-    .trim();
+    .trimEnd();
 }
 
 export function actionDescriptor(input = {}) {
