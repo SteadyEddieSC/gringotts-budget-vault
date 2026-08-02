@@ -313,7 +313,10 @@ export function createRuntimeCoordinator({
   function queue(reason = 'mutation') {
     if (queued || state.status === 'failed') return;
     queued = true;
-    queueMicrotask(() => enhance(reason).catch(() => {}));
+    queueMicrotask(() => {
+      queued = false;
+      enhance(reason).catch(() => {});
+    });
   }
 
   function observe() {
