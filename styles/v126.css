@@ -1,0 +1,72 @@
+.v126-runtime-health-card {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  min-width: 0;
+}
+
+.v126-runtime-health-card > *,
+.v126-runtime-metrics,
+.v126-runtime-metrics > * {
+  min-width: 0;
+}
+
+.v126-runtime-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.v126-runtime-health-card .button-row {
+  align-items: stretch;
+}
+
+.v126-route-failure {
+  display: grid;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.v126-route-failure .button-row {
+  margin-top: 0;
+}
+
+.v126-workbook-cap-note {
+  margin: .75rem 0;
+}
+
+.v126-roadmap-page,
+.v126-roadmap-page .roadmap-horizon,
+.v126-roadmap-page .roadmap-horizon-card,
+.v126-roadmap-page .roadmap-notes-grid {
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .v126-runtime-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .v126-runtime-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .v126-runtime-health-card .button-row,
+  .v126-route-failure .button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .v126-runtime-health-card .button-row > *,
+  .v126-route-failure .button-row > * {
+    width: 100%;
+  }
+}
+
+@media print {
+  .v126-runtime-health-card,
+  .v126-route-failure,
+  .v126-workbook-cap-note {
+    display: none !important;
+  }
+}
