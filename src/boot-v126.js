@@ -188,10 +188,25 @@ function loadRouteLayers() {
   return routeLayersPromise;
 }
 
-function replayRoute(route) {
+function nextFrame() {
+  return new Promise((resolve) => requestAnimationFrame(resolve));
+}
+
+async function replayRoute(route) {
   const button = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
   if (!button) throw new Error(`The prepared route button is unavailable: ${route}`);
-  button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+
+  dispatcher.dispose();
+  try {
+    button.click();
+  } finally {
+    dispatcher.install();
+  }
+
+  await nextFrame();
+  await nextFrame();
+  const renderedRoute = document.querySelector('[data-tab].active')?.dataset.tab;
+  if (renderedRoute !== route) throw new Error(`The base route renderer did not activate ${route}.`);
 }
 
 function handleRouteAction(event) {
@@ -210,7 +225,7 @@ function handleRouteAction(event) {
     .then(async (layers) => {
       const requestedRoute = pendingRoute || route;
       pendingRoute = '';
-      replayRoute(requestedRoute);
+      await replayRoute(requestedRoute);
       await activateRouteLayers(layers);
       await coordinator.enhance('route-layers-activated');
       window.GringottsV126.routeEnhancementsReady = true;
