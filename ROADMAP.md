@@ -1,39 +1,38 @@
 # Gringotts Budget Vault Roadmap
 
-The roadmap now prioritizes reliability and simplification over feature count. **v126 is the strongest next commitment.** Later entries are directional and may move when testing or household use shows a better order.
+The roadmap prioritizes reliability and simplification over feature count. v126 completes the first reliability commitment. Later entries remain evidence-gated and may move when testing or household use shows a better order.
 
 ## Current release
 
-### v125 — Close History & Trend Explainability
+### v126 — Runtime Consolidation & Reliability
 
 **Purpose**
 
-Explain month-to-month household change using immutable close snapshots for closed months and currently posted evidence for open months.
+Freeze feature growth and replace implicit release-layer timing with one explicit route, readiness, action-ownership, recovery, and performance lifecycle.
 
 **Delivered**
 
-- compares selected and prior months;
-- separates income, recurring expenses, variable expenses, and transfer-neutral change;
-- ranks aggregate drivers;
-- shows close revisions, reopen events, comparison periods, account/date coverage, and confidence reasons;
-- excludes pending rows from money totals;
-- distinguishes open-month estimates from closed-month evidence;
-- lowers confidence when current row coverage differs from a retained snapshot;
-- integrates with Guided Plan, Reports, Family Meeting and Guided Plan Markdown, diagnostics, JSON, and two workbook sheets;
-- exports aggregates only and stores no new transaction copies.
+- one authoritative route-enhancement coordinator;
+- one owned `MutationObserver` for rendered-route stabilization;
+- one priority-ordered capture dispatcher for specialist actions and current-release downloads;
+- deterministic rendering, enhancing, ready, and failed states;
+- bounded stabilization passes, observer metrics, route-readiness metrics, and budgets;
+- a consolidated release registry for inherited v118–v125 capabilities;
+- suppression of inherited release observers while preserving tested feature entry points;
+- an 18-domain browser-local storage and recovery inventory;
+- non-destructive enhancement retry and stable v105 rescue;
+- preserved six-destination navigation and 43-sheet workbook cap.
 
 **Safety**
 
-- no transaction rewrite or silent close-history mutation;
-- no automatic reopen or planning change;
-- no causation claim from aggregate correlation;
-- no raw household financial data in source control, logs, screenshots, or CI artifacts.
+- no second transaction runtime;
+- no new primary destination, finance feature, metadata store, or workbook sheet;
+- no timeout-based route-readiness masking;
+- no transaction, close-history, goal, debt, scenario, recurring-decision, import-receipt, or cleanup-plan rewrite by the coordinator;
+- `gringottsBudgetVault.latest` remains the only transaction-copy domain;
+- no analytics endpoint, remote parser, service worker, or external financial action.
 
 ## Reliability-first horizon
-
-### v126 — Runtime Consolidation & Reliability
-
-Feature freeze. Establish one explicit route lifecycle, authoritative readiness contract, action/download dispatcher, release registry, idempotent render contract, observer ownership model, storage inventory, recovery behavior, and performance budgets. Add no primary destination and no unrelated household-finance feature.
 
 ### v127 — UX Polish & Simplification
 
