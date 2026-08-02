@@ -83,7 +83,7 @@ test('feeds open recurring decisions into Guided Household Plan', async ({ app }
   await expect(page.getByText(/Owner: Adult B/i)).toBeVisible();
 });
 
-test('retains recurring decisions in v125 reports and the 43-sheet workbook', async ({ app }, testInfo) => {
+test('retains recurring decisions in v126 reports and the 43-sheet workbook', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and report integration coverage.');
   const { page } = app;
   await openRecurring(page);
@@ -103,19 +103,19 @@ test('retains recurring decisions in v125 reports and the 43-sheet workbook', as
   await page.locator('#reportPreviewPage').selectOption('meeting');
   await expect(page.getByRole('heading', { name: 'Recurring-cost conversation', exact: true })).toBeVisible();
   const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#vaultXlsx').click()]);
-  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v125_.*\.xlsx/i);
+  expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_.*\.xlsx/i);
 });
 
-test('shows the v125 through v131 reliability-first roadmap horizon', async ({ app }) => {
+test('shows the v126 through v131 reliability-first roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(7);
-  await expect(page.getByRole('heading', { name: /v125 — Close History & Trend Explainability/i })).toBeVisible();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
+  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
-  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(6);
-  await expect(page.getByText(/v126 is the strongest next commitment/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(5);
+  await expect(page.getByText(/v126 completed the runtime consolidation commitment/i)).toBeVisible();
 });
 
 test('keeps recurring decisions, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {
