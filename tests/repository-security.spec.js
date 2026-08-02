@@ -93,9 +93,10 @@ test('parser preflight checks inherited and current release modules before brows
     'src/v125/close-history-model.js', 'src/v125/close-trends.js', 'src/v125/roadmap-horizon.js', 'src/v125/reporting.js', 'src/v125/release.js', 'src/boot-v125.js',
     'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
     'src/v126/roadmap-horizon.js', 'src/v126/release.js', 'src/boot-v126.js',
-    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/v127/release.js', 'src/boot-v127.js'
+    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js'
   ];
   for (const module of modules) expect(playwright).toContain(`node --check ${module}`);
+  expect(playwright).not.toContain('node --check src/v127/release.js');
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
@@ -113,16 +114,14 @@ test('analytical and planning layers remain local and do not silently write the 
     'src/v125/close-history-model.js', 'src/v125/close-trends.js', 'src/v125/reporting.js', 'src/v125/release.js',
     'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
     'src/v126/roadmap-horizon.js', 'src/v126/release.js',
-    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/v127/release.js'
+    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js'
   ];
   for (const file of localOnly) expectNoRemoteRuntime(read(file), file);
   for (const file of [
     'src/v114/planning.js', 'src/v120/import-receipt-audit.js', 'src/v121/receipt-integrity.js',
     'src/v122/account-cleanup.js', 'src/v123/recurring-decisions.js', 'src/v124/scenario-comparison.js',
-    'src/v125/close-trends.js', 'src/v126/release.js', 'src/v127/release.js'
-  ]) {
-    expect(read(file)).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
-  }
+    'src/v125/close-trends.js', 'src/v126/release.js', 'src/boot-v127.js'
+  ]) expect(read(file)).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
 });
 
 test('v115 transaction writes retain backup, rollback, and verification controls', () => {
@@ -151,8 +150,8 @@ test('bounded metadata stores remain separate from transactions', () => {
   ];
   for (const [file, contract] of contracts) expect(read(file)).toContain(contract);
   expect(read('src/v125/close-history-model.js')).not.toMatch(/localStorage|sessionStorage/);
-  expect(read('src/v126/storage-inventory.js')).toContain("gringottsImportHistory.v1");
-  expect(read('src/v127/release.js')).not.toMatch(/localStorage|sessionStorage/);
+  expect(read('src/v126/storage-inventory.js')).toContain('gringottsImportHistory.v1');
+  expect(read('src/boot-v127.js')).not.toMatch(/localStorage|sessionStorage/);
 });
 
 test('v125 keeps immutable closed evidence and aggregate-only non-mutating exports', () => {
@@ -194,31 +193,37 @@ test('v126 owns one route lifecycle and specialist action dispatcher', () => {
   expect(release).toContain("stableRescue: 'rescue-v105.html'");
 });
 
-test('v127 adds presentation policy without adding runtime or storage ownership', () => {
+test('v127 adds one budget-neutral presentation bootstrap without runtime or storage ownership', () => {
   const policy = read('src/v127/ux-policy.js');
   const roadmap = read('src/v127/roadmap-horizon.js');
-  const release = read('src/v127/release.js');
+  const boot = read('src/boot-v127.js');
   expect(policy).toContain("version: 'v127'");
   expect(policy).toContain('workbookSheets: 43');
   expect(roadmap).toContain("version: 'v136'");
   expect(roadmap).toContain('ROADMAP_HORIZON.length !== 10');
-  expect(release).not.toContain('new MutationObserver');
-  expect(release).not.toMatch(/localStorage|sessionStorage/);
-  expect(release).toContain('observerAdded: false');
-  expect(release).toContain('storageWritesAdded: false');
-  expect(release).toContain('preserve native table semantics');
+  expect(boot).toContain("import './boot-v126.js?v=127base2'");
+  expect(boot).not.toContain("from './v127/");
+  expect(boot).not.toContain('new MutationObserver');
+  expect(boot).not.toMatch(/localStorage|sessionStorage/);
+  expect(boot).toContain('observerAdded: false');
+  expect(boot).toContain('storageWritesAdded: false');
+  expect(boot).toContain('networkBudgetDelta: 0');
+  expect(boot).toContain('Retained v113 household-insight styles are consolidated here');
 });
 
-test('v127 owns the live shells while composing the single v126 runtime', () => {
+test('v127 owns the live shells while preserving the 45-request budget', () => {
   const boot = read('src/boot-v127.js');
   const index = read('index.html');
   const app = read('app.html');
-  expect(index).toContain('src/boot-v127.js?v=127ux1');
-  expect(app).toContain('src/boot-v127.js?v=127ux1');
-  expect(index).toContain('styles/v127.css');
-  expect(app).toContain('styles/v127.css');
-  expect(boot).toContain("import './boot-v126.js?v=127base1'");
-  expect(boot).toContain("import { installV127UxPolish } from './v127/release.js?v=127ux1'");
+  expect(index).toContain('src/boot-v127.js?v=127ux2');
+  expect(app).toContain('src/boot-v127.js?v=127ux2');
+  expect(index).not.toContain('styles/v113.css');
+  expect(app).not.toContain('styles/v113.css');
+  expect(index).not.toContain('styles/v127.css');
+  expect(app).not.toContain('styles/v127.css');
+  expect(index).toContain('styles/v116.css');
+  expect(app).toContain('styles/v116.css');
+  expect(boot).toContain('const V127_CSS = String.raw');
   expect(boot).not.toContain('serviceWorker');
   for (const stylesheet of ['styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css', 'styles/v124.css', 'styles/v125.css', 'styles/v126.css']) {
     expect(index).not.toContain(stylesheet);
@@ -238,7 +243,7 @@ test('public repository quality and release-control files remain present through
     'quality-tests/visual-contracts.spec.js', 'src/boot-v125.js', 'src/boot-v126.js', 'src/boot-v127.js',
     'src/v125/release.js', 'src/v126/release.js', 'src/v126/runtime.js', 'src/v126/legacy-adapter.js',
     'src/v126/storage-inventory.js', 'src/v126/roadmap-horizon.js', 'src/v127/ux-policy.js',
-    'src/v127/roadmap-horizon.js', 'src/v127/release.js', 'styles/v125.css', 'styles/v126.css', 'styles/v127.css',
+    'src/v127/roadmap-horizon.js', 'styles/v113.css', 'styles/v116.css',
     'tests-node/close-history-explainability.test.mjs', 'tests-node/v125-release-contract.test.mjs',
     'tests-node/v126-runtime-consolidation.test.mjs', 'tests-node/v127-ux-polish.test.mjs',
     'tests/close-history-explainability.spec.js', 'tests/runtime-consolidation.spec.js',
