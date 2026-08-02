@@ -9,74 +9,61 @@
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household financial data remains inside the browser unless the user explicitly downloads a local backup or report.
 
-Current release: **v125 — Close History & Trend Explainability**
+Current release: **v126 — Runtime Consolidation & Reliability**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v125 close-history explainability
+## v126 reliability release
 
-Inside **Money → Close & Forecast**, v125 compares household months using two clearly separated evidence sources:
+v126 freezes feature growth and consolidates the runtime lifecycle behind the existing six primary destinations.
 
-- **closed months:** immutable close snapshots retained by the existing month-close workflow;
-- **open months:** currently posted rows, with pending rows excluded and lower confidence.
+The release provides:
 
-The review shows:
+- one authoritative route-enhancement coordinator;
+- one owned `MutationObserver` for rendered-route stabilization;
+- one priority-ordered capture dispatcher for specialist actions and current-release downloads;
+- deterministic route states: rendering, enhancing, ready, or failed;
+- bounded enhancement passes and route-readiness budgets;
+- a consolidated release registry for inherited v118–v125 capabilities;
+- an inventory of 18 browser-local storage domains and their recovery boundaries;
+- non-destructive retry and stable v105 rescue paths.
 
-- selected and comparison periods;
-- close state, close revision, and reopen-event counts;
-- income, recurring-expense, variable-expense, and transfer-neutral operating-net change;
-- ranked aggregate drivers;
-- account and date coverage;
-- high, medium, or low confidence with explicit reasons;
-- warnings when current row coverage no longer matches a retained close snapshot.
+Historical release modules still provide their tested household capabilities. Their overlapping observers and global action listeners are suppressed or adapted so v126 owns the live lifecycle.
 
-Ranked drivers describe aggregate correlation between months. They are not claims that a transaction, category, decision, or outside event caused the change.
+## Preserved household capabilities
 
-## Reporting and exports
+v126 does not add a household-finance feature. It preserves the v125 product surface, including:
 
-Close-trend context appears in Guided Plan, Reports, Family Meeting Markdown, Guided Plan Markdown, diagnostics, and aggregate-only JSON.
+- immutable close-history trend explainability;
+- scenario comparison;
+- recurring-cost decisions;
+- account cleanup planning;
+- receipt integrity and import batch lineage;
+- guarded import and separate Full Vault Restore;
+- Guided Plan, Reports, Family Meeting exports, diagnostics, and workbook reporting.
 
-The Vault Workbook contains **43 sheets**. v125 adds:
+The Vault Workbook remains capped at **43 sheets**. No sheet was added in v126.
 
-- **Close Trends**;
-- **Close Drivers**.
+## Safety and recovery boundaries
 
-The close-trend export excludes transaction rows, merchants, account labels, filenames, fingerprints, credentials, tokens, vault contents, and other household-detail fields.
-
-## Safety boundaries
-
-v125 does not provide or perform:
-
-- transaction rewriting;
-- silent close-history mutation;
-- automatic reopen;
-- automatic forecast, budget, debt, goal, scenario, or recurring-decision changes;
-- transfers, payments, cancellations, borrowing, merchant contact, or institution actions.
-
-Full Vault Restore remains separate and continues to target `gringottsBudgetVault.latest`. Empty-vault overwrite remains blocked. Stable v105 rescue remains available.
+- `gringottsBudgetVault.latest` remains the only domain that may contain transaction copies.
+- Full Vault Restore continues to target that exact key and blocks empty transaction arrays.
+- Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
+- Immutable month-close snapshots are not recomputed or silently rewritten.
+- No automatic payment, transfer, borrowing, cancellation, merchant contact, account connection, plan application, or close mutation exists.
+- No analytics endpoint, remote parser, service worker, or second transaction runtime is introduced.
+- Stable `rescue-v105.html` remains available if the current shell cannot initialize.
 
 ## Strategic direction
 
-The product is now in a feature-freeze phase. The next releases prioritize:
+The feature freeze remains active. The roadmap now prioritizes:
 
-1. **v126 — Runtime Consolidation & Reliability**;
-2. **v127 — UX Polish & Simplification**;
-3. **v128 — Data Portability & Recovery**;
-4. observed workflow needs and maintenance evidence before any additional household-finance feature.
-
-The current 43-sheet workbook is the cap. A later sheet addition requires consolidation or removal unless a strong documented household need justifies it.
-
-## Privacy and architecture
-
-- no analytics endpoint;
-- no remote financial parser;
-- no institution credential storage;
-- no service worker;
-- no real household data, bank exports, filled reports, or screenshots in source control or CI artifacts;
-- one active transaction engine and one live runtime;
-- broad transaction writes remain backup-first and read-back verified.
+1. **v127 — UX Polish & Simplification**;
+2. **v128 — Data Portability & Recovery**;
+3. workflow evidence and performance/maintenance hardening;
+4. an explicit observed-needs decision gate before additional finance scope.
 
 ## Local validation
 
@@ -90,4 +77,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, and `RELEASE_NOTES_v125_CLOSE_HISTORY_TREND_EXPLAINABILITY.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, and `RELEASE_NOTES_v126_RUNTIME_CONSOLIDATION_RELIABILITY.md`.
