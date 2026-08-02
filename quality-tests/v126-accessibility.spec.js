@@ -12,7 +12,7 @@ async function scan(page, label) {
   expect(blocking, `${label} serious or critical axe violations`).toEqual([]);
 }
 
-test('axe scans v126 runtime ownership and recovery diagnostics', async ({ page }, testInfo) => {
+test('axe scans retained v126 runtime ownership and recovery diagnostics', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'quality-desktop', 'Detailed v126 runtime coverage runs once.');
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
@@ -22,12 +22,12 @@ test('axe scans v126 runtime ownership and recovery diagnostics', async ({ page 
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans v126 through v131 reliability roadmap on mobile', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone v126 roadmap coverage runs in the mobile project.');
+test('axe scans the extended reliability roadmap on mobile', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'quality-mobile', 'Phone roadmap coverage runs in the mobile project.');
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await scan(page, 'Mobile Tools — v126 Roadmap');
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await scan(page, 'Mobile Tools — Reliability Roadmap');
   await expectNoBrowserErrors(errors);
 });
