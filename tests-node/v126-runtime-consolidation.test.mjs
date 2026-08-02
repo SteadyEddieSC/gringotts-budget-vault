@@ -71,6 +71,36 @@ test('v126 coordinator runs registered release enhancers in deterministic order'
   assert.equal(snapshot.budget.passes, true);
 });
 
+test('v126 coordinator releases queued work after the stabilization cap', async () => {
+  const target = new FakeDocument();
+  let calls = 0;
+  const coordinator = createRuntimeCoordinator({
+    documentRef: target,
+    rootProvider: () => target.root,
+    performanceApi: { now: () => 1 },
+    budgets: { ...RUNTIME_BUDGETS, maxEnhancementPasses: 1 }
+  });
+  coordinator.registerRelease({
+    id: 'v126',
+    order: 126,
+    enhance: () => { calls += 1; }
+  });
+
+  await coordinator.enhanceExistingRoute();
+  assert.equal(calls, 1);
+
+  coordinator.queue('stabilization-cap');
+  await new Promise((resolve) => setImmediate(resolve));
+
+  coordinator.beginRoute('dashboard', 'observed-base-render');
+  coordinator.queue('base-rendered');
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal(calls, 2);
+  assert.equal(coordinator.snapshot().status, 'ready');
+  assert.equal(coordinator.snapshot().enhancementPasses, 1);
+});
+
 test('v126 storage inventory preserves one authoritative transaction-copy domain', () => {
   assert.equal(validateStorageInventory(), true);
   const summary = storageInventorySummary();
