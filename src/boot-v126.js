@@ -37,37 +37,57 @@ let coordinator = null;
 let installLegacyLayer = null;
 let installV126Runtime = null;
 let routeLayersPromise = null;
+let routePreparationPromise = null;
+let routeActivationPromise = null;
 let routeLayersReady = false;
+let routeLayersPrepared = false;
+let routeLayersActivated = false;
 let routeReplayInProgress = false;
 let pendingRoute = '';
-let legacyAdapters = [];
+const legacyAdapters = [];
 
-function announce(message) {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-  toast.textContent = message;
-  toast.classList.add('show');
-  clearTimeout(announce.timer);
-  announce.timer = setTimeout(() => toast.classList.remove('show'), 3800);
+function installRecurringObserverGuard(registry) {
+  if (registry.v126RecurringObserverGuard === true) return;
+  const inheritedEnhancer = registry.enhanceRecurringDecisionPage;
+  if (typeof inheritedEnhancer !== 'function') throw new Error('The recurring decision page enhancer is unavailable.');
+  Object.assign(registry, {
+    v126RecurringObserverGuard: true,
+    enhanceRecurringDecisionPage(page) {
+      if (!page || page.querySelector('h2')?.textContent?.trim() !== 'Bills, Recurring & Budgets') return false;
+      if (page.dataset.v126RecurringEnhanced === 'true') return true;
+      page.dataset.v126RecurringEnhanced = 'true';
+      try {
+        const enhanced = inheritedEnhancer(page);
+        if (!enhanced) delete page.dataset.v126RecurringEnhanced;
+        return enhanced;
+      } catch (error) {
+        delete page.dataset.v126RecurringEnhanced;
+        throw error;
+      }
+    }
+  });
 }
 
-function registerRouteFeatures({ accountCleanup, recurring, scenario }) {
+function registerRouteFeatures({ accountCleanup, cleanupExport, recurring, scenario }) {
   const cleanupPromise = Promise.resolve(accountCleanup);
+  const recurringPromise = Promise.resolve(recurring);
+  const scenarioPromise = Promise.resolve(scenario);
+
   Object.assign(window.GringottsV122 || (window.GringottsV122 = {}), {
     release: 'v122',
     loadAccountCleanupFeatures: () => cleanupPromise
   });
 
-  const recurringPromise = Promise.resolve(recurring);
-  Object.assign(window.GringottsV123 || (window.GringottsV123 = {}), {
+  const recurringRegistry = window.GringottsV123 || (window.GringottsV123 = {});
+  Object.assign(recurringRegistry, {
     release: 'v123',
     loadFeatures: () => recurringPromise,
     enhanceRecurringDecisionPage: recurring.enhanceRecurringDecisionPage,
     enhanceGuidedPlanPage: recurring.enhanceGuidedPlanPage,
     enhanceRecurringReportPages: recurring.enhanceRecurringReportPages
   });
+  installRecurringObserverGuard(recurringRegistry);
 
-  const scenarioPromise = Promise.resolve(scenario);
   Object.assign(window.GringottsV124 || (window.GringottsV124 = {}), {
     release: 'v124',
     loadScenarioFeatures: () => scenarioPromise,
@@ -75,6 +95,11 @@ function registerRouteFeatures({ accountCleanup, recurring, scenario }) {
     enhanceScenarioReportPages: scenario.enhanceScenarioReportPages,
     enhanceScenarioGuidedPlan: scenario.enhanceScenarioGuidedPlan
   });
+
+  cleanupExport.installAccountCleanupExportController();
+  accountCleanup.installAccountCleanupFeatures();
+  recurring.installRecurringDecisionFeatures();
+  scenario.installScenarioComparisonFeatures();
 }
 
 function registerLegacyEnhancer(id, title, order) {
@@ -94,45 +119,50 @@ async function installLayer(name, priority, install) {
   return result.result;
 }
 
-async function prepareRouteLayers(modules) {
-  const { v118, v119, v120, v121, accountCleanup, recurring, scenario, v125 } = modules;
+async function prepareRouteLayers(layers) {
+  if (routeLayersPrepared) return layers;
+  if (!routePreparationPromise) {
+    routePreparationPromise = (async () => {
+      await installLayer('v126-feature-prepare', 40, () => registerRouteFeatures(layers));
+      await installLayer('v125-prepare', 10, () => layers.v125.prepareV125Interceptors());
+      await installLayer('v121-prepare', 10, () => layers.v121.prepareV121Interceptors());
+      await installLayer('v120-prepare', 10, () => layers.v120.prepareV120Interceptors());
+      await installLayer('v119-prepare', 30, () => layers.v119.prepareV119Interceptors());
+      await installLayer('v118-prepare', 20, () => layers.v118.prepareV118Interceptors());
+      routeLayersPrepared = true;
+      routeLayersReady = true;
+      return layers;
+    })().catch((error) => {
+      routePreparationPromise = null;
+      routeLayersReady = false;
+      throw error;
+    });
+  }
+  return routePreparationPromise;
+}
 
-  await installLayer('v118', 20, () => v118.activateV118());
-  registerLegacyEnhancer('v118', 'Profile Portability & Institution Patterns', 118);
-
-  await installLayer('v119', 30, async () => {
-    v119.prepareV119Interceptors();
-    return v119.activateV119();
-  });
-  registerLegacyEnhancer('v119', 'Profile Versioning & Dry-Run Diagnostics', 119);
-
-  await installLayer('v120', 10, async () => {
-    v120.prepareV120Interceptors();
-    return v120.activateV120();
-  });
-  registerLegacyEnhancer('v120', 'Import Receipt Audit & Rollback Guidance', 120);
-
-  await installLayer('v121', 10, async () => {
-    await v121.prepareV121Interceptors();
-    return v121.activateV121();
-  });
-  registerLegacyEnhancer('v121', 'Receipt Integrity & Import Batch Reconciliation', 121);
-
-  registerRouteFeatures({ accountCleanup, recurring, scenario });
-  await installLayer('v122-account-cleanup', 40, () => accountCleanup.installAccountCleanupFeatures());
-  await installLayer('v123-recurring-decisions', 40, () => recurring.installRecurringDecisionFeatures());
-  await installLayer('v124-scenario-comparison', 40, () => scenario.installScenarioComparisonFeatures());
-
-  await installLayer('v125', 10, async () => {
-    await v125.prepareV125Interceptors();
-    return v125.activateV125();
-  });
-  registerLegacyEnhancer('v125', 'Close History & Trend Explainability', 125);
-
-  installV126Runtime({ coordinator, dispatcher, legacyAdapters });
-  window.GringottsV126.loadRouteLayers = loadRouteLayers;
-  routeLayersReady = true;
-  return modules;
+async function activateRouteLayers(layers) {
+  if (routeLayersActivated) return layers;
+  if (!routeActivationPromise) {
+    routeActivationPromise = (async () => {
+      await installLayer('v118-activate', 20, () => layers.v118.activateV118());
+      registerLegacyEnhancer('v118', 'Profile Portability & Institution Patterns', 118);
+      await installLayer('v119-activate', 30, () => layers.v119.activateV119());
+      registerLegacyEnhancer('v119', 'Profile Versioning & Dry-Run Diagnostics', 119);
+      await installLayer('v120-activate', 10, () => layers.v120.activateV120());
+      registerLegacyEnhancer('v120', 'Import Receipt Audit & Rollback Guidance', 120);
+      await installLayer('v121-activate', 10, () => layers.v121.activateV121());
+      registerLegacyEnhancer('v121', 'Receipt Integrity & Import Batch Reconciliation', 121);
+      await installLayer('v125-activate', 10, () => layers.v125.activateV125());
+      registerLegacyEnhancer('v125', 'Close History & Trend Explainability', 125);
+      routeLayersActivated = true;
+      return layers;
+    })().catch((error) => {
+      routeActivationPromise = null;
+      throw error;
+    });
+  }
+  return routeActivationPromise;
 }
 
 function loadRouteLayers() {
@@ -143,11 +173,12 @@ function loadRouteLayers() {
       import('./v120/release.js?v=126runtime1'),
       import('./v121/release.js?v=126runtime1'),
       import('./v122/account-cleanup.js?v=126runtime1'),
+      import('./v122/account-cleanup-export-controller.js?v=126runtime1'),
       import('./v123/recurring-decisions.js?v=126runtime1'),
       import('./v124/scenario-comparison.js?v=126runtime1'),
       import('./v125/release.js?v=126runtime1')
-    ]).then(([v118, v119, v120, v121, accountCleanup, recurring, scenario, v125]) =>
-      prepareRouteLayers({ v118, v119, v120, v121, accountCleanup, recurring, scenario, v125 })
+    ]).then(([v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, scenario, v125]) =>
+      prepareRouteLayers({ v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, scenario, v125 })
     ).catch((error) => {
       routeLayersPromise = null;
       routeLayersReady = false;
@@ -176,10 +207,13 @@ function handleRouteAction(event) {
   if (routeReplayInProgress) return true;
   routeReplayInProgress = true;
   loadRouteLayers()
-    .then(() => {
+    .then(async (layers) => {
       const requestedRoute = pendingRoute || route;
       pendingRoute = '';
       replayRoute(requestedRoute);
+      await activateRouteLayers(layers);
+      await coordinator.enhance('route-layers-activated');
+      window.GringottsV126.routeEnhancementsReady = true;
     })
     .catch(renderFailure)
     .finally(() => { routeReplayInProgress = false; });
