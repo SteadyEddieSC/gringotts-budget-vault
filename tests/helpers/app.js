@@ -82,7 +82,7 @@ export const test = base.extend({
     const errors = [];
     page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
     page.on('console', (message) => {
-      if (message.type() === 'error') errors.push(`console: ${message.text()}`));
+      if (message.type() === 'error') errors.push(`console: ${message.text()}`);
     });
     enableActionRoleCompatibility(page);
     await seedVault(page);
