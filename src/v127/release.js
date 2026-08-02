@@ -78,13 +78,18 @@ function enhanceTable(table) {
   if (!(table instanceof HTMLTableElement)) return;
   const caption = normalizeActionLabel(table.caption?.textContent || '');
   const heading = nearestHeading(table);
-  let label = caption || normalizeActionLabel(heading?.textContent || '') || 'Household data table';
+  const label = caption || normalizeActionLabel(heading?.textContent || '') || 'Household data table';
   const wrapper = table.closest('.table-wrap, .table-scroll, [data-table-region]');
-  const region = wrapper || table;
-  region.dataset.v127TableRegion = 'true';
-  region.setAttribute('role', 'region');
-  region.setAttribute('aria-label', label);
-  if (!region.hasAttribute('tabindex')) region.setAttribute('tabindex', '0');
+  if (wrapper) {
+    wrapper.dataset.v127TableRegion = 'true';
+    wrapper.setAttribute('role', 'region');
+    wrapper.setAttribute('aria-label', label);
+    if (!wrapper.hasAttribute('tabindex')) wrapper.setAttribute('tabindex', '0');
+    return;
+  }
+  table.dataset.v127TableRegion = 'true';
+  table.setAttribute('aria-label', label);
+  if (!table.hasAttribute('tabindex')) table.setAttribute('tabindex', '0');
 }
 
 function enhanceDialog(dialog) {
