@@ -1,22 +1,6 @@
 import {
   BUILD, best, debugReport, download, downloadJson, getMonth, ics, reviewPackage, stamp
 } from '../v103/core.js';
-import { xlsxBlob } from '../v103/reports.js';
-import { householdReportModel } from '../v111/reporting.js';
-import { guidedPlanModel } from '../v114/planning.js';
-import {
-  recurringDecisionMarkdownV123,
-  recurringDecisionReportModelV123
-} from '../v123/reporting.js';
-import {
-  scenarioMarkdownV124,
-  scenarioReportModelV124
-} from '../v124/reporting.js';
-import {
-  closeTrendMarkdownV125,
-  closeTrendReportModelV125,
-  expandedWorkbookSheetsV125
-} from '../v125/reporting.js';
 import { ROADMAP_HORIZON, validateRoadmapHorizon } from './roadmap-horizon.js';
 import { STORAGE_INVENTORY, storageInventorySummary, validateStorageInventory } from './storage-inventory.js';
 
@@ -27,6 +11,7 @@ const DOWNLOAD_IDS = new Set([
 
 let runtimeContext = null;
 let cssInstalled = false;
+let reportingPromise = null;
 
 function element(tag, className = '', text = '') {
   const node = document.createElement(tag);
@@ -64,26 +49,33 @@ function requiredFeature(name) {
   return value;
 }
 
+function loadReporting() {
+  if (!reportingPromise) {
+    reportingPromise = Promise.all([
+      import('../v103/reports.js'),
+      import('../v111/reporting.js'),
+      import('../v114/planning.js'),
+      import('../v123/reporting.js'),
+      import('../v124/reporting.js'),
+      import('../v125/reporting.js')
+    ]).then(([reports, household, planning, recurring, scenario, closeTrend]) => ({
+      xlsxBlob: reports.xlsxBlob,
+      householdReportModel: household.householdReportModel,
+      guidedPlanModel: planning.guidedPlanModel,
+      recurringDecisionMarkdownV123: recurring.recurringDecisionMarkdownV123,
+      recurringDecisionReportModelV123: recurring.recurringDecisionReportModelV123,
+      scenarioMarkdownV124: scenario.scenarioMarkdownV124,
+      scenarioReportModelV124: scenario.scenarioReportModelV124,
+      closeTrendMarkdownV125: closeTrend.closeTrendMarkdownV125,
+      closeTrendReportModelV125: closeTrend.closeTrendReportModelV125,
+      expandedWorkbookSheetsV125: closeTrend.expandedWorkbookSheetsV125
+    }));
+  }
+  return reportingPromise;
+}
+
 function reportSlug(model) {
   return `${model.settings.start}_to_${model.settings.end}`;
-}
-
-function familyMeetingMarkdown(model) {
-  return [
-    requiredFeature('familyMeetingMarkdownV114')(model),
-    recurringDecisionMarkdownV123(recurringDecisionReportModelV123(), { heading: 'Recurring Cost Conversation' }),
-    scenarioMarkdownV124(scenarioReportModelV124(), { heading: 'Scenario Conversation' }),
-    closeTrendMarkdownV125(closeTrendReportModelV125(), { heading: 'Close Trend Conversation' })
-  ].join('\n\n');
-}
-
-function guidedPlanMarkdown(plan) {
-  return [
-    requiredFeature('guidedPlanMarkdownV114')(plan),
-    recurringDecisionMarkdownV123(recurringDecisionReportModelV123(), { heading: 'Recurring Cost Follow-up' }),
-    scenarioMarkdownV124(scenarioReportModelV124(), { heading: 'Household Scenario Discussion' }),
-    closeTrendMarkdownV125(closeTrendReportModelV125(), { heading: 'Close Trend Follow-up' })
-  ].join('\n\n');
 }
 
 function downloadBackup() {
@@ -97,13 +89,11 @@ function downloadBackup() {
 }
 
 function importHistory() {
-  return requiredFeature('importHistory')();
+  const feature = window.GringottsV115?.importHistory;
+  return typeof feature === 'function' ? feature() : [];
 }
 
 function diagnosticsPackage() {
-  const recurring = recurringDecisionReportModelV123();
-  const scenarios = scenarioReportModelV124();
-  const closeTrend = closeTrendReportModelV125();
   const cleanup = window.GringottsV122?.accountCleanupAnalysis?.();
   const runtime = runtimeContext?.coordinator?.snapshot?.() || null;
   const actions = runtimeContext?.dispatcher?.snapshot?.() || null;
@@ -137,27 +127,12 @@ function diagnosticsPackage() {
       automaticMergeAvailable: false,
       transactionWriteAvailable: false
     },
-    recurringDecisions: {
-      candidateCount: recurring.candidates.length,
-      decidedCount: recurring.decisions.summary.decided,
-      openFollowUps: recurring.decisions.summary.open,
-      externalMerchantActionAvailable: false,
-      transactionWriteAvailable: false
-    },
-    scenarios: {
-      savedCount: scenarios.summary.saved,
-      automaticApplyAvailable: false,
-      transactionWriteAvailable: false,
-      transactionCopiesStored: false
-    },
-    closeTrends: {
-      selectedMonth: closeTrend.selectedMonth,
-      comparisonMonth: closeTrend.comparisonMonth,
-      confidence: closeTrend.confidence.level,
-      transferNeutral: true,
-      pendingExcluded: true,
-      aggregateOnly: true,
-      automaticWriteAvailable: false
+    preservedV125Capabilities: {
+      closeTrendExplainability: true,
+      scenarioComparison: true,
+      recurringDecisions: true,
+      aggregateOnlyExports: true,
+      automaticFinancialActionAvailable: false
     },
     roadmap: {
       current: ROADMAP_HORIZON[0].version,
@@ -167,49 +142,69 @@ function diagnosticsPackage() {
   };
 }
 
+async function performDownload(id) {
+  if (id === 'vaultXlsx') {
+    const reporting = await loadReporting();
+    const model = reporting.householdReportModel();
+    download(
+      `Gringotts_Budget_Vault_v126_${reportSlug(model)}_${stamp()}.xlsx`,
+      reporting.xlsxBlob(reporting.expandedWorkbookSheetsV125(getMonth(), model))
+    );
+    announce('43-sheet reliability-capped Vault Workbook downloaded');
+    return;
+  }
+  if (id === 'meetingMd') {
+    const reporting = await loadReporting();
+    const model = reporting.householdReportModel();
+    const markdown = [
+      requiredFeature('familyMeetingMarkdownV114')(model),
+      reporting.recurringDecisionMarkdownV123(reporting.recurringDecisionReportModelV123(), { heading: 'Recurring Cost Conversation' }),
+      reporting.scenarioMarkdownV124(reporting.scenarioReportModelV124(), { heading: 'Scenario Conversation' }),
+      reporting.closeTrendMarkdownV125(reporting.closeTrendReportModelV125(), { heading: 'Close Trend Conversation' })
+    ].join('\n\n');
+    download(`Gringotts_Family_Meeting_Pack_v126_${reportSlug(model)}_${stamp()}.md`, markdown, 'text/markdown');
+    announce('Family meeting pack downloaded');
+    return;
+  }
+  if (id === 'planMd') {
+    const reporting = await loadReporting();
+    const plan = reporting.guidedPlanModel();
+    const markdown = [
+      requiredFeature('guidedPlanMarkdownV114')(plan),
+      reporting.recurringDecisionMarkdownV123(reporting.recurringDecisionReportModelV123(), { heading: 'Recurring Cost Follow-up' }),
+      reporting.scenarioMarkdownV124(reporting.scenarioReportModelV124(), { heading: 'Household Scenario Discussion' }),
+      reporting.closeTrendMarkdownV125(reporting.closeTrendReportModelV125(), { heading: 'Close Trend Follow-up' })
+    ].join('\n\n');
+    download(`Gringotts_Guided_Household_Plan_v126_${plan.month}_${stamp()}.md`, markdown, 'text/markdown');
+    announce('Guided household plan downloaded');
+    return;
+  }
+  if (['exportBackup', 'importBackup', 'backupRules'].includes(id)) {
+    downloadBackup();
+    return;
+  }
+  if (id === 'exportRules') {
+    downloadJson(`Gringotts_v126_rules_review_${stamp()}.json`, reviewPackage());
+    return;
+  }
+  if (id === 'exportIcs' || id === 'downloadIcs') {
+    download(`Gringotts_v126_calendar_${stamp()}.ics`, ics(), 'text/calendar');
+    return;
+  }
+  if (id === 'copyDebug') {
+    await navigator.clipboard?.writeText?.(JSON.stringify(diagnosticsPackage(), null, 2));
+    announce('v126 runtime diagnostics copied');
+    return;
+  }
+  downloadJson(`Gringotts_v126_diagnostics_${stamp()}.json`, diagnosticsPackage());
+}
+
 function handleDownload(event) {
   const button = event.target.closest?.('button');
   if (!button || !DOWNLOAD_IDS.has(button.id)) return false;
   event.preventDefault();
   event.stopImmediatePropagation();
-
-  if (button.id === 'vaultXlsx') {
-    const model = householdReportModel();
-    download(`Gringotts_Budget_Vault_v126_${reportSlug(model)}_${stamp()}.xlsx`, xlsxBlob(expandedWorkbookSheetsV125(getMonth(), model)));
-    announce('43-sheet reliability-capped Vault Workbook downloaded');
-    return true;
-  }
-  if (button.id === 'meetingMd') {
-    const model = householdReportModel();
-    download(`Gringotts_Family_Meeting_Pack_v126_${reportSlug(model)}_${stamp()}.md`, familyMeetingMarkdown(model), 'text/markdown');
-    announce('Family meeting pack downloaded');
-    return true;
-  }
-  if (button.id === 'planMd') {
-    const plan = guidedPlanModel();
-    download(`Gringotts_Guided_Household_Plan_v126_${plan.month}_${stamp()}.md`, guidedPlanMarkdown(plan), 'text/markdown');
-    announce('Guided household plan downloaded');
-    return true;
-  }
-  if (['exportBackup', 'importBackup', 'backupRules'].includes(button.id)) {
-    downloadBackup();
-    return true;
-  }
-  if (button.id === 'exportRules') {
-    downloadJson(`Gringotts_v126_rules_review_${stamp()}.json`, reviewPackage());
-    return true;
-  }
-  if (button.id === 'exportIcs' || button.id === 'downloadIcs') {
-    download(`Gringotts_v126_calendar_${stamp()}.ics`, ics(), 'text/calendar');
-    return true;
-  }
-  if (button.id === 'copyDebug') {
-    navigator.clipboard?.writeText?.(JSON.stringify(diagnosticsPackage(), null, 2))
-      .then(() => announce('v126 runtime diagnostics copied'))
-      .catch(() => announce('Diagnostics could not be copied'));
-    return true;
-  }
-  downloadJson(`Gringotts_v126_diagnostics_${stamp()}.json`, diagnosticsPackage());
+  performDownload(button.id).catch((error) => announce(error?.message || 'Download could not be prepared'));
   return true;
 }
 
@@ -357,9 +352,9 @@ export function installV126Runtime({ coordinator, dispatcher, legacyAdapters = [
     dispatcher,
     enhance: enhanceV126,
     diagnostics: diagnosticsPackage,
+    loadReporting,
     roadmapHorizon: ROADMAP_HORIZON,
     storageInventory: STORAGE_INVENTORY,
-    expandedWorkbookSheetsV126: expandedWorkbookSheetsV125,
     stableRescue: 'rescue-v105.html',
     featureFreeze: true,
     workbookSheetCap: 43
@@ -370,10 +365,6 @@ export function installV126Runtime({ coordinator, dispatcher, legacyAdapters = [
       dispatcher,
       storageInventory: STORAGE_INVENTORY,
       diagnostics: diagnosticsPackage
-    };
-    window.GringottsCleanRuntime.reports = {
-      ...(window.GringottsCleanRuntime.reports || {}),
-      expandedWorkbookSheetsV126: expandedWorkbookSheetsV125
     };
   }
   return BUILD;
