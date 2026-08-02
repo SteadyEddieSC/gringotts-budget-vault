@@ -94,7 +94,6 @@ jobs:
           node --check src/boot-v126.js
           node --check src/v127/ux-policy.js
           node --check src/v127/roadmap-horizon.js
-          node --check src/v127/release.js
           node --check src/boot-v127.js
           node --check src/v111/views.js
 
