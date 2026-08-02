@@ -1,0 +1,150 @@
+.v127-status-region {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+[data-action-intent] {
+  min-height: 2.75rem;
+  touch-action: manipulation;
+}
+
+.v127-action-primary {
+  font-weight: 700;
+}
+
+.v127-action-preview,
+.v127-action-export,
+.v127-action-recovery {
+  font-weight: 650;
+}
+
+.v127-action-destructive {
+  border-style: solid;
+  border-width: 1px;
+}
+
+.v127-action-cancel {
+  opacity: .92;
+}
+
+[data-action-intent]:focus-visible,
+[data-v127-table-region]:focus-visible,
+.v127-disclosure > summary:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+[data-v127-table-region] {
+  max-width: 100%;
+  overflow: auto;
+  scroll-padding: 1rem;
+}
+
+[data-v127-dialog] {
+  max-width: min(44rem, calc(100vw - 2rem));
+  max-height: min(48rem, calc(100dvh - 2rem));
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.v127-disclosure > summary {
+  cursor: pointer;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.v127-roadmap-page .roadmap-horizon {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.v127-roadmap-page .roadmap-horizon-card,
+.v127-roadmap-page .roadmap-card-header,
+.v127-roadmap-page .roadmap-card-section {
+  min-width: 0;
+}
+
+.v127-roadmap-page .roadmap-horizon-card {
+  display: grid;
+  align-content: start;
+  gap: .85rem;
+}
+
+.v127-roadmap-page .roadmap-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.v127-roadmap-page .roadmap-card-header h3,
+.v127-roadmap-page .roadmap-card-section h4,
+.v127-roadmap-page .roadmap-horizon-card p {
+  margin: 0;
+}
+
+.v127-roadmap-page .v127-roadmap-details {
+  margin: 0;
+}
+
+.v127-roadmap-page .roadmap-card-section + .roadmap-card-section {
+  margin-top: .75rem;
+}
+
+@media (max-width: 760px) {
+  .v127-roadmap-page .roadmap-horizon {
+    grid-template-columns: 1fr;
+  }
+
+  .v127-roadmap-page .roadmap-card-header {
+    display: grid;
+  }
+
+  .button-row,
+  .modal-actions,
+  [data-v127-dialog] .button-row {
+    gap: .65rem;
+  }
+
+  .button-row > [data-action-intent],
+  .modal-actions > [data-action-intent],
+  [data-v127-dialog] .button-row > [data-action-intent] {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-action-intent],
+  [data-v127-dialog],
+  .v127-disclosure {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media print {
+  .v127-status-region,
+  [data-v127-disclosure="advanced"] {
+    display: none !important;
+  }
+
+  .v127-roadmap-page .roadmap-horizon {
+    display: block;
+  }
+
+  .v127-roadmap-page .roadmap-horizon-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+}
