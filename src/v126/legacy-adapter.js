@@ -23,6 +23,39 @@ function restoreGlobalObserver(descriptor, fallback) {
   }
 }
 
+function wrapLegacyListener(listener, documentRef) {
+  return function v126LegacyAction(event) {
+    let immediateStopped = false;
+    const original = event?.stopImmediatePropagation?.bind(event);
+    let patched = false;
+    if (event && original) {
+      try {
+        Object.defineProperty(event, 'stopImmediatePropagation', {
+          configurable: true,
+          value() {
+            immediateStopped = true;
+            original();
+          }
+        });
+        patched = true;
+      } catch {}
+    }
+    try {
+      const result = listener.call(documentRef, event);
+      return result === true || result?.handled === true || immediateStopped;
+    } finally {
+      if (patched) {
+        try {
+          Object.defineProperty(event, 'stopImmediatePropagation', {
+            configurable: true,
+            value: original
+          });
+        } catch {}
+      }
+    }
+  };
+}
+
 export async function installLegacyLayer({
   name,
   dispatcher,
@@ -53,7 +86,7 @@ export async function installLegacyLayer({
   documentRef.addEventListener = function v126CaptureLegacyListener(type, listener, options) {
     if (ACTION_TYPES.has(type) && typeof listener === 'function') {
       sequence += 1;
-      dispatcher.register(type, `${name}:${type}:${sequence}`, listener, priority);
+      dispatcher.register(type, `${name}:${type}:${sequence}`, wrapLegacyListener(listener, documentRef), priority);
       capturedActions += 1;
       return;
     }
