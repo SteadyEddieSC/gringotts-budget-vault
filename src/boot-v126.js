@@ -246,11 +246,11 @@ async function replayRoute(route) {
   const button = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
   if (!button) throw new Error(`The prepared route button is unavailable: ${route}`);
 
-  dispatcher.dispose();
+  dispatcher.suspend();
   try {
     button.click();
   } finally {
-    dispatcher.install();
+    dispatcher.resume();
   }
 
   await nextFrame();
