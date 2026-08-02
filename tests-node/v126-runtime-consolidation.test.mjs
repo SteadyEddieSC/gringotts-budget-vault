@@ -11,9 +11,10 @@ import {
 import {
   STORAGE_INVENTORY,
   storageInventorySummary,
-  validateStorageInventory
-} from '../src/v126/storage-inventory.js';
-import { ROADMAP_HORIZON, validateRoadmapHorizon } from '../src/v126/roadmap-horizon.js';
+  validateStorageInventory,
+  ROADMAP_HORIZON,
+  validateRoadmapHorizon
+} from '../src/v126/release.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
@@ -92,15 +93,16 @@ test('v126 roadmap and runtime budgets retain the reliability-first feature free
 
 test('v126 boot suppresses historical observers and owns current downloads', () => {
   const boot = read('src/boot-v126.js');
-  const adapter = read('src/v126/legacy-adapter.js');
+  const runtime = read('src/v126/runtime.js');
   const release = read('src/v126/release.js');
   assert.match(boot, /createActionDispatcher/);
   assert.match(boot, /createRuntimeCoordinator/);
   assert.match(boot, /installLegacyLayer/);
   assert.match(boot, /v126-route-lifecycle/);
-  assert.match(adapter, /V126SuppressedObserver/);
-  assert.match(adapter, /dispatcher\.register/);
+  assert.match(runtime, /V126SuppressedObserver/);
+  assert.match(runtime, /dispatcher\.register/);
   assert.match(release, /v126-current-downloads/);
   assert.match(release, /43-sheet reliability-capped Vault Workbook/);
+  assert.match(release, /V126_CSS/);
   assert.doesNotMatch(release, /new MutationObserver/);
 });
