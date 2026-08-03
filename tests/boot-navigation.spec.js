@@ -11,9 +11,9 @@ const destinations = [
 
 test('boots without module errors and exposes the simplified consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v128/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v129/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v128');
+  await expect(page.locator('.version-text')).toHaveText('v129');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
@@ -33,6 +33,7 @@ test('boots without module errors and exposes the simplified consolidated naviga
   await openPrimary(page, 'Tools');
   await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Workflow Review', exact: true })).toBeVisible();
 
   await openPrimary(page, 'Activity');
   await expect(page.getByRole('tab', { name: 'Insights', exact: true })).toBeVisible();
@@ -48,7 +49,8 @@ test('boots without module errors and exposes the simplified consolidated naviga
   const state = await page.evaluate(() => ({
     lifecycle: window.GringottsV126.coordinator.snapshot(),
     ux: window.GringottsV127.snapshot(),
-    foundation: window.GringottsV128.snapshot()
+    foundation: window.GringottsV128.snapshot(),
+    evidence: window.GringottsV129.snapshot()
   }));
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.status).toBe('ready');
@@ -56,6 +58,9 @@ test('boots without module errors and exposes the simplified consolidated naviga
   expect(state.ux.observerAdded).toBe(false);
   expect(state.foundation.release).toBe('v128');
   expect(state.foundation.networkImplementationAdded).toBe(false);
+  expect(state.evidence.release).toBe('v129');
+  expect(state.evidence.automaticTelemetry).toBe(false);
+  expect(state.evidence.persistentStoreAdded).toBe(false);
   const unsafe = methods.filter(({ method, url }) => method !== 'GET' && !url.startsWith('blob:'));
   expect(unsafe, 'The local-first app should not make write network requests').toEqual([]);
 });
