@@ -146,7 +146,7 @@ function snapshot() {
 function install() {
   if (installed) return window.GringottsV129;
   installed = true;
-  document.addEventListener('click',handleClick,true);
+  window.addEventListener('click',handleClick,true);
   document.addEventListener('gringotts:v126-route-ready',handleRouteReady);
   Object.assign(window.GringottsV129 || (window.GringottsV129 = {}), {
     release: RELEASE.version,
