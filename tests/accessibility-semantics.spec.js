@@ -63,7 +63,7 @@ test('labels table wrappers as keyboard-accessible scroll regions', async ({ app
   const region = page.locator('.table-wrap').first();
   await expect(region).toHaveAttribute('role', 'region');
   await expect(region).toHaveAttribute('tabindex', '0');
-  await expect(region).toHaveAttribute('aria-label', /table/i);
+  await expect(region).toHaveAttribute('aria-label', /Health history/i);
   await region.focus();
   await expect(region).toBeFocused();
 });
