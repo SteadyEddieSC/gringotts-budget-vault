@@ -112,11 +112,13 @@ test('shows the v127 through v136 reliability-first roadmap horizon', async ({ a
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
   await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v128 — TypeScript & Portable Vault Foundation/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
+  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(1);
   await expect(page.getByText('Current release', { exact: true })).toHaveCount(1);
-  await expect(page.getByText('Next planned', { exact: true })).toHaveCount(1);
+  await expect(page.getByText('Next planned', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Directional', { exact: true })).toHaveCount(8);
-  await expect(page.getByText(/v126 completed the runtime consolidation commitment/i)).toBeVisible();
+  await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'current');
 });
 
 test('keeps recurring decisions, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {
