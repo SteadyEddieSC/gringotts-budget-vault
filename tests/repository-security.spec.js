@@ -54,7 +54,7 @@ test('Cloudflare headers preserve the local-first browser boundary', () => {
   ]) expect(headers).toContain(value);
 });
 
-test('quality automation retains accessibility, visual, and Lighthouse budgets through v127', () => {
+test('quality automation retains accessibility, visual, and Lighthouse budgets through v128', () => {
   const workflow = read('.github/workflows/quality.yml');
   const lighthouse = read('lighthouserc.cjs');
   const packageJson = read('package.json');
@@ -77,8 +77,9 @@ test('quality automation retains accessibility, visual, and Lighthouse budgets t
   expect(lighthouse).toContain("'network-requests': ['error', { maxLength: 45");
 });
 
-test('parser preflight checks inherited and current release modules before browser installation', () => {
+test('parser preflight checks inherited and current release modules plus strict TypeScript before browser installation', () => {
   const playwright = read('.github/workflows/playwright.yml');
+  const packageJson = read('package.json');
   const modules = [
     'src/v117/profile-model.js', 'src/v117/import-profiles.js',
     'src/v118/profile-portability-model.js', 'src/v118/institution-patterns.js',
@@ -93,16 +94,21 @@ test('parser preflight checks inherited and current release modules before brows
     'src/v125/close-history-model.js', 'src/v125/close-trends.js', 'src/v125/roadmap-horizon.js', 'src/v125/reporting.js', 'src/v125/release.js', 'src/boot-v125.js',
     'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
     'src/v126/roadmap-horizon.js', 'src/v126/release.js', 'src/boot-v126.js',
-    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js'
+    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js',
+    'src/v128/contracts.js', 'src/v128/portable-vault.js', 'src/boot-v128.js'
   ];
   for (const module of modules) expect(playwright).toContain(`node --check ${module}`);
   expect(playwright).not.toContain('node --check src/v127/release.js');
-  expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
+  expect(playwright).not.toContain('node --check src/v128/contracts.ts');
+  expect(packageJson).toContain('"typecheck": "tsc -p tsconfig.json"');
+  expect(packageJson).toContain('"typescript": "5.9.2"');
+  expect(playwright).toContain('npm ci --ignore-scripts');
+  expect(playwright.indexOf('Run strict TypeScript and browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
 });
 
-test('analytical and planning layers remain local and do not silently write the vault', () => {
+test('analytical, planning, and portability layers remain local and do not silently write the vault', () => {
   const localOnly = [
     'src/v113/insights.js', 'src/v113/views.js', 'src/v114/planning.js', 'src/v114/views.js',
     'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js',
@@ -114,13 +120,15 @@ test('analytical and planning layers remain local and do not silently write the 
     'src/v125/close-history-model.js', 'src/v125/close-trends.js', 'src/v125/reporting.js', 'src/v125/release.js',
     'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
     'src/v126/roadmap-horizon.js', 'src/v126/release.js',
-    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js'
+    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js',
+    'src/v128/contracts.js', 'src/v128/portable-vault.js', 'src/boot-v128.js'
   ];
   for (const file of localOnly) expectNoRemoteRuntime(read(file), file);
   for (const file of [
     'src/v114/planning.js', 'src/v120/import-receipt-audit.js', 'src/v121/receipt-integrity.js',
     'src/v122/account-cleanup.js', 'src/v123/recurring-decisions.js', 'src/v124/scenario-comparison.js',
-    'src/v125/close-trends.js', 'src/v126/release.js', 'src/boot-v127.js'
+    'src/v125/close-trends.js', 'src/v126/release.js', 'src/boot-v127.js',
+    'src/v128/portable-vault.js', 'src/boot-v128.js'
   ]) expect(read(file)).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
 });
 
@@ -152,6 +160,7 @@ test('bounded metadata stores remain separate from transactions', () => {
   expect(read('src/v125/close-history-model.js')).not.toMatch(/localStorage|sessionStorage/);
   expect(read('src/v126/storage-inventory.js')).toContain('gringottsImportHistory.v1');
   expect(read('src/boot-v127.js')).not.toMatch(/localStorage|sessionStorage/);
+  expect(read('src/boot-v128.js')).not.toMatch(/localStorage|sessionStorage/);
 });
 
 test('v125 keeps immutable closed evidence and aggregate-only non-mutating exports', () => {
@@ -193,7 +202,7 @@ test('v126 owns one route lifecycle and specialist action dispatcher', () => {
   expect(release).toContain("stableRescue: 'rescue-v105.html'");
 });
 
-test('v127 adds one budget-neutral presentation bootstrap without runtime or storage ownership', () => {
+test('v127 retains the budget-neutral presentation policy without runtime or storage ownership', () => {
   const policy = read('src/v127/ux-policy.js');
   const roadmap = read('src/v127/roadmap-horizon.js');
   const boot = read('src/boot-v127.js');
@@ -211,16 +220,38 @@ test('v127 adds one budget-neutral presentation bootstrap without runtime or sto
   expect(boot).toContain('Retained v113 household-insight styles are consolidated here');
 });
 
-test('v127 owns the live shells while preserving the 45-request budget', () => {
-  const boot = read('src/boot-v127.js');
+test('v128 adds strict portable-vault contracts without network, storage, encryption, or cloud implementation', () => {
+  const contractsTs = read('src/v128/contracts.ts');
+  const portableTs = read('src/v128/portable-vault.ts');
+  const portableJs = read('src/v128/portable-vault.js');
+  const boot = read('src/boot-v128.js');
+  expect(contractsTs).toContain("AUTHORITATIVE_VAULT_KEY = 'gringottsBudgetVault.latest'");
+  expect(contractsTs).toContain('interface VaultStorageAdapter');
+  expect(portableTs).toContain('createPortableVaultPackage');
+  expect(portableTs).toContain('integrity verification failed');
+  expect(portableJs).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|localStorage|sessionStorage|indexedDB/);
+  expect(boot).toContain("import './boot-v126.js?v=128base1'");
+  expect(boot).not.toContain('new MutationObserver');
+  expect(boot).not.toMatch(/localStorage|sessionStorage/);
+  expect(boot).toContain('typeScriptStrict: true');
+  expect(boot).toContain('encryptionReady: false');
+  expect(boot).toContain('cloudAdaptersEnabled: false');
+  expect(boot).toContain('networkImplementationAdded: false');
+  expect(boot).toContain('networkBudgetDelta: 0');
+});
+
+test('v128 owns the live static shells while preserving the 45-request budget', () => {
+  const boot = read('src/boot-v128.js');
   const index = read('index.html');
   const app = read('app.html');
-  expect(index).toContain('src/boot-v127.js?v=127ux2');
-  expect(app).toContain('src/boot-v127.js?v=127ux2');
+  expect(index).toContain('src/boot-v128.js?v=128typed1');
+  expect(app).toContain('src/boot-v128.js?v=128typed1');
   expect(index).not.toContain('styles/v113.css');
   expect(app).not.toContain('styles/v113.css');
   expect(index).not.toContain('styles/v127.css');
   expect(app).not.toContain('styles/v127.css');
+  expect(index).not.toContain('styles/v128.css');
+  expect(app).not.toContain('styles/v128.css');
   expect(index).toContain('styles/v116.css');
   expect(app).toContain('styles/v116.css');
   expect(boot).toContain('const V127_CSS = String.raw');
@@ -231,7 +262,7 @@ test('v127 owns the live shells while preserving the 45-request budget', () => {
   }
 });
 
-test('public repository quality and release-control files remain present through v127', () => {
+test('public repository quality and release-control files remain present through v128', () => {
   const required = [
     'SECURITY.md', '.github/dependabot.yml', '.github/workflows/codeql.yml',
     '.github/workflows/playwright.yml', '.github/workflows/quality.yml', '.github/workflows/security.yml',
@@ -240,15 +271,19 @@ test('public repository quality and release-control files remain present through
     'quality-tests/accessibility.spec.js', 'quality-tests/v124-accessibility.spec.js',
     'quality-tests/v125-accessibility.spec.js', 'quality-tests/v126-accessibility.spec.js',
     'quality-tests/v127-accessibility.spec.js', 'quality-tests/tab-semantics.spec.js',
-    'quality-tests/visual-contracts.spec.js', 'src/boot-v125.js', 'src/boot-v126.js', 'src/boot-v127.js',
+    'quality-tests/visual-contracts.spec.js', 'src/boot-v125.js', 'src/boot-v126.js', 'src/boot-v127.js', 'src/boot-v128.js',
     'src/v125/release.js', 'src/v126/release.js', 'src/v126/runtime.js', 'src/v126/legacy-adapter.js',
     'src/v126/storage-inventory.js', 'src/v126/roadmap-horizon.js', 'src/v127/ux-policy.js',
-    'src/v127/roadmap-horizon.js', 'styles/v113.css', 'styles/v116.css',
+    'src/v127/roadmap-horizon.js', 'src/v128/contracts.ts', 'src/v128/contracts.js',
+    'src/v128/portable-vault.ts', 'src/v128/portable-vault.js', 'tsconfig.json',
+    'styles/v113.css', 'styles/v116.css',
     'tests-node/close-history-explainability.test.mjs', 'tests-node/v125-release-contract.test.mjs',
     'tests-node/v126-runtime-consolidation.test.mjs', 'tests-node/v127-ux-polish.test.mjs',
+    'tests-node/v128-typescript-portable-vault.test.mjs',
     'tests/close-history-explainability.spec.js', 'tests/runtime-consolidation.spec.js',
-    'tests/ux-polish-simplification.spec.js', 'BANK_IMPORT_ROADMAP.md',
-    'RELEASE_NOTES_v127_UX_POLISH_SIMPLIFICATION.md', 'V127_SECURITY_REVIEW.md'
+    'tests/ux-polish-simplification.spec.js', 'tests/v128-portable-vault-foundation.spec.js',
+    'BANK_IMPORT_ROADMAP.md', 'RELEASE_NOTES_v127_UX_POLISH_SIMPLIFICATION.md', 'V127_SECURITY_REVIEW.md',
+    'RELEASE_NOTES_v128_TYPESCRIPT_PORTABLE_VAULT_FOUNDATION.md', 'V128_SECURITY_REVIEW.md'
   ];
   const missing = required.filter((relativePath) => !fs.existsSync(path.join(root, relativePath)));
   expect(missing, 'Missing repository security or quality controls').toEqual([]);
