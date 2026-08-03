@@ -43,12 +43,21 @@ test('creates a goal, records a contribution, and saves an explicit health snaps
   await page.locator('#goalTarget').fill('1000');
   await page.locator('#goalCurrent').fill('100');
   await page.locator('#goalMonthly').fill('50');
+  const cycleBeforeGoalSave = await page.evaluate(() => window.GringottsV126?.coordinator?.snapshot?.().cycle || 0);
   await page.getByRole('button', { name: 'Add Goal' }).click();
 
   await expect(page.getByRole('heading', { name: 'Playwright Emergency Fund' })).toBeVisible();
+  await expect.poll(
+    () => page.evaluate((previousCycle) => {
+      const snapshot = window.GringottsV126?.coordinator?.snapshot?.();
+      return snapshot?.status === 'ready' && snapshot.cycle > previousCycle;
+    }, cycleBeforeGoalSave),
+    { timeout: 15000, message: 'The same-route goal render should reach the v126 readiness boundary before another action.' }
+  ).toBe(true);
   const contribution = page.locator('[data-goal-contribution-input]').first();
   await contribution.fill('25');
   await page.locator('[data-goal-contribute]').first().click();
+  await expect(page.locator('#toast')).toContainText('Goal contribution saved');
   await expect(page.getByText('$125.00 funded')).toBeVisible();
 
   await page.getByRole('button', { name: 'Save Snapshot' }).click();
