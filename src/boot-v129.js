@@ -1,4 +1,4 @@
-import './boot-v128.js?v=129base2';
+import './boot-v128.js?v=129base3';
 
 const RELEASE = Object.freeze({
   version: 'v129',
@@ -19,7 +19,7 @@ function updateMetadata() {
     version: RELEASE.version,
     name: RELEASE.name,
     runtime: `${build.runtime || 'v128 runtime'} + lazy v129 manual workflow evidence review`,
-    cacheBust: '129evidence2'
+    cacheBust: '129evidence3'
   });
   document.title = `Gringotts Budget Vault ${RELEASE.version}`;
   const version = document.querySelector('.version-text');
@@ -35,9 +35,9 @@ function setRoadmapStatus(version, status, label) {
 }
 
 function enhanceRoadmapStatus() {
-  for (const version of ['v127','v128']) setRoadmapStatus(version,'shipped','Shipped');
-  setRoadmapStatus('v129','current','Current release');
-  for (const version of ['v130','v131','v132','v133','v134','v135','v136']) setRoadmapStatus(version,'directional','Directional');
+  for (const version of ['v127', 'v128']) setRoadmapStatus(version, 'shipped', 'Shipped');
+  setRoadmapStatus('v129', 'current', 'Current release');
+  for (const version of ['v130', 'v131', 'v132', 'v133', 'v134', 'v135', 'v136']) setRoadmapStatus(version, 'directional', 'Directional');
 }
 
 function ensureWorkflowTab() {
@@ -47,23 +47,42 @@ function ensureWorkflowTab() {
   button.type = 'button';
   button.className = 'subtab';
   button.dataset.toolsSection = WORKFLOW_SECTION;
-  button.setAttribute('role','tab');
-  button.setAttribute('aria-selected','false');
+  button.setAttribute('role', 'tab');
+  button.setAttribute('aria-selected', 'false');
   button.textContent = 'Workflow Review';
-  subnav.insertBefore(button,subnav.querySelector('[data-tools-section="roadmap"]'));
+  subnav.insertBefore(button, subnav.querySelector('[data-tools-section="roadmap"]'));
+}
+
+function selectWorkflowTab() {
+  document.querySelectorAll('.tools-subnav [data-tools-section]').forEach((button) => {
+    const selected = button.dataset.toolsSection === WORKFLOW_SECTION;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-selected', String(selected));
+    button.setAttribute('tabindex', selected ? '0' : '-1');
+  });
+}
+
+function renderWorkflowShell() {
+  ensureWorkflowTab();
+  const subnav = document.querySelector('.tools-subnav');
+  const workspace = subnav?.parentElement;
+  if (!subnav || !workspace) return null;
+  selectWorkflowTab();
+  while (subnav.nextSibling) subnav.nextSibling.remove();
+  const section = document.createElement('section');
+  section.className = 'v129-workflow-review';
+  section.dataset.v129WorkflowReview = 'true';
+  section.innerHTML = '<article class="card"><div class="section-title-row"><div><h2 tabindex="-1">Household Workflow Evidence Review</h2><p>Record deliberate household observations before changing product scope.</p></div><div class="section-meta">Session only</div></div><p id="v129WorkflowLoading" role="status" aria-live="polite">Loading the local workflow inventory…</p></article>';
+  workspace.append(section);
+  section.querySelector('h2')?.focus({ preventScroll: false });
+  return section;
 }
 
 function renderLoadFailure(error) {
-  const subnav = document.querySelector('.tools-subnav');
-  const workspace = subnav?.parentElement;
-  if (!subnav || !workspace) return;
-  while (subnav.nextSibling) subnav.nextSibling.remove();
-  const section = document.createElement('section');
-  section.className = 'card error-box';
-  section.setAttribute('role','alert');
-  section.innerHTML = '<h2>Workflow Review could not open</h2><p>The current vault and browser-local data were not changed. Reload the page and try again.</p>';
-  workspace.append(section);
-  window.GringottsV127?.enhance?.(section);
+  const section = document.querySelector('[data-v129-workflow-review]') || renderWorkflowShell();
+  if (!section) return error;
+  section.innerHTML = '<article class="card error-box" role="alert"><h2 tabindex="-1">Workflow Review could not open</h2><p>The current vault and browser-local data were not changed. Reload the page and try again.</p></article>';
+  section.querySelector('h2')?.focus({ preventScroll: false });
   window.GringottsV127?.announce?.('Workflow Review could not open');
   controllerPromise = null;
   controller = null;
@@ -72,7 +91,7 @@ function renderLoadFailure(error) {
 
 function loadController() {
   if (!controllerPromise) {
-    controllerPromise = import('./v129/workflow-review.js?v=129evidence2')
+    controllerPromise = import('./v129/workflow-review.js?v=129evidence3')
       .then((module) => {
         controller = module.installWorkflowReview({
           announce: (message) => window.GringottsV127?.announce?.(message),
@@ -89,7 +108,7 @@ function loadController() {
 }
 
 async function openReview(focusHeading = true) {
-  ensureWorkflowTab();
+  renderWorkflowShell();
   const nextController = await loadController();
   return nextController.open({ focusHeading });
 }
@@ -108,7 +127,10 @@ function handleClick(event) {
   if (section === WORKFLOW_SECTION) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    openReview(true).catch(() => {});
+    renderWorkflowShell();
+    loadController()
+      .then((nextController) => nextController.open({ focusHeading: true }))
+      .catch(renderLoadFailure);
     return;
   }
   controller?.deactivate();
@@ -121,11 +143,14 @@ function handleRouteReady(event) {
   enhanceRoadmapStatus();
   const route = event.detail?.route || window.GringottsV126?.coordinator?.route || '';
   if (route !== 'tools') controller?.deactivate();
-  else if (controller?.isActive()) controller.open().catch(() => {});
+  else if (controller?.isActive()) {
+    renderWorkflowShell();
+    controller.open().catch(renderLoadFailure);
+  }
 }
 
 function snapshot() {
-  const review = controller?.snapshot() || { reviewStateCount:0, reviewedCount:0, completeCount:0, inventoryCount:10 };
+  const review = controller?.snapshot() || { reviewStateCount: 0, reviewedCount: 0, completeCount: 0, inventoryCount: 10 };
   return {
     release: RELEASE.version,
     ...review,
@@ -146,8 +171,8 @@ function snapshot() {
 function install() {
   if (installed) return window.GringottsV129;
   installed = true;
-  window.addEventListener('click',handleClick,true);
-  document.addEventListener('gringotts:v126-route-ready',handleRouteReady);
+  window.addEventListener('click', handleClick, true);
+  document.addEventListener('gringotts:v126-route-ready', handleRouteReady);
   Object.assign(window.GringottsV129 || (window.GringottsV129 = {}), {
     release: RELEASE.version,
     name: RELEASE.name,
@@ -166,7 +191,7 @@ function install() {
     snapshot
   });
   const start = () => { updateMetadata(); ensureWorkflowTab(); enhanceRoadmapStatus(); };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else queueMicrotask(start);
   return window.GringottsV129;
 }
