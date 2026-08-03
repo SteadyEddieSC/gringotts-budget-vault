@@ -113,12 +113,14 @@ test('shows the v127 through v136 reliability-first roadmap horizon', async ({ a
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
   await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v128 — TypeScript & Portable Vault Foundation/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v129 — Household Workflow Evidence Review/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
-  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(1);
+  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(2);
   await expect(page.getByText('Current release', { exact: true })).toHaveCount(1);
   await expect(page.getByText('Next planned', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Directional', { exact: true })).toHaveCount(8);
-  await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'current');
+  await expect(page.getByText('Directional', { exact: true })).toHaveCount(7);
+  await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'current');
 });
 
 test('keeps recurring decisions, Guided Plan, reports, and Roadmap inside a phone viewport', async ({ app }) => {
@@ -136,6 +138,7 @@ test('keeps recurring decisions, Guided Plan, reports, and Roadmap inside a phon
   expect(overflow).toBeLessThanOrEqual(2);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
   overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 });
