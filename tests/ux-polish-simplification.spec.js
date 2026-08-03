@@ -1,12 +1,13 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('preserves v127 UX ownership under the v128 typed foundation without adding a runtime, observer, store, destination, or workbook sheet', async ({ app }) => {
+test('preserves v127 UX ownership under the v129 evidence release without adding a runtime, observer, store, destination, or workbook sheet', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v128');
+  await expect(page.locator('.version-text')).toHaveText('v129');
   const state = await page.evaluate(() => ({
     coordinator: window.GringottsV126.coordinator.snapshot(),
     ux: window.GringottsV127.snapshot(),
     foundation: window.GringottsV128.snapshot(),
+    evidence: window.GringottsV129.snapshot(),
     build: window.GringottsCleanRuntime.BUILD
   }));
   expect(state.coordinator.observerCount).toBe(1);
@@ -19,9 +20,13 @@ test('preserves v127 UX ownership under the v128 typed foundation without adding
   expect(state.foundation.release).toBe('v128');
   expect(state.foundation.observerAdded).toBe(false);
   expect(state.foundation.storageWritesAdded).toBe(false);
-  expect(state.build.version).toBe('v128');
+  expect(state.evidence.release).toBe('v129');
+  expect(state.evidence.observerAdded).toBe(false);
+  expect(state.evidence.persistentStoreAdded).toBe(false);
+  expect(state.build.version).toBe('v129');
   expect(state.build.runtime).toContain('v127 interaction policy');
   expect(state.build.runtime).toContain('v128 typed portable-vault foundation');
+  expect(state.build.runtime).toContain('lazy v129 manual workflow evidence review');
 });
 
 test('classifies report actions and announces local export feedback', async ({ app }) => {
@@ -53,6 +58,7 @@ test('shows the v127 through v136 reliability roadmap with progressive details',
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
   await expect(page.getByRole('heading', { name: 'v127 — UX Polish & Simplification', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'v128 — TypeScript & Portable Vault Foundation', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'v129 — Household Workflow Evidence Review', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'v136 — Architecture Baseline & Next-Horizon Decision', exact: true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card').first().locator('details')).toHaveCount(1);
 });
