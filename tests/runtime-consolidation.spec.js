@@ -1,23 +1,27 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('exposes one coordinator, one dispatcher, and one owned observer under v127', async ({ app }) => {
+test('exposes one coordinator, one dispatcher, and one owned observer under v128', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v127');
+  await expect(page.locator('.version-text')).toHaveText('v128');
   const state = await page.evaluate(() => ({
     lifecycle: window.GringottsV126.coordinator.snapshot(),
     actions: window.GringottsV126.dispatcher.snapshot(),
     build: window.GringottsCleanRuntime.BUILD,
-    ux: window.GringottsV127.snapshot()
+    ux: window.GringottsV127.snapshot(),
+    foundation: window.GringottsV128.snapshot()
   }));
   expect(state.lifecycle.status).toBe('ready');
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.observerOwner).toBe('v126-runtime-coordinator');
   expect(state.lifecycle.actionOwner).toBe('v126-action-dispatcher');
   expect(state.actions.installed).toBe(true);
-  expect(state.build.version).toBe('v127');
+  expect(state.build.version).toBe('v128');
   expect(state.build.runtime).toContain('one v126 route coordinator');
   expect(state.build.runtime).toContain('v127 interaction policy');
+  expect(state.build.runtime).toContain('v128 typed portable-vault foundation');
   expect(state.ux.observerAdded).toBe(false);
+  expect(state.foundation.observerAdded).toBe(false);
+  expect(state.foundation.networkImplementationAdded).toBe(false);
 });
 
 test('loads the inherited route layers once and preserves v125 household surfaces', async ({ app }) => {
