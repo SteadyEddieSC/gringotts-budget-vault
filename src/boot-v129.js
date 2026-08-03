@@ -21,17 +21,18 @@ function updateMetadata() {
     runtime: `${build.runtime || 'v128 runtime'} + lazy v129 manual workflow evidence review`,
     cacheBust: '129evidence2'
   });
-  document.title = `Gringotts Budget Vault ${RELEASE.version}`;
+  const title = `Gringotts Budget Vault ${RELEASE.version}`;
+  if (document.title !== title) document.title = title;
   const version = document.querySelector('.version-text');
-  if (version) version.textContent = RELEASE.version;
+  if (version && version.textContent !== RELEASE.version) version.textContent = RELEASE.version;
 }
 
 function setRoadmapStatus(version, status, label) {
   const card = document.querySelector(`[data-roadmap-version="${version}"]`);
   if (!card) return;
-  card.dataset.roadmapStatus = status;
+  if (card.dataset.roadmapStatus !== status) card.dataset.roadmapStatus = status;
   const badge = card.querySelector('.badge');
-  if (badge) badge.textContent = label;
+  if (badge && badge.textContent !== label) badge.textContent = label;
 }
 
 function enhanceRoadmapStatus() {
@@ -84,8 +85,9 @@ function renderReviewShell() {
   document.querySelectorAll('.tools-subnav [data-tools-section]').forEach((button) => {
     const selected = button.dataset.toolsSection === WORKFLOW_SECTION;
     button.classList.toggle('active', selected);
-    button.setAttribute('aria-selected', String(selected));
-    button.setAttribute('tabindex', selected ? '0' : '-1');
+    if (button.getAttribute('aria-selected') !== String(selected)) button.setAttribute('aria-selected', String(selected));
+    const tabIndex = selected ? '0' : '-1';
+    if (button.getAttribute('tabindex') !== tabIndex) button.setAttribute('tabindex', tabIndex);
   });
   while (subnav.nextSibling) subnav.nextSibling.remove();
   const section = document.createElement('section');
@@ -135,8 +137,12 @@ function handleRouteReady(event) {
   ensureWorkflowTab();
   enhanceRoadmapStatus();
   const route = event.detail?.route || window.GringottsV126?.coordinator?.route || '';
-  if (route !== 'tools') controller?.deactivate();
-  else if (controller?.isActive()) controller.open().catch(() => {});
+  if (route !== 'tools') {
+    controller?.deactivate();
+    return;
+  }
+  const reviewVisible = Boolean(document.querySelector('[data-v129-workflow-review="true"]'));
+  if (controller?.isActive() && !reviewVisible) controller.open().catch(() => {});
 }
 
 function snapshot() {
