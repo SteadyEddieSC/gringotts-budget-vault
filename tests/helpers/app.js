@@ -27,7 +27,7 @@ export async function seedVault(page, month = '2026-07') {
 }
 
 export async function waitForApp(page) {
-  await expect(page.locator('.version-text')).toContainText(/^v129/);
+  await expect(page.locator('.version-text')).toContainText(/^v130/);
   await expect(page.locator('#main')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
   await expect.poll(
@@ -36,8 +36,9 @@ export async function waitForApp(page) {
       && window.GringottsV127?.release === 'v127'
       && window.GringottsV128?.release === 'v128'
       && window.GringottsV129?.release === 'v129'
+      && window.GringottsV130?.release === 'v130'
     )),
-    { timeout: 15000, message: 'v129 workflow review, v128 foundation, v127 UX policy, and v126 route readiness should finish before tests continue' }
+    { timeout: 15000, message: 'v130 hardening, v129 workflow review, v128 foundation, v127 UX policy, and v126 route readiness should finish before tests continue' }
   ).toBe(true);
 }
 
