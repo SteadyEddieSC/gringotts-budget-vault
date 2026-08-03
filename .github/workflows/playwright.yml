@@ -101,6 +101,8 @@ jobs:
           node --check src/v128/contracts.js
           node --check src/v128/portable-vault.js
           node --check src/boot-v128.js
+          node --check src/v129/workflow-evidence.js
+          node --check src/boot-v129.js
           node --check src/v111/views.js
 
       - name: Run strict TypeScript and browser-free parser tests
