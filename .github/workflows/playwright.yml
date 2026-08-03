@@ -102,6 +102,7 @@ jobs:
           node --check src/v128/portable-vault.js
           node --check src/boot-v128.js
           node --check src/v129/workflow-evidence.js
+          node --check src/v129/workflow-review.js
           node --check src/boot-v129.js
           node --check src/v111/views.js
 
