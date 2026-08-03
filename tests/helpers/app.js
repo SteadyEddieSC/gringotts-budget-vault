@@ -27,12 +27,12 @@ export async function seedVault(page, month = '2026-07') {
 }
 
 export async function waitForApp(page) {
-  await expect(page.locator('.version-text')).toContainText(/^v126/);
+  await expect(page.locator('.version-text')).toContainText(/^v127/);
   await expect(page.locator('#main')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
   await expect.poll(
-    () => page.evaluate(() => window.GringottsV126?.coordinator?.status === 'ready'),
-    { timeout: 15000, message: 'v126 dashboard readiness should finish before tests continue' }
+    () => page.evaluate(() => window.GringottsV126?.coordinator?.status === 'ready' && window.GringottsV127?.release === 'v127'),
+    { timeout: 15000, message: 'v127 UX policy and v126 route readiness should finish before tests continue' }
   ).toBe(true);
 }
 

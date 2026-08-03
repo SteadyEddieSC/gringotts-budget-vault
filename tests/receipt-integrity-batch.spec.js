@@ -92,12 +92,12 @@ test('downloads sanitized full and selected timeline packages', async ({ app }) 
   }
 });
 
-test('shows v126 through v131 while retaining v121 lineage and the 43-sheet workbook', async ({ app }, testInfo) => {
+test('shows v127 through v136 while retaining v121 lineage and the v126-owned 43-sheet workbook', async ({ app }, testInfo) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
   if (testInfo.project.name !== 'chromium') return;
   await seedTimeline(page);
   await openPrimary(page, 'Reports');

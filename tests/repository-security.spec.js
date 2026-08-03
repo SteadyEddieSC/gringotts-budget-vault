@@ -54,7 +54,7 @@ test('Cloudflare headers preserve the local-first browser boundary', () => {
   ]) expect(headers).toContain(value);
 });
 
-test('quality automation retains accessibility, visual, and Lighthouse budgets through v126', () => {
+test('quality automation retains accessibility, visual, and Lighthouse budgets through v127', () => {
   const workflow = read('.github/workflows/quality.yml');
   const lighthouse = read('lighthouserc.cjs');
   const packageJson = read('package.json');
@@ -63,7 +63,7 @@ test('quality automation retains accessibility, visual, and Lighthouse budgets t
     'quality-tests/v120-accessibility.spec.js', 'quality-tests/v121-accessibility.spec.js',
     'quality-tests/v122-accessibility.spec.js', 'quality-tests/v123-accessibility.spec.js',
     'quality-tests/v124-accessibility.spec.js', 'quality-tests/v125-accessibility.spec.js',
-    'quality-tests/v126-accessibility.spec.js'
+    'quality-tests/v126-accessibility.spec.js', 'quality-tests/v127-accessibility.spec.js'
   ]) {
     expect(workflow).toContain(file);
     expect(packageJson).toContain(file);
@@ -92,9 +92,11 @@ test('parser preflight checks inherited and current release modules before brows
     'src/v124/scenario-model.js', 'src/v124/scenario-comparison.js', 'src/v124/roadmap-horizon.js', 'src/v124/reporting.js', 'src/v124/release.js', 'src/boot-v124.js',
     'src/v125/close-history-model.js', 'src/v125/close-trends.js', 'src/v125/roadmap-horizon.js', 'src/v125/reporting.js', 'src/v125/release.js', 'src/boot-v125.js',
     'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
-    'src/v126/roadmap-horizon.js', 'src/v126/release.js', 'src/boot-v126.js'
+    'src/v126/roadmap-horizon.js', 'src/v126/release.js', 'src/boot-v126.js',
+    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js'
   ];
   for (const module of modules) expect(playwright).toContain(`node --check ${module}`);
+  expect(playwright).not.toContain('node --check src/v127/release.js');
   expect(playwright.indexOf('Run browser-free parser tests')).toBeLessThan(playwright.indexOf('Install Chromium and system dependencies'));
   expect(playwright.indexOf('Run Chromium desktop preflight')).toBeLessThan(playwright.indexOf('Install Firefox and WebKit after Chromium passes'));
   expect(playwright.indexOf('Run Android Chromium preflight')).toBeLessThan(playwright.indexOf('Install WebKit after Android Chromium passes'));
@@ -111,12 +113,15 @@ test('analytical and planning layers remain local and do not silently write the 
     'src/v124/scenario-model.js', 'src/v124/scenario-comparison.js', 'src/v124/reporting.js',
     'src/v125/close-history-model.js', 'src/v125/close-trends.js', 'src/v125/reporting.js', 'src/v125/release.js',
     'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
-    'src/v126/roadmap-horizon.js', 'src/v126/release.js'
+    'src/v126/roadmap-horizon.js', 'src/v126/release.js',
+    'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js'
   ];
   for (const file of localOnly) expectNoRemoteRuntime(read(file), file);
-  for (const file of ['src/v114/planning.js', 'src/v120/import-receipt-audit.js', 'src/v121/receipt-integrity.js', 'src/v122/account-cleanup.js', 'src/v123/recurring-decisions.js', 'src/v124/scenario-comparison.js', 'src/v125/close-trends.js', 'src/v126/release.js']) {
-    expect(read(file)).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
-  }
+  for (const file of [
+    'src/v114/planning.js', 'src/v120/import-receipt-audit.js', 'src/v121/receipt-integrity.js',
+    'src/v122/account-cleanup.js', 'src/v123/recurring-decisions.js', 'src/v124/scenario-comparison.js',
+    'src/v125/close-trends.js', 'src/v126/release.js', 'src/boot-v127.js'
+  ]) expect(read(file)).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
 });
 
 test('v115 transaction writes retain backup, rollback, and verification controls', () => {
@@ -145,7 +150,8 @@ test('bounded metadata stores remain separate from transactions', () => {
   ];
   for (const [file, contract] of contracts) expect(read(file)).toContain(contract);
   expect(read('src/v125/close-history-model.js')).not.toMatch(/localStorage|sessionStorage/);
-  expect(read('src/v126/storage-inventory.js')).toContain("gringottsImportHistory.v1");
+  expect(read('src/v126/storage-inventory.js')).toContain('gringottsImportHistory.v1');
+  expect(read('src/boot-v127.js')).not.toMatch(/localStorage|sessionStorage/);
 });
 
 test('v125 keeps immutable closed evidence and aggregate-only non-mutating exports', () => {
@@ -187,27 +193,45 @@ test('v126 owns one route lifecycle and specialist action dispatcher', () => {
   expect(release).toContain("stableRescue: 'rescue-v105.html'");
 });
 
-test('v126 owns the live shells while preserving lazy inherited route layers', () => {
-  const boot = read('src/boot-v126.js');
+test('v127 adds one budget-neutral presentation bootstrap without runtime or storage ownership', () => {
+  const policy = read('src/v127/ux-policy.js');
+  const roadmap = read('src/v127/roadmap-horizon.js');
+  const boot = read('src/boot-v127.js');
+  expect(policy).toContain("version: 'v127'");
+  expect(policy).toContain('workbookSheets: 43');
+  expect(roadmap).toContain("version: 'v136'");
+  expect(roadmap).toContain('ROADMAP_HORIZON.length !== 10');
+  expect(boot).toContain("import './boot-v126.js?v=127base2'");
+  expect(boot).not.toContain("from './v127/");
+  expect(boot).not.toContain('new MutationObserver');
+  expect(boot).not.toMatch(/localStorage|sessionStorage/);
+  expect(boot).toContain('observerAdded: false');
+  expect(boot).toContain('storageWritesAdded: false');
+  expect(boot).toContain('networkBudgetDelta: 0');
+  expect(boot).toContain('Retained v113 household-insight styles are consolidated here');
+});
+
+test('v127 owns the live shells while preserving the 45-request budget', () => {
+  const boot = read('src/boot-v127.js');
   const index = read('index.html');
   const app = read('app.html');
-  expect(index).toContain('src/boot-v126.js?v=126runtime1');
-  expect(app).toContain('src/boot-v126.js?v=126runtime1');
+  expect(index).toContain('src/boot-v127.js?v=127ux2');
+  expect(app).toContain('src/boot-v127.js?v=127ux2');
+  expect(index).not.toContain('styles/v113.css');
+  expect(app).not.toContain('styles/v113.css');
+  expect(index).not.toContain('styles/v127.css');
+  expect(app).not.toContain('styles/v127.css');
+  expect(index).toContain('styles/v116.css');
+  expect(app).toContain('styles/v116.css');
+  expect(boot).toContain('const V127_CSS = String.raw');
+  expect(boot).not.toContain('serviceWorker');
   for (const stylesheet of ['styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css', 'styles/v124.css', 'styles/v125.css', 'styles/v126.css']) {
     expect(index).not.toContain(stylesheet);
     expect(app).not.toContain(stylesheet);
   }
-  for (const module of [
-    './v118/release.js?v=126runtime1', './v119/release.js?v=126runtime1', './v120/release.js?v=126runtime1',
-    './v121/release.js?v=126runtime1', './v122/account-cleanup.js?v=126runtime1',
-    './v123/recurring-decisions.js?v=126runtime1', './v124/scenario-comparison.js?v=126runtime1',
-    './v125/release.js?v=126runtime1'
-  ]) expect(boot).toContain(`import('${module}')`);
-  expect(boot).not.toContain("import('./v124/release.js?v=126");
-  expect(boot).not.toContain('serviceWorker');
 });
 
-test('public repository quality and release-control files remain present through v126', () => {
+test('public repository quality and release-control files remain present through v127', () => {
   const required = [
     'SECURITY.md', '.github/dependabot.yml', '.github/workflows/codeql.yml',
     '.github/workflows/playwright.yml', '.github/workflows/quality.yml', '.github/workflows/security.yml',
@@ -215,13 +239,16 @@ test('public repository quality and release-control files remain present through
     'playwright.quality.config.js', 'lighthouserc.cjs', 'scripts/privacy-history-scan.mjs',
     'quality-tests/accessibility.spec.js', 'quality-tests/v124-accessibility.spec.js',
     'quality-tests/v125-accessibility.spec.js', 'quality-tests/v126-accessibility.spec.js',
-    'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
-    'src/boot-v125.js', 'src/boot-v126.js', 'src/v125/release.js', 'src/v126/release.js',
-    'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
-    'src/v126/roadmap-horizon.js', 'styles/v125.css', 'styles/v126.css',
+    'quality-tests/v127-accessibility.spec.js', 'quality-tests/tab-semantics.spec.js',
+    'quality-tests/visual-contracts.spec.js', 'src/boot-v125.js', 'src/boot-v126.js', 'src/boot-v127.js',
+    'src/v125/release.js', 'src/v126/release.js', 'src/v126/runtime.js', 'src/v126/legacy-adapter.js',
+    'src/v126/storage-inventory.js', 'src/v126/roadmap-horizon.js', 'src/v127/ux-policy.js',
+    'src/v127/roadmap-horizon.js', 'styles/v113.css', 'styles/v116.css',
     'tests-node/close-history-explainability.test.mjs', 'tests-node/v125-release-contract.test.mjs',
-    'tests-node/v126-runtime-consolidation.test.mjs', 'tests/close-history-explainability.spec.js',
-    'tests/runtime-consolidation.spec.js', 'BANK_IMPORT_ROADMAP.md'
+    'tests-node/v126-runtime-consolidation.test.mjs', 'tests-node/v127-ux-polish.test.mjs',
+    'tests/close-history-explainability.spec.js', 'tests/runtime-consolidation.spec.js',
+    'tests/ux-polish-simplification.spec.js', 'BANK_IMPORT_ROADMAP.md',
+    'RELEASE_NOTES_v127_UX_POLISH_SIMPLIFICATION.md', 'V127_SECURITY_REVIEW.md'
   ];
   const missing = required.filter((relativePath) => !fs.existsSync(path.join(root, relativePath)));
   expect(missing, 'Missing repository security or quality controls').toEqual([]);

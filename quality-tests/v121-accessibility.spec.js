@@ -97,13 +97,13 @@ test('axe scans the receipt timeline, filters, and selected batch detail', async
   await expectNoBrowserErrors(errors);
 });
 
-test('axe scans the v126 through v131 reliability roadmap', async ({ page }, testInfo) => {
+test('axe scans the v127 through v136 reliability roadmap', async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const errors = await bootQualityPage(page);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await scanSurface(page, testInfo, 'Tools — v126 Reliability Roadmap');
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await scanSurface(page, testInfo, 'Tools — v127 Reliability Roadmap');
   await expectNoBrowserErrors(errors);
 });
 
@@ -115,7 +115,7 @@ test('axe scans timeline and roadmap on the phone layout', async ({ page }, test
   await expect(page.locator('#receiptTimelineDetail')).toBeVisible();
   await scanSurface(page, testInfo, 'Mobile Tools — Receipt Integrity Timeline');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await scanSurface(page, testInfo, 'Mobile Tools — v126 Reliability Roadmap');
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await scanSurface(page, testInfo, 'Mobile Tools — v127 Reliability Roadmap');
   await expectNoBrowserErrors(errors);
 });

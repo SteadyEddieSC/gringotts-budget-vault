@@ -106,15 +106,16 @@ test('retains recurring decisions in v126 reports and the 43-sheet workbook', as
   expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_.*\.xlsx/i);
 });
 
-test('shows the v126 through v131 reliability-first roadmap horizon', async ({ app }) => {
+test('shows the v127 through v136 reliability-first roadmap horizon', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Delivered capabilities', exact: true })).toHaveCount(1);
-  await expect(page.getByRole('heading', { name: 'Planned capabilities', exact: true })).toHaveCount(5);
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
+  await expect(page.getByText('Current release', { exact: true })).toHaveCount(1);
+  await expect(page.getByText('Next planned', { exact: true })).toHaveCount(1);
+  await expect(page.getByText('Directional', { exact: true })).toHaveCount(8);
   await expect(page.getByText(/v126 completed the runtime consolidation commitment/i)).toBeVisible();
 });
 

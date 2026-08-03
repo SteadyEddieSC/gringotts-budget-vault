@@ -9,11 +9,11 @@ const destinations = [
   ['Tools', /Import & Restore/i]
 ];
 
-test('boots without module errors and exposes the consolidated navigation', async ({ app }) => {
+test('boots without module errors and exposes the simplified consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v126/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v127/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v126');
+  await expect(page.locator('.version-text')).toHaveText('v127');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
@@ -45,9 +45,13 @@ test('boots without module errors and exposes the consolidated navigation', asyn
   await expect(page.getByRole('heading', { name: 'Scenario discussion', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Close trend conversation', exact: true })).toBeVisible();
 
-  const lifecycle = await page.evaluate(() => window.GringottsV126.coordinator.snapshot());
-  expect(lifecycle.observerCount).toBe(1);
-  expect(lifecycle.status).toBe('ready');
+  const state = await page.evaluate(() => ({
+    lifecycle: window.GringottsV126.coordinator.snapshot(),
+    ux: window.GringottsV127.snapshot()
+  }));
+  expect(state.lifecycle.observerCount).toBe(1);
+  expect(state.lifecycle.status).toBe('ready');
+  expect(state.ux.observerAdded).toBe(false);
   const unsafe = methods.filter(({ method, url }) => method !== 'GET' && !url.startsWith('blob:'));
   expect(unsafe, 'The local-first app should not make write network requests').toEqual([]);
 });

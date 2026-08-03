@@ -1,20 +1,23 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('exposes one coordinator, one dispatcher, and one owned observer', async ({ app }) => {
+test('exposes one coordinator, one dispatcher, and one owned observer under v127', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v126');
+  await expect(page.locator('.version-text')).toHaveText('v127');
   const state = await page.evaluate(() => ({
     lifecycle: window.GringottsV126.coordinator.snapshot(),
     actions: window.GringottsV126.dispatcher.snapshot(),
-    build: window.GringottsCleanRuntime.BUILD
+    build: window.GringottsCleanRuntime.BUILD,
+    ux: window.GringottsV127.snapshot()
   }));
   expect(state.lifecycle.status).toBe('ready');
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.observerOwner).toBe('v126-runtime-coordinator');
   expect(state.lifecycle.actionOwner).toBe('v126-action-dispatcher');
   expect(state.actions.installed).toBe(true);
-  expect(state.build.version).toBe('v126');
+  expect(state.build.version).toBe('v127');
   expect(state.build.runtime).toContain('one v126 route coordinator');
+  expect(state.build.runtime).toContain('v127 interaction policy');
+  expect(state.ux.observerAdded).toBe(false);
 });
 
 test('loads the inherited route layers once and preserves v125 household surfaces', async ({ app }) => {
@@ -36,7 +39,7 @@ test('loads the inherited route layers once and preserves v125 household surface
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(vaultBefore);
 });
 
-test('routes specialist downloads through current v126 ownership without a network write', async ({ app }, testInfo) => {
+test('routes specialist downloads through v126 ownership without a network write', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for download ownership.');
   const { page } = app;
   const writes = [];
@@ -69,7 +72,7 @@ test('shows non-destructive runtime diagnostics and storage recovery contracts',
   expect(diagnostics.release.workbookSheets).toBe(43);
 });
 
-test('keeps v126 reliability surfaces within a phone viewport', async ({ app }) => {
+test('keeps reliability surfaces within a phone viewport', async ({ app }) => {
   const { page } = app;
   await page.setViewportSize({ width: 390, height: 844 });
   await openPrimary(page, 'Tools');

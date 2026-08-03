@@ -109,7 +109,7 @@ test('adds saved scenarios to Guided Plan and report discussion surfaces', async
   await expect(page.getByRole('heading', { name: 'Scenario conversation', exact: true })).toBeVisible();
 });
 
-test('exports a 43-sheet v126 workbook and shows the v126 through v131 roadmap', async ({ app }, testInfo) => {
+test('exports a 43-sheet v126 workbook and shows the v127 through v136 roadmap', async ({ app }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for workbook and roadmap release coverage.');
   const { page } = app;
   await openScenario(page);
@@ -123,9 +123,9 @@ test('exports a 43-sheet v126 workbook and shows the v126 through v131 roadmap',
   expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_.*\.xlsx/i);
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(6);
-  await expect(page.getByRole('heading', { name: /v126 — Runtime Consolidation & Reliability/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
+  await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
+  await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
   await expect(page.getByText(/v126 completed the runtime consolidation commitment/i)).toBeVisible();
 });
 
