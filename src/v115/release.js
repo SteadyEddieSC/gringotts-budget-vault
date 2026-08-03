@@ -87,7 +87,7 @@ function installBankImportInteractions(imports) {
       event.stopImmediatePropagation();
       const value = target.type === 'checkbox' ? target.checked : target.value;
       if (!imports.updateBankOption(target.dataset.bankOption, value)) toast('That normalization option could not be applied');
-      refreshImport();
+      if (target.dataset.bankOption !== 'accountLabel') refreshImport();
       return;
     }
     if (target.id === 'bankImportDestination') {

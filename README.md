@@ -7,36 +7,47 @@
 [![CodeQL](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml)
 
-A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Household financial data remains inside the browser unless the user explicitly downloads a local backup or report.
+A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Cloudflare serves application assets only. Household financial data remains on the current device unless the user explicitly creates a local export or backup.
 
-Current release: **v127 — UX Polish & Simplification**
+Current release: **v128 — TypeScript & Portable Vault Foundation**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v127 simplification release
+## v128 architecture foundation
 
-v127 keeps the v126 runtime consolidation and feature freeze while making the existing six primary destinations calmer and easier to operate.
+v128 begins a gradual TypeScript transition without rewriting the application or changing its static deployment.
 
 The release provides:
 
-- one shared action-intent policy for primary, preview, export, recovery, destructive, cancel, and secondary controls;
-- clearer visual hierarchy without changing the underlying financial action;
-- one polite status region for route, export, recovery, and destructive-action feedback;
-- route-heading focus after deliberate primary navigation;
-- focus restoration for supported dialogs;
-- labeled, keyboard-reachable table regions that retain native table semantics;
-- progressive-disclosure styling for details and diagnostics;
-- responsive touch targets, dialogs, action rows, roadmap cards, and reduced-motion behavior;
-- an official ten-release reliability roadmap through v136.
+- strict TypeScript contracts for JSON-safe data, transactions, the authoritative vault, package manifests, integrity records, backup receipts, and future storage adapters;
+- exact TypeScript compiler pinning and required no-emit typechecking in protected CI;
+- a provider-neutral `.gringotts` package foundation;
+- deterministic sorted-key JSON canonicalization;
+- SHA-256 payload integrity verification;
+- rejection of empty vaults, unsupported versions, invalid authority boundaries, count mismatches, and modified payloads;
+- browser and Node proof that package operations do not issue network requests or write browser storage.
 
-v126 remains the only live route coordinator and continues to own the single enhancement `MutationObserver` and specialist action dispatcher.
+The browser still receives ordinary static HTML, CSS, and JavaScript. v128 adds no framework, server, Pages Function, service worker, persistent cache, or second runtime.
+
+## Deliberate limits
+
+v128 does not yet provide an end-user portable-file workflow. It adds no:
+
+- package encryption or passphrase UI;
+- `.gringotts` Open, Save As, Backup, or Restore controls;
+- Google Drive, OneDrive, Dropbox, iCloud, WebDAV, or other provider connector;
+- OAuth token storage;
+- background upload, automatic synchronization, or automatic conflict resolution.
+
+Those capabilities require later releases after the package and recovery contracts are proven.
 
 ## Preserved household capabilities
 
-v127 adds no household-finance feature. It preserves:
+The feature freeze remains active. v128 preserves:
 
+- the six primary destinations;
 - immutable close-history trend explainability;
 - scenario comparison;
 - recurring-cost decisions;
@@ -53,23 +64,26 @@ The Vault Workbook remains capped at **43 sheets**.
 - Full Vault Restore continues to target that exact key and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
-- v127 introduces no storage writes, automatic financial actions, analytics endpoint, remote parser, service worker, or second runtime.
+- v126 remains the only route coordinator and specialist action dispatcher.
+- v127 remains the retained UX and accessibility policy.
+- v128 introduces no storage write, automatic financial action, analytics endpoint, remote parser, cloud adapter, or additional observer.
 - Stable `rescue-v105.html` remains available if the current shell cannot initialize.
 
 ## Strategic direction
 
-The feature freeze remains active. The next committed release is **v128 — Data Portability & Recovery**. Releases v129–v136 are directional reliability, evidence, maintenance, data-longevity, export-consolidation, cross-device, and architecture decision gates. See `ROADMAP.md`.
+The product now prioritizes simplification, efficiency, typed architecture, safe portability, and evidence-based consolidation rather than new finance features. Releases v129–v136 remain directional. See `ROADMAP.md`.
 
 ## Local validation
 
 Requirements: Node.js 24 and Python 3.
 
 ```bash
-npm run test:parser
 npm ci --ignore-scripts
+npm run typecheck
+npm run test:parser
 npx playwright install chromium
 npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, and `RELEASE_NOTES_v127_UX_POLISH_SIMPLIFICATION.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v128_TYPESCRIPT_PORTABLE_VAULT_FOUNDATION.md`, and `V128_SECURITY_REVIEW.md`.

@@ -24,11 +24,12 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v127/);
+    await expect(page.locator('.version-text')).toContainText(/^v128/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
     await expect.poll(() => page.evaluate(() => window.GringottsV126?.coordinator?.status)).toBe('ready');
     await expect.poll(() => page.evaluate(() => window.GringottsV127?.release)).toBe('v127');
+    await expect.poll(() => page.evaluate(() => window.GringottsV128?.release)).toBe('v128');
 
     const destinations = [
       ['Dashboard', /Vault Dashboard/i], ['Money', /Bills, Recurring & Budgets/i],
@@ -69,18 +70,22 @@ test.describe('@live Cloudflare deployment', () => {
     await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
     await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
     await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /v128 — Data Portability & Recovery/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /v128 — TypeScript & Portable Vault Foundation/i })).toBeVisible();
+    await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'current');
     await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
 
     await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Runtime ownership & recovery', exact: true })).toBeVisible();
     const state = await page.evaluate(() => ({
       lifecycle: window.GringottsV126.coordinator.snapshot(),
-      ux: window.GringottsV127.snapshot()
+      ux: window.GringottsV127.snapshot(),
+      foundation: window.GringottsV128.snapshot()
     }));
     expect(state.lifecycle.observerCount).toBe(1);
     expect(state.ux.observerAdded).toBe(false);
     expect(state.ux.storageWritesAdded).toBe(false);
+    expect(state.foundation.networkImplementationAdded).toBe(false);
+    expect(state.foundation.cloudAdaptersEnabled).toBe(false);
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();

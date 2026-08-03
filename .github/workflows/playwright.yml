@@ -39,6 +39,9 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
       - name: Check release module syntax
         run: |
           node --check src/v115/parser.js
@@ -95,9 +98,12 @@ jobs:
           node --check src/v127/ux-policy.js
           node --check src/v127/roadmap-horizon.js
           node --check src/boot-v127.js
+          node --check src/v128/contracts.js
+          node --check src/v128/portable-vault.js
+          node --check src/boot-v128.js
           node --check src/v111/views.js
 
-      - name: Run browser-free parser tests
+      - name: Run strict TypeScript and browser-free parser tests
         shell: bash
         run: npm run test:parser 2>&1 | tee parser-test.log
 
