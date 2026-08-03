@@ -29,7 +29,7 @@ test('explains a closed month with transfer-neutral aggregate drivers', async ({
   const { page } = app;
   await seedCloseHistory(page);
   await page.reload();
-  await expect(page.locator('.version-text')).toContainText(/^v128/);
+  await expect(page.locator('.version-text')).toContainText(/^v129/);
   await openPrimary(page, 'Money');
   await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
