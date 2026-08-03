@@ -1,17 +1,18 @@
 {
   "name": "gringotts-budget-vault-tests",
-  "version": "127.0.0",
+  "version": "128.0.0",
   "private": true,
-  "description": "Parser, Playwright, accessibility, visual-contract, Lighthouse, and local-first security tests for Gringotts Budget Vault",
+  "description": "Parser, TypeScript, Playwright, accessibility, visual-contract, Lighthouse, and local-first security tests for Gringotts Budget Vault",
   "type": "module",
   "engines": {
     "node": ">=24"
   },
   "scripts": {
     "test": "playwright test",
-    "test:parser": "node --test tests-node/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:parser": "npm run typecheck && node --test tests-node/*.test.mjs",
     "test:local": "playwright test --grep-invert @live",
-    "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/profile-versioning-diagnostics.spec.js tests/import-receipt-audit-roadmap.spec.js tests/receipt-integrity-batch.spec.js tests/account-cleanup-planning.spec.js tests/recurring-cost-decisions.spec.js tests/scenario-comparison.spec.js tests/close-history-explainability.spec.js tests/runtime-consolidation.spec.js tests/ux-polish-simplification.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
+    "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/profile-versioning-diagnostics.spec.js tests/import-receipt-audit-roadmap.spec.js tests/receipt-integrity-batch.spec.js tests/account-cleanup-planning.spec.js tests/recurring-cost-decisions.spec.js tests/scenario-comparison.spec.js tests/close-history-explainability.spec.js tests/runtime-consolidation.spec.js tests/ux-polish-simplification.spec.js tests/v128-portable-vault-foundation.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
     "test:live": "playwright test tests/live-smoke.spec.js --project=chromium",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
-    "@playwright/test": "1.61.1"
+    "@playwright/test": "1.61.1",
+    "typescript": "5.9.2"
   }
 }
