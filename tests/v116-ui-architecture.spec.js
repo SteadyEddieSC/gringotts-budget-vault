@@ -8,13 +8,18 @@ async function visibleCount(locator) {
 
 test('preserves six primary destinations and browser-local vault state', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v129/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v130/i);
   const labels = await page.locator('[data-tab]').allTextContents();
   expect(labels.map((value) => value.trim())).toEqual(['Dashboard', 'Money', 'Calendar', 'Reports', 'Activity', 'Tools']);
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   for (const destination of labels) await openPrimary(page, destination.trim());
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(before);
-  const state = await page.evaluate(() => ({ ux: window.GringottsV127.snapshot(), foundation: window.GringottsV128.snapshot(), evidence: window.GringottsV129.snapshot() }));
+  const state = await page.evaluate(() => ({
+    ux: window.GringottsV127.snapshot(),
+    foundation: window.GringottsV128.snapshot(),
+    evidence: window.GringottsV129.snapshot(),
+    hardening: window.GringottsV130.snapshot()
+  }));
   expect(state.ux.primaryDestinations).toBe(6);
   expect(state.ux.storageWritesAdded).toBe(false);
   expect(state.foundation.primaryDestinations).toBe(6);
@@ -23,6 +28,10 @@ test('preserves six primary destinations and browser-local vault state', async (
   expect(state.evidence.primaryDestinations).toBe(6);
   expect(state.evidence.persistentStoreAdded).toBe(false);
   expect(state.evidence.networkImplementationAdded).toBe(false);
+  expect(state.evidence.dispatcherOwned).toBe(true);
+  expect(state.hardening.primaryDestinations).toBe(6);
+  expect(state.hardening.persistentStoreAdded).toBe(false);
+  expect(state.hardening.networkImplementationAdded).toBe(false);
 });
 
 test('shows one report preview at a time while preserving the eight inherited print pages', async ({ app }) => {
