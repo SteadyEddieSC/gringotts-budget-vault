@@ -1,31 +1,37 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('exposes one coordinator, one dispatcher, and one owned observer under v129', async ({ app }) => {
+test('exposes one coordinator, one dispatcher, and one owned observer under v130', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v129');
+  await expect(page.locator('.version-text')).toHaveText('v130');
   const state = await page.evaluate(() => ({
     lifecycle: window.GringottsV126.coordinator.snapshot(),
     actions: window.GringottsV126.dispatcher.snapshot(),
     build: window.GringottsCleanRuntime.BUILD,
     ux: window.GringottsV127.snapshot(),
     foundation: window.GringottsV128.snapshot(),
-    evidence: window.GringottsV129.snapshot()
+    evidence: window.GringottsV129.snapshot(),
+    hardening: window.GringottsV130.snapshot()
   }));
   expect(state.lifecycle.status).toBe('ready');
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.observerOwner).toBe('v126-runtime-coordinator');
   expect(state.lifecycle.actionOwner).toBe('v126-action-dispatcher');
   expect(state.actions.installed).toBe(true);
-  expect(state.build.version).toBe('v129');
-  expect(state.build.runtime).toContain('one v126 route coordinator');
-  expect(state.build.runtime).toContain('v127 interaction policy');
-  expect(state.build.runtime).toContain('v128 typed portable-vault foundation');
-  expect(state.build.runtime).toContain('lazy v129 manual workflow evidence review');
+  expect(state.build.version).toBe('v130');
+  expect(state.build.runtime).toContain('v126 coordinator/dispatcher');
+  expect(state.build.runtime).toContain('v128 UX/typed foundation');
+  expect(state.build.runtime).toContain('shared v129 workflow integration');
+  expect(state.build.runtime).toContain('v130 budget enforcement');
   expect(state.ux.observerAdded).toBe(false);
   expect(state.foundation.observerAdded).toBe(false);
   expect(state.foundation.networkImplementationAdded).toBe(false);
   expect(state.evidence.observerAdded).toBe(false);
   expect(state.evidence.persistentStoreAdded).toBe(false);
+  expect(state.evidence.dispatcherOwned).toBe(true);
+  expect(state.evidence.coordinatorOwned).toBe(true);
+  expect(state.hardening.observerAdded).toBe(false);
+  expect(state.hardening.persistentStoreAdded).toBe(false);
+  expect(state.hardening.memoryOnlyHistory).toBe(true);
 });
 
 test('loads the inherited route layers once and preserves v125 household surfaces', async ({ app }) => {
@@ -41,8 +47,8 @@ test('loads the inherited route layers once and preserves v125 household surface
   await expect(page.getByRole('button', { name: 'Download 43-sheet Workbook', exact: true })).toBeVisible();
   await expect(page.locator('.v126-workbook-cap-note')).toHaveText(/no workbook sheet was added/i);
   const runtime = await page.evaluate(() => window.GringottsV126.coordinator.snapshot());
-  expect(runtime.releaseCount).toBe(6);
-  expect(runtime.releases.map((release) => release.id)).toEqual(['v118', 'v119', 'v120', 'v121', 'v125', 'v126']);
+  expect(runtime.releaseCount).toBe(8);
+  expect(runtime.releases.map((release) => release.id)).toEqual(['v118', 'v119', 'v120', 'v121', 'v125', 'v126', 'v129', 'v130']);
   expect(runtime.observerCount).toBe(1);
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(vaultBefore);
 });
@@ -64,20 +70,24 @@ test('routes specialist downloads through v126 ownership without a network write
   expect(writes).toEqual([]);
 });
 
-test('shows non-destructive runtime diagnostics and storage recovery contracts', async ({ app }) => {
+test('shows non-destructive runtime diagnostics, v130 budgets, and storage recovery contracts', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Runtime ownership & recovery', exact: true })).toBeVisible();
-  await expect(page.getByText('Owned observers', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Performance & maintenance budgets', exact: true })).toBeVisible();
+  await expect(page.getByText('Owned observers', { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/18 browser-local domains are inventoried/i)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Retry Route Enhancements', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Open Stable v105 Rescue', exact: true })).toHaveAttribute('href', /rescue-v105\.html/);
-  const diagnostics = await page.evaluate(() => window.GringottsV126.diagnostics());
-  expect(diagnostics.storage.transactionCopyDomains).toEqual(['gringottsBudgetVault.latest']);
-  expect(diagnostics.runtimeConsolidation.oneObserverOwned).toBe(true);
-  expect(diagnostics.runtimeConsolidation.timeoutReadinessAvailable).toBe(false);
-  expect(diagnostics.release.workbookSheets).toBe(43);
+  const diagnostics = await page.evaluate(() => ({ v126: window.GringottsV126.diagnostics(), v130: window.GringottsV130.snapshot() }));
+  expect(diagnostics.v126.storage.transactionCopyDomains).toEqual(['gringottsBudgetVault.latest']);
+  expect(diagnostics.v126.runtimeConsolidation.oneObserverOwned).toBe(true);
+  expect(diagnostics.v126.runtimeConsolidation.timeoutReadinessAvailable).toBe(false);
+  expect(diagnostics.v126.release.workbookSheets).toBe(43);
+  expect(diagnostics.v130.memoryOnlyHistory).toBe(true);
+  expect(diagnostics.v130.historyCount).toBeLessThanOrEqual(12);
+  expect(diagnostics.v130.workbookSheets).toBe(43);
 });
 
 test('keeps reliability surfaces within a phone viewport', async ({ app }) => {
@@ -86,6 +96,7 @@ test('keeps reliability surfaces within a phone viewport', async ({ app }) => {
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Runtime ownership & recovery', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Performance & maintenance budgets', exact: true })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 });
