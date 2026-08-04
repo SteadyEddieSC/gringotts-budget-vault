@@ -16,6 +16,7 @@ async function seedReceipts(page) {
 async function openImportWithReceipts(page) {
   await seedReceipts(page);
   await openPrimary(page, 'Tools');
+  await page.getByRole('tab', { name: 'Import / Restore', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Import & Restore', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
@@ -56,14 +57,16 @@ test('shows the detailed v127 through v136 reliability-first roadmap horizon', a
   await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v128 — TypeScript & Portable Vault Foundation/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v129 — Household Workflow Evidence Review/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /v130 — Performance & Maintenance Hardening/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
-  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(2);
+  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(3);
   await expect(page.getByText('Current release', { exact: true })).toHaveCount(1);
   await expect(page.getByText('Next planned', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Directional', { exact: true })).toHaveCount(7);
+  await expect(page.getByText('Directional', { exact: true })).toHaveCount(6);
   await expect(page.getByText('Scope, dependencies, and safeguards', { exact: true })).toHaveCount(10);
   await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'current');
+  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+  await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status', 'current');
 });
 
 test('keeps timeline and roadmap notes inside a phone viewport', async ({ app }) => {
