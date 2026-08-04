@@ -18,11 +18,12 @@ v130 removes those conditions from the maintained path:
 - the shared v129 integration runs through the v130 coordinator enhancement pass rather than a standalone route-ready listener;
 - Workflow Review rehydrates only when it is active and the inherited renderer genuinely removed it;
 - roadmap and metadata updates are idempotent;
+- the existing v130 route-ready history listener also finalizes release metadata after the retained v128 listener; the header is outside the v126-observed `#main` subtree, so this cannot create a coordinator feedback loop;
 - repeated route transitions are required to settle without continued cycles, enhancement passes, or observer callbacks.
 
 ## Startup-light active boot
 
-The production shells load `src/boot-v130.js?v=130hardening2`.
+The production shells load `src/boot-v130.js?v=130hardening3`.
 
 The v130 entry statically imports v128 only. It exposes release metadata, bounded route-history collection, and one v130 coordinator enhancer. Specialist modules load on demand:
 
