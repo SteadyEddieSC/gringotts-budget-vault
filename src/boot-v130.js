@@ -64,12 +64,17 @@ function updateMetadata() {
   if (build) Object.assign(build, {
     version:RELEASE.version, name:RELEASE.name,
     runtime:'src/runtime-v111-reporting.js + v126 coordinator/dispatcher + v128 UX/typed foundation + lazy v129 workflow integration + lazy v130 diagnostics',
-    cacheBust:'130hardening2'
+    cacheBust:'130hardening3'
   });
   const title = `Gringotts Budget Vault ${RELEASE.version}`;
   if (document.title !== title) document.title = title;
   const version = document.querySelector('.version-text');
   if (version && version.textContent !== RELEASE.version) version.textContent = RELEASE.version;
+}
+
+function handleRouteReady(event) {
+  recordReady(event.detail || {});
+  updateMetadata();
 }
 
 function placeholderWorkflowSnapshot() {
@@ -125,7 +130,7 @@ function snapshot() {
 async function start() {
   runtime = await waitForRuntime();
   state.startupResources = resourceEvidence();
-  document.addEventListener('gringotts:v126-route-ready', (event) => recordReady(event.detail || {}));
+  document.addEventListener('gringotts:v126-route-ready', handleRouteReady);
   runtime.coordinator.registerRelease({ id:'v130', title:RELEASE.name, order:130, enhance:enhanceV130 });
   Object.assign(window.GringottsV130 || (window.GringottsV130 = {}), {
     release:RELEASE.version, name:RELEASE.name, featureFreeze:true, memoryOnlyHistory:true, financialDataRead:false,
