@@ -30,12 +30,14 @@ test('publishes strict v130 budgets with workflow and diagnostics code outside s
     actions: window.GringottsV126.dispatcher.snapshot(),
     workflow: window.GringottsV129.snapshot(),
     hardening: window.GringottsV130.snapshot(),
-    script: document.querySelector('script[type="module"]')?.getAttribute('src'),
+    bootResource: performance.getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .find((name) => /\/src\/boot-v130\.js\?v=130hardening3$/.test(name)),
     primaryDestinations: document.querySelectorAll('[data-tab]').length
   }));
   expect(state.build.version).toBe('v130');
   expect(state.build.name).toBe('Performance & Maintenance Hardening');
-  expect(state.script).toBe('src/boot-v130.js?v=130hardening3');
+  expect(state.bootResource).toMatch(/\/src\/boot-v130\.js\?v=130hardening3$/);
   expect(state.runtime.observerCount).toBe(1);
   expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', 'v130']);
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v129-workflow-review-route');
