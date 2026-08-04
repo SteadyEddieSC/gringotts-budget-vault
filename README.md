@@ -9,43 +9,41 @@
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Cloudflare serves application assets only. Household financial data remains on the current device unless the user explicitly creates a local export or backup.
 
-Current release: **v129 — Household Workflow Evidence Review**
+Current release: **v130 — Performance & Maintenance Hardening**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v129 evidence review
+## v130 performance and maintenance hardening
 
-v129 adds a privacy-safe, manual workflow review under **Tools → Workflow Review** so future work is based on observed household use instead of roadmap momentum.
+v130 reduces active release-layer coupling and makes the existing runtime budgets explicit without adding household-finance functionality.
 
 The release provides:
 
-- strict TypeScript contracts for the workflow inventory, structured observations, summaries, and sanitized export bundles;
-- a bounded inventory of ten current workflows across the existing six primary destinations;
-- session-only ratings for usage, friction, outcome, observed signal, and recommended disposition;
-- optional workflow-only notes with rejection of likely account, card, contact, amount, or transaction identifiers;
-- a live evidence summary for high-friction workflows, consolidation candidates, unmet needs, and keep candidates;
-- explicit local JSON download and clipboard summary actions;
-- browser and Node proof that review activity does not read the vault, write browser storage, transmit data, or persist after reload.
-
-The review is intentionally manual. Gringotts does not infer usage from clicks, route history, reports, transactions, or background activity.
+- strict TypeScript contracts for route-ready, enhancement, observer, action, request, script-byte, workbook, runtime-owner, destination, and session-history budgets;
+- a pure evaluator that reports every exceeded budget without reading financial data or changing browser state;
+- Workflow Review navigation and actions owned by the established v126 coordinator and dispatcher;
+- a flattened production boot that imports v128 directly while retaining the v129 compatibility entry;
+- bounded memory-only runtime evidence in **Tools → Diagnostics**;
+- repeated-route settlement tests that guard against mutation feedback loops and detached click targets;
+- unchanged Lighthouse ceilings of 45 requests and 500,000 script bytes.
 
 ## Preserved architecture
 
-- v126 remains the only route coordinator and specialist action dispatcher.
+- v126 remains the only route coordinator, specialist action dispatcher, and live `MutationObserver` owner.
 - v127 remains the retained UX and accessibility policy.
 - v128 remains the strict typed portable-vault foundation.
-- v129 adds no second runtime, observer, backend, service worker, analytics endpoint, or browser-local store.
-- The application retains six primary destinations and adds only one secondary Tools tab.
-- The Vault Workbook remains capped at **43 sheets**.
+- v129 remains the manual, session-only Workflow Review and sanitized local export.
+- v130 adds no second runtime, observer, backend, service worker, analytics endpoint, or persistent store.
+- The application retains six primary destinations and the Vault Workbook remains capped at **43 sheets**.
 
 ## Privacy and safety boundaries
 
 - `gringottsBudgetVault.latest` remains the only domain that may contain transaction copies.
-- Workflow Review does not inspect vault contents, balances, accounts, merchants, reports, provider credentials, or portable-vault bytes.
-- Review state exists only in memory for the current tab and is cleared by reload.
-- Review exports contain structured workflow choices and validated workflow-only observations.
+- Performance history contains route lifecycle measurements and ownership status only; it does not inspect vault contents, balances, accounts, merchants, reports, credentials, or portable-vault bytes.
+- Performance history exists only in memory for the current tab and is bounded to 12 samples.
+- Workflow Review remains manual, session-only, and cleared by reload.
 - Full Vault Restore remains separate and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
@@ -53,7 +51,7 @@ The review is intentionally manual. Gringotts does not infer usage from clicks, 
 
 ## Strategic direction
 
-The next directional release is **v130 — Performance & Maintenance Hardening**. Its recommended starting action is to use the v129 household review to identify the highest-friction and highest-maintenance paths before consolidating historical layers or changing performance budgets. See `ROADMAP.md`.
+The next directional release is **v131 — Observed Needs Decision Gate**. The feature freeze remains the default. Any proposed capability or removal should be justified by completed household Workflow Review evidence together with v130 maintenance and runtime evidence. See `ROADMAP.md`.
 
 ## Local validation
 
@@ -68,4 +66,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v129_HOUSEHOLD_WORKFLOW_EVIDENCE_REVIEW.md`, and `V129_SECURITY_REVIEW.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v130_PERFORMANCE_MAINTENANCE_HARDENING.md`, and `V130_SECURITY_REVIEW.md`.
