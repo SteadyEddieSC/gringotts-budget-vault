@@ -3,6 +3,7 @@ const ROADMAP_FIRST = 127;
 const ROADMAP_LAST = 136;
 
 let installed = false;
+let registeredWithCoordinator = false;
 let controller = null;
 let controllerPromise = null;
 let context = null;
@@ -57,8 +58,8 @@ function updateMetadata() {
   if (build) Object.assign(build, {
     version: host.version,
     name: host.name,
-    runtime: `${build.runtime || 'v128 runtime'} + dispatcher/coordinator-owned v129 workflow review`,
-    cacheBust: host.version === 'v129' ? '129integration1' : '130hardening1'
+    runtime: `${build.runtime || 'v128 runtime'} + coordinator-owned v129 workflow review`,
+    cacheBust: host.version === 'v129' ? '129integration2' : '130hardening2'
   });
   const title = `Gringotts Budget Vault ${host.version}`;
   if (document.title !== title) document.title = title;
@@ -121,7 +122,7 @@ function renderReviewShell() {
 
 function loadController() {
   if (!controllerPromise) {
-    controllerPromise = import('./workflow-review.js?v=130ownership1')
+    controllerPromise = import('./workflow-review.js?v=130ownership2')
       .then((module) => {
         controller = module.installWorkflowReview({
           dispatcher: context.dispatcher,
@@ -158,7 +159,7 @@ function handleWorkflowAction(event) {
   return true;
 }
 
-async function enhanceWorkflowIntegration(_root, routeContext = {}) {
+export async function enhanceWorkflowIntegration(_root, routeContext = {}) {
   updateMetadata();
   enhanceRoadmapStatus(context.hostRelease.version);
   const route = routeContext.route || context.coordinator.route || '';
@@ -177,6 +178,7 @@ function snapshot() {
     release: 'v129',
     hostRelease: context?.hostRelease?.version || 'v129',
     ...review,
+    integrationLoaded: true,
     manualReviewOnly: true,
     automaticTelemetry: false,
     financialDataRead: false,
@@ -185,6 +187,7 @@ function snapshot() {
     observerAdded: false,
     dispatcherOwned: true,
     coordinatorOwned: true,
+    registeredAsRelease: registeredWithCoordinator,
     standaloneClickListener: false,
     standaloneRouteReadyListener: false,
     primaryDestinations: 6,
@@ -208,7 +211,7 @@ export function waitForV126Runtime() {
   });
 }
 
-export function installWorkflowReviewIntegration({ coordinator, dispatcher, hostRelease } = {}) {
+export function installWorkflowReviewIntegration({ coordinator, dispatcher, hostRelease, registerWithCoordinator = true } = {}) {
   if (!coordinator || !dispatcher) throw new Error('Workflow Review integration requires the v126 coordinator and dispatcher.');
   const normalizedHost = normalizeHostRelease(hostRelease);
   if (installed) {
@@ -219,12 +222,15 @@ export function installWorkflowReviewIntegration({ coordinator, dispatcher, host
   installed = true;
   context = { coordinator, dispatcher, hostRelease: normalizedHost };
   dispatcher.register('click', 'v129-workflow-review-route', handleWorkflowAction, 180);
-  coordinator.registerRelease({
-    id: 'v129',
-    title: 'Household Workflow Evidence Review',
-    order: 129,
-    enhance: enhanceWorkflowIntegration
-  });
+  if (registerWithCoordinator) {
+    registeredWithCoordinator = true;
+    coordinator.registerRelease({
+      id: 'v129',
+      title: 'Household Workflow Evidence Review',
+      order: 129,
+      enhance: enhanceWorkflowIntegration
+    });
+  }
   Object.assign(window.GringottsV129 || (window.GringottsV129 = {}), {
     release: 'v129',
     name: 'Household Workflow Evidence Review',
@@ -236,17 +242,20 @@ export function installWorkflowReviewIntegration({ coordinator, dispatcher, host
     persistentStoreAdded: false,
     networkImplementationAdded: false,
     observerAdded: false,
+    integrationLoaded: true,
     dispatcherOwned: true,
     coordinatorOwned: true,
+    registeredAsRelease: registeredWithCoordinator,
     standaloneClickListener: false,
     standaloneRouteReadyListener: false,
     primaryDestinations: 6,
     toolsSections: 5,
     workbookSheets: 43,
     openReview: () => new Promise((resolve) => setTimeout(() => resolve(openReview(true)), 0)),
+    enhance: enhanceWorkflowIntegration,
     snapshot
   });
   updateMetadata();
-  coordinator.queue('v129-integration-install');
+  if (registerWithCoordinator) coordinator.queue('v129-integration-install');
   return window.GringottsV129;
 }
