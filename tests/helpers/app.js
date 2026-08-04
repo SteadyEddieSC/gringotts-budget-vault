@@ -64,7 +64,11 @@ export async function openPrimary(page, name) {
     }
     try {
       await button.click({ timeout: 3000 });
-      await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible({ timeout: 12000 });
+      if (name === 'Tools') {
+        await expect(page.getByRole('tablist', { name: 'Tools sections', exact: true })).toBeVisible({ timeout: 12000 });
+      } else {
+        await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible({ timeout: 12000 });
+      }
       if (enhancedPrimaryDestinations.has(name)) await waitForRouteEnhancements(page, name.toLowerCase());
       return;
     } catch (error) {
