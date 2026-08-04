@@ -197,7 +197,7 @@ test('v127 and v128 retain presentation and portable-vault boundaries', () => {
   expectAll(boot128, ["import './boot-v126.js?v=128base1'", 'typeScriptStrict: true', 'encryptionReady: false', 'cloudAdaptersEnabled: false', 'networkImplementationAdded: false']);
 });
 
-test('v129 workflow evidence is manual-only and now uses v126 ownership', () => {
+test('v129 workflow evidence is manual-only, dispatcher-owned, and optional as a coordinator release', () => {
   const modelTs = read('src/v129/workflow-evidence.ts');
   const modelJs = read('src/v129/workflow-evidence.js');
   const controller = read('src/v129/workflow-review.js');
@@ -214,18 +214,19 @@ test('v129 workflow evidence is manual-only and now uses v126 ownership', () => 
   ]);
   expect(controller).not.toMatch(/document\.addEventListener\('(change|click)'/);
   expectAll(integration, [
-    "dispatcher.register('click', 'v129-workflow-review-route'", 'coordinator.registerRelease({',
-    'dispatcherOwned: true', 'coordinatorOwned: true', 'standaloneClickListener: false', 'standaloneRouteReadyListener: false'
+    "dispatcher.register('click', 'v129-workflow-review-route'", 'registerWithCoordinator = true',
+    'coordinator.registerRelease({', 'registeredAsRelease', 'dispatcherOwned: true', 'coordinatorOwned: true',
+    'standaloneClickListener: false', 'standaloneRouteReadyListener: false'
   ]);
   expect(integration).not.toMatch(/window\.addEventListener\('click'/);
   expect(compatibilityBoot).toContain("import './boot-v128.js?v=129base3'");
   expect(compatibilityBoot).toContain('installWorkflowReviewIntegration');
 });
 
-test('v130 enforces bounded performance contracts and flattens the active boot path without new persistence', () => {
+test('v130 keeps specialist modules outside startup while enforcing unchanged budgets', () => {
   const contractsTs = read('src/v130/performance-contracts.ts');
   const contractsJs = read('src/v130/performance-contracts.js');
-  const runtime = read('src/v130/runtime-health.js');
+  const diagnostics = read('src/v130/runtime-health.js');
   const boot = read('src/boot-v130.js');
   const index = read('index.html');
   const app = read('app.html');
@@ -235,23 +236,27 @@ test('v130 enforces bounded performance contracts and flattens the active boot p
     'maxRuntimeObservers: 1', 'maxPrimaryDestinations: 6', 'maxSessionSamples: 12'
   ]);
   expectAll(contractsJs, ['evaluatePerformanceBudget', 'maxNetworkRequests: 45', 'maxScriptBytes: 500_000', 'maxWorkbookSheets: 43']);
-  expectAll(runtime, [
-    'memoryOnlyHistory: true', 'financialDataRead: false', 'persistentStoreAdded: false',
-    'networkImplementationAdded: false', 'observerAdded: false', 'serviceWorkerAdded: false',
-    'coordinator.registerRelease({', 'maxSessionSamples'
+  expectAll(diagnostics, ['renderV130Diagnostics', 'evaluatePerformanceBudget', 'state.lastEvaluation = evaluation']);
+  expect(diagnostics).not.toMatch(/registerRelease|new MutationObserver|addEventListener\('gringotts:v126-route-ready'/);
+  expectAll(boot, [
+    "import './boot-v128.js?v=130base2'", "import('./v129/integration.js?v=130workflow2')",
+    'registerWithCoordinator:false', "import('./v130/runtime-health.js?v=130diagnostics2')",
+    'workflowIntegrationLazy:true', 'diagnosticsLazy:true', 'memoryOnlyHistory:true', 'maxSessionSamples:12',
+    "runtime.coordinator.registerRelease({ id:'v130'"
   ]);
-  expectAll(boot, ["import './boot-v128.js?v=130base1'", 'installWorkflowReviewIntegration', 'installV130Performance']);
+  expect(boot).not.toMatch(/^import .*v129\/integration|^import .*v130\/runtime-health|^import .*v130\/performance-contracts/gm);
   expect(boot).not.toContain('boot-v129');
-  for (const source of [contractsJs, runtime, boot]) {
+  for (const source of [contractsJs, diagnostics, boot]) {
     noRemote(source, 'v130 source');
     noBrowserStore(source, 'v130 source');
   }
   for (const shell of [index, app]) {
-    expectAll(shell, ['Gringotts Budget Vault v130', 'src/boot-v130.js?v=130hardening1', 'styles/v106-v107.css', 'styles/v116.css']);
+    expectAll(shell, ['Gringotts Budget Vault v130', 'src/boot-v130.js?v=130hardening2', 'styles/v106-v107.css', 'styles/v116.css']);
     expect(shell).not.toContain('src/boot-v129.js');
     for (const absent of [
-      'styles/v106.css', 'styles/v107.css', 'styles/v113.css', 'styles/v127.css', 'styles/v128.css', 'styles/v129.css', 'styles/v130.css',
-      'styles/v120.css', 'styles/v121.css', 'styles/v122.css', 'styles/v123.css', 'styles/v124.css', 'styles/v125.css', 'styles/v126.css'
+      'styles/v106.css', 'styles/v107.css', 'styles/v113.css', 'styles/v127.css', 'styles/v128.css',
+      'styles/v129.css', 'styles/v130.css', 'styles/v120.css', 'styles/v121.css', 'styles/v122.css',
+      'styles/v123.css', 'styles/v124.css', 'styles/v125.css', 'styles/v126.css'
     ]) expect(shell).not.toContain(absent);
   }
 });
