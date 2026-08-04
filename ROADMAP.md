@@ -14,11 +14,12 @@ Reduce active release-layer coupling and prevent route-ready or event-ownership 
 
 - strict TypeScript contracts for route-ready time, enhancement time, enhancement passes, observer callbacks, registered releases, registered actions, network requests, script bytes, workbook sheets, runtime observers, primary destinations, and bounded session samples;
 - a pure performance-budget evaluator with explicit pass/fail reasons and no browser, vault, transaction, or account dependency;
-- Workflow Review route, field, and action handling registered through the existing v126 coordinator and dispatcher;
+- a startup-light production entry that loads the established v128/v126 shell before specialist code;
+- Workflow Review integration loaded only when Tools opens, with route, field, and action handling registered through the existing v126 coordinator and dispatcher;
+- the performance evaluator and Diagnostics renderer loaded only when Diagnostics opens;
 - removal of standalone production Workflow Review click and route-ready ownership;
-- a flattened production boot that imports v128 directly while retaining `boot-v129.js` as a compatibility entry;
-- bounded memory-only runtime evidence displayed in the existing Diagnostics workspace;
-- browser coverage proving repeated Workflow Review, Roadmap, and primary-route transitions settle without a mutation feedback loop;
+- `boot-v129.js` retained as a compatibility entry but removed from the active v130 startup chain;
+- bounded memory-only route evidence and browser coverage proving repeated Workflow Review, Roadmap, Diagnostics, and primary-route transitions settle without a mutation feedback loop;
 - unchanged Lighthouse ceilings of 45 requests and 500,000 script bytes;
 - unchanged six primary destinations and 43-sheet workbook cap.
 
@@ -46,7 +47,7 @@ Added a manual session-only evidence worksheet and sanitized local export so fut
 
 ### v130 — Performance & Maintenance Hardening — Current
 
-Moves Workflow Review under existing runtime ownership, flattens one active boot wrapper, records bounded memory-only runtime evidence, and enforces the existing route, observer, request, script, and workbook ceilings.
+Moves Workflow Review under existing runtime ownership, keeps specialist code outside startup, records bounded memory-only route evidence, and enforces the existing route, observer, request, script, and workbook ceilings.
 
 ### v131 — Observed Needs Decision Gate — Directional
 
