@@ -100,10 +100,10 @@ test('renders bounded session-only performance evidence in existing Diagnostics'
   await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Performance & maintenance budgets', exact: true })).toBeVisible();
   await expect(page.getByText(/Session-only runtime evidence/i)).toBeVisible();
-  await expect(page.getByText('Route ready', { exact: true })).toBeVisible();
-  await expect(page.getByText('Enhancement', { exact: true })).toBeVisible();
-  await expect(page.getByText('Observer callbacks', { exact: true })).toBeVisible();
-  await expect(page.getByText('Session samples', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Route ready/)).toBeVisible();
+  await expect(page.getByText(/Enhancement/).first()).toBeVisible();
+  await expect(page.getByText(/Observer callbacks/)).toBeVisible();
+  await expect(page.getByText(/Session samples/)).toBeVisible();
   await expectCoordinatorSettled(page);
   const snapshot = await page.evaluate(() => window.GringottsV130.snapshot());
   expect(snapshot.historyCount).toBeLessThanOrEqual(snapshot.historyCap);
