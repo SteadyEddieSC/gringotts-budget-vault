@@ -11,9 +11,9 @@ const destinations = [
 
 test('boots without module errors and exposes the simplified consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v129/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v130/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v129');
+  await expect(page.locator('.version-text')).toHaveText('v130');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
@@ -50,7 +50,8 @@ test('boots without module errors and exposes the simplified consolidated naviga
     lifecycle: window.GringottsV126.coordinator.snapshot(),
     ux: window.GringottsV127.snapshot(),
     foundation: window.GringottsV128.snapshot(),
-    evidence: window.GringottsV129.snapshot()
+    evidence: window.GringottsV129.snapshot(),
+    hardening: window.GringottsV130.snapshot()
   }));
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.status).toBe('ready');
@@ -61,6 +62,10 @@ test('boots without module errors and exposes the simplified consolidated naviga
   expect(state.evidence.release).toBe('v129');
   expect(state.evidence.automaticTelemetry).toBe(false);
   expect(state.evidence.persistentStoreAdded).toBe(false);
+  expect(state.evidence.dispatcherOwned).toBe(true);
+  expect(state.hardening.release).toBe('v130');
+  expect(state.hardening.memoryOnlyHistory).toBe(true);
+  expect(state.hardening.persistentStoreAdded).toBe(false);
   const unsafe = methods.filter(({ method, url }) => method !== 'GET' && !url.startsWith('blob:'));
   expect(unsafe, 'The local-first app should not make write network requests').toEqual([]);
 });
