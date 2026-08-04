@@ -22,14 +22,15 @@ function generatedPrivateDetail() {
   return ['Ca', 'rd end', 'ing ', '43', '21', ' makes this difficult.'].join('');
 }
 
-test('publishes v129 without adding a primary destination, runtime owner, observer, store, or telemetry', async ({ app }) => {
+test('retains v129 workflow evidence under v130 without adding a primary destination, observer, store, or telemetry', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v129');
+  await expect(page.locator('.version-text')).toHaveText('v130');
   const state = await page.evaluate(() => ({
     coordinator: window.GringottsV126.coordinator.snapshot(),
     ux: window.GringottsV127.snapshot(),
     portable: window.GringottsV128.snapshot(),
     evidence: window.GringottsV129.snapshot(),
+    hardening: window.GringottsV130.snapshot(),
     build: window.GringottsCleanRuntime.BUILD,
     primaryDestinations: document.querySelectorAll('[data-tab]').length
   }));
@@ -38,13 +39,15 @@ test('publishes v129 without adding a primary destination, runtime owner, observ
   expect(state.ux.release).toBe('v127');
   expect(state.portable.release).toBe('v128');
   expect(state.evidence).toMatchObject({
-    release: 'v129', inventoryCount: 10, reviewStateCount: 0, manualReviewOnly: true,
+    release: 'v129', hostRelease: 'v130', inventoryCount: 10, reviewStateCount: 0, manualReviewOnly: true,
     automaticTelemetry: false, financialDataRead: false, persistentStoreAdded: false,
-    networkImplementationAdded: false, observerAdded: false, primaryDestinations: 6,
-    toolsSections: 5, workbookSheets: 43, networkBudgetDelta: 0
+    networkImplementationAdded: false, observerAdded: false, dispatcherOwned: true,
+    coordinatorOwned: true, standaloneClickListener: false, standaloneRouteReadyListener: false,
+    primaryDestinations: 6, toolsSections: 5, workbookSheets: 43, networkBudgetDelta: 0
   });
-  expect(state.build.version).toBe('v129');
-  expect(state.build.runtime).toContain('v129 manual workflow evidence review');
+  expect(state.hardening.release).toBe('v130');
+  expect(state.build.version).toBe('v130');
+  expect(state.build.runtime).toContain('v130 budget enforcement');
   expect(state.primaryDestinations).toBe(6);
 });
 
@@ -65,6 +68,7 @@ test('records structured session-only observations without changing browser stor
   expect(snapshot.reviewStateCount).toBe(1);
   expect(snapshot.reviewedCount).toBe(1);
   expect(snapshot.completeCount).toBe(1);
+  expect(snapshot.dispatcherOwned).toBe(true);
 });
 
 test('rejects likely private detail in an optional workflow observation', async ({ app }) => {
@@ -114,16 +118,16 @@ test('clears the in-session review on reload', async ({ app }) => {
   expect(snapshot.reviewedCount).toBe(0);
 });
 
-test('shows v128 shipped and v129 current in the ten-release roadmap', async ({ app }) => {
+test('shows v129 shipped and v130 current in the ten-release roadmap', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
-  await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-  await expect(page.locator('[data-roadmap-version="v128"] .badge')).toHaveText('Shipped');
-  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'current');
-  await expect(page.locator('[data-roadmap-version="v129"] .badge')).toHaveText('Current release');
-  await expect(page.getByRole('heading', { name: 'v129 — Household Workflow Evidence Review', exact: true })).toBeVisible();
+  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+  await expect(page.locator('[data-roadmap-version="v129"] .badge')).toHaveText('Shipped');
+  await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status', 'current');
+  await expect(page.locator('[data-roadmap-version="v130"] .badge')).toHaveText('Current release');
+  await expect(page.getByRole('heading', { name: 'v130 — Performance & Maintenance Hardening', exact: true })).toBeVisible();
 });
 
 test('keeps the workflow review contained on a phone viewport', async ({ app }) => {
