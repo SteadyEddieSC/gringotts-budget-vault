@@ -4,12 +4,9 @@ test('preserves v127 UX ownership under v130 without adding a runtime, observer,
   const { page } = app;
   await expect(page.locator('.version-text')).toHaveText('v130');
   const state = await page.evaluate(() => ({
-    coordinator: window.GringottsV126.coordinator.snapshot(),
-    ux: window.GringottsV127.snapshot(),
-    foundation: window.GringottsV128.snapshot(),
-    evidence: window.GringottsV129.snapshot(),
-    hardening: window.GringottsV130.snapshot(),
-    build: window.GringottsCleanRuntime.BUILD
+    coordinator:window.GringottsV126.coordinator.snapshot(), ux:window.GringottsV127.snapshot(),
+    foundation:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(),
+    hardening:window.GringottsV130.snapshot(), build:window.GringottsCleanRuntime.BUILD
   }));
   expect(state.coordinator.observerCount).toBe(1);
   expect(state.coordinator.observerOwner).toBe('v126-runtime-coordinator');
@@ -21,59 +18,51 @@ test('preserves v127 UX ownership under v130 without adding a runtime, observer,
   expect(state.foundation.release).toBe('v128');
   expect(state.foundation.observerAdded).toBe(false);
   expect(state.foundation.storageWritesAdded).toBe(false);
-  expect(state.evidence.release).toBe('v129');
-  expect(state.evidence.observerAdded).toBe(false);
-  expect(state.evidence.persistentStoreAdded).toBe(false);
-  expect(state.evidence.dispatcherOwned).toBe(true);
-  expect(state.hardening.release).toBe('v130');
-  expect(state.hardening.observerAdded).toBe(false);
-  expect(state.hardening.persistentStoreAdded).toBe(false);
+  expect(state.evidence).toMatchObject({ release:'v129', integrationLoaded:false, observerAdded:false, persistentStoreAdded:false, dispatcherOwned:false, coordinatorOwned:true });
+  expect(state.hardening).toMatchObject({ release:'v130', observerAdded:false, persistentStoreAdded:false, workflowIntegrationLazy:true, diagnosticsLazy:true });
   expect(state.build.version).toBe('v130');
   expect(state.build.runtime).toContain('v128 UX/typed foundation');
-  expect(state.build.runtime).toContain('shared v129 workflow integration');
-  expect(state.build.runtime).toContain('v130 budget enforcement');
+  expect(state.build.runtime).toContain('lazy v129 workflow integration');
+  expect(state.build.runtime).toContain('lazy v130 diagnostics');
 });
 
 test('classifies report actions and announces local export feedback', async ({ app }) => {
   const { page } = app;
-  await openPrimary(page, 'Reports');
-  const workbook = page.getByRole('button', { name: 'Download 43-sheet Workbook', exact: true });
-  await expect(workbook).toHaveAttribute('data-action-intent', 'export');
-  await expect(workbook).toHaveAttribute('data-action-verb', 'Export');
+  await openPrimary(page,'Reports');
+  const workbook = page.getByRole('button',{ name:'Download 43-sheet Workbook', exact:true });
+  await expect(workbook).toHaveAttribute('data-action-intent','export');
+  await expect(workbook).toHaveAttribute('data-action-verb','Export');
   await workbook.click();
   await expect(page.locator('#v127Status')).toHaveText('Preparing the local export');
 });
 
 test('moves focus to the rendered route heading after primary navigation', async ({ app }) => {
   const { page } = app;
-  await openPrimary(page, 'Money');
-  const focused = await page.evaluate(() => ({
-    tag: document.activeElement?.tagName,
-    text: document.activeElement?.textContent?.trim()
-  }));
-  expect(['H1', 'H2']).toContain(focused.tag);
+  await openPrimary(page,'Money');
+  const focused = await page.evaluate(() => ({ tag:document.activeElement?.tagName, text:document.activeElement?.textContent?.trim() }));
+  expect(['H1','H2']).toContain(focused.tag);
   expect(focused.text).toMatch(/Bills, Recurring & Budgets/i);
 });
 
 test('shows the v127 through v136 reliability roadmap with progressive details', async ({ app }) => {
   const { page } = app;
-  await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'v127–v136 Reliability Roadmap', exact: true })).toBeVisible();
+  await openPrimary(page,'Tools');
+  await page.getByRole('tab',{ name:'Roadmap', exact:true }).click();
+  await expect(page.getByRole('heading',{ name:'v127–v136 Reliability Roadmap', exact:true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
-  await expect(page.getByRole('heading', { name: 'v127 — UX Polish & Simplification', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'v128 — TypeScript & Portable Vault Foundation', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'v129 — Household Workflow Evidence Review', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'v130 — Performance & Maintenance Hardening', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'v136 — Architecture Baseline & Next-Horizon Decision', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v127 — UX Polish & Simplification', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v128 — TypeScript & Portable Vault Foundation', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v129 — Household Workflow Evidence Review', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v130 — Performance & Maintenance Hardening', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v136 — Architecture Baseline & Next-Horizon Decision', exact:true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card').first().locator('details')).toHaveCount(1);
 });
 
 test('keeps the reliability roadmap and actions within a phone viewport', async ({ app }) => {
   const { page } = app;
-  await page.setViewportSize({ width: 390, height: 844 });
-  await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
+  await page.setViewportSize({ width:390, height:844 });
+  await openPrimary(page,'Tools');
+  await page.getByRole('tab',{ name:'Roadmap', exact:true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
