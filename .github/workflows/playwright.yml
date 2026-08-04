@@ -103,7 +103,11 @@ jobs:
           node --check src/boot-v128.js
           node --check src/v129/workflow-evidence.js
           node --check src/v129/workflow-review.js
+          node --check src/v129/integration.js
           node --check src/boot-v129.js
+          node --check src/v130/performance-contracts.js
+          node --check src/v130/runtime-health.js
+          node --check src/boot-v130.js
           node --check src/v111/views.js
 
       - name: Run strict TypeScript and browser-free parser tests

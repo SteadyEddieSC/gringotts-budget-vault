@@ -29,9 +29,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v129 and navigates the complete household report preview', async ({ app }) => {
+test('boots v130 and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v129/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v130/i);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [

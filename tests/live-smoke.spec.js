@@ -24,13 +24,14 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v129/);
+    await expect(page.locator('.version-text')).toContainText(/^v130/);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
     await expect.poll(() => page.evaluate(() => window.GringottsV126?.coordinator?.status)).toBe('ready');
     await expect.poll(() => page.evaluate(() => window.GringottsV127?.release)).toBe('v127');
     await expect.poll(() => page.evaluate(() => window.GringottsV128?.release)).toBe('v128');
     await expect.poll(() => page.evaluate(() => window.GringottsV129?.release)).toBe('v129');
+    await expect.poll(() => page.evaluate(() => window.GringottsV130?.release)).toBe('v130');
 
     const destinations = [
       ['Dashboard', /Vault Dashboard/i], ['Money', /Bills, Recurring & Budgets/i],
@@ -72,7 +73,10 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByRole('heading', { name: 'Household Workflow Evidence Review', exact: true })).toBeVisible();
     await expect(page.locator('.v129-workflow-card')).toHaveCount(10);
     const workflowState = await page.evaluate(() => window.GringottsV129.snapshot());
-    expect(workflowState).toMatchObject({ reviewStateCount: 0, automaticTelemetry: false, financialDataRead: false, persistentStoreAdded: false, lazyController: true });
+    expect(workflowState).toMatchObject({
+      hostRelease: 'v130', reviewStateCount: 0, automaticTelemetry: false, financialDataRead: false,
+      persistentStoreAdded: false, lazyController: true, dispatcherOwned: true, coordinatorOwned: true
+    });
 
     await openPrimary(page, 'Tools');
     await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
@@ -80,17 +84,20 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByRole('heading', { name: /v127 — UX Polish & Simplification/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /v128 — TypeScript & Portable Vault Foundation/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /v129 — Household Workflow Evidence Review/i })).toBeVisible();
-    await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-    await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'current');
+    await expect(page.getByRole('heading', { name: /v130 — Performance & Maintenance Hardening/i })).toBeVisible();
+    await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+    await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status', 'current');
     await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
 
     await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Runtime ownership & recovery', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Performance & maintenance budgets', exact: true })).toBeVisible();
     const state = await page.evaluate(() => ({
       lifecycle: window.GringottsV126.coordinator.snapshot(),
       ux: window.GringottsV127.snapshot(),
       foundation: window.GringottsV128.snapshot(),
-      evidence: window.GringottsV129.snapshot()
+      evidence: window.GringottsV129.snapshot(),
+      hardening: window.GringottsV130.snapshot()
     }));
     expect(state.lifecycle.observerCount).toBe(1);
     expect(state.ux.observerAdded).toBe(false);
@@ -99,6 +106,10 @@ test.describe('@live Cloudflare deployment', () => {
     expect(state.foundation.cloudAdaptersEnabled).toBe(false);
     expect(state.evidence.networkImplementationAdded).toBe(false);
     expect(state.evidence.persistentStoreAdded).toBe(false);
+    expect(state.evidence.dispatcherOwned).toBe(true);
+    expect(state.hardening.networkImplementationAdded).toBe(false);
+    expect(state.hardening.persistentStoreAdded).toBe(false);
+    expect(state.hardening.memoryOnlyHistory).toBe(true);
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name: 'Plan', exact: true }).click();

@@ -15,6 +15,7 @@ const DISPOSITION_OPTIONS = Object.freeze([['unreviewed','Not reviewed'],['keep'
 const reviewState = new Map();
 let active = false;
 let installed = false;
+let dispatcher = null;
 let services = { announce() {}, enhance() {} };
 let lastSummary = model.summarizeWorkflowReview(model.WORKFLOW_INVENTORY.map((workflow) => model.emptyWorkflowObservation(workflow.id)));
 
@@ -100,7 +101,7 @@ function setActionError(message = '') {
 
 function handleChange(event) {
   const target = event.target.closest?.('[data-v129-field][data-workflow-id]');
-  if (!target || !active) return;
+  if (!target || !active) return false;
   const workflowId = target.dataset.workflowId;
   const field = target.dataset.v129Field;
   const candidate = { ...(reviewState.get(workflowId) || model.emptyWorkflowObservation(workflowId)) };
@@ -119,6 +120,7 @@ function handleChange(event) {
     target.setAttribute('aria-invalid','true');
     if (errorNode) errorNode.textContent = error?.message || 'That observation could not be recorded.';
   }
+  return false;
 }
 
 function downloadReview() {
@@ -147,11 +149,7 @@ async function copySummary() {
   services.announce('Workflow review summary copied');
 }
 
-async function handleAction(event) {
-  const action = event.target.closest?.('#downloadWorkflowReview,#copyWorkflowReviewSummary,#clearWorkflowReview');
-  if (!action || !active) return;
-  event.preventDefault();
-  event.stopImmediatePropagation();
+async function runAction(action) {
   setActionError('');
   try {
     if (action.id === 'downloadWorkflowReview') downloadReview();
@@ -166,21 +164,32 @@ async function handleAction(event) {
   }
 }
 
+function handleAction(event) {
+  const action = event.target.closest?.('#downloadWorkflowReview,#copyWorkflowReviewSummary,#clearWorkflowReview');
+  if (!action || !active) return false;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  runAction(action).catch(() => {});
+  return true;
+}
+
 const controller = Object.freeze({
   open,
   deactivate() { active = false; },
   isActive() { return active; },
   snapshot() {
-    return { reviewStateCount:reviewState.size, reviewedCount:lastSummary.reviewedCount, completeCount:lastSummary.completeCount, inventoryCount:lastSummary.inventoryCount };
+    return { reviewStateCount:reviewState.size, reviewedCount:lastSummary.reviewedCount, completeCount:lastSummary.completeCount, inventoryCount:lastSummary.inventoryCount, dispatcherOwned:Boolean(dispatcher) };
   }
 });
 
 export function installWorkflowReview(nextServices = {}) {
   services = { ...services, ...nextServices };
   if (!installed) {
+    if (!nextServices.dispatcher?.register) throw new Error('Workflow Review requires the v126 action dispatcher.');
     installed = true;
-    document.addEventListener('change',handleChange,true);
-    document.addEventListener('click',handleAction,true);
+    dispatcher = nextServices.dispatcher;
+    dispatcher.register('change','v129-workflow-review-fields',handleChange,160);
+    dispatcher.register('click','v129-workflow-review-actions',handleAction,160);
   }
   return controller;
 }
