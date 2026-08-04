@@ -1,13 +1,14 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('preserves the v128 typed foundation under v129 without adding a runtime, observer, store, or cloud adapter', async ({ app }) => {
+test('preserves the v128 typed foundation under v130 without adding a runtime, observer, store, or cloud adapter', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v129');
+  await expect(page.locator('.version-text')).toHaveText('v130');
   const state = await page.evaluate(() => ({
     coordinator: window.GringottsV126.coordinator.snapshot(),
     ux: window.GringottsV127.snapshot(),
     foundation: window.GringottsV128.snapshot(),
     evidence: window.GringottsV129.snapshot(),
+    hardening: window.GringottsV130.snapshot(),
     build: window.GringottsCleanRuntime.BUILD,
     primaryDestinations: document.querySelectorAll('[data-tab]').length
   }));
@@ -32,17 +33,28 @@ test('preserves the v128 typed foundation under v129 without adding a runtime, o
   });
   expect(state.evidence).toMatchObject({
     release: 'v129',
+    hostRelease: 'v130',
     automaticTelemetry: false,
     financialDataRead: false,
     persistentStoreAdded: false,
     networkImplementationAdded: false,
     observerAdded: false,
+    dispatcherOwned: true,
+    coordinatorOwned: true,
     lazyController: true
   });
-  expect(state.build.version).toBe('v129');
-  expect(state.build.runtime).toContain('v127 interaction policy');
-  expect(state.build.runtime).toContain('v128 typed portable-vault foundation');
-  expect(state.build.runtime).toContain('lazy v129 manual workflow evidence review');
+  expect(state.hardening).toMatchObject({
+    release: 'v130',
+    financialDataRead: false,
+    persistentStoreAdded: false,
+    networkImplementationAdded: false,
+    observerAdded: false,
+    serviceWorkerAdded: false
+  });
+  expect(state.build.version).toBe('v130');
+  expect(state.build.runtime).toContain('v128 UX/typed foundation');
+  expect(state.build.runtime).toContain('shared v129 workflow integration');
+  expect(state.build.runtime).toContain('v130 budget enforcement');
   expect(state.primaryDestinations).toBe(6);
 });
 
@@ -113,19 +125,19 @@ test('rejects portable-vault tampering before any restore decision', async ({ ap
   expect(message).toMatch(/integrity verification failed/i);
 });
 
-test('shows v127 and v128 shipped with v129 current in the ten-release roadmap', async ({ app }) => {
+test('shows v127 through v129 shipped with v130 current in the ten-release roadmap', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'v127–v136 Reliability Roadmap', exact: true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
-  for (const version of ['v127', 'v128']) {
+  for (const version of ['v127', 'v128', 'v129']) {
     const shipped = page.locator(`[data-roadmap-version="${version}"]`);
     await expect(shipped).toHaveAttribute('data-roadmap-status', 'shipped');
     await expect(shipped.locator('.badge')).toHaveText('Shipped');
   }
-  const current = page.locator('[data-roadmap-version="v129"]');
+  const current = page.locator('[data-roadmap-version="v130"]');
   await expect(current).toHaveAttribute('data-roadmap-status', 'current');
   await expect(current.locator('.badge')).toHaveText('Current release');
-  await expect(current.getByRole('heading', { name: 'v129 — Household Workflow Evidence Review', exact: true })).toBeVisible();
+  await expect(current.getByRole('heading', { name: 'v130 — Performance & Maintenance Hardening', exact: true })).toBeVisible();
 });
