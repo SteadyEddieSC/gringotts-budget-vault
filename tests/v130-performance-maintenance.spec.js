@@ -25,7 +25,7 @@ async function expectCoordinatorSettled(page) {
   });
 }
 
-test('publishes strict v130 budgets and a flattened active boot path', async ({ app }) => {
+test('publishes strict v130 budgets with workflow and diagnostics code outside startup', async ({ app }) => {
   const { page } = app;
   const state = await page.evaluate(() => ({
     build: window.GringottsCleanRuntime.BUILD,
@@ -40,14 +40,18 @@ test('publishes strict v130 budgets and a flattened active boot path', async ({ 
   expect(state.build.name).toBe('Performance & Maintenance Hardening');
   expect(state.script).toBe('src/boot-v130.js?v=130hardening1');
   expect(state.runtime.observerCount).toBe(1);
-  expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', 'v129', 'v130']);
-  expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-route');
-  expect(state.workflow).toMatchObject({ dispatcherOwned: true, coordinatorOwned: true, standaloneClickListener: false, standaloneRouteReadyListener: false });
+  expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', 'v130']);
+  expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v129-workflow-review-route');
+  expect(state.workflow).toMatchObject({
+    integrationLoaded: false, dispatcherOwned: false, coordinatorOwned: true,
+    registeredAsRelease: false, standaloneClickListener: false, standaloneRouteReadyListener: false
+  });
   expect(state.hardening).toMatchObject({
     release: 'v130', featureFreeze: true, memoryOnlyHistory: true, financialDataRead: false,
     persistentStoreAdded: false, networkImplementationAdded: false, observerAdded: false,
     serviceWorkerAdded: false, primaryDestinations: 6, workbookSheets: 43,
-    activeBootImportsV129: false, v129CompatibilityBootRetained: true
+    activeBootImportsV129: false, workflowIntegrationLazy: true, workflowIntegrationLoaded: false,
+    diagnosticsLazy: true, diagnosticsLoaded: false, v129CompatibilityBootRetained: true
   });
   expect(state.hardening.budgets).toMatchObject({
     routeReadyMs: 750, enhancementMs: 300, maxEnhancementPasses: 3,
@@ -55,6 +59,8 @@ test('publishes strict v130 budgets and a flattened active boot path', async ({ 
     maxNetworkRequests: 45, maxScriptBytes: 500000, maxWorkbookSheets: 43,
     maxRuntimeObservers: 1, maxPrimaryDestinations: 6, maxSessionSamples: 12
   });
+  expect(state.hardening.startupResources.networkRequests).toBeLessThanOrEqual(45);
+  expect(state.hardening.startupResources.scriptBytes).toBeLessThanOrEqual(500000);
   expect(state.primaryDestinations).toBe(6);
 });
 
@@ -86,9 +92,11 @@ test('keeps Workflow Review responsive and dispatcher-owned across repeated rout
   expect(state.lifecycle.enhancementPasses).toBeLessThanOrEqual(3);
   expect(state.lifecycle.observerCallbacks).toBeLessThanOrEqual(12);
   expect(state.actions.registered).toBeLessThanOrEqual(40);
+  expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-route');
   expect(state.actions.handlers.change.map((handler) => handler.name)).toContain('v129-workflow-review-fields');
   expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-actions');
-  expect(state.workflow.dispatcherOwned).toBe(true);
+  expect(state.workflow).toMatchObject({ integrationLoaded: true, dispatcherOwned: true, coordinatorOwned: true, registeredAsRelease: false });
+  expect(state.hardening.workflowIntegrationLoaded).toBe(true);
   expect(state.hardening.historyCount).toBeGreaterThan(0);
   expect(state.hardening.historyCount).toBeLessThanOrEqual(12);
   expect(state.storage).toEqual(storageBefore);
@@ -106,12 +114,14 @@ test('renders bounded session-only performance evidence in existing Diagnostics'
   await expect(page.getByText(/Session samples/)).toBeVisible();
   await expectCoordinatorSettled(page);
   const snapshot = await page.evaluate(() => window.GringottsV130.snapshot());
+  expect(snapshot.diagnosticsLoaded).toBe(true);
   expect(snapshot.historyCount).toBeLessThanOrEqual(snapshot.historyCap);
   expect(snapshot.current.input.runtimeObservers).toBe(1);
   expect(snapshot.current.input.primaryDestinations).toBe(6);
   expect(snapshot.current.input.workbookSheets).toBe(43);
   expect(snapshot.current.input.dispatcherOwned).toBe(true);
   expect(snapshot.current.input.coordinatorOwned).toBe(true);
+  expect(snapshot.current.evaluation?.ok).toBe(true);
 });
 
 test('keeps v130 diagnostics within a phone viewport', async ({ app }) => {
