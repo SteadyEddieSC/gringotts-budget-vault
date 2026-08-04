@@ -90,6 +90,7 @@ test('parser preflight checks inherited and current release modules plus strict 
   }
   expectAll(packageJson, ['"version": "130.0.0"', '"typecheck": "tsc -p tsconfig.json"', '"typescript": "5.9.2"']);
   expect(read('tsconfig.json')).toContain('src/v130/**/*.ts');
+  expect(read('package-lock.json')).toContain('https://registry.npmjs.org/@playwright/test/-/test-1.61.1.tgz');
   expect(workflow).toContain('npm ci --ignore-scripts');
   expect(workflow.indexOf('Run strict TypeScript and browser-free parser tests')).toBeLessThan(workflow.indexOf('Install Chromium and system dependencies'));
   expect(workflow.indexOf('Run Chromium desktop preflight')).toBeLessThan(workflow.indexOf('Install Firefox and WebKit after Chromium passes'));
@@ -223,7 +224,7 @@ test('v129 workflow evidence is manual-only, dispatcher-owned, and optional as a
   expect(compatibilityBoot).toContain('installWorkflowReviewIntegration');
 });
 
-test('v130 keeps specialist modules outside startup while enforcing unchanged budgets', () => {
+test('v130 keeps specialist modules outside startup while enforcing authoritative release metadata and unchanged budgets', () => {
   const contractsTs = read('src/v130/performance-contracts.ts');
   const contractsJs = read('src/v130/performance-contracts.js');
   const diagnostics = read('src/v130/runtime-health.js');
@@ -242,7 +243,8 @@ test('v130 keeps specialist modules outside startup while enforcing unchanged bu
     "import './boot-v128.js?v=130base2'", "import('./v129/integration.js?v=130workflow2')",
     'registerWithCoordinator:false', "import('./v130/runtime-health.js?v=130diagnostics2')",
     'workflowIntegrationLazy:true', 'diagnosticsLazy:true', 'memoryOnlyHistory:true', 'maxSessionSamples:12',
-    "runtime.coordinator.registerRelease({ id:'v130'"
+    "runtime.coordinator.registerRelease({ id:'v130'", 'function handleRouteReady(event)',
+    "document.addEventListener('gringotts:v126-route-ready', handleRouteReady)", "cacheBust:'130hardening3'"
   ]);
   expect(boot).not.toMatch(/^import .*v129\/integration|^import .*v130\/runtime-health|^import .*v130\/performance-contracts/gm);
   expect(boot).not.toContain('boot-v129');
@@ -251,7 +253,7 @@ test('v130 keeps specialist modules outside startup while enforcing unchanged bu
     noBrowserStore(source, 'v130 source');
   }
   for (const shell of [index, app]) {
-    expectAll(shell, ['Gringotts Budget Vault v130', 'src/boot-v130.js?v=130hardening2', 'styles/v106-v107.css', 'styles/v116.css']);
+    expectAll(shell, ['Gringotts Budget Vault v130', 'src/boot-v130.js?v=130hardening3', 'styles/v106-v107.css', 'styles/v116.css']);
     expect(shell).not.toContain('src/boot-v129.js');
     for (const absent of [
       'styles/v106.css', 'styles/v107.css', 'styles/v113.css', 'styles/v127.css', 'styles/v128.css',
