@@ -22,32 +22,39 @@ function generatedPrivateDetail() {
   return ['Ca', 'rd end', 'ing ', '43', '21', ' makes this difficult.'].join('');
 }
 
-test('retains v129 workflow evidence under v130 without adding a primary destination, observer, store, or telemetry', async ({ app }) => {
+test('retains v129 workflow evidence under v130 as a Tools-only lazy integration', async ({ app }) => {
   const { page } = app;
   await expect(page.locator('.version-text')).toHaveText('v130');
+  const before = await page.evaluate(() => ({ evidence:window.GringottsV129.snapshot(), hardening:window.GringottsV130.snapshot() }));
+  expect(before.evidence).toMatchObject({
+    release:'v129', hostRelease:'v130', inventoryCount:10, integrationLoaded:false,
+    automaticTelemetry:false, financialDataRead:false, persistentStoreAdded:false,
+    networkImplementationAdded:false, observerAdded:false, dispatcherOwned:false,
+    coordinatorOwned:true, registeredAsRelease:false, primaryDestinations:6, toolsSections:5, workbookSheets:43
+  });
+  expect(before.hardening.workflowIntegrationLoaded).toBe(false);
+
+  await openPrimary(page, 'Tools');
   const state = await page.evaluate(() => ({
-    coordinator: window.GringottsV126.coordinator.snapshot(),
-    ux: window.GringottsV127.snapshot(),
-    portable: window.GringottsV128.snapshot(),
-    evidence: window.GringottsV129.snapshot(),
-    hardening: window.GringottsV130.snapshot(),
-    build: window.GringottsCleanRuntime.BUILD,
-    primaryDestinations: document.querySelectorAll('[data-tab]').length
+    coordinator:window.GringottsV126.coordinator.snapshot(), ux:window.GringottsV127.snapshot(),
+    portable:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(),
+    hardening:window.GringottsV130.snapshot(), build:window.GringottsCleanRuntime.BUILD,
+    primaryDestinations:document.querySelectorAll('[data-tab]').length
   }));
   expect(state.coordinator.observerCount).toBe(1);
   expect(state.coordinator.observerOwner).toBe('v126-runtime-coordinator');
   expect(state.ux.release).toBe('v127');
   expect(state.portable.release).toBe('v128');
   expect(state.evidence).toMatchObject({
-    release: 'v129', hostRelease: 'v130', inventoryCount: 10, reviewStateCount: 0, manualReviewOnly: true,
-    automaticTelemetry: false, financialDataRead: false, persistentStoreAdded: false,
-    networkImplementationAdded: false, observerAdded: false, dispatcherOwned: true,
-    coordinatorOwned: true, standaloneClickListener: false, standaloneRouteReadyListener: false,
-    primaryDestinations: 6, toolsSections: 5, workbookSheets: 43, networkBudgetDelta: 0
+    release:'v129', hostRelease:'v130', inventoryCount:10, reviewStateCount:0, integrationLoaded:true,
+    manualReviewOnly:true, automaticTelemetry:false, financialDataRead:false, persistentStoreAdded:false,
+    networkImplementationAdded:false, observerAdded:false, dispatcherOwned:true, coordinatorOwned:true,
+    registeredAsRelease:false, standaloneClickListener:false, standaloneRouteReadyListener:false,
+    primaryDestinations:6, toolsSections:5, workbookSheets:43, networkBudgetDelta:0
   });
   expect(state.hardening.release).toBe('v130');
+  expect(state.hardening.workflowIntegrationLoaded).toBe(true);
   expect(state.build.version).toBe('v130');
-  expect(state.build.runtime).toContain('v130 budget enforcement');
   expect(state.primaryDestinations).toBe(6);
 });
 
@@ -57,7 +64,7 @@ test('records structured session-only observations without changing browser stor
   const before = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   const writes = [];
   page.on('request', (request) => {
-    if (request.method() !== 'GET' && !request.url().startsWith('blob:')) writes.push({ method: request.method(), url: request.url() });
+    if (request.method() !== 'GET' && !request.url().startsWith('blob:')) writes.push({ method:request.method(), url:request.url() });
   });
   await completeDashboardReview(page);
   await expect(page.locator('#workflowReviewSummary')).toContainText('1/10');
@@ -78,28 +85,28 @@ test('rejects likely private detail in an optional workflow observation', async 
   const note = card.locator('[data-v129-field="note"]');
   await note.fill(generatedPrivateDetail());
   await note.blur();
-  await expect(note).toHaveAttribute('aria-invalid', 'true');
+  await expect(note).toHaveAttribute('aria-invalid','true');
   await expect(card.locator('.v129-note-error')).toContainText(/workflow friction only/i);
   const snapshot = await page.evaluate(() => window.GringottsV129.snapshot());
   expect(snapshot.reviewStateCount).toBe(0);
 });
 
 test('downloads a sanitized workflow-level evidence bundle only after explicit review', async ({ app }, testInfo) => {
-  test.skip(testInfo.project.name !== 'chromium', 'One browser is sufficient for local download inspection.');
+  test.skip(testInfo.project.name !== 'chromium','One browser is sufficient for local download inspection.');
   const { page } = app;
   await openWorkflowReview(page);
   await completeDashboardReview(page);
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Download Local Review JSON', exact: true }).click()
+    page.getByRole('button',{ name:'Download Local Review JSON', exact:true }).click()
   ]);
   expect(download.suggestedFilename()).toMatch(/^Gringotts_Workflow_Review_.*\.json$/);
-  const payload = JSON.parse(await fs.readFile(await download.path(), 'utf8'));
+  const payload = JSON.parse(await fs.readFile(await download.path(),'utf8'));
   expect(payload.kind).toBe('gringotts-workflow-evidence-review');
   expect(payload.release).toBe('v129');
   expect(payload.observations).toHaveLength(1);
-  expect(payload.observations[0]).toMatchObject({ workflowId: 'dashboard-review', usage: 'essential', friction: 'low', outcome: 'successful', signal: 'works-well', disposition: 'keep' });
-  expect(payload.privacy).toEqual({ manualReviewOnly: true, automaticTelemetry: false, financialDataIncluded: false, persistentStoreUsed: false, remoteTransmission: false });
+  expect(payload.observations[0]).toMatchObject({ workflowId:'dashboard-review', usage:'essential', friction:'low', outcome:'successful', signal:'works-well', disposition:'keep' });
+  expect(payload.privacy).toEqual({ manualReviewOnly:true, automaticTelemetry:false, financialDataIncluded:false, persistentStoreUsed:false, remoteTransmission:false });
   expect(JSON.stringify(payload)).not.toMatch(/transaction_id|account_id|merchant_name|gringottsBudgetVault|transactions\s*:/i);
 });
 
@@ -120,19 +127,19 @@ test('clears the in-session review on reload', async ({ app }) => {
 
 test('shows v129 shipped and v130 current in the ten-release roadmap', async ({ app }) => {
   const { page } = app;
-  await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
+  await openPrimary(page,'Tools');
+  await page.getByRole('tab',{ name:'Roadmap', exact:true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
-  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status','shipped');
   await expect(page.locator('[data-roadmap-version="v129"] .badge')).toHaveText('Shipped');
-  await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status', 'current');
+  await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status','current');
   await expect(page.locator('[data-roadmap-version="v130"] .badge')).toHaveText('Current release');
-  await expect(page.getByRole('heading', { name: 'v130 — Performance & Maintenance Hardening', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v130 — Performance & Maintenance Hardening', exact:true })).toBeVisible();
 });
 
 test('keeps the workflow review contained on a phone viewport', async ({ app }) => {
   const { page } = app;
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width:390, height:844 });
   await openWorkflowReview(page);
   await expect(page.locator('.v129-workflow-card')).toHaveCount(10);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
