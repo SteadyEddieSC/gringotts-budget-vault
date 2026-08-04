@@ -10,16 +10,16 @@ Gringotts remains a static, local-first browser application. Cloudflare Pages se
 
 ## Data reviewed by v130
 
-The v130 runtime-health layer may observe only:
+The small startup layer may observe only:
 
 - the current primary route and secondary route identifier;
 - coordinator cycle and readiness state;
 - route-ready and enhancement durations;
 - enhancement-pass and observer-callback counts;
 - registered release and dispatcher-action counts;
-- current resource-entry request count and available script transfer/decoded sizes;
+- startup resource-entry request count and available script transfer/decoded sizes;
 - the fixed six-destination and 43-sheet release contracts;
-- whether Workflow Review is owned by the v126 dispatcher and coordinator.
+- whether Workflow Review has loaded under v126 ownership.
 
 It does not read:
 
@@ -43,15 +43,22 @@ It does not read:
 - v126 remains the only live route coordinator.
 - v126 remains the only specialist capture-action dispatcher.
 - v126 remains the only live `MutationObserver` owner.
-- v129 Workflow Review route, field, and action handlers are registered through those owners.
 - v130 registers one coordinator enhancer and one passive route-ready measurement listener; it creates no observer and does not mutate DOM from the route-ready listener.
-- Diagnostics DOM updates are idempotent and occur only through the coordinator enhancement pass.
+- When Tools first opens, the shared v129 integration loads and registers Workflow Review route, field, and action handlers through the v126 owners.
+- In active v130, v129 is not registered as a second coordinator enhancer; the v130 enhancer invokes its idempotent route integration.
+- When Diagnostics opens, the evaluator and renderer load and update the Diagnostics DOM only through the coordinator enhancement pass.
 
-## Boot-chain change
+## Startup loading boundary
 
-The v130 production entry imports `boot-v128.js` directly, installs the shared v129 integration, and installs v130 runtime health. `boot-v129.js` remains as a compatibility entry but is not loaded by the v130 shells.
+The v130 production entry statically imports `boot-v128.js` only. It does not statically import the v129 integration, the v130 Diagnostics renderer, or the performance evaluator.
 
-This reduces one active wrapper while preserving the established v126 runtime and v127/v128 policies. It does not introduce a second runtime or a framework.
+- Workflow Review integration loads only on Tools.
+- Diagnostics and evaluation code load only on Diagnostics.
+- `boot-v129.js` remains as a compatibility entry but is not loaded by the v130 shells.
+
+The first v130 Lighthouse run measured 48 requests and 512,645 script bytes. The release corrected the loading boundary rather than weakening the protected ceilings of 45 requests and 500,000 script bytes.
+
+This preserves the established v126 runtime and v127/v128 policies without introducing a second runtime, framework, or persistent cache.
 
 ## Budget controls
 
@@ -70,7 +77,7 @@ Protected contracts retain:
 - 6 primary destinations;
 - 12 memory-only runtime samples.
 
-Lighthouse remains authoritative for request and script-byte enforcement.
+Lighthouse remains authoritative for startup request and script-byte enforcement.
 
 ## Financial-write safety
 
@@ -103,4 +110,4 @@ The release preserves:
 
 ## Security conclusion
 
-v130 reduces rather than expands the attack and maintenance surface. It centralizes Workflow Review interaction under existing runtime owners, removes one active boot-wrapper hop, adds bounded memory-only diagnostics, and preserves all financial-data, storage, recovery, CSP, supply-chain, and exact-head promotion boundaries.
+v130 reduces rather than expands the attack and maintenance surface. It centralizes Workflow Review interaction under existing runtime owners, keeps specialist code outside startup, removes one active boot-wrapper hop, adds bounded memory-only diagnostics, and preserves all financial-data, storage, recovery, CSP, supply-chain, and exact-head promotion boundaries.
