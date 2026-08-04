@@ -23,9 +23,10 @@ The release provides:
 
 - strict TypeScript contracts for route-ready, enhancement, observer, action, request, script-byte, workbook, runtime-owner, destination, and session-history budgets;
 - a pure evaluator that reports every exceeded budget without reading financial data or changing browser state;
-- Workflow Review navigation and actions owned by the established v126 coordinator and dispatcher;
-- a flattened production boot that imports v128 directly while retaining the v129 compatibility entry;
-- bounded memory-only runtime evidence in **Tools → Diagnostics**;
+- a startup-light production entry that loads the established v128/v126 shell first;
+- Workflow Review code loaded only when Tools opens, then owned by the v126 coordinator and dispatcher;
+- the evaluator and Performance & Maintenance Diagnostics renderer loaded only when Diagnostics opens;
+- bounded memory-only route evidence collected by the small v130 coordinator enhancer;
 - repeated-route settlement tests that guard against mutation feedback loops and detached click targets;
 - unchanged Lighthouse ceilings of 45 requests and 500,000 script bytes.
 
@@ -35,6 +36,7 @@ The release provides:
 - v127 remains the retained UX and accessibility policy.
 - v128 remains the strict typed portable-vault foundation.
 - v129 remains the manual, session-only Workflow Review and sanitized local export.
+- `boot-v129.js` remains a compatibility entry but is not part of the v130 production startup chain.
 - v130 adds no second runtime, observer, backend, service worker, analytics endpoint, or persistent store.
 - The application retains six primary destinations and the Vault Workbook remains capped at **43 sheets**.
 
