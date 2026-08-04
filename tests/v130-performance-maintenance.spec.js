@@ -18,10 +18,7 @@ async function expectCoordinatorSettled(page) {
       sameCallbacks: first.observerCallbacks === second.observerCallbacks
     };
   }, { timeout: 10000, message: 'the current route should stop producing enhancement or observer work' }).toEqual({
-    ready: true,
-    sameCycle: true,
-    samePasses: true,
-    sameCallbacks: true
+    ready: true, sameCycle: true, samePasses: true, sameCallbacks: true
   });
 }
 
@@ -38,7 +35,7 @@ test('publishes strict v130 budgets with workflow and diagnostics code outside s
   }));
   expect(state.build.version).toBe('v130');
   expect(state.build.name).toBe('Performance & Maintenance Hardening');
-  expect(state.script).toBe('src/boot-v130.js?v=130hardening1');
+  expect(state.script).toBe('src/boot-v130.js?v=130hardening2');
   expect(state.runtime.observerCount).toBe(1);
   expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', 'v130']);
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v129-workflow-review-route');
