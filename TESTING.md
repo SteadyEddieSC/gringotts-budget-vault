@@ -1,23 +1,30 @@
 # Testing Gringotts Budget Vault
 
-All automated data is synthetic. Do not commit real bank exports, vault backups, planning metadata, filled workbooks, generated household reports, or screenshots containing financial data.
+All automated data is synthetic. Do not commit real bank exports, vault backups, planning metadata, filled workbooks, generated household reports, completed real household Workflow Review files, Decision Gate records, or screenshots containing financial data.
 
-## v130 focus
+## v131 focus
 
-The v130 matrix verifies:
+The v131 matrix verifies:
 
-- strict TypeScript performance contracts preserve the existing route, enhancement, observer, action, request, script-byte, destination, and workbook ceilings;
-- malformed, negative, or non-finite measurements are rejected;
-- the Dashboard startup path loads v128 plus the small v130 boot without preloading Workflow Review, Diagnostics, or the performance evaluator;
-- Workflow Review loads only when Tools opens, then route, field, and action handling are owned by the v126 coordinator and dispatcher;
-- the performance evaluator and v130 Diagnostics renderer load only when Diagnostics opens;
-- the active production boot skips the v129 wrapper while retaining a v129 compatibility entry;
-- repeated Workflow Review, Roadmap, Diagnostics, and primary-route transitions settle without continued route cycles, enhancement passes, or observer callbacks;
-- performance history is memory-only, bounded to 12 samples, and cleared by reload;
-- performance evidence does not inspect financial data or write browser storage;
+- strict TypeScript decision states, runtime ownership checks, and privacy-filtered rationale contracts;
+- workflow-review imports validate kind, version, inventory version, privacy declarations, known unique workflow IDs, and recomputed summary consistency;
+- incomplete workflow evidence remains `evidence-incomplete` even when runtime health passes;
+- complete workflow evidence remains `runtime-blocked` when current v130 maintenance evidence fails;
+- complete evidence plus healthy runtime reaches `decision-ready` but does not select a disposition automatically;
+- `hold` preserves the feature freeze;
+- `maintenance-only` requires recorded friction or consolidation evidence plus a workflow-only rationale;
+- `candidate-proposal` requires an unmet-need or unclear-outcome signal plus a workflow-only rationale and permits a later proposal only;
+- likely amounts, account, card, transaction, merchant, balance, and contact details are rejected from rationale;
+- exported decision records contain no financial rows or raw workflow observations and explicitly declare no automatic approval;
+- the Dashboard startup path loads v128 plus the small v131 boot without preloading Workflow Review, Decision Gate integration, Decision Gate UI, decision contracts, Diagnostics, or the performance evaluator;
+- Workflow Review and Decision Gate integration load only when Tools opens and use the v126 coordinator and dispatcher;
+- Decision Gate UI and model load only when Decision Gate opens;
+- repeated Decision Gate, Workflow Review, Roadmap, Diagnostics, and primary-route transitions settle without continued route cycles, enhancement passes, or observer callbacks;
+- imported evidence and disposition remain memory-only and are cleared by reload;
+- Decision Gate does not inspect financial data or write browser storage;
 - one live observer remains owned by v126 and no service worker is registered;
 - Lighthouse remains capped at 45 startup requests and 500,000 startup script bytes;
-- the workbook contains exactly 43 sheets;
+- the workbook contains exactly 43 sheets and the application retains six primary destinations;
 - v105 rescue, guarded import, separate Full Vault Restore, backup-first broad writes, and immutable close history remain intact.
 
 ## Local commands
@@ -33,4 +40,4 @@ npm run test:quality
 
 The protected matrix additionally runs desktop Firefox and WebKit, Android Chromium, iPad WebKit, iPhone WebKit, Lighthouse, privacy and secret scans, dependency review, npm audit, supply-chain checks, CodeQL, exact-head Cloudflare preview, and production smoke after merge.
 
-Do not extend timeouts or relax Lighthouse budgets to conceal route-lifecycle, observer, action-ownership, mutation-settlement, startup-size, or readiness defects. Inspect the exact-head artifact and correct the ownership, idempotence, or loading-boundary failure instead.
+Do not extend timeouts, relax Lighthouse budgets, weaken workflow-review validation, or bypass closed-default states to conceal route-lifecycle, observer, action-ownership, mutation-settlement, startup-size, evidence-quality, or readiness defects. Inspect the exact-head artifact and correct the ownership, idempotence, loading boundary, or decision contract instead.
