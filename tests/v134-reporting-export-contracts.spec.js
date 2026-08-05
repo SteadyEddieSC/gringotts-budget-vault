@@ -75,14 +75,14 @@ test('dispatches the established Decision Gate record through the same executor 
     mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify(bundle))
   });
-  await expect.poll(() => page.evaluate(() => window.GringottsV131.controller.snapshot())).toMatchObject({
+  await expect.poll(() => page.evaluate(() => window.GringottsV131.snapshot())).toMatchObject({
     reviewLoaded:true,
     completeCount:WORKFLOW_INVENTORY.length,
     state:'decision-ready'
   });
 
   await page.locator('#v131DecisionDisposition').selectOption('hold');
-  await expect.poll(() => page.evaluate(() => window.GringottsV131.controller.snapshot().state)).toBe('hold');
+  await expect.poll(() => page.evaluate(() => window.GringottsV131.snapshot().state)).toBe('hold');
   await expect(page.locator('#v131DownloadDecision')).toBeEnabled();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
