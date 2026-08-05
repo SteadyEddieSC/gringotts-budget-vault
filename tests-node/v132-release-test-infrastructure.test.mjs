@@ -17,8 +17,9 @@ test('retains the shipped v132 compatibility entry as a manifest-only re-export'
   assert.equal(validateCurrentReleaseManifest(), true);
   assert.ok(CURRENT_RELEASE.number > 132);
   const compatibilityBoot = read('src/boot-v132.js');
-  assert.equal(withoutBlockComments(compatibilityBoot), "export * from './release-manifest.js';");
-  assert.doesNotMatch(compatibilityBoot, /registerRelease|MutationObserver|localStorage|sessionStorage|fetch\s*\(/);
+  const executable = withoutBlockComments(compatibilityBoot);
+  assert.equal(executable, "export * from './release-manifest.js';");
+  assert.doesNotMatch(executable, /registerRelease|MutationObserver|localStorage|sessionStorage|fetch\s*\(/);
 });
 
 test('retains the v132 release record and marks it shipped in the maintained roadmap', () => {
@@ -30,13 +31,13 @@ test('retains the v132 release record and marks it shipped in the maintained roa
   assert.match(source, /version: 'v132', status: 'shipped', title: 'Release & Test Infrastructure Simplification'/);
 });
 
-test('keeps the v132 infrastructure documentation explicit about unchanged safety gates', () => {
+test('keeps the historical v132 release record explicit about preserved architecture and validation', () => {
   const security = read('V132_SECURITY_REVIEW.md');
   const notes = read('RELEASE_NOTES_v132_RELEASE_TEST_INFRASTRUCTURE_SIMPLIFICATION.md');
-  for (const source of [security, notes]) {
-    assert.match(source, /45/);
-    assert.match(source, /500,000/);
-    assert.match(source, /43/);
-    assert.doesNotMatch(source, /automatic financial action is added/i);
-  }
+  assert.match(`${security}\n${notes}`, /45/);
+  assert.match(`${security}\n${notes}`, /500,000/);
+  assert.match(`${security}\n${notes}`, /43/);
+  assert.match(notes, /exact final head/i);
+  assert.match(security, /does not expand the household-finance attack surface/i);
+  assert.doesNotMatch(`${security}\n${notes}`, /automatic financial action is added/i);
 });
