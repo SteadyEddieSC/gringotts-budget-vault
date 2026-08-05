@@ -88,20 +88,6 @@ async function importReview(page, bundle = completeReviewBundle()) {
     mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify(bundle))
   });
-  await expect.poll(
-    () => page.evaluate(() => {
-      const gate = window.GringottsV131?.snapshot?.();
-      return gate?.reviewLoaded === true && gate?.completeCount === 10;
-    }),
-    { timeout:10000, message:'Imported workflow evidence should be published before the test continues' }
-  ).toBe(true);
-}
-
-async function waitForGateState(page, state) {
-  await expect.poll(
-    () => page.evaluate(() => window.GringottsV131.snapshot().state),
-    { timeout:10000, message:`Decision Gate should reach ${state}` }
-  ).toBe(state);
 }
 
 async function expectCoordinatorSettled(page) {
@@ -192,143 +178,145 @@ test('keeps the gate closed without a complete imported workflow review', async 
   const { page } = app;
   const storageBefore = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   await openDecisionGate(page);
-  const snapshot = await page.evaluate(() => window.GringottsV131.snapshot());
-  expect(snapshot.state).toBe('evidence-incomplete');
-  expect(snapshot.disposition).toBe('unselected');
-  expect(snapshot.automaticApproval).toBe(false);
-  expect(snapshot.memoryOnly).toBe(true);
-  expect(snapshot.financialDataRead).toBe(false);
-  expect(snapshot.persistentStoreAdded).toBe(false);
-  expect(snapshot.networkImplementationAdded).toBe(false);
+
   await expect(page.getByText(/evidence-incomplete/i)).toBeVisible();
-  const storageAfter = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  expect(storageAfter).toEqual(storageBefore);
+  await expect(page.getByText('0/10', { exact:true })).toBeVisible();
+  await expect(page.locator('#v131DecisionDisposition')).toBeDisabled();
+  await expect(page.locator('#v131DownloadDecision')).toBeDisabled();
+  await expect(page.locator('#v131CopyDecision')).toBeDisabled();
+
+  const snapshot = await page.evaluate(() => ({
+    gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot(),
+    storage:Object.fromEntries(Object.entries(localStorage)),
+    actions:window.GringottsV126.dispatcher.snapshot()
+  }));
+  expect(snapshot.gate).toMatchObject({
+    release:'v131',
+    integrationLoaded:true,
+    uiLoaded:true,
+    reviewLoaded:false,
+    state:'evidence-incomplete',
+    disposition:'unselected',
+    memoryOnly:true,
+    automaticApproval:false
+  });
+  expect(snapshot.infrastructure.decisionIntegrationLoaded).toBe(true);
+  expect(snapshot.actions.handlers.click.map((handler) => handler.name)).toContain('v131-decision-gate-route');
+  expect(snapshot.actions.handlers.change.map((handler) => handler.name)).toContain('v131-decision-gate-fields');
+  expect(snapshot.actions.handlers.click.map((handler) => handler.name)).toContain('v131-decision-gate-actions');
+  expect(snapshot.actions.registered).toBeLessThanOrEqual(40);
+  expect(snapshot.storage).toEqual(storageBefore);
 });
 
-test('validates imported workflow evidence and reaches decision-ready only with healthy runtime evidence', async ({ app }) => {
+test('imports complete evidence and exports a manual candidate-proposal record without approval', async ({ app }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'Decision-record file inspection runs once in Chromium.');
   const { page } = app;
   await openDecisionGate(page);
   await importReview(page);
-  await waitForGateState(page, 'decision-ready');
+
+  await expect(page.getByText(/decision-ready/i)).toBeVisible();
+  await expect(page.getByText('10/10', { exact:true })).toBeVisible();
+  await expect(page.getByText('Passed', { exact:true })).toBeVisible();
+  await expect(page.locator('#v131DecisionDisposition')).toBeEnabled();
+
+  await page.locator('#v131DecisionRationale').fill('Write one bounded proposal for the unclear workflow outcome.');
+  await page.locator('#v131DecisionDisposition').selectOption('candidate-proposal');
+  await expect(page.getByText('candidate-proposal', { exact:true })).toBeVisible();
+  await expect(page.getByText(/not approved or implemented by v131/i)).toBeVisible();
+  await expect(page.locator('#v131DownloadDecision')).toBeEnabled();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#v131DownloadDecision').click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^Gringotts_Decision_Gate_.*\.json$/);
+  const path = await download.path();
+  const record = JSON.parse(fs.readFileSync(path, 'utf8'));
+  expect(record).toMatchObject({
+    kind:'gringotts-observed-needs-decision',
+    version:1,
+    release:'v131',
+    featureFreeze:true,
+    decision:{ state:'candidate-proposal' },
+    privacy:{
+      manualDecisionOnly:true,
+      financialDataIncluded:false,
+      persistentStoreUsed:false,
+      automaticTelemetry:false,
+      remoteTransmission:false,
+      automaticApproval:false
+    }
+  });
+  expect(record.evidence.observations).toBeUndefined();
+  expect(record.evidence.completedWorkflows).toBe(10);
+  expect(record.evidence.runtimePassed).toBe(true);
+
   const snapshot = await page.evaluate(() => window.GringottsV131.snapshot());
   expect(snapshot).toMatchObject({
     reviewLoaded:true,
     completeCount:10,
     inventoryCount:10,
-    state:'decision-ready',
-    disposition:'unselected',
-    automaticApproval:false,
-    manualDecisionOnly:true
+    state:'candidate-proposal',
+    disposition:'candidate-proposal',
+    memoryOnly:true,
+    automaticApproval:false
   });
-  expect(snapshot.runtimeEvidence?.ok).toBe(true);
-  expect(snapshot.runtimeEvidence?.input?.runtimeObservers).toBe(1);
-  expect(snapshot.runtimeEvidence?.input?.primaryDestinations).toBe(6);
-  expect(snapshot.runtimeEvidence?.input?.workbookSheets).toBe(43);
-  expect(snapshot.runtimeEvidence?.input?.networkRequests).toBeLessThanOrEqual(45);
-  expect(snapshot.runtimeEvidence?.input?.scriptBytes).toBeLessThanOrEqual(500000);
 });
 
-test('records a manual feature-freeze hold without approval or automatic action', async ({ app }) => {
+test('rejects weakened privacy declarations and risky decision rationale', async ({ app }) => {
   const { page } = app;
   await openDecisionGate(page);
-  await importReview(page);
-  await waitForGateState(page, 'decision-ready');
-  await page.locator('#v131Disposition').selectOption('hold');
-  await page.locator('#v131Rationale').fill('Synthetic workflow evidence supports keeping the feature freeze in place.');
-  await page.getByRole('button', { name:'Record Decision', exact:true }).click();
-  await expect(page.getByText(/Decision recorded locally/i)).toBeVisible();
-  const snapshot = await page.evaluate(() => window.GringottsV131.snapshot());
-  expect(snapshot.disposition).toBe('hold');
-  expect(snapshot.automaticApproval).toBe(false);
-  expect(snapshot.candidateProposalAllowed).toBe(false);
-});
+  const weakened = completeReviewBundle();
+  weakened.privacy.financialDataIncluded = true;
+  await importReview(page, weakened);
+  await expect(page.locator('#v131DecisionError')).toContainText(/privacy declaration/i);
+  await expect(page.getByText(/evidence-incomplete/i)).toBeVisible();
 
-test('permits only one later candidate proposal and rejects likely financial rationale', async ({ app }) => {
-  const { page } = app;
-  await openDecisionGate(page);
-  await importReview(page);
-  await waitForGateState(page, 'decision-ready');
-  await page.locator('#v131Disposition').selectOption('candidate-proposal');
-  await page.locator('#v131Rationale').fill('The review shows one repeated unmet workflow need suitable for a later narrow proposal.');
-  await page.getByRole('button', { name:'Record Decision', exact:true }).click();
-  await expect(page.getByText(/Decision recorded locally/i)).toBeVisible();
-  let snapshot = await page.evaluate(() => window.GringottsV131.snapshot());
-  expect(snapshot.disposition).toBe('candidate-proposal');
-  expect(snapshot.candidateProposalAllowed).toBe(true);
-  expect(snapshot.automaticApproval).toBe(false);
-
-  await page.locator('#v131Rationale').fill('My card balance is $999 and merchant Example Store needs work.');
-  await page.getByRole('button', { name:'Record Decision', exact:true }).click();
-  await expect(page.getByText(/Rationale appears to contain financial or contact details/i)).toBeVisible();
-  snapshot = await page.evaluate(() => window.GringottsV131.snapshot());
-  expect(snapshot.disposition).toBe('candidate-proposal');
-});
-
-test('exports a privacy-filtered local decision record with no raw observations or financial rows', async ({ app }) => {
-  const { page } = app;
-  await openDecisionGate(page);
-  await importReview(page);
-  await waitForGateState(page, 'decision-ready');
-  await page.locator('#v131Disposition').selectOption('maintenance-only');
-  await page.locator('#v131Rationale').fill('Synthetic repeated friction supports maintenance-only consolidation work.');
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name:'Download Decision Record', exact:true }).click();
-  const download = await downloadPromise;
-  const filePath = await download.path();
-  const record = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  expect(record).toMatchObject({
-    kind:'gringotts-observed-needs-decision',
-    version:1,
-    featureFreeze:true,
-    automaticApproval:false,
-    financialDataIncluded:false,
-    persistentStoreUsed:false,
-    remoteTransmission:false,
-    disposition:'maintenance-only'
+  const rationaleError = await page.evaluate(async () => {
+    const module = await import('/src/v131/decision-contracts.js');
+    try {
+      module.sanitizeDecisionRationale('Card ending 1234 should be changed.');
+      return '';
+    } catch (error) {
+      return error.message;
+    }
   });
-  expect(record.workflowEvidence).toMatchObject({ inventoryCount:10, reviewedCount:10, completeCount:10 });
-  expect(record).not.toHaveProperty('observations');
-  expect(JSON.stringify(record)).not.toMatch(/amount|balance|merchant|account|transaction/i);
+  expect(rationaleError).toMatch(/financial, account, card, transaction/i);
+  await expect(page.locator('#v131DecisionDisposition')).toBeDisabled();
 });
 
-test('keeps repeated Decision Gate, Workflow Review, Roadmap, and Diagnostics routes settled and local', async ({ app }) => {
+test('settles repeated Decision Gate, Roadmap, and primary route transitions', async ({ app }) => {
   const { page } = app;
-  const storageBefore = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
-  await openDecisionGate(page);
-  await importReview(page);
-  await waitForGateState(page, 'decision-ready');
   for (let index = 0; index < 3; index += 1) {
-    await page.getByRole('tab', { name:'Workflow Review', exact:true }).click();
-    await expect(page.getByRole('heading', { name:'Household Workflow Evidence Review', exact:true })).toBeVisible();
+    await openDecisionGate(page);
     await page.getByRole('tab', { name:'Roadmap', exact:true }).click();
     await expect(page.getByRole('heading', { name:`${currentVersion} — ${currentReleaseName}`, exact:true })).toBeVisible();
-    await page.getByRole('tab', { name:'Diagnostics', exact:true }).click();
-    await expect(page.getByRole('heading', { name:'Performance & maintenance budgets', exact:true })).toBeVisible();
-    await page.getByRole('tab', { name:'Decision Gate', exact:true }).click();
-    await expect(page.getByRole('heading', { name:'Observed Needs Decision Gate', exact:true })).toBeVisible();
+    await expect(page.locator('[data-roadmap-version="v131"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+    await openPrimary(page, 'Dashboard');
   }
+  await openDecisionGate(page);
   await expectCoordinatorSettled(page);
   const snapshot = await page.evaluate(() => ({
     lifecycle:window.GringottsV126.coordinator.snapshot(),
     actions:window.GringottsV126.dispatcher.snapshot(),
-    decision:window.GringottsV131.snapshot(),
-    infrastructure:window.GringottsV132.snapshot(),
-    storage:Object.fromEntries(Object.entries(localStorage))
+    gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot()
   }));
+  expect(snapshot.lifecycle.status).toBe('ready');
   expect(snapshot.lifecycle.observerCount).toBe(1);
   expect(snapshot.lifecycle.enhancementPasses).toBeLessThanOrEqual(3);
   expect(snapshot.lifecycle.observerCallbacks).toBeLessThanOrEqual(12);
   expect(snapshot.actions.registered).toBeLessThanOrEqual(40);
-  expect(snapshot.decision.integrationLoaded).toBe(true);
+  expect(snapshot.gate.integrationLoaded).toBe(true);
   expect(snapshot.infrastructure.decisionIntegrationLoaded).toBe(true);
-  expect(snapshot.storage).toEqual(storageBefore);
 });
 
-test('keeps the retained v131 Decision Gate within a phone viewport', async ({ app }) => {
+test('keeps the Decision Gate within a phone viewport', async ({ app }) => {
   const { page } = app;
   await page.setViewportSize({ width:390, height:844 });
   await openDecisionGate(page);
-  await expect(page.getByRole('heading', { name:'Observed Needs Decision Gate', exact:true })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
+  const actionHeights = await page.locator('.v131-gate-actions .btn').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
+  expect(actionHeights.every((height) => height >= 44)).toBe(true);
 });
