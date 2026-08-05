@@ -99,58 +99,22 @@ function handleRouteReady(event) {
 
 function placeholderWorkflowSnapshot() {
   return {
-    release:'v129',
-    hostRelease:RELEASE.version,
-    inventoryCount:10,
-    reviewStateCount:0,
-    reviewedCount:0,
-    completeCount:0,
-    integrationLoaded:false,
-    manualReviewOnly:true,
-    automaticTelemetry:false,
-    financialDataRead:false,
-    persistentStoreAdded:false,
-    networkImplementationAdded:false,
-    observerAdded:false,
-    dispatcherOwned:false,
-    coordinatorOwned:true,
-    registeredAsRelease:false,
-    standaloneClickListener:false,
-    standaloneRouteReadyListener:false,
-    primaryDestinations:RELEASE.primaryDestinations,
-    toolsSections:RELEASE.toolsSections,
-    workbookSheets:RELEASE.workbookSheets,
-    networkBudgetDelta:0,
-    lazyController:true
+    release:'v129', hostRelease:RELEASE.version, inventoryCount:10, reviewStateCount:0, reviewedCount:0, completeCount:0,
+    integrationLoaded:false, manualReviewOnly:true, automaticTelemetry:false, financialDataRead:false, persistentStoreAdded:false,
+    networkImplementationAdded:false, observerAdded:false, dispatcherOwned:false, coordinatorOwned:true, registeredAsRelease:false,
+    standaloneClickListener:false, standaloneRouteReadyListener:false, primaryDestinations:RELEASE.primaryDestinations,
+    toolsSections:RELEASE.toolsSections, workbookSheets:RELEASE.workbookSheets, networkBudgetDelta:0, lazyController:true
   };
 }
 
 function placeholderDecisionSnapshot() {
   return {
-    release:'v131',
-    hostRelease:RELEASE.version,
-    name:'Observed Needs Decision Gate',
-    featureFreeze:true,
-    reviewLoaded:false,
-    completeCount:0,
-    inventoryCount:10,
-    state:'evidence-incomplete',
-    disposition:'unselected',
-    integrationLoaded:false,
-    uiLoaded:false,
-    manualDecisionOnly:true,
-    automaticApproval:false,
-    financialDataRead:false,
-    persistentStoreAdded:false,
-    networkImplementationAdded:false,
-    observerAdded:false,
-    serviceWorkerAdded:false,
-    primaryDestinations:RELEASE.primaryDestinations,
-    toolsSections:RELEASE.toolsSections,
-    workbookSheets:RELEASE.workbookSheets,
-    integrationLazy:true,
-    uiLazy:true,
-    memoryOnly:true
+    release:'v131', hostRelease:RELEASE.version, name:'Observed Needs Decision Gate', featureFreeze:true,
+    reviewLoaded:false, completeCount:0, inventoryCount:10, state:'evidence-incomplete', disposition:'unselected',
+    integrationLoaded:false, uiLoaded:false, manualDecisionOnly:true, automaticApproval:false, financialDataRead:false,
+    persistentStoreAdded:false, networkImplementationAdded:false, observerAdded:false, serviceWorkerAdded:false,
+    primaryDestinations:RELEASE.primaryDestinations, toolsSections:RELEASE.toolsSections, workbookSheets:RELEASE.workbookSheets,
+    integrationLazy:true, uiLazy:true, memoryOnly:true
   };
 }
 
@@ -193,77 +157,37 @@ async function enhanceV132(root, routeContext = {}) {
     if (state.decisionIntegrationLoaded && decisionModule) await decisionModule.enhanceDecisionGateIntegration(root, routeContext);
   }
   if (routeContext.route === 'tools' && routeContext.subroute === 'diagnostics') await loadDiagnostics(root, routeContext);
+  updateMetadata();
 }
 
 function performanceSnapshot() {
   const lifecycle = runtime?.coordinator?.snapshot?.() || {};
   return {
-    release:'v130',
-    hostRelease:RELEASE.version,
-    name:'Performance & Maintenance Hardening',
-    featureFreeze:true,
-    current:{
-      route:lifecycle.route || 'dashboard',
-      subroute:lifecycle.subroute || '',
-      status:lifecycle.status || 'unknown',
-      input:currentInput(lifecycle),
-      evaluation:state.lastEvaluation
-    },
-    history:state.history.map((entry) => ({ ...entry })),
-    historyCount:state.history.length,
-    historyCap:BUDGETS.maxSessionSamples,
-    memoryOnlyHistory:true,
-    financialDataRead:false,
-    persistentStoreAdded:false,
-    networkImplementationAdded:false,
-    observerAdded:false,
-    serviceWorkerAdded:false,
-    primaryDestinations:RELEASE.primaryDestinations,
-    workbookSheets:RELEASE.workbookSheets,
-    activeBootImportsV129:false,
-    workflowIntegrationLazy:true,
-    workflowIntegrationLoaded:state.workflowLoaded,
-    diagnosticsLazy:true,
-    diagnosticsLoaded:state.diagnosticsLoaded,
-    v129CompatibilityBootRetained:true,
-    dispatcherOwnedWorkflowReview:window.GringottsV129?.dispatcherOwned === true,
-    coordinatorOwnedWorkflowReview:true,
-    budgets:{ ...BUDGETS },
-    startupResources:{ ...(state.startupResources || {}) }
+    release:'v130', hostRelease:RELEASE.version, name:'Performance & Maintenance Hardening', featureFreeze:true,
+    current:{ route:lifecycle.route || 'dashboard', subroute:lifecycle.subroute || '', status:lifecycle.status || 'unknown', input:currentInput(lifecycle), evaluation:state.lastEvaluation },
+    history:state.history.map((entry) => ({ ...entry })), historyCount:state.history.length, historyCap:BUDGETS.maxSessionSamples,
+    memoryOnlyHistory:true, financialDataRead:false, persistentStoreAdded:false, networkImplementationAdded:false,
+    observerAdded:false, serviceWorkerAdded:false, primaryDestinations:RELEASE.primaryDestinations, workbookSheets:RELEASE.workbookSheets,
+    activeBootImportsV129:false, workflowIntegrationLazy:true, workflowIntegrationLoaded:state.workflowLoaded,
+    diagnosticsLazy:true, diagnosticsLoaded:state.diagnosticsLoaded, v129CompatibilityBootRetained:true,
+    dispatcherOwnedWorkflowReview:window.GringottsV129?.dispatcherOwned === true, coordinatorOwnedWorkflowReview:true,
+    budgets:{ ...BUDGETS }, startupResources:{ ...(state.startupResources || {}) }
   };
 }
 
 function infrastructureSnapshot() {
   const gate = decisionModule?.decisionGateSnapshot?.() || placeholderDecisionSnapshot();
   return {
-    release:RELEASE.version,
-    name:RELEASE.name,
-    featureFreeze:RELEASE.featureFreeze,
-    manifestVersion:RELEASE.version,
-    packageVersion:RELEASE.packageVersion,
-    bootSpecifier:RELEASE.bootSpecifier,
-    currentTitle:CURRENT_RELEASE_TITLE,
-    centralizedReleaseManifest:true,
-    centralizedVersionAssertions:true,
-    versionlessShellTitles:true,
-    decisionGate:gate,
-    decisionIntegrationLoaded:state.decisionIntegrationLoaded,
-    workflowIntegrationLoaded:state.workflowLoaded,
-    diagnosticsLoaded:state.diagnosticsLoaded,
-    runtimeEvidenceRelease:RELEASE.runtimeEvidenceRelease,
-    activeBootImportsV131:false,
-    activeBootImportsV130:false,
-    activeBootImportsV129:false,
-    startupLight:true,
-    financialDataRead:false,
-    persistentStoreAdded:false,
-    networkImplementationAdded:false,
-    observerAdded:false,
-    serviceWorkerAdded:false,
-    primaryDestinations:RELEASE.primaryDestinations,
-    toolsSections:RELEASE.toolsSections,
-    workbookSheets:RELEASE.workbookSheets,
-    budgets:{ ...BUDGETS }
+    release:RELEASE.version, name:RELEASE.name, featureFreeze:RELEASE.featureFreeze,
+    manifestVersion:RELEASE.version, packageVersion:RELEASE.packageVersion, bootSpecifier:RELEASE.bootSpecifier,
+    currentTitle:CURRENT_RELEASE_TITLE, centralizedReleaseManifest:true, centralizedVersionAssertions:true,
+    versionlessShellTitles:true, decisionGate:gate, decisionIntegrationLoaded:state.decisionIntegrationLoaded,
+    workflowIntegrationLoaded:state.workflowLoaded, diagnosticsLoaded:state.diagnosticsLoaded,
+    runtimeEvidenceRelease:RELEASE.runtimeEvidenceRelease, activeBootImportsV131:false, activeBootImportsV130:false,
+    activeBootImportsV129:false, startupLight:true, financialDataRead:false, persistentStoreAdded:false,
+    networkImplementationAdded:false, observerAdded:false, serviceWorkerAdded:false,
+    primaryDestinations:RELEASE.primaryDestinations, toolsSections:RELEASE.toolsSections,
+    workbookSheets:RELEASE.workbookSheets, budgets:{ ...BUDGETS }
   };
 }
 
@@ -273,37 +197,19 @@ async function start() {
   document.addEventListener('gringotts:v126-route-ready', handleRouteReady);
   runtime.coordinator.registerRelease({ id:RELEASE.version, title:RELEASE.name, order:RELEASE.number, enhance:enhanceV132 });
   Object.assign(window.GringottsV130 || (window.GringottsV130 = {}), {
-    release:'v130',
-    hostRelease:RELEASE.version,
-    name:'Performance & Maintenance Hardening',
-    featureFreeze:true,
-    memoryOnlyHistory:true,
-    financialDataRead:false,
-    persistentStoreAdded:false,
-    networkImplementationAdded:false,
-    observerAdded:false,
-    serviceWorkerAdded:false,
-    primaryDestinations:RELEASE.primaryDestinations,
-    workbookSheets:RELEASE.workbookSheets,
-    budgets:BUDGETS,
+    release:'v130', hostRelease:RELEASE.version, name:'Performance & Maintenance Hardening', featureFreeze:true,
+    memoryOnlyHistory:true, financialDataRead:false, persistentStoreAdded:false, networkImplementationAdded:false,
+    observerAdded:false, serviceWorkerAdded:false, primaryDestinations:RELEASE.primaryDestinations,
+    workbookSheets:RELEASE.workbookSheets, budgets:BUDGETS,
     evaluate:(input) => import(`./v130/performance-contracts.js?v=${RELEASE.assets.evaluator}`).then((module) => module.evaluatePerformanceBudget(input)),
     snapshot:performanceSnapshot
   });
   Object.assign(window.GringottsV132 || (window.GringottsV132 = {}), {
-    release:RELEASE.version,
-    name:RELEASE.name,
-    featureFreeze:RELEASE.featureFreeze,
-    centralizedReleaseManifest:true,
-    centralizedVersionAssertions:true,
-    financialDataRead:false,
-    persistentStoreAdded:false,
-    networkImplementationAdded:false,
-    observerAdded:false,
-    serviceWorkerAdded:false,
-    primaryDestinations:RELEASE.primaryDestinations,
-    toolsSections:RELEASE.toolsSections,
-    workbookSheets:RELEASE.workbookSheets,
-    snapshot:infrastructureSnapshot
+    release:RELEASE.version, name:RELEASE.name, featureFreeze:RELEASE.featureFreeze,
+    centralizedReleaseManifest:true, centralizedVersionAssertions:true, financialDataRead:false,
+    persistentStoreAdded:false, networkImplementationAdded:false, observerAdded:false, serviceWorkerAdded:false,
+    primaryDestinations:RELEASE.primaryDestinations, toolsSections:RELEASE.toolsSections,
+    workbookSheets:RELEASE.workbookSheets, snapshot:infrastructureSnapshot
   });
   updateMetadata();
   recordReady(runtime.coordinator.snapshot());
