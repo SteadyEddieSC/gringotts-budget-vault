@@ -30,7 +30,8 @@ test('validates one authoritative v132 current release manifest', () => {
   assert.equal(CURRENT_RELEASE.version, 'v132');
   assert.equal(CURRENT_RELEASE.number, 132);
   assert.equal(CURRENT_RELEASE.packageVersion, '132.0.0');
-  assert.equal(CURRENT_RELEASE.bootSpecifier, 'src/boot-v132.js?v=132release1');
+  assert.equal(CURRENT_RELEASE.bootPath, 'src/release-manifest.js');
+  assert.equal(CURRENT_RELEASE.bootSpecifier, 'src/release-manifest.js?v=132release2');
   assert.equal(CURRENT_RELEASE.primaryDestinations, 6);
   assert.equal(CURRENT_RELEASE.workbookSheets, 43);
   assert.equal(CURRENT_RELEASE.budgets.maxRuntimeObservers, 1);
@@ -57,11 +58,12 @@ test('shares manifest identity with the Playwright helper', () => {
   assert.equal(currentBootSpecifier, CURRENT_RELEASE.bootSpecifier);
 });
 
-test('keeps both HTML shells versionless and points them to the manifest-owned boot', () => {
+test('keeps both HTML shells versionless and points them directly to the manifest entry', () => {
   for (const file of ['index.html', 'app.html']) {
     const source = read(file);
     assert.match(source, /<title>Gringotts Budget Vault<\/title>/);
     assert.ok(source.includes(`src="${CURRENT_RELEASE.bootSpecifier}"`));
+    assert.doesNotMatch(source, /src="src\/boot-v132\.js/i);
     assert.doesNotMatch(source, /<title>[^<]*v\d+/i);
     assert.doesNotMatch(source, /Loading[^<]*\bv\d+\b/i);
   }
@@ -76,12 +78,15 @@ test('keeps v132 release infrastructure local-only and non-persistent', () => {
   assert.doesNotMatch(source, /gringottsBudgetVault\.latest/);
 });
 
-test('keeps historical finance and decision releases separate from v132 identity', () => {
-  const boot = read('src/boot-v132.js');
-  assert.match(boot, /release:'v130'/);
-  assert.match(boot, /release:'v131'/);
-  assert.match(boot, /window\.GringottsV132/);
-  assert.doesNotMatch(boot, /^import .*boot-v131\.js/gm);
-  assert.doesNotMatch(boot, /^import .*boot-v130\.js/gm);
-  assert.doesNotMatch(boot, /^import .*boot-v129\.js/gm);
+test('keeps the manifest as the only v132 runtime implementation', () => {
+  const manifest = read('src/release-manifest.js');
+  const compatibilityBoot = read('src/boot-v132.js');
+  assert.match(manifest, /release:'v130'/);
+  assert.match(manifest, /release:'v131'/);
+  assert.match(manifest, /window\.GringottsV132/);
+  assert.match(compatibilityBoot, /export \* from '\.\/release-manifest\.js'/);
+  assert.doesNotMatch(compatibilityBoot, /registerRelease|MutationObserver|localStorage/);
+  assert.doesNotMatch(manifest, /^import .*boot-v131\.js/gm);
+  assert.doesNotMatch(manifest, /^import .*boot-v130\.js/gm);
+  assert.doesNotMatch(manifest, /^import .*boot-v129\.js/gm);
 });
