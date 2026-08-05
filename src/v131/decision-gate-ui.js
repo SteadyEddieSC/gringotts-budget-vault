@@ -22,6 +22,7 @@ let installed = false;
 let dispatcher = null;
 let services = { announce() {}, enhance() {} };
 let lastResult = null;
+let evaluatedRuntimeSnapshot = null;
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[character]));
@@ -92,6 +93,7 @@ async function render({ focusHeading = false } = {}) {
   installStyles();
   setActiveTab();
   const runtime = await runtimeSnapshot();
+  evaluatedRuntimeSnapshot = runtime;
   try {
     lastResult = evaluateDecisionGate({ reviewBundle, runtimeSnapshot:runtime, disposition, rationale });
   } catch (error) {
@@ -154,7 +156,7 @@ async function handleChange(event) {
 }
 
 async function buildCurrentRecord() {
-  const runtime = await runtimeSnapshot();
+  const runtime = evaluatedRuntimeSnapshot || await runtimeSnapshot();
   return buildDecisionRecord({ reviewBundle, runtimeSnapshot:runtime, disposition, rationale });
 }
 
@@ -173,6 +175,7 @@ async function runAction(action) {
     reviewBundle = null;
     disposition = 'unselected';
     rationale = '';
+    evaluatedRuntimeSnapshot = null;
     await render();
     services.announce('In-session Decision Gate cleared');
     return;
