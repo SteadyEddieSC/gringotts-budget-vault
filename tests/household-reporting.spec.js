@@ -1,4 +1,5 @@
 import { test, expect, openPrimary } from './helpers/app.js';
+import { currentTitle } from './helpers/release.js';
 
 async function openReports(page) {
   await openPrimary(page, 'Reports');
@@ -29,9 +30,9 @@ async function addPriorYearRows(page) {
   });
 }
 
-test('boots v131 and navigates the complete household report preview', async ({ app }) => {
+test('boots the current release and navigates the complete household report preview', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v131/i);
+  await expect(page).toHaveTitle(currentTitle);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
   await openReports(page);
   const pages = [
