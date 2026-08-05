@@ -108,6 +108,10 @@ jobs:
           node --check src/v130/performance-contracts.js
           node --check src/v130/runtime-health.js
           node --check src/boot-v130.js
+          node --check src/v131/decision-contracts.js
+          node --check src/v131/decision-gate-ui.js
+          node --check src/v131/integration.js
+          node --check src/boot-v131.js
           node --check src/v111/views.js
 
       - name: Run strict TypeScript and browser-free parser tests
