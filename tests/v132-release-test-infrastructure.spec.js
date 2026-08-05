@@ -55,7 +55,8 @@ test('boots from the authoritative manifest and keeps specialist code outside st
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.releases.map((release) => release.id)).toEqual(['v126', currentVersion]);
   expect(state.resources.find((name) => currentBootResourcePattern.test(name))).toBeTruthy();
-  expect(state.resources.some((name) => /\/src\/release-manifest\.js$/.test(name))).toBe(true);
+  expect(state.resources.filter((name) => /\/src\/release-manifest\.js\?v=/.test(name))).toHaveLength(1);
+  expect(state.resources.some((name) => /\/src\/boot-v132\.js/.test(name))).toBe(false);
   expect(state.resources.some((name) => /\/src\/v129\/integration\.js/.test(name))).toBe(false);
   expect(state.resources.some((name) => /\/src\/v131\/integration\.js/.test(name))).toBe(false);
   expect(state.infrastructure).toMatchObject({
