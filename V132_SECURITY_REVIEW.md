@@ -2,11 +2,11 @@
 
 ## Scope
 
-This review covers the authoritative release manifest, manifest-driven production boot, versionless HTML shells, shared release test helpers, release-consistency diagnostics, CI integration, retained specialist loading boundaries, and associated documentation and tests.
+This review covers the authoritative release manifest and combined browser entry, versionless HTML shells, shared release test helpers, release-consistency diagnostics, CI integration, retained specialist loading boundaries, compatibility re-export, and associated documentation and tests.
 
 ## Security conclusion
 
-v132 does not expand the household-finance attack surface. It centralizes static release metadata and adds local build/test diagnostics. It introduces no backend, remote endpoint, provider token, persistent store, financial schema, service worker, automatic financial action, or additional observer.
+v132 does not expand the household-finance attack surface. It centralizes static release metadata and current-release orchestration in one browser module and adds local build/test diagnostics. It introduces no backend, remote endpoint, provider token, persistent store, financial schema, service worker, automatic financial action, or additional observer.
 
 ## Assets protected
 
@@ -20,24 +20,28 @@ v132 does not expand the household-finance attack surface. It centralizes static
 
 ## Trust boundaries
 
-### Release manifest
+### Combined release manifest and browser entry
 
-`src/release-manifest.js` is static application code. It contains release identity and protected budgets only. It does not read user data, browser storage, environment secrets, network responses, or provider credentials.
+`src/release-manifest.js` is static application code. It contains release identity, protected budgets, and bounded current-release orchestration. It does not read user data, browser storage, environment secrets, network responses, or provider credentials.
 
-The manifest validates:
+The module validates:
 
 - version and numeric release agreement;
 - package-version agreement;
-- active boot path and boot-specifier agreement;
+- active browser-entry path and specifier agreement;
 - six primary destinations;
 - one runtime observer;
 - the 43-sheet workbook cap;
 - roadmap-horizon containment;
 - budget agreement with destination and workbook declarations.
 
+After validation, the browser-only guarded path loads the retained v128/v126 foundation. Node-based tests can import the same manifest without starting browser behavior.
+
+`src/boot-v132.js` is a compatibility re-export only. Production shells do not load it, and consistency tests verify that its executable content contains no duplicate runtime implementation.
+
 ### HTML shells
 
-The shells contain no current version in their title or loading copy. They load one exact active boot specifier and retain the existing restrictive Cloudflare headers. No inline network, storage, or service-worker behavior is added.
+The shells contain no current version in their title or loading copy. They load one exact manifest browser-entry specifier and retain the existing restrictive Cloudflare headers. No inline network, storage, or service-worker behavior is added.
 
 ### Release consistency diagnostic
 
@@ -48,26 +52,29 @@ The shells contain no current version in their title or loading copy. They load 
 - receives no secret input;
 - writes no repository or application data;
 - reports mismatches to standard output and exits non-zero;
+- verifies that the compatibility boot is only a re-export;
 - scans protected tests for scattered current-release assertions.
 
 Its output contains repository paths and expected metadata only.
 
 ### Shared test helper
 
-`tests/helpers/release.js` imports the static manifest and derives test expectations. It performs no application write, network request, browser persistence, or financial-data operation.
+`tests/helpers/release.js` imports the static manifest and derives test expectations. The browser guard prevents this import from starting application runtime in Node. The helper performs no application write, network request, browser persistence, or financial-data operation.
 
 ## Runtime review
 
-The active v132 boot:
+The combined v132 manifest entry:
 
-- statically imports the retained v128/v126 shell and release manifest only;
+- validates release identity before starting the current release;
+- loads the retained v128/v126 foundation;
 - loads v129 Workflow Review after Tools opens;
 - loads v131 Decision Gate integration after Tools opens;
 - loads Decision Gate UI and contracts only after Decision Gate opens;
 - loads v130 Diagnostics and performance evaluation lazily;
 - reasserts manifest identity after retained integrations run;
 - registers one current coordinator release without adding an observer;
-- preserves the v126 dispatcher and action ceiling.
+- preserves the v126 dispatcher and action ceiling;
+- removes the extra startup request created by the earlier split manifest/boot design.
 
 No new DOM observer, timer-based readiness runtime, worker, cache, backend, or remote logging channel is introduced.
 
@@ -75,7 +82,7 @@ No new DOM observer, timer-based readiness runtime, worker, cache, backend, or r
 
 ### Reads
 
-- static release manifest;
+- static release manifest and current-release constants;
 - static repository files during validation;
 - existing in-memory runtime ownership and budget snapshots.
 
@@ -83,6 +90,7 @@ No new DOM observer, timer-based readiness runtime, worker, cache, backend, or r
 
 - document title and visible version text;
 - existing runtime build metadata;
+- bounded in-memory release and performance snapshots;
 - CI standard output and failure artifacts containing consistency diagnostics.
 
 ### Prohibited and absent
@@ -101,6 +109,7 @@ No new DOM observer, timer-based readiness runtime, worker, cache, backend, or r
 - Chromium must pass before Firefox/WebKit installation;
 - Android Chromium must pass before iPad/iPhone WebKit execution;
 - Lighthouse budgets remain 45 requests and 500,000 script bytes;
+- the combined entry has demonstrated compliance without relaxing either ceiling;
 - public-repository security, dependency review, npm audit, supply-chain, CodeQL, exact-head preview, and unresolved-thread gates remain required.
 
 ## Residual risks and mitigations
@@ -109,13 +118,21 @@ No new DOM observer, timer-based readiness runtime, worker, cache, backend, or r
 
 A malformed or internally inconsistent manifest fails validation. Cross-file drift fails the parser-stage consistency diagnostic before browser installation.
 
+### Browser behavior during Node import
+
+The module starts runtime only when both `window` and `document` exist. Browser-free tests verify manifest imports and helper derivation without invoking application startup.
+
+### Compatibility entry divergence
+
+The compatibility file is not loaded by production shells. The consistency diagnostic strips historical comments and requires its executable content to be exactly the manifest re-export.
+
 ### Overbroad test allowlist
 
 The consistency script has a narrow allowlist for deliberately release-specific tests. Repository-security tests verify the consistency script and shared-helper ownership. Future changes to the allowlist remain reviewable source changes.
 
 ### Historical compatibility code changes metadata
 
-The v132 boot reasserts current manifest metadata after every enhancement cycle. Cross-route tests verify that Workflow Review, Decision Gate, and Diagnostics cannot leave historical current-release labels behind.
+The combined v132 entry reasserts current manifest metadata after every enhancement cycle. Cross-route tests verify that Workflow Review, Decision Gate, and Diagnostics cannot leave historical current-release labels behind.
 
 ### Build diagnostics reveal repository structure
 
