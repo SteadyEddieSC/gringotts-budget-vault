@@ -1,4 +1,5 @@
 import { test, expect, openPrimary } from './helpers/app.js';
+import { currentReleaseName, currentTitle, currentVersion } from './helpers/release.js';
 
 const destinations = [
   ['Dashboard', /Vault Dashboard/i],
@@ -11,9 +12,9 @@ const destinations = [
 
 test('boots without module errors and exposes the simplified consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v131/i);
+  await expect(page).toHaveTitle(currentTitle);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v131');
+  await expect(page.locator('.version-text')).toHaveText(currentVersion);
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
@@ -53,7 +54,8 @@ test('boots without module errors and exposes the simplified consolidated naviga
     foundation:window.GringottsV128.snapshot(),
     evidence:window.GringottsV129.snapshot(),
     hardening:window.GringottsV130.snapshot(),
-    gate:window.GringottsV131.snapshot()
+    gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot()
   }));
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.status).toBe('ready');
@@ -66,13 +68,22 @@ test('boots without module errors and exposes the simplified consolidated naviga
   expect(state.evidence.persistentStoreAdded).toBe(false);
   expect(state.evidence.dispatcherOwned).toBe(true);
   expect(state.hardening.release).toBe('v130');
-  expect(state.hardening.hostRelease).toBe('v131');
+  expect(state.hardening.hostRelease).toBe(currentVersion);
   expect(state.hardening.memoryOnlyHistory).toBe(true);
   expect(state.hardening.persistentStoreAdded).toBe(false);
   expect(state.gate).toMatchObject({
     release:'v131',
     featureFreeze:true,
     automaticApproval:false,
+    persistentStoreAdded:false,
+    primaryDestinations:6,
+    toolsSections:6
+  });
+  expect(state.infrastructure).toMatchObject({
+    release:currentVersion,
+    name:currentReleaseName,
+    centralizedReleaseManifest:true,
+    centralizedVersionAssertions:true,
     persistentStoreAdded:false,
     primaryDestinations:6,
     toolsSections:6

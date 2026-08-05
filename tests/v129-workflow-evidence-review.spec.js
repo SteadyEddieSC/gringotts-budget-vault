@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { test, expect, openPrimary, waitForApp } from './helpers/app.js';
+import { currentReleaseName, currentVersion } from './helpers/release.js';
 
 async function openWorkflowReview(page) {
   await openPrimary(page, 'Tools');
@@ -22,48 +23,57 @@ function generatedPrivateDetail() {
   return ['Ca','rd end','ing ','43','21',' makes this difficult.'].join('');
 }
 
-test('retains v129 workflow evidence under v131 as a Tools-only lazy integration', async ({ app }) => {
+test('retains v129 workflow evidence as a Tools-only lazy integration under the current release', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v131');
+  await expect(page.locator('.version-text')).toHaveText(currentVersion);
   const before = await page.evaluate(() => ({
     evidence:window.GringottsV129.snapshot(),
     hardening:window.GringottsV130.snapshot(),
-    gate:window.GringottsV131.snapshot()
+    gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot()
   }));
   expect(before.evidence).toMatchObject({
-    release:'v129', hostRelease:'v131', inventoryCount:10, integrationLoaded:false,
+    release:'v129', hostRelease:currentVersion, inventoryCount:10, integrationLoaded:false,
     automaticTelemetry:false, financialDataRead:false, persistentStoreAdded:false,
     networkImplementationAdded:false, observerAdded:false, dispatcherOwned:false,
     coordinatorOwned:true, registeredAsRelease:false, primaryDestinations:6, workbookSheets:43
   });
   expect(before.hardening.workflowIntegrationLoaded).toBe(false);
   expect(before.gate.integrationLoaded).toBe(false);
+  expect(before.infrastructure).toMatchObject({ release:currentVersion, workflowIntegrationLoaded:false, decisionIntegrationLoaded:false });
 
   await openPrimary(page, 'Tools');
   const state = await page.evaluate(() => ({
     coordinator:window.GringottsV126.coordinator.snapshot(), ux:window.GringottsV127.snapshot(),
     portable:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(),
     hardening:window.GringottsV130.snapshot(), gate:window.GringottsV131.snapshot(),
-    build:window.GringottsCleanRuntime.BUILD, primaryDestinations:document.querySelectorAll('[data-tab]').length
+    infrastructure:window.GringottsV132.snapshot(), build:window.GringottsCleanRuntime.BUILD,
+    primaryDestinations:document.querySelectorAll('[data-tab]').length
   }));
   expect(state.coordinator.observerCount).toBe(1);
   expect(state.coordinator.observerOwner).toBe('v126-runtime-coordinator');
   expect(state.ux.release).toBe('v127');
   expect(state.portable.release).toBe('v128');
   expect(state.evidence).toMatchObject({
-    release:'v129', hostRelease:'v131', inventoryCount:10, reviewStateCount:0, integrationLoaded:true,
+    release:'v129', hostRelease:currentVersion, inventoryCount:10, reviewStateCount:0, integrationLoaded:true,
     manualReviewOnly:true, automaticTelemetry:false, financialDataRead:false, persistentStoreAdded:false,
     networkImplementationAdded:false, observerAdded:false, dispatcherOwned:true, coordinatorOwned:true,
     registeredAsRelease:false, standaloneClickListener:false, standaloneRouteReadyListener:false,
     primaryDestinations:6, workbookSheets:43, networkBudgetDelta:0
   });
   expect(state.hardening.release).toBe('v130');
-  expect(state.hardening.hostRelease).toBe('v131');
+  expect(state.hardening.hostRelease).toBe(currentVersion);
   expect(state.hardening.workflowIntegrationLoaded).toBe(true);
   expect(state.gate.release).toBe('v131');
   expect(state.gate.integrationLoaded).toBe(true);
   expect(state.gate.uiLoaded).toBe(false);
-  expect(state.build.version).toBe('v131');
+  expect(state.infrastructure).toMatchObject({
+    release:currentVersion,
+    name:currentReleaseName,
+    workflowIntegrationLoaded:true,
+    decisionIntegrationLoaded:true
+  });
+  expect(state.build.version).toBe(currentVersion);
   expect(state.primaryDestinations).toBe(6);
 });
 
@@ -134,16 +144,17 @@ test('clears the in-session review on reload', async ({ app }) => {
   expect(snapshot.reviewedCount).toBe(0);
 });
 
-test('shows v129 and v130 shipped with v131 current in the ten-release roadmap', async ({ app }) => {
+test('shows v129 through v131 shipped with the manifest release current in the ten-release roadmap', async ({ app }) => {
   const { page } = app;
   await openPrimary(page,'Tools');
   await page.getByRole('tab',{ name:'Roadmap', exact:true }).click();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
-  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status','shipped');
-  await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status','shipped');
-  await expect(page.locator('[data-roadmap-version="v131"]')).toHaveAttribute('data-roadmap-status','current');
-  await expect(page.locator('[data-roadmap-version="v131"] .badge')).toHaveText('Current release');
-  await expect(page.getByRole('heading',{ name:'v131 — Observed Needs Decision Gate', exact:true })).toBeVisible();
+  for (const version of ['v129', 'v130', 'v131']) {
+    await expect(page.locator(`[data-roadmap-version="${version}"]`)).toHaveAttribute('data-roadmap-status','shipped');
+  }
+  await expect(page.locator(`[data-roadmap-version="${currentVersion}"]`)).toHaveAttribute('data-roadmap-status','current');
+  await expect(page.locator(`[data-roadmap-version="${currentVersion}"] .badge`)).toHaveText('Current release');
+  await expect(page.getByRole('heading',{ name:`${currentVersion} — ${currentReleaseName}`, exact:true })).toBeVisible();
 });
 
 test('keeps the workflow review contained on a phone viewport', async ({ app }) => {

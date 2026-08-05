@@ -1,4 +1,10 @@
 import { test, expect, openPrimary } from './helpers/app.js';
+import {
+  currentBootResourcePattern,
+  currentRelease,
+  currentReleaseName,
+  currentVersion
+} from './helpers/release.js';
 
 async function openWorkflowReview(page) {
   await openPrimary(page, 'Tools');
@@ -22,7 +28,7 @@ async function expectCoordinatorSettled(page) {
   });
 }
 
-test('retains strict v130 budgets while v131 keeps workflow, diagnostics, and decision code outside startup', async ({ app }) => {
+test('retains strict v130 budgets while the current release keeps workflow, diagnostics, and decision code outside startup', async ({ app }) => {
   const { page } = app;
   const state = await page.evaluate(() => ({
     build:window.GringottsCleanRuntime.BUILD,
@@ -31,24 +37,25 @@ test('retains strict v130 budgets while v131 keeps workflow, diagnostics, and de
     workflow:window.GringottsV129.snapshot(),
     hardening:window.GringottsV130.snapshot(),
     gate:window.GringottsV131.snapshot(),
-    bootResource:performance.getEntriesByType('resource')
-      .map((entry) => entry.name)
-      .find((name) => /\/src\/boot-v131\.js\?v=131decision2$/.test(name)),
+    infrastructure:window.GringottsV132.snapshot(),
+    resources:performance.getEntriesByType('resource').map((entry) => entry.name),
     primaryDestinations:document.querySelectorAll('[data-tab]').length
   }));
-  expect(state.build.version).toBe('v131');
-  expect(state.build.name).toBe('Observed Needs Decision Gate');
-  expect(state.bootResource).toMatch(/\/src\/boot-v131\.js\?v=131decision2$/);
+  expect(state.build.version).toBe(currentVersion);
+  expect(state.build.name).toBe(currentReleaseName);
+  expect(state.build.runtime).toBe(currentRelease.runtimeLabel);
+  expect(state.resources.some((name) => currentBootResourcePattern.test(name))).toBe(true);
   expect(state.runtime.observerCount).toBe(1);
-  expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126','v131']);
+  expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', currentVersion]);
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v129-workflow-review-route');
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v131-decision-gate-route');
   expect(state.workflow).toMatchObject({
     integrationLoaded:false, dispatcherOwned:false, coordinatorOwned:true,
-    registeredAsRelease:false, standaloneClickListener:false, standaloneRouteReadyListener:false
+    registeredAsRelease:false, standaloneClickListener:false, standaloneRouteReadyListener:false,
+    hostRelease:currentVersion
   });
   expect(state.hardening).toMatchObject({
-    release:'v130', hostRelease:'v131', featureFreeze:true, memoryOnlyHistory:true, financialDataRead:false,
+    release:'v130', hostRelease:currentVersion, featureFreeze:true, memoryOnlyHistory:true, financialDataRead:false,
     persistentStoreAdded:false, networkImplementationAdded:false, observerAdded:false,
     serviceWorkerAdded:false, primaryDestinations:6, workbookSheets:43,
     activeBootImportsV129:false, workflowIntegrationLazy:true, workflowIntegrationLoaded:false,
@@ -63,13 +70,18 @@ test('retains strict v130 budgets while v131 keeps workflow, diagnostics, and de
   expect(state.hardening.startupResources.networkRequests).toBeLessThanOrEqual(45);
   expect(state.hardening.startupResources.scriptBytes).toBeLessThanOrEqual(500000);
   expect(state.gate).toMatchObject({
-    release:'v131', integrationLoaded:false, uiLoaded:false, automaticApproval:false,
-    activeBootImportsV130:false, activeBootImportsV129:false, startupLight:true
+    release:'v131', hostRelease:currentVersion, integrationLoaded:false, uiLoaded:false,
+    automaticApproval:false, integrationLazy:true, uiLazy:true
+  });
+  expect(state.infrastructure).toMatchObject({
+    release:currentVersion, centralizedReleaseManifest:true, centralizedVersionAssertions:true,
+    workflowIntegrationLoaded:false, decisionIntegrationLoaded:false, diagnosticsLoaded:false,
+    activeBootImportsV131:false, activeBootImportsV130:false, activeBootImportsV129:false, startupLight:true
   });
   expect(state.primaryDestinations).toBe(6);
 });
 
-test('keeps Workflow Review responsive and dispatcher-owned across repeated route changes under v131', async ({ app }) => {
+test('keeps Workflow Review responsive and dispatcher-owned across repeated route changes under the current release', async ({ app }) => {
   const { page } = app;
   const storageBefore = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   await openWorkflowReview(page);
@@ -78,7 +90,7 @@ test('keeps Workflow Review responsive and dispatcher-owned across repeated rout
   await expect(field).toHaveValue('regular');
   for (let index = 0; index < 3; index += 1) {
     await page.getByRole('tab', { name:'Roadmap', exact:true }).click();
-    await expect(page.getByRole('heading', { name:'v131 — Observed Needs Decision Gate', exact:true })).toBeVisible();
+    await expect(page.getByRole('heading', { name:`${currentVersion} — ${currentReleaseName}`, exact:true })).toBeVisible();
     await openPrimary(page, 'Dashboard');
     await openWorkflowReview(page);
     await expect(page.locator('.v129-workflow-card')).toHaveCount(10);
@@ -90,6 +102,7 @@ test('keeps Workflow Review responsive and dispatcher-owned across repeated rout
     actions:window.GringottsV126.dispatcher.snapshot(),
     workflow:window.GringottsV129.snapshot(),
     hardening:window.GringottsV130.snapshot(),
+    infrastructure:window.GringottsV132.snapshot(),
     storage:Object.fromEntries(Object.entries(localStorage))
   }));
   expect(state.lifecycle.status).toBe('ready');
@@ -100,14 +113,15 @@ test('keeps Workflow Review responsive and dispatcher-owned across repeated rout
   expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-route');
   expect(state.actions.handlers.change.map((handler) => handler.name)).toContain('v129-workflow-review-fields');
   expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-actions');
-  expect(state.workflow).toMatchObject({ integrationLoaded:true, dispatcherOwned:true, coordinatorOwned:true, registeredAsRelease:false, hostRelease:'v131' });
+  expect(state.workflow).toMatchObject({ integrationLoaded:true, dispatcherOwned:true, coordinatorOwned:true, registeredAsRelease:false, hostRelease:currentVersion });
   expect(state.hardening.workflowIntegrationLoaded).toBe(true);
   expect(state.hardening.historyCount).toBeGreaterThan(0);
   expect(state.hardening.historyCount).toBeLessThanOrEqual(12);
+  expect(state.infrastructure.workflowIntegrationLoaded).toBe(true);
   expect(state.storage).toEqual(storageBefore);
 });
 
-test('renders bounded session-only v130 performance evidence in existing Diagnostics under v131', async ({ app }) => {
+test('renders bounded session-only v130 performance evidence in existing Diagnostics under the current release', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name:'Diagnostics', exact:true }).click();
@@ -118,15 +132,19 @@ test('renders bounded session-only v130 performance evidence in existing Diagnos
   await expect(page.getByText(/Observer callbacks/)).toBeVisible();
   await expect(page.getByText(/Session samples/)).toBeVisible();
   await expectCoordinatorSettled(page);
-  const snapshot = await page.evaluate(() => window.GringottsV130.snapshot());
-  expect(snapshot.diagnosticsLoaded).toBe(true);
-  expect(snapshot.historyCount).toBeLessThanOrEqual(snapshot.historyCap);
-  expect(snapshot.current.input.runtimeObservers).toBe(1);
-  expect(snapshot.current.input.primaryDestinations).toBe(6);
-  expect(snapshot.current.input.workbookSheets).toBe(43);
-  expect(snapshot.current.input.dispatcherOwned).toBe(true);
-  expect(snapshot.current.input.coordinatorOwned).toBe(true);
-  expect(snapshot.current.evaluation?.ok).toBe(true);
+  const snapshot = await page.evaluate(() => ({
+    hardening:window.GringottsV130.snapshot(),
+    infrastructure:window.GringottsV132.snapshot()
+  }));
+  expect(snapshot.hardening.diagnosticsLoaded).toBe(true);
+  expect(snapshot.hardening.historyCount).toBeLessThanOrEqual(snapshot.hardening.historyCap);
+  expect(snapshot.hardening.current.input.runtimeObservers).toBe(1);
+  expect(snapshot.hardening.current.input.primaryDestinations).toBe(6);
+  expect(snapshot.hardening.current.input.workbookSheets).toBe(43);
+  expect(snapshot.hardening.current.input.dispatcherOwned).toBe(true);
+  expect(snapshot.hardening.current.input.coordinatorOwned).toBe(true);
+  expect(snapshot.hardening.current.evaluation?.ok).toBe(true);
+  expect(snapshot.infrastructure.diagnosticsLoaded).toBe(true);
 });
 
 test('keeps retained v130 diagnostics within a phone viewport', async ({ app }) => {

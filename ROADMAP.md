@@ -1,35 +1,32 @@
 # Gringotts Budget Vault Roadmap
 
-The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 turns the feature freeze into an explicit evidence gate so roadmap momentum cannot authorize a new capability, removal, or consolidation. Entries after v131 remain directional and may move when protected testing or completed household review shows a better order.
+The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 remains the explicit observed-needs gate for product scope. v132 simplifies the release and test infrastructure around that gate so version drift and duplicated assertions fail early without weakening validation.
 
 ## Current release
 
-### v131 — Observed Needs Decision Gate
+### v132 — Release & Test Infrastructure Simplification
 
 **Purpose**
 
-Require complete household workflow evidence and healthy runtime evidence before even writing a future product-scope proposal.
+Make the current release identity authoritative in one browser-compatible manifest and detect metadata drift before browser installation or promotion.
 
 **Delivered**
 
-- a session-only **Tools → Decision Gate** secondary workspace while retaining exactly six primary destinations;
-- explicit local import of a v129 Household Workflow Review JSON bundle;
-- strict validation of review kind, version, inventory version, privacy declarations, known unique workflow IDs, and recomputed summary consistency;
-- current maintenance evidence read only through the published `window.GringottsV130.snapshot()` contract;
-- closed-by-default states for incomplete evidence and runtime blockers;
-- explicit human dispositions for holding the feature freeze, scoping maintenance-only work, or permitting one narrowly evidenced proposal for later review;
-- no automatic approval or implementation of a capability, removal, consolidation, migration, or financial action;
-- privacy-filtered workflow-only rationale with rejection of likely amounts, account, card, transaction, merchant, balance, or contact details;
-- explicit local decision-record download and clipboard summary with no raw workflow observations or financial data;
-- startup-light loading: v131 integration loads after Tools opens and the Decision Gate UI/model loads only after the Decision Gate is selected.
+- one authoritative `src/release-manifest.js` for current version, release name, package version, boot path, runtime label, asset tokens, protected budgets, destination count, and workbook cap;
+- versionless HTML shell titles and loading copy, with the active boot applying the final title and visible release version;
+- shared Playwright release helpers for current version, title, boot resource, roadmap status counts, and package expectations;
+- an exact release-consistency diagnostic covering both shells, package and lockfile metadata, active boot ownership, runtime metadata, roadmap documentation, and shared test expectations;
+- a parser-stage consistency gate that reports the precise file and mismatched field before browser installation;
+- a repository rule that blocks scattered literal current-release assertions in protected tests;
+- retained historical release modules and release-specific compatibility tests;
+- unchanged cross-browser, accessibility, Lighthouse, privacy, security, supply-chain, CodeQL, Cloudflare preview, and unresolved-thread promotion requirements.
 
 **Safety**
 
-- imported review evidence and decisions remain only in module memory and are cleared by reload;
-- the gate does not inspect the authoritative vault, transactions, accounts, balances, merchants, reports, credentials, or prior route history;
-- no localStorage, sessionStorage, IndexedDB, cookie, service worker, telemetry, analytics, beacon, cloud adapter, remote endpoint, or persistent store is added;
-- no new financial schema, report, export sheet, primary destination, second runtime, or additional `MutationObserver` is added;
-- `gringottsBudgetVault.latest`, stable v105 rescue, guarded import and restore, immutable close history, backup-first broad writes, six primary destinations, one v126-owned observer, and the 43-sheet workbook cap remain unchanged.
+- no household-finance capability, financial schema, report sheet, migration, persistent store, telemetry, analytics, network endpoint, cloud adapter, service worker, backend, automatic export, or financial action is added;
+- v129 Workflow Review, v130 runtime evidence, and v131 Decision Gate remain lazy and behaviorally unchanged;
+- `gringottsBudgetVault.latest`, stable v105 rescue, guarded import and restore, immutable close history, backup-first broad writes, six primary destinations, one v126-owned observer, and the 43-sheet workbook cap remain unchanged;
+- no protected performance or maintenance ceiling is relaxed.
 
 ## Reliability horizon
 
@@ -49,13 +46,13 @@ Added a manual session-only evidence worksheet and sanitized local export so fut
 
 Moved Workflow Review under existing runtime ownership, kept specialist code outside startup, recorded bounded memory-only route evidence, and enforced route, observer, request, script, and workbook ceilings.
 
-### v131 — Observed Needs Decision Gate — Current
+### v131 — Observed Needs Decision Gate — Shipped
 
 Combines an explicitly imported completed workflow review with the current v130 runtime contract, keeps the feature freeze closed by default, and permits only a human-recorded hold, maintenance scope, or later proposal—not implementation approval.
 
-### v132 — Release & Test Infrastructure Simplification — Directional
+### v132 — Release & Test Infrastructure Simplification — Current
 
-Centralize release metadata and version assertions, reduce duplicate fixtures and test ownership, improve failure diagnostics, and preserve every exact-head browser, accessibility, security, supply-chain, and deployment gate.
+Centralizes current-release identity and test expectations, detects release drift before browser installation, and improves failure diagnostics while preserving every exact-head promotion gate.
 
 ### v133 — Local Data Longevity Drills — Directional
 
@@ -75,7 +72,7 @@ Document the maintained architecture, ownership map, retirement candidates, priv
 
 ## Recommended next action
 
-Use **Tools → Workflow Review** during real household workflows and download the completed local review. Import that file into **Tools → Decision Gate**. Until all ten workflows are complete and current runtime evidence passes, the correct v131 result is `evidence-incomplete` or `runtime-blocked`, not a new feature. A `candidate-proposal` result permits writing one narrow proposal for later review only.
+Continue using **Tools → Workflow Review** and **Tools → Decision Gate** for real household evidence. v132 changes how releases are identified and validated, not the scope decision. A `candidate-proposal` result still permits writing one narrow proposal for later review only.
 
 ## Future portability sequence
 
