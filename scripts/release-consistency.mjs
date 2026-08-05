@@ -36,19 +36,26 @@ if (packageLock.packages?.['']?.version !== CURRENT_RELEASE.packageVersion) mism
 for (const file of ['index.html', 'app.html']) {
   const shell = read(file);
   requireContains(file, shell, '<title>Gringotts Budget Vault</title>', 'versionless title');
-  requireContains(file, shell, `src="${CURRENT_RELEASE.bootSpecifier}"`, 'active boot');
+  requireContains(file, shell, `src="${CURRENT_RELEASE.bootSpecifier}"`, 'active manifest entry');
   requireAbsent(file, shell, /<title>[^<]*v\d+[^<]*<\/title>/i, 'hard-coded release title');
   requireAbsent(file, shell, /Loading[^<]*\bv\d+\b/i, 'hard-coded loading copy');
+  requireAbsent(file, shell, /src="src\/boot-v132\.js/i, 'compatibility boot loaded by shell');
 }
 
 const bootFile = CURRENT_RELEASE.bootPath;
 const boot = read(bootFile);
-requireContains(bootFile, boot, "from './release-manifest.js'", 'manifest import');
-requireContains(bootFile, boot, 'runtime.coordinator.registerRelease({ id:RELEASE.version', 'manifest-owned release registration');
-requireContains(bootFile, boot, 'runtime:RELEASE.runtimeLabel', 'manifest-owned runtime label');
-requireContains(bootFile, boot, 'cacheBust:RELEASE.cacheBust', 'manifest-owned cache bust');
-requireContains(bootFile, boot, 'document.title !== CURRENT_RELEASE_TITLE', 'manifest-owned document title');
+requireContains(bootFile, boot, 'export const CURRENT_RELEASE=', 'authoritative manifest export');
+requireContains(bootFile, boot, "if(typeof window!=='undefined'&&typeof document!=='undefined')", 'Node-safe browser guard');
+requireContains(bootFile, boot, 'runtime.coordinator.registerRelease({id:R.version', 'manifest-owned release registration');
+requireContains(bootFile, boot, 'runtime:R.runtimeLabel', 'manifest-owned runtime label');
+requireContains(bootFile, boot, 'cacheBust:R.cacheBust', 'manifest-owned cache bust');
+requireContains(bootFile, boot, 'document.title!==CURRENT_RELEASE_TITLE', 'manifest-owned document title');
+requireContains(bootFile, boot, "await import(`./boot-v128.js?v=${A.bootBase}`)", 'retained base boot import');
 requireAbsent(bootFile, boot, /^import .*boot-v131\.js/gm, 'historical current-boot import');
+
+const compatibilityBoot = read('src/boot-v132.js');
+requireContains('src/boot-v132.js', compatibilityBoot, "export * from './release-manifest.js'", 'compatibility manifest re-export');
+requireAbsent('src/boot-v132.js', compatibilityBoot, /registerRelease|MutationObserver|localStorage/, 'duplicate runtime implementation');
 
 const helper = read('tests/helpers/release.js');
 requireContains('tests/helpers/release.js', helper, "from '../../src/release-manifest.js'", 'manifest import');
