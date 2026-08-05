@@ -45,6 +45,7 @@ test('retains strict v130 budgets while the current release keeps workflow, diag
   expect(state.build.name).toBe(currentReleaseName);
   expect(state.build.runtime).toBe(currentRelease.runtimeLabel);
   expect(state.resources.some((name) => currentBootResourcePattern.test(name))).toBe(true);
+  expect(state.resources.filter((name) => /\/src\/(?:v129\/integration|v130\/runtime-health|v131\/(?:integration|decision-gate-ui|decision-contracts))\.js/.test(name))).toEqual([]);
   expect(state.runtime.observerCount).toBe(1);
   expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', currentVersion]);
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v129-workflow-review-route');
@@ -76,7 +77,7 @@ test('retains strict v130 budgets while the current release keeps workflow, diag
   expect(state.infrastructure).toMatchObject({
     release:currentVersion, centralizedReleaseManifest:true, centralizedVersionAssertions:true,
     workflowIntegrationLoaded:false, decisionIntegrationLoaded:false, diagnosticsLoaded:false,
-    activeBootImportsV131:false, activeBootImportsV130:false, activeBootImportsV129:false, startupLight:true
+    startupLight:true
   });
   expect(state.primaryDestinations).toBe(6);
 });

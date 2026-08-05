@@ -8,24 +8,25 @@
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Cloudflare serves application assets only. Household financial data remains on the current device unless the user explicitly creates a local export or backup.
 
-Current release: **v132 — Release & Test Infrastructure Simplification**
+Current release: **v133 — Local Data Longevity Drills**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v132 release and test infrastructure
+## v133 local data longevity drills
 
-v132 is a maintenance-only release. It adds no household-finance capability. It reduces release drift and late stale-version failures by making one browser-compatible manifest authoritative for current release identity.
+v133 is a maintenance-only release. It adds a pure synthetic drill layer for upgrade, corruption, rollback, orphan, stale-schema, and capacity scenarios. The drills do not inspect or change the real browser-local vault.
 
 The release provides:
 
-- `src/release-manifest.js` as the single current-release source for version, name, package version, active boot path, runtime label, asset tokens, protected budgets, destination count, and workbook cap;
-- versionless HTML shell titles and loading copy, with the active boot applying the final title and visible release version;
-- shared Playwright helpers for current version, title, boot resource, roadmap counts, and package expectations;
-- `scripts/release-consistency.mjs`, which checks shells, package metadata, active boot ownership, runtime metadata, roadmap status, and shared test expectations before browser installation;
-- exact file-and-field diagnostics when release metadata drifts;
-- a repository rule that blocks new scattered literal assertions for the current release;
+- strict TypeScript and JavaScript longevity contracts;
+- deterministic synthetic long-lived vault generation;
+- exactly six explicit drill scenarios;
+- privacy-safe reports with disposition, evidence, safeguards, and required human action;
+- closed-default manual review for unsupported schemas, orphan metadata, and exceeded drill bounds;
+- rollback verification against an explicit synthetic backup while preserving both backup and failed candidate;
+- a lazy `window.GringottsV133.runSyntheticDrill(...)` test hook that stays outside startup;
 - unchanged Chromium, Firefox, WebKit, Android, iPad, iPhone, accessibility, Lighthouse, privacy, security, supply-chain, CodeQL, Cloudflare preview, and unresolved-thread gates.
 
 ## Preserved architecture
@@ -36,14 +37,17 @@ The release provides:
 - v129 remains the manual, session-only Workflow Review.
 - v130 remains the bounded runtime and maintenance evidence contract.
 - v131 remains the closed-by-default Observed Needs Decision Gate.
-- v132 changes release identity and test ownership only; the v129, v130, and v131 specialist surfaces remain route-lazy.
-- The application retains six primary destinations and the Vault Workbook remains capped at **43 sheets**.
+- v132 remains the authoritative manifest and release-consistency infrastructure.
+- v133 drill code is loaded only after explicit synthetic invocation.
+- The application retains six primary destinations, six Tools sections, and the Vault Workbook remains capped at **43 sheets**.
 
 ## Privacy and safety boundaries
 
 - `gringottsBudgetVault.latest` remains the only domain that may contain authoritative transaction copies.
-- v132 reads no vault, transaction, account, balance, merchant, report, credential, or portable-vault data.
-- v132 adds no localStorage, sessionStorage, IndexedDB, cookies, service worker, telemetry, analytics, remote endpoint, cloud adapter, backend, migration, financial schema, report sheet, or automatic financial action.
+- The v133 drill engine never reads or writes that key.
+- v133 adds no automatic migration, repair, cleanup, compaction, rollback, overwrite, reset, or authoritative-vault replacement.
+- v133 adds no localStorage, sessionStorage, IndexedDB, cookies, service worker, telemetry, analytics, remote endpoint, cloud adapter, backend, financial schema, report sheet, automatic export, or financial action.
+- Drill limits are synthetic test-harness bounds, not production deletion or reset authority.
 - Full Vault Restore remains separate and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
@@ -51,7 +55,7 @@ The release provides:
 
 ## Strategic direction
 
-The next directional release is **v133 — Local Data Longevity Drills**. It should exercise synthetic long-lived data through upgrade, corruption, rollback, orphan, stale-schema, and capacity scenarios without destructive automatic cleanup. See `ROADMAP.md`.
+The next directional release is **v134 — Reporting & Export Contract Consolidation**. It should reduce duplicated export metadata, labels, filenames, and assembly ownership while preserving all tested outputs, aggregate-only privacy boundaries, cancellation behavior, and the 43-sheet workbook cap. See `ROADMAP.md`.
 
 ## Local validation
 
@@ -67,4 +71,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v132_RELEASE_TEST_INFRASTRUCTURE_SIMPLIFICATION.md`, and `V132_SECURITY_REVIEW.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v133_LOCAL_DATA_LONGEVITY_DRILLS.md`, and `V133_SECURITY_REVIEW.md`.

@@ -29,6 +29,10 @@ function withoutBlockComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, '').trim();
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 validateCurrentReleaseManifest();
 
 const packageJson = JSON.parse(read('package.json'));
@@ -37,13 +41,14 @@ if (packageJson.version !== CURRENT_RELEASE.packageVersion) mismatch('package.js
 if (packageLock.version !== CURRENT_RELEASE.packageVersion) mismatch('package-lock.json', 'version', CURRENT_RELEASE.packageVersion, packageLock.version);
 if (packageLock.packages?.['']?.version !== CURRENT_RELEASE.packageVersion) mismatch('package-lock.json', 'packages[""].version', CURRENT_RELEASE.packageVersion, packageLock.packages?.['']?.version);
 
+const compatibilityBootFile = `src/boot-v${CURRENT_RELEASE.number}.js`;
 for (const file of ['index.html', 'app.html']) {
   const shell = read(file);
   requireContains(file, shell, '<title>Gringotts Budget Vault</title>', 'versionless title');
   requireContains(file, shell, `src="${CURRENT_RELEASE.bootSpecifier}"`, 'active manifest entry');
   requireAbsent(file, shell, /<title>[^<]*v\d+[^<]*<\/title>/i, 'hard-coded release title');
   requireAbsent(file, shell, /Loading[^<]*\bv\d+\b/i, 'hard-coded loading copy');
-  requireAbsent(file, shell, /src="src\/boot-v132\.js/i, 'compatibility boot loaded by shell');
+  requireAbsent(file, shell, new RegExp(`src=["']${escapeRegExp(compatibilityBootFile)}`, 'i'), 'compatibility boot loaded by shell');
 }
 
 const bootFile = CURRENT_RELEASE.bootPath;
@@ -55,13 +60,27 @@ requireContains(bootFile, boot, 'runtime:R.runtimeLabel', 'manifest-owned runtim
 requireContains(bootFile, boot, 'cacheBust:R.cacheBust', 'manifest-owned cache bust');
 requireContains(bootFile, boot, 'document.title!==CURRENT_RELEASE_TITLE', 'manifest-owned document title');
 requireContains(bootFile, boot, "await import(`./boot-v128.js?v=${A.bootBase}`)", 'retained base boot import');
+requireContains(bootFile, boot, "import(`./v133/longevity-drills.js?v=${A.longevity}`)", 'lazy v133 drill import');
+requireContains(bootFile, boot, 'window.GringottsV133', 'v133 runtime registry');
+requireAbsent(bootFile, boot, /^import .*v133\/longevity-drills\.js/gm, 'eager v133 drill import');
 requireAbsent(bootFile, boot, /^import .*boot-v131\.js/gm, 'historical current-boot import');
 
-const compatibilityBoot = read('src/boot-v132.js');
-requireContains('src/boot-v132.js', compatibilityBoot, "export * from './release-manifest.js'", 'compatibility manifest re-export');
+const compatibilityBoot = read(compatibilityBootFile);
+requireContains(compatibilityBootFile, compatibilityBoot, "export * from './release-manifest.js'", 'compatibility manifest re-export');
 const compatibilityExecutable = withoutBlockComments(compatibilityBoot);
 if (compatibilityExecutable !== "export * from './release-manifest.js';") {
-  mismatch('src/boot-v132.js', 'executable compatibility boot', "export * from './release-manifest.js';", compatibilityExecutable);
+  mismatch(compatibilityBootFile, 'executable compatibility boot', "export * from './release-manifest.js';", compatibilityExecutable);
+}
+
+const longevityJs = read('src/v133/longevity-drills.js');
+const longevityTs = read('src/v133/longevity-drills.ts');
+for (const [file, source] of [['src/v133/longevity-drills.js', longevityJs], ['src/v133/longevity-drills.ts', longevityTs]]) {
+  requireContains(file, source, 'LONGEVITY_SCENARIOS', 'six longevity scenarios');
+  requireContains(file, source, 'automaticCleanup', 'no automatic cleanup declaration');
+  requireContains(file, source, 'authoritativeVaultWrite', 'authoritative vault write declaration');
+  requireAbsent(file, source, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, 'network implementation');
+  requireAbsent(file, source, /localStorage|sessionStorage|indexedDB|document\.cookie/, 'browser persistence');
+  requireAbsent(file, source, /new MutationObserver|serviceWorker\.register/, 'runtime expansion');
 }
 
 const helper = read('tests/helpers/release.js');
@@ -72,8 +91,9 @@ requireContains('tests/helpers/release.js', helper, 'export const currentTitle =
 const appHelper = read('tests/helpers/app.js');
 requireContains('tests/helpers/app.js', appHelper, "from './release.js'", 'shared release helper import');
 requireContains('tests/helpers/app.js', appHelper, 'currentVersion', 'shared current version use');
-requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV132', 'current release readiness');
-requireAbsent('tests/helpers/app.js', appHelper, /\^v131|toHaveText\(['"]v131|build\.version[^\n]*v131/, 'stale current-release assertion');
+requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV132', 'retained release infrastructure readiness');
+requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV133', 'current longevity registry readiness');
+requireAbsent('tests/helpers/app.js', appHelper, /\^v132|toHaveText\(['"]v132|build\.version[^\n]*v132/, 'stale current-release assertion');
 
 const roadmap = read('ROADMAP.md');
 requireContains('ROADMAP.md', roadmap, `### ${CURRENT_RELEASE.version} — ${CURRENT_RELEASE.name}`, 'current roadmap heading');
@@ -82,12 +102,14 @@ requireContains('ROADMAP.md', roadmap, `### ${CURRENT_RELEASE.version} — ${CUR
 const roadmapSource = read('src/v127/roadmap-horizon.js');
 requireContains('src/v127/roadmap-horizon.js', roadmapSource, `version: '${CURRENT_RELEASE.version}'`, 'current roadmap entry');
 requireContains('src/v127/roadmap-horizon.js', roadmapSource, `title: '${CURRENT_RELEASE.name}'`, 'current roadmap title');
+requireContains('src/v127/roadmap-horizon.js', roadmapSource, `version: '${CURRENT_RELEASE.version}', status: 'current'`, 'current roadmap source status');
 
 const assertionMarkers = ['toHaveText(', 'toContainText(', 'toHaveTitle(', 'toBe('];
 const testDirectories = ['tests', 'quality-tests'];
 const allowed = new Set([
   'tests/helpers/release.js',
   'tests/v132-release-test-infrastructure.spec.js',
+  'tests/v133-local-data-longevity.spec.js',
   'tests/repository-security.spec.js',
   'quality-tests/v132-accessibility.spec.js'
 ]);
