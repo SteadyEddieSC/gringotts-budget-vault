@@ -5,50 +5,45 @@
 [![Public Repository Security](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/security.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/security.yml)
 [![Supply Chain](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/supply-chain.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/supply-chain.yml)
 [![CodeQL](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml/badge.svg)](https://github.com/SteadyEddieSC/gringotts-budget-vault/actions/workflows/scorecard.yml)
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Cloudflare serves application assets only. Household financial data remains on the current device unless the user explicitly creates a local export or backup.
 
-Current release: **v131 — Observed Needs Decision Gate**
+Current release: **v132 — Release & Test Infrastructure Simplification**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v131 observed-needs decision gate
+## v132 release and test infrastructure
 
-v131 makes the feature freeze explicit. A product-scope change cannot be inferred from roadmap momentum, clicks, transactions, reports, or telemetry.
+v132 is a maintenance-only release. It adds no household-finance capability. It reduces release drift and late stale-version failures by making one browser-compatible manifest authoritative for current release identity.
 
 The release provides:
 
-- a session-only **Tools → Decision Gate** workspace;
-- explicit local import and strict validation of a v129 Household Workflow Review bundle;
-- current maintenance evidence read through the published v130 runtime snapshot;
-- closed-by-default `evidence-incomplete` and `runtime-blocked` states;
-- an explicit `decision-ready` state only after all ten workflow observations are complete and runtime evidence passes;
-- human dispositions to hold scope, permit maintenance-only scoping, or allow one narrow proposal for later review;
-- privacy-filtered rationale and sanitized local decision records;
-- no automatic feature approval, removal, consolidation, migration, write, or financial action;
-- startup-light loading that keeps v131 specialist code outside the Dashboard path.
+- `src/release-manifest.js` as the single current-release source for version, name, package version, active boot path, runtime label, asset tokens, protected budgets, destination count, and workbook cap;
+- versionless HTML shell titles and loading copy, with the active boot applying the final title and visible release version;
+- shared Playwright helpers for current version, title, boot resource, roadmap counts, and package expectations;
+- `scripts/release-consistency.mjs`, which checks shells, package metadata, active boot ownership, runtime metadata, roadmap status, and shared test expectations before browser installation;
+- exact file-and-field diagnostics when release metadata drifts;
+- a repository rule that blocks new scattered literal assertions for the current release;
+- unchanged Chromium, Firefox, WebKit, Android, iPad, iPhone, accessibility, Lighthouse, privacy, security, supply-chain, CodeQL, Cloudflare preview, and unresolved-thread gates.
 
 ## Preserved architecture
 
 - v126 remains the only route coordinator, specialist action dispatcher, and live `MutationObserver` owner.
 - v127 remains the retained UX and accessibility policy.
 - v128 remains the strict typed portable-vault foundation.
-- v129 remains the manual, session-only Workflow Review and sanitized local export.
+- v129 remains the manual, session-only Workflow Review.
 - v130 remains the bounded runtime and maintenance evidence contract.
-- The active v131 boot loads the established v128/v126 shell first; Workflow Review, Decision Gate integration, Decision Gate UI, and Diagnostics remain route-lazy.
-- v131 adds no second runtime, observer, backend, service worker, analytics endpoint, or persistent store.
+- v131 remains the closed-by-default Observed Needs Decision Gate.
+- v132 changes release identity and test ownership only; the v129, v130, and v131 specialist surfaces remain route-lazy.
 - The application retains six primary destinations and the Vault Workbook remains capped at **43 sheets**.
 
 ## Privacy and safety boundaries
 
-- `gringottsBudgetVault.latest` remains the only domain that may contain transaction copies.
-- Decision Gate evidence comes only from a user-selected privacy-filtered workflow-review file and the published runtime snapshot.
-- The gate does not inspect vault contents, balances, accounts, merchants, reports, credentials, or prior route history.
-- Imported evidence, rationale, and decisions remain in module memory and are cleared by reload.
-- Decision records contain aggregate workflow identifiers and the explicit disposition, not transaction rows or raw workflow observations.
+- `gringottsBudgetVault.latest` remains the only domain that may contain authoritative transaction copies.
+- v132 reads no vault, transaction, account, balance, merchant, report, credential, or portable-vault data.
+- v132 adds no localStorage, sessionStorage, IndexedDB, cookies, service worker, telemetry, analytics, remote endpoint, cloud adapter, backend, migration, financial schema, report sheet, or automatic financial action.
 - Full Vault Restore remains separate and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
@@ -56,7 +51,7 @@ The release provides:
 
 ## Strategic direction
 
-The next directional release is **v132 — Release & Test Infrastructure Simplification**. It should reduce duplicated release metadata and test ownership without weakening exact-head browser, accessibility, privacy, security, supply-chain, deployment, or recovery gates. See `ROADMAP.md`.
+The next directional release is **v133 — Local Data Longevity Drills**. It should exercise synthetic long-lived data through upgrade, corruption, rollback, orphan, stale-schema, and capacity scenarios without destructive automatic cleanup. See `ROADMAP.md`.
 
 ## Local validation
 
@@ -64,6 +59,7 @@ Requirements: Node.js 24 and Python 3.
 
 ```bash
 npm ci --ignore-scripts
+npm run release:check
 npm run typecheck
 npm run test:parser
 npx playwright install chromium
@@ -71,4 +67,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v131_OBSERVED_NEEDS_DECISION_GATE.md`, and `V131_SECURITY_REVIEW.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v132_RELEASE_TEST_INFRASTRUCTURE_SIMPLIFICATION.md`, and `V132_SECURITY_REVIEW.md`.
