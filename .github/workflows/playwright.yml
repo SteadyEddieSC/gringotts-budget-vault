@@ -112,7 +112,15 @@ jobs:
           node --check src/v131/decision-gate-ui.js
           node --check src/v131/integration.js
           node --check src/boot-v131.js
+          node --check src/release-manifest.js
+          node --check src/boot-v132.js
+          node --check scripts/release-consistency.mjs
+          node --check tests/helpers/release.js
           node --check src/v111/views.js
+
+      - name: Run exact release consistency diagnostics
+        shell: bash
+        run: npm run release:check 2>&1 | tee release-consistency.log
 
       - name: Run strict TypeScript and browser-free parser tests
         shell: bash
@@ -123,7 +131,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: parser-preflight-${{ github.run_attempt }}
-          path: parser-test.log
+          path: |
+            release-consistency.log
+            parser-test.log
           if-no-files-found: error
           retention-days: 7
 
