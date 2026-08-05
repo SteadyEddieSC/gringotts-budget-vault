@@ -19,10 +19,10 @@ async function cleanSelectedMonth(page) {
   });
 }
 
-test('preserves close, forecast, debt, scenario, and trend features under the v130 hardening release', async ({ app }) => {
+test('preserves close, forecast, debt, scenario, and trend features under the v131 decision-gate release', async ({ app }) => {
   const { page } = app;
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
-  await expect(page.locator('.version-text')).toHaveText('v130');
+  await expect(page.locator('.version-text')).toHaveText('v131');
   await openCloseForecast(page);
   await expect(page.getByRole('heading', { name: /Month close — July 2026/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Cash-flow forecast' })).toBeVisible();
