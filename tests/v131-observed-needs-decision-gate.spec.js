@@ -88,7 +88,13 @@ async function importReview(page, bundle = completeReviewBundle()) {
     mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify(bundle))
   });
-  await expect(page.getByText(/Workflow Review imported/i)).toBeVisible();
+  await expect.poll(
+    () => page.evaluate(() => {
+      const gate = window.GringottsV131?.snapshot?.();
+      return gate?.reviewLoaded === true && gate?.completeCount === 10;
+    }),
+    { timeout:10000, message:'Imported workflow evidence should be published before the test continues' }
+  ).toBe(true);
 }
 
 async function waitForGateState(page, state) {
