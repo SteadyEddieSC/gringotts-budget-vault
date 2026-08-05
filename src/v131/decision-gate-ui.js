@@ -2,10 +2,10 @@ import {
   validateWorkflowReviewBundle,
   evaluateDecisionGate,
   buildDecisionRecord,
-  decisionRecordSummaryText,
-  decisionRecordFilename
+  decisionRecordSummaryText
 } from './decision-contracts.js?v=131gate2';
 import { WORKFLOW_INVENTORY } from '../v129/workflow-evidence.js?v=131labels1';
+import { executeLocalExport } from '../v134/local-export.js?v=134export1';
 
 const SECTION = 'decision-gate';
 const CSS = String.raw`
@@ -182,16 +182,12 @@ async function runAction(action) {
   }
   const record = await buildCurrentRecord();
   if (action.id === 'v131DownloadDecision') {
-    const createdAt = record.createdAt;
-    const url = URL.createObjectURL(new Blob([`${JSON.stringify(record,null,2)}\n`], { type:'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = decisionRecordFilename(createdAt);
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-    services.announce('Decision record downloaded');
+    const result = executeLocalExport({
+      id:'decision-record',
+      payload:record,
+      filenameContext:{ createdAt:record.createdAt }
+    });
+    if (result.status === 'dispatched') services.announce('Decision record downloaded');
   } else if (action.id === 'v131CopyDecision') {
     if (!navigator.clipboard?.writeText) throw new Error('Clipboard access is unavailable in this browser context.');
     await navigator.clipboard.writeText(decisionRecordSummaryText(record));
