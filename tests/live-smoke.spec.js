@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { openPrimary, seedVault } from './helpers/app.js';
+import {
+  currentPackageVersion,
+  currentReleaseName,
+  currentTitle,
+  currentVersion,
+  directionalRoadmapCount,
+  shippedRoadmapCount
+} from './helpers/release.js';
 
 const liveURL = process.env.LIVE_BASE_URL;
 
@@ -24,7 +32,8 @@ test.describe('@live Cloudflare deployment', () => {
     expect(headers['cross-origin-opener-policy']).toBe('same-origin');
     expect(headers['cross-origin-resource-policy']).toBe('same-origin');
 
-    await expect(page.locator('.version-text')).toContainText(/^v131/);
+    await expect(page).toHaveTitle(currentTitle);
+    await expect(page.locator('.version-text')).toHaveText(currentVersion);
     await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
     await expect(page.getByRole('heading', { name:/Gringotts could not start/i })).toHaveCount(0);
     await expect.poll(() => page.evaluate(() => window.GringottsV126?.coordinator?.status)).toBe('ready');
@@ -33,6 +42,7 @@ test.describe('@live Cloudflare deployment', () => {
     await expect.poll(() => page.evaluate(() => window.GringottsV129?.release)).toBe('v129');
     await expect.poll(() => page.evaluate(() => window.GringottsV130?.release)).toBe('v130');
     await expect.poll(() => page.evaluate(() => window.GringottsV131?.release)).toBe('v131');
+    await expect.poll(() => page.evaluate(() => window.GringottsV132?.release)).toBe(currentVersion);
 
     const destinations = [
       ['Dashboard', /Vault Dashboard/i], ['Money', /Bills, Recurring & Budgets/i],
@@ -75,7 +85,7 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.locator('.v129-workflow-card')).toHaveCount(10);
     const workflowState = await page.evaluate(() => window.GringottsV129.snapshot());
     expect(workflowState).toMatchObject({
-      hostRelease:'v131', reviewStateCount:0, automaticTelemetry:false, financialDataRead:false,
+      hostRelease:currentVersion, reviewStateCount:0, automaticTelemetry:false, financialDataRead:false,
       persistentStoreAdded:false, lazyController:true, dispatcherOwned:true, coordinatorOwned:true
     });
 
@@ -93,8 +103,12 @@ test.describe('@live Cloudflare deployment', () => {
     await expect(page.getByRole('heading', { name:/v129 — Household Workflow Evidence Review/i })).toBeVisible();
     await expect(page.getByRole('heading', { name:/v130 — Performance & Maintenance Hardening/i })).toBeVisible();
     await expect(page.getByRole('heading', { name:/v131 — Observed Needs Decision Gate/i })).toBeVisible();
-    await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-    await expect(page.locator('[data-roadmap-version="v131"]')).toHaveAttribute('data-roadmap-status', 'current');
+    await expect(page.getByRole('heading', { name:`${currentVersion} — ${currentReleaseName}`, exact:true })).toBeVisible();
+    await expect(page.getByText('Shipped', { exact:true })).toHaveCount(shippedRoadmapCount);
+    await expect(page.getByText('Current release', { exact:true })).toHaveCount(1);
+    await expect(page.getByText('Directional', { exact:true })).toHaveCount(directionalRoadmapCount);
+    await expect(page.locator('[data-roadmap-version="v131"]')).toHaveAttribute('data-roadmap-status', 'shipped');
+    await expect(page.locator(`[data-roadmap-version="${currentVersion}"]`)).toHaveAttribute('data-roadmap-status', 'current');
     await expect(page.getByRole('heading', { name:/v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
 
     await page.getByRole('tab', { name:'Diagnostics', exact:true }).click();
@@ -106,7 +120,9 @@ test.describe('@live Cloudflare deployment', () => {
       foundation:window.GringottsV128.snapshot(),
       evidence:window.GringottsV129.snapshot(),
       hardening:window.GringottsV130.snapshot(),
-      gate:window.GringottsV131.snapshot()
+      gate:window.GringottsV131.snapshot(),
+      infrastructure:window.GringottsV132.snapshot(),
+      build:window.GringottsCleanRuntime.BUILD
     }));
     expect(state.lifecycle.observerCount).toBe(1);
     expect(state.ux.observerAdded).toBe(false);
@@ -127,6 +143,21 @@ test.describe('@live Cloudflare deployment', () => {
       primaryDestinations:6,
       toolsSections:6
     });
+    expect(state.infrastructure).toMatchObject({
+      release:currentVersion,
+      name:currentReleaseName,
+      packageVersion:currentPackageVersion,
+      centralizedReleaseManifest:true,
+      centralizedVersionAssertions:true,
+      workflowIntegrationLoaded:true,
+      decisionIntegrationLoaded:true,
+      diagnosticsLoaded:true,
+      persistentStoreAdded:false,
+      financialDataRead:false,
+      primaryDestinations:6,
+      workbookSheets:43
+    });
+    expect(state.build).toMatchObject({ version:currentVersion, name:currentReleaseName });
 
     await openPrimary(page, 'Activity');
     await page.getByRole('tab', { name:'Plan', exact:true }).click();
