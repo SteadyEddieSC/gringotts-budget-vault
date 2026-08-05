@@ -21,7 +21,7 @@ let services = { announce() {}, enhance() {} };
 let lastSummary = model.summarizeWorkflowReview(model.WORKFLOW_INVENTORY.map((workflow) => model.emptyWorkflowObservation(workflow.id)));
 
 function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;' }[character]));
+  return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[character]));
 }
 
 function installStyles() {
