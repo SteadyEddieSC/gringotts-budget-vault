@@ -1,4 +1,5 @@
 import { test, expect, openPrimary } from './helpers/app.js';
+import { currentTitle, currentVersion } from './helpers/release.js';
 
 async function visibleCount(locator) {
   let count = 0;
@@ -8,18 +9,19 @@ async function visibleCount(locator) {
 
 test('preserves six primary destinations and browser-local vault state', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v131/i);
+  await expect(page).toHaveTitle(currentTitle);
   const labels = await page.locator('[data-tab]').allTextContents();
   expect(labels.map((value) => value.trim())).toEqual(['Dashboard', 'Money', 'Calendar', 'Reports', 'Activity', 'Tools']);
   const before = await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'));
   for (const destination of labels) await openPrimary(page, destination.trim());
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(before);
   const state = await page.evaluate(() => ({
-    ux: window.GringottsV127.snapshot(),
-    foundation: window.GringottsV128.snapshot(),
-    evidence: window.GringottsV129.snapshot(),
-    hardening: window.GringottsV130.snapshot(),
-    gate: window.GringottsV131.snapshot()
+    ux:window.GringottsV127.snapshot(),
+    foundation:window.GringottsV128.snapshot(),
+    evidence:window.GringottsV129.snapshot(),
+    hardening:window.GringottsV130.snapshot(),
+    gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot()
   }));
   expect(state.ux.primaryDestinations).toBe(6);
   expect(state.ux.storageWritesAdded).toBe(false);
@@ -37,6 +39,13 @@ test('preserves six primary destinations and browser-local vault state', async (
   expect(state.gate.persistentStoreAdded).toBe(false);
   expect(state.gate.networkImplementationAdded).toBe(false);
   expect(state.gate.automaticApproval).toBe(false);
+  expect(state.infrastructure).toMatchObject({
+    release:currentVersion,
+    primaryDestinations:6,
+    persistentStoreAdded:false,
+    networkImplementationAdded:false,
+    centralizedReleaseManifest:true
+  });
 });
 
 test('shows one report preview at a time while preserving the eight inherited print pages', async ({ app }) => {
@@ -76,7 +85,7 @@ test('keeps trends, scenarios, and recurring decisions separate from cleanup, im
 
 test('keeps phone secondary navigation and planning surfaces compact', async ({ app }) => {
   const { page } = app;
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width:390, height:844 });
   await openPrimary(page, 'Money');
   await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
