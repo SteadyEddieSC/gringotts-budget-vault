@@ -1,28 +1,30 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('exposes one coordinator, one dispatcher, and one owned observer under startup-light v130', async ({ app }) => {
+test('exposes one coordinator, one dispatcher, and one owned observer under startup-light v131', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v130');
+  await expect(page.locator('.version-text')).toHaveText('v131');
   const state = await page.evaluate(() => ({
     lifecycle:window.GringottsV126.coordinator.snapshot(), actions:window.GringottsV126.dispatcher.snapshot(),
     build:window.GringottsCleanRuntime.BUILD, ux:window.GringottsV127.snapshot(),
-    foundation:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(), hardening:window.GringottsV130.snapshot()
+    foundation:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(), hardening:window.GringottsV130.snapshot(), gate:window.GringottsV131.snapshot()
   }));
   expect(state.lifecycle.status).toBe('ready');
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.observerOwner).toBe('v126-runtime-coordinator');
   expect(state.lifecycle.actionOwner).toBe('v126-action-dispatcher');
   expect(state.actions.installed).toBe(true);
-  expect(state.build.version).toBe('v130');
+  expect(state.build.version).toBe('v131');
   expect(state.build.runtime).toContain('v126 coordinator/dispatcher');
   expect(state.build.runtime).toContain('v128 UX/typed foundation');
-  expect(state.build.runtime).toContain('lazy v129 workflow integration');
-  expect(state.build.runtime).toContain('lazy v130 diagnostics');
+  expect(state.build.runtime).toContain('lazy v129 workflow review');
+  expect(state.build.runtime).toContain('retained v130 runtime budgets');
+  expect(state.build.runtime).toContain('lazy v131 decision gate');
   expect(state.ux.observerAdded).toBe(false);
   expect(state.foundation.observerAdded).toBe(false);
   expect(state.foundation.networkImplementationAdded).toBe(false);
   expect(state.evidence).toMatchObject({ integrationLoaded:false, observerAdded:false, persistentStoreAdded:false, dispatcherOwned:false, coordinatorOwned:true });
   expect(state.hardening).toMatchObject({ observerAdded:false, persistentStoreAdded:false, memoryOnlyHistory:true, workflowIntegrationLazy:true, diagnosticsLazy:true });
+  expect(state.gate).toMatchObject({ release:'v131', integrationLoaded:false, automaticApproval:false, startupLight:true });
 });
 
 test('loads inherited route layers once while keeping Tools specialists lazy', async ({ app }) => {
@@ -37,12 +39,13 @@ test('loads inherited route layers once while keeping Tools specialists lazy', a
   await expect(page.locator('#reportPreviewPage option')).toHaveCount(9);
   await expect(page.getByRole('button',{ name:'Download 43-sheet Workbook', exact:true })).toBeVisible();
   await expect(page.locator('.v126-workbook-cap-note')).toHaveText(/no workbook sheet was added/i);
-  const runtime = await page.evaluate(() => ({ lifecycle:window.GringottsV126.coordinator.snapshot(), hardening:window.GringottsV130.snapshot() }));
+  const runtime = await page.evaluate(() => ({ lifecycle:window.GringottsV126.coordinator.snapshot(), hardening:window.GringottsV130.snapshot(), gate:window.GringottsV131.snapshot() }));
   expect(runtime.lifecycle.releaseCount).toBe(7);
-  expect(runtime.lifecycle.releases.map((release) => release.id)).toEqual(['v118','v119','v120','v121','v125','v126','v130']);
+  expect(runtime.lifecycle.releases.map((release) => release.id)).toEqual(['v118','v119','v120','v121','v125','v126','v131']);
   expect(runtime.lifecycle.observerCount).toBe(1);
   expect(runtime.hardening.workflowIntegrationLoaded).toBe(false);
   expect(runtime.hardening.diagnosticsLoaded).toBe(false);
+  expect(runtime.gate.integrationLoaded).toBe(false);
   expect(await page.evaluate(() => localStorage.getItem('gringottsBudgetVault.latest'))).toBe(vaultBefore);
 });
 
@@ -61,7 +64,7 @@ test('routes specialist downloads through v126 ownership without a network write
   expect(writes).toEqual([]);
 });
 
-test('shows non-destructive runtime diagnostics, lazy v130 budgets, and storage recovery contracts', async ({ app }) => {
+test('shows non-destructive runtime diagnostics, retained v130 budgets, and storage recovery contracts', async ({ app }) => {
   const { page } = app;
   await openPrimary(page,'Tools');
   await page.getByRole('tab',{ name:'Diagnostics', exact:true }).click();
@@ -71,7 +74,7 @@ test('shows non-destructive runtime diagnostics, lazy v130 budgets, and storage 
   await expect(page.getByText(/18 browser-local domains are inventoried/i)).toBeVisible();
   await expect(page.getByRole('button',{ name:'Retry Route Enhancements', exact:true })).toBeVisible();
   await expect(page.getByRole('link',{ name:'Open Stable v105 Rescue', exact:true })).toHaveAttribute('href',/rescue-v105\.html/);
-  const diagnostics = await page.evaluate(() => ({ v126:window.GringottsV126.diagnostics(), v129:window.GringottsV129.snapshot(), v130:window.GringottsV130.snapshot() }));
+  const diagnostics = await page.evaluate(() => ({ v126:window.GringottsV126.diagnostics(), v129:window.GringottsV129.snapshot(), v130:window.GringottsV130.snapshot(), v131:window.GringottsV131.snapshot() }));
   expect(diagnostics.v126.storage.transactionCopyDomains).toEqual(['gringottsBudgetVault.latest']);
   expect(diagnostics.v126.runtimeConsolidation.oneObserverOwned).toBe(true);
   expect(diagnostics.v126.runtimeConsolidation.timeoutReadinessAvailable).toBe(false);
@@ -81,6 +84,7 @@ test('shows non-destructive runtime diagnostics, lazy v130 budgets, and storage 
   expect(diagnostics.v130.diagnosticsLoaded).toBe(true);
   expect(diagnostics.v130.historyCount).toBeLessThanOrEqual(12);
   expect(diagnostics.v130.workbookSheets).toBe(43);
+  expect(diagnostics.v131).toMatchObject({ release:'v131', integrationLoaded:true, automaticApproval:false });
 });
 
 test('keeps reliability surfaces within a phone viewport', async ({ app }) => {
