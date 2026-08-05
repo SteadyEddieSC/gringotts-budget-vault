@@ -9,26 +9,27 @@
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Cloudflare serves application assets only. Household financial data remains on the current device unless the user explicitly creates a local export or backup.
 
-Current release: **v130 — Performance & Maintenance Hardening**
+Current release: **v131 — Observed Needs Decision Gate**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v130 performance and maintenance hardening
+## v131 observed-needs decision gate
 
-v130 reduces active release-layer coupling and makes the existing runtime budgets explicit without adding household-finance functionality.
+v131 makes the feature freeze explicit. A product-scope change cannot be inferred from roadmap momentum, clicks, transactions, reports, or telemetry.
 
 The release provides:
 
-- strict TypeScript contracts for route-ready, enhancement, observer, action, request, script-byte, workbook, runtime-owner, destination, and session-history budgets;
-- a pure evaluator that reports every exceeded budget without reading financial data or changing browser state;
-- a startup-light production entry that loads the established v128/v126 shell first;
-- Workflow Review code loaded only when Tools opens, then owned by the v126 coordinator and dispatcher;
-- the evaluator and Performance & Maintenance Diagnostics renderer loaded only when Diagnostics opens;
-- bounded memory-only route evidence collected by the small v130 coordinator enhancer;
-- repeated-route settlement tests that guard against mutation feedback loops and detached click targets;
-- unchanged Lighthouse ceilings of 45 requests and 500,000 script bytes.
+- a session-only **Tools → Decision Gate** workspace;
+- explicit local import and strict validation of a v129 Household Workflow Review bundle;
+- current maintenance evidence read through the published v130 runtime snapshot;
+- closed-by-default `evidence-incomplete` and `runtime-blocked` states;
+- an explicit `decision-ready` state only after all ten workflow observations are complete and runtime evidence passes;
+- human dispositions to hold scope, permit maintenance-only scoping, or allow one narrow proposal for later review;
+- privacy-filtered rationale and sanitized local decision records;
+- no automatic feature approval, removal, consolidation, migration, write, or financial action;
+- startup-light loading that keeps v131 specialist code outside the Dashboard path.
 
 ## Preserved architecture
 
@@ -36,16 +37,18 @@ The release provides:
 - v127 remains the retained UX and accessibility policy.
 - v128 remains the strict typed portable-vault foundation.
 - v129 remains the manual, session-only Workflow Review and sanitized local export.
-- `boot-v129.js` remains a compatibility entry but is not part of the v130 production startup chain.
-- v130 adds no second runtime, observer, backend, service worker, analytics endpoint, or persistent store.
+- v130 remains the bounded runtime and maintenance evidence contract.
+- The active v131 boot loads the established v128/v126 shell first; Workflow Review, Decision Gate integration, Decision Gate UI, and Diagnostics remain route-lazy.
+- v131 adds no second runtime, observer, backend, service worker, analytics endpoint, or persistent store.
 - The application retains six primary destinations and the Vault Workbook remains capped at **43 sheets**.
 
 ## Privacy and safety boundaries
 
 - `gringottsBudgetVault.latest` remains the only domain that may contain transaction copies.
-- Performance history contains route lifecycle measurements and ownership status only; it does not inspect vault contents, balances, accounts, merchants, reports, credentials, or portable-vault bytes.
-- Performance history exists only in memory for the current tab and is bounded to 12 samples.
-- Workflow Review remains manual, session-only, and cleared by reload.
+- Decision Gate evidence comes only from a user-selected privacy-filtered workflow-review file and the published runtime snapshot.
+- The gate does not inspect vault contents, balances, accounts, merchants, reports, credentials, or prior route history.
+- Imported evidence, rationale, and decisions remain in module memory and are cleared by reload.
+- Decision records contain aggregate workflow identifiers and the explicit disposition, not transaction rows or raw workflow observations.
 - Full Vault Restore remains separate and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
@@ -53,7 +56,7 @@ The release provides:
 
 ## Strategic direction
 
-The next directional release is **v131 — Observed Needs Decision Gate**. The feature freeze remains the default. Any proposed capability or removal should be justified by completed household Workflow Review evidence together with v130 maintenance and runtime evidence. See `ROADMAP.md`.
+The next directional release is **v132 — Release & Test Infrastructure Simplification**. It should reduce duplicated release metadata and test ownership without weakening exact-head browser, accessibility, privacy, security, supply-chain, deployment, or recovery gates. See `ROADMAP.md`.
 
 ## Local validation
 
@@ -68,4 +71,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v130_PERFORMANCE_MAINTENANCE_HARDENING.md`, and `V130_SECURITY_REVIEW.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v131_OBSERVED_NEEDS_DECISION_GATE.md`, and `V131_SECURITY_REVIEW.md`.

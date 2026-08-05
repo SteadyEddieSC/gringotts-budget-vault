@@ -1,12 +1,12 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('preserves the v128 typed foundation under v130 without adding a runtime, observer, store, or cloud adapter', async ({ app }) => {
+test('preserves the v128 typed foundation under v131 without adding a runtime, observer, store, or cloud adapter', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v130');
+  await expect(page.locator('.version-text')).toHaveText('v131');
   const state = await page.evaluate(() => ({
     coordinator:window.GringottsV126.coordinator.snapshot(), ux:window.GringottsV127.snapshot(),
     foundation:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(),
-    hardening:window.GringottsV130.snapshot(), build:window.GringottsCleanRuntime.BUILD,
+    hardening:window.GringottsV130.snapshot(), gate:window.GringottsV131.snapshot(), build:window.GringottsCleanRuntime.BUILD,
     primaryDestinations:document.querySelectorAll('[data-tab]').length
   }));
   expect(state.coordinator.observerCount).toBe(1);
@@ -19,18 +19,24 @@ test('preserves the v128 typed foundation under v130 without adding a runtime, o
     primaryDestinations:6, workbookSheets:43, networkBudgetDelta:0
   });
   expect(state.evidence).toMatchObject({
-    release:'v129', hostRelease:'v130', integrationLoaded:false, automaticTelemetry:false, financialDataRead:false,
+    release:'v129', hostRelease:'v131', integrationLoaded:false, automaticTelemetry:false, financialDataRead:false,
     persistentStoreAdded:false, networkImplementationAdded:false, observerAdded:false,
     dispatcherOwned:false, coordinatorOwned:true, registeredAsRelease:false, lazyController:true
   });
   expect(state.hardening).toMatchObject({
-    release:'v130', financialDataRead:false, persistentStoreAdded:false, networkImplementationAdded:false,
+    release:'v130', hostRelease:'v131', financialDataRead:false, persistentStoreAdded:false, networkImplementationAdded:false,
     observerAdded:false, serviceWorkerAdded:false, workflowIntegrationLazy:true, diagnosticsLazy:true
   });
-  expect(state.build.version).toBe('v130');
+  expect(state.gate).toMatchObject({
+    release:'v131', integrationLoaded:false, automaticApproval:false, financialDataRead:false,
+    persistentStoreAdded:false, networkImplementationAdded:false, observerAdded:false, serviceWorkerAdded:false,
+    startupLight:true
+  });
+  expect(state.build.version).toBe('v131');
   expect(state.build.runtime).toContain('v128 UX/typed foundation');
-  expect(state.build.runtime).toContain('lazy v129 workflow integration');
-  expect(state.build.runtime).toContain('lazy v130 diagnostics');
+  expect(state.build.runtime).toContain('lazy v129 workflow review');
+  expect(state.build.runtime).toContain('retained v130 runtime budgets');
+  expect(state.build.runtime).toContain('lazy v131 decision gate');
   expect(state.primaryDestinations).toBe(6);
 });
 
@@ -76,19 +82,19 @@ test('rejects portable-vault tampering before any restore decision', async ({ ap
   expect(message).toMatch(/integrity verification failed/i);
 });
 
-test('shows v127 through v129 shipped with v130 current in the ten-release roadmap', async ({ app }) => {
+test('shows v127 through v130 shipped with v131 current in the ten-release roadmap', async ({ app }) => {
   const { page } = app;
   await openPrimary(page,'Tools');
   await page.getByRole('tab',{ name:'Roadmap', exact:true }).click();
   await expect(page.getByRole('heading',{ name:'v127–v136 Reliability Roadmap', exact:true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card')).toHaveCount(10);
-  for (const version of ['v127','v128','v129']) {
+  for (const version of ['v127','v128','v129','v130']) {
     const shipped = page.locator(`[data-roadmap-version="${version}"]`);
     await expect(shipped).toHaveAttribute('data-roadmap-status','shipped');
     await expect(shipped.locator('.badge')).toHaveText('Shipped');
   }
-  const current = page.locator('[data-roadmap-version="v130"]');
+  const current = page.locator('[data-roadmap-version="v131"]');
   await expect(current).toHaveAttribute('data-roadmap-status','current');
   await expect(current.locator('.badge')).toHaveText('Current release');
-  await expect(current.getByRole('heading',{ name:'v130 — Performance & Maintenance Hardening', exact:true })).toBeVisible();
+  await expect(current.getByRole('heading',{ name:'v131 — Observed Needs Decision Gate', exact:true })).toBeVisible();
 });

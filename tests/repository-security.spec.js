@@ -42,7 +42,7 @@ test('Cloudflare headers preserve the local-first browser boundary', () => {
   ]);
 });
 
-test('quality automation retains accessibility, visual, and Lighthouse budgets through v130', () => {
+test('quality automation retains accessibility, visual, and Lighthouse budgets through v131', () => {
   const workflow = read('.github/workflows/quality.yml');
   const lighthouse = read('lighthouserc.cjs');
   const packageJson = read('package.json');
@@ -52,7 +52,8 @@ test('quality automation retains accessibility, visual, and Lighthouse budgets t
     'quality-tests/v122-accessibility.spec.js', 'quality-tests/v123-accessibility.spec.js',
     'quality-tests/v124-accessibility.spec.js', 'quality-tests/v125-accessibility.spec.js',
     'quality-tests/v126-accessibility.spec.js', 'quality-tests/v127-accessibility.spec.js',
-    'quality-tests/v129-accessibility.spec.js', 'quality-tests/v130-accessibility.spec.js'
+    'quality-tests/v129-accessibility.spec.js', 'quality-tests/v130-accessibility.spec.js',
+    'quality-tests/v131-accessibility.spec.js'
   ]) expectAll(`${workflow}\n${packageJson}`, [file]);
   expectAll(workflow, ['npm ci --ignore-scripts']);
   expect(workflow).not.toContain('temporaryPublicStorage: true');
@@ -82,14 +83,16 @@ test('parser preflight checks inherited and current release modules plus strict 
     'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js',
     'src/v128/contracts.js', 'src/v128/portable-vault.js', 'src/boot-v128.js',
     'src/v129/workflow-evidence.js', 'src/v129/workflow-review.js', 'src/v129/integration.js', 'src/boot-v129.js',
-    'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'src/boot-v130.js'
+    'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'src/boot-v130.js',
+    'src/v131/decision-contracts.js', 'src/v131/decision-gate-ui.js', 'src/v131/integration.js', 'src/boot-v131.js'
   ];
   modules.forEach((module) => expect(workflow).toContain(`node --check ${module}`));
-  for (const excluded of ['src/v127/release.js', 'src/v128/contracts.ts', 'src/v129/workflow-evidence.ts', 'src/v130/performance-contracts.ts']) {
-    expect(workflow).not.toContain(`node --check ${excluded}`);
-  }
-  expectAll(packageJson, ['"version": "130.0.0"', '"typecheck": "tsc -p tsconfig.json"', '"typescript": "5.9.2"']);
-  expect(read('tsconfig.json')).toContain('src/v130/**/*.ts');
+  for (const excluded of [
+    'src/v127/release.js', 'src/v128/contracts.ts', 'src/v129/workflow-evidence.ts',
+    'src/v130/performance-contracts.ts', 'src/v131/decision-contracts.ts'
+  ]) expect(workflow).not.toContain(`node --check ${excluded}`);
+  expectAll(packageJson, ['"version": "131.0.0"', '"typecheck": "tsc -p tsconfig.json"', '"typescript": "5.9.2"']);
+  expectAll(read('tsconfig.json'), ['src/v130/**/*.ts', 'src/v131/**/*.ts']);
   expect(read('package-lock.json')).toContain('https://registry.npmjs.org/@playwright/test/-/test-1.61.1.tgz');
   expect(workflow).toContain('npm ci --ignore-scripts');
   expect(workflow.indexOf('Run strict TypeScript and browser-free parser tests')).toBeLessThan(workflow.indexOf('Install Chromium and system dependencies'));
@@ -97,7 +100,7 @@ test('parser preflight checks inherited and current release modules plus strict 
   expect(workflow.indexOf('Run Android Chromium preflight')).toBeLessThan(workflow.indexOf('Install WebKit after Android Chromium passes'));
 });
 
-test('analytical, planning, portability, workflow-evidence, and performance layers remain local and do not silently write the vault', () => {
+test('analytical, planning, portability, evidence, performance, and decision layers remain local and do not silently write the vault', () => {
   const localOnly = [
     'src/v113/insights.js', 'src/v113/views.js', 'src/v114/planning.js', 'src/v114/views.js',
     'src/v120/import-receipt-audit-model.js', 'src/v120/import-receipt-audit.js',
@@ -110,11 +113,15 @@ test('analytical, planning, portability, workflow-evidence, and performance laye
     'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js', 'src/boot-v127.js',
     'src/v128/contracts.js', 'src/v128/portable-vault.js', 'src/boot-v128.js',
     'src/v129/workflow-evidence.js', 'src/v129/workflow-review.js', 'src/v129/integration.js', 'src/boot-v129.js',
-    'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'src/boot-v130.js'
+    'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'src/boot-v130.js',
+    'src/v131/decision-contracts.js', 'src/v131/decision-gate-ui.js', 'src/v131/integration.js', 'src/boot-v131.js'
   ];
   localOnly.forEach((file) => noRemote(read(file), file));
   for (const file of localOnly) expect(read(file)).not.toContain("localStorage.setItem('gringottsBudgetVault.latest'");
-  for (const file of ['src/v129/integration.js', 'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'src/boot-v130.js']) {
+  for (const file of [
+    'src/v129/integration.js', 'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'src/boot-v130.js',
+    'src/v131/decision-contracts.js', 'src/v131/decision-gate-ui.js', 'src/v131/integration.js', 'src/boot-v131.js'
+  ]) {
     noBrowserStore(read(file), file);
     expect(read(file)).not.toMatch(/gringottsBudgetVault\.latest|merchant_name|account_id|transaction_id/);
   }
@@ -174,9 +181,11 @@ test('v126 remains the sole route lifecycle, action dispatcher, and observer own
   expectAll(runtime, ["observerOwner: 'v126-runtime-coordinator'", "actionOwner: 'v126-action-dispatcher'", 'maxEnhancementPasses: 3', 'new MutationObserver']);
   expectAll(adapter, ['V126SuppressedObserver', 'dispatcher.register']);
   expectAll(boot, ['createRuntimeCoordinator', 'createActionDispatcher', 'installLegacyLayer']);
-  for (const file of ['src/v126/release.js', 'src/boot-v127.js', 'src/boot-v128.js', 'src/v129/integration.js', 'src/boot-v129.js', 'src/v130/runtime-health.js', 'src/boot-v130.js']) {
-    expect(read(file)).not.toContain('new MutationObserver');
-  }
+  for (const file of [
+    'src/v126/release.js', 'src/boot-v127.js', 'src/boot-v128.js', 'src/v129/integration.js', 'src/boot-v129.js',
+    'src/v130/runtime-health.js', 'src/boot-v130.js', 'src/v131/decision-contracts.js', 'src/v131/decision-gate-ui.js',
+    'src/v131/integration.js', 'src/boot-v131.js'
+  ]) expect(read(file)).not.toContain('new MutationObserver');
   expectAll(release, ['43-sheet reliability-capped Vault Workbook', "version: 'v126'", "stableRescue: 'rescue-v105.html'"]);
 });
 
@@ -224,13 +233,11 @@ test('v129 workflow evidence is manual-only, dispatcher-owned, and optional as a
   expect(compatibilityBoot).toContain('installWorkflowReviewIntegration');
 });
 
-test('v130 keeps specialist modules outside startup while enforcing authoritative release metadata and unchanged budgets', () => {
+test('v130 performance contracts remain authoritative and startup-light in the historical wrapper', () => {
   const contractsTs = read('src/v130/performance-contracts.ts');
   const contractsJs = read('src/v130/performance-contracts.js');
   const diagnostics = read('src/v130/runtime-health.js');
   const boot = read('src/boot-v130.js');
-  const index = read('index.html');
-  const app = read('app.html');
   expectAll(contractsTs, [
     'interface PerformanceBudgetInput', 'evaluatePerformanceBudget',
     'maxNetworkRequests: 45', 'maxScriptBytes: 500_000', 'maxWorkbookSheets: 43',
@@ -252,43 +259,84 @@ test('v130 keeps specialist modules outside startup while enforcing authoritativ
     noRemote(source, 'v130 source');
     noBrowserStore(source, 'v130 source');
   }
+});
+
+test('v131 is closed by default, privacy-filtered, dispatcher-owned, and startup-light', () => {
+  const contractsTs = read('src/v131/decision-contracts.ts');
+  const contractsJs = read('src/v131/decision-contracts.js');
+  const ui = read('src/v131/decision-gate-ui.js');
+  const integration = read('src/v131/integration.js');
+  const boot = read('src/boot-v131.js');
+  const index = read('index.html');
+  const app = read('app.html');
+  expectAll(contractsTs, [
+    "GateState = 'evidence-incomplete'", "'runtime-blocked'", "'decision-ready'", "'candidate-proposal'",
+    'evaluateRuntimeEvidence', 'sanitizeDecisionRationale'
+  ]);
+  expectAll(contractsJs, [
+    "DECISION_GATE_KIND = 'gringotts-observed-needs-decision'", 'validateWorkflowReviewBundle',
+    "state = 'evidence-incomplete'", "state = 'runtime-blocked'", "state = 'decision-ready'",
+    'automaticApproval: false', 'financialDataIncluded: false', 'persistentStoreUsed: false',
+    'remoteTransmission: false'
+  ]);
+  expectAll(ui, [
+    'Choose Workflow Review JSON', 'Download Decision Record', 'Copy Decision Summary',
+    "dispatcher.register('change', 'v131-decision-gate-fields'", "dispatcher.register('click', 'v131-decision-gate-actions'",
+    'window.GringottsV130?.snapshot?.()'
+  ]);
+  expect(ui).not.toMatch(/document\.addEventListener\('(change|click)'/);
+  expectAll(integration, [
+    "dispatcher.register('click', 'v131-decision-gate-route'", "import('./decision-gate-ui.js?v=131ui2')",
+    'integrationLazy:true', 'uiLazy:true', 'automaticApproval:false'
+  ]);
+  expectAll(boot, [
+    "import './boot-v128.js?v=131base1'", "runtime.coordinator.registerRelease({ id:'v131'",
+    "import('./v129/integration.js?v=131workflow1')", "import('./v131/integration.js?v=131integration2')",
+    "import('./v130/runtime-health.js?v=131diagnostics1')", 'activeBootImportsV130:false',
+    'activeBootImportsV129:false', 'startupLight:true', 'toolsSections:6', "cacheBust:'131decision2'"
+  ]);
+  expect(boot).not.toMatch(/^import .*boot-v130|^import .*v129\/integration|^import .*v131\/integration|^import .*v131\/decision/gm);
   for (const shell of [index, app]) {
-    expectAll(shell, ['Gringotts Budget Vault v130', 'src/boot-v130.js?v=130hardening3', 'styles/v106-v107.css', 'styles/v116.css']);
-    expect(shell).not.toContain('src/boot-v129.js');
+    expectAll(shell, ['Gringotts Budget Vault v131', 'src/boot-v131.js?v=131decision2', 'styles/v106-v107.css', 'styles/v116.css']);
+    expect(shell).not.toMatch(/src\/boot-v(?:129|130)\.js/);
     for (const absent of [
       'styles/v106.css', 'styles/v107.css', 'styles/v113.css', 'styles/v127.css', 'styles/v128.css',
-      'styles/v129.css', 'styles/v130.css', 'styles/v120.css', 'styles/v121.css', 'styles/v122.css',
+      'styles/v129.css', 'styles/v130.css', 'styles/v131.css', 'styles/v120.css', 'styles/v121.css', 'styles/v122.css',
       'styles/v123.css', 'styles/v124.css', 'styles/v125.css', 'styles/v126.css'
     ]) expect(shell).not.toContain(absent);
   }
 });
 
-test('public repository quality and release-control files remain present through v130', () => {
+test('public repository quality and release-control files remain present through v131', () => {
   const required = [
     'SECURITY.md', '.github/dependabot.yml', '.github/workflows/codeql.yml', '.github/workflows/playwright.yml',
     '.github/workflows/quality.yml', '.github/workflows/security.yml', '.github/workflows/supply-chain.yml', '.github/workflows/scorecard.yml',
     'playwright.quality.config.js', 'lighthouserc.cjs', 'scripts/privacy-history-scan.mjs',
     'quality-tests/accessibility.spec.js', 'quality-tests/v124-accessibility.spec.js', 'quality-tests/v125-accessibility.spec.js',
     'quality-tests/v126-accessibility.spec.js', 'quality-tests/v127-accessibility.spec.js', 'quality-tests/v129-accessibility.spec.js',
-    'quality-tests/v130-accessibility.spec.js', 'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
-    'src/boot-v125.js', 'src/boot-v126.js', 'src/boot-v127.js', 'src/boot-v128.js', 'src/boot-v129.js', 'src/boot-v130.js',
+    'quality-tests/v130-accessibility.spec.js', 'quality-tests/v131-accessibility.spec.js',
+    'quality-tests/tab-semantics.spec.js', 'quality-tests/visual-contracts.spec.js',
+    'src/boot-v125.js', 'src/boot-v126.js', 'src/boot-v127.js', 'src/boot-v128.js', 'src/boot-v129.js', 'src/boot-v130.js', 'src/boot-v131.js',
     'src/v125/release.js', 'src/v126/release.js', 'src/v126/runtime.js', 'src/v126/legacy-adapter.js', 'src/v126/storage-inventory.js',
     'src/v126/roadmap-horizon.js', 'src/v127/ux-policy.js', 'src/v127/roadmap-horizon.js',
     'src/v128/contracts.ts', 'src/v128/contracts.js', 'src/v128/portable-vault.ts', 'src/v128/portable-vault.js',
     'src/v129/workflow-evidence.ts', 'src/v129/workflow-evidence.js', 'src/v129/workflow-review.js', 'src/v129/integration.js',
-    'src/v130/performance-contracts.ts', 'src/v130/performance-contracts.js', 'src/v130/runtime-health.js', 'tsconfig.json',
+    'src/v130/performance-contracts.ts', 'src/v130/performance-contracts.js', 'src/v130/runtime-health.js',
+    'src/v131/decision-contracts.ts', 'src/v131/decision-contracts.js', 'src/v131/decision-gate-ui.js', 'src/v131/integration.js', 'tsconfig.json',
     'styles/v106-v107.css', 'styles/v113.css', 'styles/v116.css',
     'tests-node/close-history-explainability.test.mjs', 'tests-node/v125-release-contract.test.mjs',
     'tests-node/v126-runtime-consolidation.test.mjs', 'tests-node/v127-ux-polish.test.mjs',
     'tests-node/v128-typescript-portable-vault.test.mjs', 'tests-node/v129-workflow-evidence-review.test.mjs',
-    'tests-node/v130-performance-maintenance.test.mjs',
+    'tests-node/v130-performance-maintenance.test.mjs', 'tests-node/v131-observed-needs-decision-gate.test.mjs',
     'tests/close-history-explainability.spec.js', 'tests/runtime-consolidation.spec.js', 'tests/ux-polish-simplification.spec.js',
-    'tests/v128-portable-vault-foundation.spec.js', 'tests/v129-workflow-evidence-review.spec.js', 'tests/v130-performance-maintenance.spec.js',
+    'tests/v128-portable-vault-foundation.spec.js', 'tests/v129-workflow-evidence-review.spec.js',
+    'tests/v130-performance-maintenance.spec.js', 'tests/v131-observed-needs-decision-gate.spec.js',
     'BANK_IMPORT_ROADMAP.md',
     'RELEASE_NOTES_v127_UX_POLISH_SIMPLIFICATION.md', 'V127_SECURITY_REVIEW.md',
     'RELEASE_NOTES_v128_TYPESCRIPT_PORTABLE_VAULT_FOUNDATION.md', 'V128_SECURITY_REVIEW.md',
     'RELEASE_NOTES_v129_HOUSEHOLD_WORKFLOW_EVIDENCE_REVIEW.md', 'V129_SECURITY_REVIEW.md',
-    'RELEASE_NOTES_v130_PERFORMANCE_MAINTENANCE_HARDENING.md', 'V130_SECURITY_REVIEW.md'
+    'RELEASE_NOTES_v130_PERFORMANCE_MAINTENANCE_HARDENING.md', 'V130_SECURITY_REVIEW.md',
+    'RELEASE_NOTES_v131_OBSERVED_NEEDS_DECISION_GATE.md', 'V131_SECURITY_REVIEW.md'
   ];
   expect(required.filter((file) => !fs.existsSync(path.join(root, file))), 'Missing repository security or quality controls').toEqual([]);
 });

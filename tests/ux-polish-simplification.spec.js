@@ -1,12 +1,12 @@
 import { test, expect, openPrimary } from './helpers/app.js';
 
-test('preserves v127 UX ownership under v130 without adding a runtime, observer, store, destination, or workbook sheet', async ({ app }) => {
+test('preserves v127 UX ownership under v131 without adding a runtime, observer, store, destination, or workbook sheet', async ({ app }) => {
   const { page } = app;
-  await expect(page.locator('.version-text')).toHaveText('v130');
+  await expect(page.locator('.version-text')).toHaveText('v131');
   const state = await page.evaluate(() => ({
     coordinator:window.GringottsV126.coordinator.snapshot(), ux:window.GringottsV127.snapshot(),
     foundation:window.GringottsV128.snapshot(), evidence:window.GringottsV129.snapshot(),
-    hardening:window.GringottsV130.snapshot(), build:window.GringottsCleanRuntime.BUILD
+    hardening:window.GringottsV130.snapshot(), gate:window.GringottsV131.snapshot(), build:window.GringottsCleanRuntime.BUILD
   }));
   expect(state.coordinator.observerCount).toBe(1);
   expect(state.coordinator.observerOwner).toBe('v126-runtime-coordinator');
@@ -19,11 +19,13 @@ test('preserves v127 UX ownership under v130 without adding a runtime, observer,
   expect(state.foundation.observerAdded).toBe(false);
   expect(state.foundation.storageWritesAdded).toBe(false);
   expect(state.evidence).toMatchObject({ release:'v129', integrationLoaded:false, observerAdded:false, persistentStoreAdded:false, dispatcherOwned:false, coordinatorOwned:true });
-  expect(state.hardening).toMatchObject({ release:'v130', observerAdded:false, persistentStoreAdded:false, workflowIntegrationLazy:true, diagnosticsLazy:true });
-  expect(state.build.version).toBe('v130');
+  expect(state.hardening).toMatchObject({ release:'v130', hostRelease:'v131', observerAdded:false, persistentStoreAdded:false, workflowIntegrationLazy:true, diagnosticsLazy:true });
+  expect(state.gate).toMatchObject({ release:'v131', integrationLoaded:false, observerAdded:false, persistentStoreAdded:false, automaticApproval:false, startupLight:true });
+  expect(state.build.version).toBe('v131');
   expect(state.build.runtime).toContain('v128 UX/typed foundation');
-  expect(state.build.runtime).toContain('lazy v129 workflow integration');
-  expect(state.build.runtime).toContain('lazy v130 diagnostics');
+  expect(state.build.runtime).toContain('lazy v129 workflow review');
+  expect(state.build.runtime).toContain('retained v130 runtime budgets');
+  expect(state.build.runtime).toContain('lazy v131 decision gate');
 });
 
 test('classifies report actions and announces local export feedback', async ({ app }) => {
@@ -54,6 +56,7 @@ test('shows the v127 through v136 reliability roadmap with progressive details',
   await expect(page.getByRole('heading',{ name:'v128 — TypeScript & Portable Vault Foundation', exact:true })).toBeVisible();
   await expect(page.getByRole('heading',{ name:'v129 — Household Workflow Evidence Review', exact:true })).toBeVisible();
   await expect(page.getByRole('heading',{ name:'v130 — Performance & Maintenance Hardening', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading',{ name:'v131 — Observed Needs Decision Gate', exact:true })).toBeVisible();
   await expect(page.getByRole('heading',{ name:'v136 — Architecture Baseline & Next-Horizon Decision', exact:true })).toBeVisible();
   await expect(page.locator('.roadmap-horizon-card').first().locator('details')).toHaveCount(1);
 });

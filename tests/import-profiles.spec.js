@@ -28,12 +28,44 @@ async function setCurrentBankFile(page, file) {
   await expect(page.locator('#importProfileCard')).toBeVisible();
 }
 
+async function selectCurrentBankOption(page, option, value) {
+  const selector = `[data-bank-option="${option}"]`;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const input = page.locator(selector);
+    await expect(input).toBeVisible();
+    await input.selectOption(value);
+    try {
+      await expect(page.locator(selector)).toHaveValue(value, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the option control after the selection event.
+    }
+  }
+  await expect(page.locator(selector)).toHaveValue(value);
+}
+
+async function fillCurrentBankOption(page, option, value) {
+  const selector = `[data-bank-option="${option}"]`;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const input = page.locator(selector);
+    await expect(input).toBeVisible();
+    await input.fill(value);
+    await input.press('Tab');
+    try {
+      await expect(page.locator(selector)).toHaveValue(value, { timeout: 1200 });
+      return;
+    } catch {
+      // A queued Import rerender may replace the input after an earlier option change.
+    }
+  }
+  await expect(page.locator(selector)).toHaveValue(value);
+}
+
 async function inspectSignedCsv(page) {
   await setCurrentBankFile(page, signedFixture);
-  await page.locator('[data-bank-option="dateOrder"]').selectOption('mdy');
-  await page.locator('[data-bank-option="signMode"]').selectOption('bank');
-  await page.locator('[data-bank-option="accountLabel"]').fill('Synthetic Household Card');
-  await page.locator('[data-bank-option="accountLabel"]').press('Tab');
+  await selectCurrentBankOption(page, 'dateOrder', 'mdy');
+  await selectCurrentBankOption(page, 'signMode', 'bank');
+  await fillCurrentBankOption(page, 'accountLabel', 'Synthetic Household Card');
   await expect(page.locator('.field-validation')).toHaveCount(11);
   await expect(page.locator('[data-bank-option="accountLabel"]')).toHaveValue('Synthetic Household Card');
 }

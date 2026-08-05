@@ -2,8 +2,8 @@ import { test, expect, openPrimary } from './helpers/app.js';
 
 async function openWorkflowReview(page) {
   await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Workflow Review', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Household Workflow Evidence Review', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name:'Workflow Review', exact:true }).click();
+  await expect(page.getByRole('heading', { name:'Household Workflow Evidence Review', exact:true })).toBeVisible();
 }
 
 async function expectCoordinatorSettled(page) {
@@ -12,58 +12,64 @@ async function expectCoordinatorSettled(page) {
     await page.waitForTimeout(120);
     const second = await page.evaluate(() => window.GringottsV126.coordinator.snapshot());
     return {
-      ready: first.status === 'ready' && second.status === 'ready',
-      sameCycle: first.cycle === second.cycle,
-      samePasses: first.enhancementPasses === second.enhancementPasses,
-      sameCallbacks: first.observerCallbacks === second.observerCallbacks
+      ready:first.status === 'ready' && second.status === 'ready',
+      sameCycle:first.cycle === second.cycle,
+      samePasses:first.enhancementPasses === second.enhancementPasses,
+      sameCallbacks:first.observerCallbacks === second.observerCallbacks
     };
-  }, { timeout: 10000, message: 'the current route should stop producing enhancement or observer work' }).toEqual({
-    ready: true, sameCycle: true, samePasses: true, sameCallbacks: true
+  }, { timeout:10000, message:'the current route should stop producing enhancement or observer work' }).toEqual({
+    ready:true, sameCycle:true, samePasses:true, sameCallbacks:true
   });
 }
 
-test('publishes strict v130 budgets with workflow and diagnostics code outside startup', async ({ app }) => {
+test('retains strict v130 budgets while v131 keeps workflow, diagnostics, and decision code outside startup', async ({ app }) => {
   const { page } = app;
   const state = await page.evaluate(() => ({
-    build: window.GringottsCleanRuntime.BUILD,
-    runtime: window.GringottsV126.coordinator.snapshot(),
-    actions: window.GringottsV126.dispatcher.snapshot(),
-    workflow: window.GringottsV129.snapshot(),
-    hardening: window.GringottsV130.snapshot(),
-    bootResource: performance.getEntriesByType('resource')
+    build:window.GringottsCleanRuntime.BUILD,
+    runtime:window.GringottsV126.coordinator.snapshot(),
+    actions:window.GringottsV126.dispatcher.snapshot(),
+    workflow:window.GringottsV129.snapshot(),
+    hardening:window.GringottsV130.snapshot(),
+    gate:window.GringottsV131.snapshot(),
+    bootResource:performance.getEntriesByType('resource')
       .map((entry) => entry.name)
-      .find((name) => /\/src\/boot-v130\.js\?v=130hardening3$/.test(name)),
-    primaryDestinations: document.querySelectorAll('[data-tab]').length
+      .find((name) => /\/src\/boot-v131\.js\?v=131decision2$/.test(name)),
+    primaryDestinations:document.querySelectorAll('[data-tab]').length
   }));
-  expect(state.build.version).toBe('v130');
-  expect(state.build.name).toBe('Performance & Maintenance Hardening');
-  expect(state.bootResource).toMatch(/\/src\/boot-v130\.js\?v=130hardening3$/);
+  expect(state.build.version).toBe('v131');
+  expect(state.build.name).toBe('Observed Needs Decision Gate');
+  expect(state.bootResource).toMatch(/\/src\/boot-v131\.js\?v=131decision2$/);
   expect(state.runtime.observerCount).toBe(1);
-  expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126', 'v130']);
+  expect(state.runtime.releases.map((release) => release.id)).toEqual(['v126','v131']);
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v129-workflow-review-route');
+  expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v131-decision-gate-route');
   expect(state.workflow).toMatchObject({
-    integrationLoaded: false, dispatcherOwned: false, coordinatorOwned: true,
-    registeredAsRelease: false, standaloneClickListener: false, standaloneRouteReadyListener: false
+    integrationLoaded:false, dispatcherOwned:false, coordinatorOwned:true,
+    registeredAsRelease:false, standaloneClickListener:false, standaloneRouteReadyListener:false
   });
   expect(state.hardening).toMatchObject({
-    release: 'v130', featureFreeze: true, memoryOnlyHistory: true, financialDataRead: false,
-    persistentStoreAdded: false, networkImplementationAdded: false, observerAdded: false,
-    serviceWorkerAdded: false, primaryDestinations: 6, workbookSheets: 43,
-    activeBootImportsV129: false, workflowIntegrationLazy: true, workflowIntegrationLoaded: false,
-    diagnosticsLazy: true, diagnosticsLoaded: false, v129CompatibilityBootRetained: true
+    release:'v130', hostRelease:'v131', featureFreeze:true, memoryOnlyHistory:true, financialDataRead:false,
+    persistentStoreAdded:false, networkImplementationAdded:false, observerAdded:false,
+    serviceWorkerAdded:false, primaryDestinations:6, workbookSheets:43,
+    activeBootImportsV129:false, workflowIntegrationLazy:true, workflowIntegrationLoaded:false,
+    diagnosticsLazy:true, diagnosticsLoaded:false, v129CompatibilityBootRetained:true
   });
   expect(state.hardening.budgets).toMatchObject({
-    routeReadyMs: 750, enhancementMs: 300, maxEnhancementPasses: 3,
-    maxObserverCallbacksPerRoute: 12, maxRegisteredActions: 40,
-    maxNetworkRequests: 45, maxScriptBytes: 500000, maxWorkbookSheets: 43,
-    maxRuntimeObservers: 1, maxPrimaryDestinations: 6, maxSessionSamples: 12
+    routeReadyMs:750, enhancementMs:300, maxEnhancementPasses:3,
+    maxObserverCallbacksPerRoute:12, maxRegisteredActions:40,
+    maxNetworkRequests:45, maxScriptBytes:500000, maxWorkbookSheets:43,
+    maxRuntimeObservers:1, maxPrimaryDestinations:6, maxSessionSamples:12
   });
   expect(state.hardening.startupResources.networkRequests).toBeLessThanOrEqual(45);
   expect(state.hardening.startupResources.scriptBytes).toBeLessThanOrEqual(500000);
+  expect(state.gate).toMatchObject({
+    release:'v131', integrationLoaded:false, uiLoaded:false, automaticApproval:false,
+    activeBootImportsV130:false, activeBootImportsV129:false, startupLight:true
+  });
   expect(state.primaryDestinations).toBe(6);
 });
 
-test('keeps Workflow Review responsive and dispatcher-owned across repeated route changes', async ({ app }) => {
+test('keeps Workflow Review responsive and dispatcher-owned across repeated route changes under v131', async ({ app }) => {
   const { page } = app;
   const storageBefore = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   await openWorkflowReview(page);
@@ -71,20 +77,20 @@ test('keeps Workflow Review responsive and dispatcher-owned across repeated rout
   await field.selectOption('regular');
   await expect(field).toHaveValue('regular');
   for (let index = 0; index < 3; index += 1) {
-    await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'v130 — Performance & Maintenance Hardening', exact: true })).toBeVisible();
+    await page.getByRole('tab', { name:'Roadmap', exact:true }).click();
+    await expect(page.getByRole('heading', { name:'v131 — Observed Needs Decision Gate', exact:true })).toBeVisible();
     await openPrimary(page, 'Dashboard');
     await openWorkflowReview(page);
     await expect(page.locator('.v129-workflow-card')).toHaveCount(10);
   }
-  await page.getByRole('tab', { name: 'Roadmap', exact: true }).click();
+  await page.getByRole('tab', { name:'Roadmap', exact:true }).click();
   await expectCoordinatorSettled(page);
   const state = await page.evaluate(() => ({
-    lifecycle: window.GringottsV126.coordinator.snapshot(),
-    actions: window.GringottsV126.dispatcher.snapshot(),
-    workflow: window.GringottsV129.snapshot(),
-    hardening: window.GringottsV130.snapshot(),
-    storage: Object.fromEntries(Object.entries(localStorage))
+    lifecycle:window.GringottsV126.coordinator.snapshot(),
+    actions:window.GringottsV126.dispatcher.snapshot(),
+    workflow:window.GringottsV129.snapshot(),
+    hardening:window.GringottsV130.snapshot(),
+    storage:Object.fromEntries(Object.entries(localStorage))
   }));
   expect(state.lifecycle.status).toBe('ready');
   expect(state.lifecycle.observerCount).toBe(1);
@@ -94,18 +100,18 @@ test('keeps Workflow Review responsive and dispatcher-owned across repeated rout
   expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-route');
   expect(state.actions.handlers.change.map((handler) => handler.name)).toContain('v129-workflow-review-fields');
   expect(state.actions.handlers.click.map((handler) => handler.name)).toContain('v129-workflow-review-actions');
-  expect(state.workflow).toMatchObject({ integrationLoaded: true, dispatcherOwned: true, coordinatorOwned: true, registeredAsRelease: false });
+  expect(state.workflow).toMatchObject({ integrationLoaded:true, dispatcherOwned:true, coordinatorOwned:true, registeredAsRelease:false, hostRelease:'v131' });
   expect(state.hardening.workflowIntegrationLoaded).toBe(true);
   expect(state.hardening.historyCount).toBeGreaterThan(0);
   expect(state.hardening.historyCount).toBeLessThanOrEqual(12);
   expect(state.storage).toEqual(storageBefore);
 });
 
-test('renders bounded session-only performance evidence in existing Diagnostics', async ({ app }) => {
+test('renders bounded session-only v130 performance evidence in existing Diagnostics under v131', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Performance & maintenance budgets', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name:'Diagnostics', exact:true }).click();
+  await expect(page.getByRole('heading', { name:'Performance & maintenance budgets', exact:true })).toBeVisible();
   await expect(page.getByText(/Session-only runtime evidence/i)).toBeVisible();
   await expect(page.getByText(/Route ready/)).toBeVisible();
   await expect(page.getByText(/Enhancement/).first()).toBeVisible();
@@ -123,12 +129,12 @@ test('renders bounded session-only performance evidence in existing Diagnostics'
   expect(snapshot.current.evaluation?.ok).toBe(true);
 });
 
-test('keeps v130 diagnostics within a phone viewport', async ({ app }) => {
+test('keeps retained v130 diagnostics within a phone viewport', async ({ app }) => {
   const { page } = app;
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width:390, height:844 });
   await openPrimary(page, 'Tools');
-  await page.getByRole('tab', { name: 'Diagnostics', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Performance & maintenance budgets', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name:'Diagnostics', exact:true }).click();
+  await expect(page.getByRole('heading', { name:'Performance & maintenance budgets', exact:true })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
 });

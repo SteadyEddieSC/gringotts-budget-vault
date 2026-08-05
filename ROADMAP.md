@@ -1,35 +1,35 @@
 # Gringotts Budget Vault Roadmap
 
-The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v130 hardens the runtime ownership and performance contracts exposed by the v129 validation cycle while preserving the feature freeze established in v126. Entries after v130 remain directional and may move when protected testing or completed household review shows a better order.
+The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 turns the feature freeze into an explicit evidence gate so roadmap momentum cannot authorize a new capability, removal, or consolidation. Entries after v131 remain directional and may move when protected testing or completed household review shows a better order.
 
 ## Current release
 
-### v130 — Performance & Maintenance Hardening
+### v131 — Observed Needs Decision Gate
 
 **Purpose**
 
-Reduce active release-layer coupling and prevent route-ready or event-ownership regressions without changing household-finance functionality.
+Require complete household workflow evidence and healthy runtime evidence before even writing a future product-scope proposal.
 
 **Delivered**
 
-- strict TypeScript contracts for route-ready time, enhancement time, enhancement passes, observer callbacks, registered releases, registered actions, network requests, script bytes, workbook sheets, runtime observers, primary destinations, and bounded session samples;
-- a pure performance-budget evaluator with explicit pass/fail reasons and no browser, vault, transaction, or account dependency;
-- a startup-light production entry that loads the established v128/v126 shell before specialist code;
-- Workflow Review integration loaded only when Tools opens, with route, field, and action handling registered through the existing v126 coordinator and dispatcher;
-- the performance evaluator and Diagnostics renderer loaded only when Diagnostics opens;
-- removal of standalone production Workflow Review click and route-ready ownership;
-- `boot-v129.js` retained as a compatibility entry but removed from the active v130 startup chain;
-- bounded memory-only route evidence and browser coverage proving repeated Workflow Review, Roadmap, Diagnostics, and primary-route transitions settle without a mutation feedback loop;
-- unchanged Lighthouse ceilings of 45 requests and 500,000 script bytes;
-- unchanged six primary destinations and 43-sheet workbook cap.
+- a session-only **Tools → Decision Gate** secondary workspace while retaining exactly six primary destinations;
+- explicit local import of a v129 Household Workflow Review JSON bundle;
+- strict validation of review kind, version, inventory version, privacy declarations, known unique workflow IDs, and recomputed summary consistency;
+- current maintenance evidence read only through the published `window.GringottsV130.snapshot()` contract;
+- closed-by-default states for incomplete evidence and runtime blockers;
+- explicit human dispositions for holding the feature freeze, scoping maintenance-only work, or permitting one narrowly evidenced proposal for later review;
+- no automatic approval or implementation of a capability, removal, consolidation, migration, or financial action;
+- privacy-filtered workflow-only rationale with rejection of likely amounts, account, card, transaction, merchant, balance, or contact details;
+- explicit local decision-record download and clipboard summary with no raw workflow observations or financial data;
+- startup-light loading: v131 integration loads after Tools opens and the Decision Gate UI/model loads only after the Decision Gate is selected.
 
 **Safety**
 
-- no transaction, account, balance, merchant, report, provider-token, or portable-vault payload reading for performance evidence;
-- no localStorage, sessionStorage, IndexedDB, cookie, service worker, remote logging, analytics, beacon, or new persistent store;
-- no second runtime or additional `MutationObserver`;
-- no new primary destination, finance feature, report, export, workbook sheet, provider adapter, or remote endpoint;
-- `gringottsBudgetVault.latest`, stable v105 rescue, guarded import and restore, immutable close history, and backup-first broad writes remain unchanged.
+- imported review evidence and decisions remain only in module memory and are cleared by reload;
+- the gate does not inspect the authoritative vault, transactions, accounts, balances, merchants, reports, credentials, or prior route history;
+- no localStorage, sessionStorage, IndexedDB, cookie, service worker, telemetry, analytics, beacon, cloud adapter, remote endpoint, or persistent store is added;
+- no new financial schema, report, export sheet, primary destination, second runtime, or additional `MutationObserver` is added;
+- `gringottsBudgetVault.latest`, stable v105 rescue, guarded import and restore, immutable close history, backup-first broad writes, six primary destinations, one v126-owned observer, and the 43-sheet workbook cap remain unchanged.
 
 ## Reliability horizon
 
@@ -45,13 +45,13 @@ Established strict domain contracts and a provider-neutral, integrity-checked `.
 
 Added a manual session-only evidence worksheet and sanitized local export so future simplification and maintenance choices can be grounded in explicit household observations without telemetry.
 
-### v130 — Performance & Maintenance Hardening — Current
+### v130 — Performance & Maintenance Hardening — Shipped
 
-Moves Workflow Review under existing runtime ownership, keeps specialist code outside startup, records bounded memory-only route evidence, and enforces the existing route, observer, request, script, and workbook ceilings.
+Moved Workflow Review under existing runtime ownership, kept specialist code outside startup, recorded bounded memory-only route evidence, and enforced route, observer, request, script, and workbook ceilings.
 
-### v131 — Observed Needs Decision Gate — Directional
+### v131 — Observed Needs Decision Gate — Current
 
-Decide whether any new household-finance capability is justified. Feature freeze remains the default. Any proposed store or feature requires explicit safety, privacy, cap, migration, recovery, and maintenance contracts plus completed household evidence.
+Combines an explicitly imported completed workflow review with the current v130 runtime contract, keeps the feature freeze closed by default, and permits only a human-recorded hold, maintenance scope, or later proposal—not implementation approval.
 
 ### v132 — Release & Test Infrastructure Simplification — Directional
 
@@ -75,7 +75,7 @@ Document the maintained architecture, ownership map, retirement candidates, priv
 
 ## Recommended next action
 
-Complete the v129 Workflow Review across all ten workflows using real household observations. Use the structured review together with v130 runtime evidence to decide v131. The feature freeze remains the default; an incomplete review is not evidence to add or remove a workflow.
+Use **Tools → Workflow Review** during real household workflows and download the completed local review. Import that file into **Tools → Decision Gate**. Until all ten workflows are complete and current runtime evidence passes, the correct v131 result is `evidence-incomplete` or `runtime-blocked`, not a new feature. A `candidate-proposal` result permits writing one narrow proposal for later review only.
 
 ## Future portability sequence
 

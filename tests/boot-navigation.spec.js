@@ -11,47 +11,49 @@ const destinations = [
 
 test('boots without module errors and exposes the simplified consolidated navigation', async ({ app }) => {
   const { page } = app;
-  await expect(page).toHaveTitle(/Gringotts Budget Vault v130/i);
+  await expect(page).toHaveTitle(/Gringotts Budget Vault v131/i);
   await expect(page.locator('[data-tab]')).toHaveCount(6);
-  await expect(page.locator('.version-text')).toHaveText('v130');
+  await expect(page.locator('.version-text')).toHaveText('v131');
   await expect(page.locator('.brand strong')).toHaveText('Mischief Managed. Money Managed');
 
   const methods = [];
-  page.on('request', (request) => methods.push({ method: request.method(), url: request.url() }));
+  page.on('request', (request) => methods.push({ method:request.method(), url:request.url() }));
 
   for (const [name, heading] of destinations) {
     await openPrimary(page, name);
-    await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name:heading }).first()).toBeVisible();
   }
 
   await openPrimary(page, 'Money');
-  await expect(page.getByRole('heading', { name: 'Recurring cost decisions', exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Household scenario comparison', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Recurring cost decisions', exact:true })).toBeVisible();
+  await page.getByRole('tab', { name:'Close & Forecast', exact:true }).click();
+  await expect(page.getByRole('heading', { name:'Household scenario comparison', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Close history & trend explainability', exact:true })).toBeVisible();
 
   await openPrimary(page, 'Tools');
-  await expect(page.getByRole('heading', { name: 'Account cleanup & merge planning', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Import batch timeline', exact: true })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Workflow Review', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Account cleanup & merge planning', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Import batch timeline', exact:true })).toBeVisible();
+  await expect(page.getByRole('tab', { name:'Workflow Review', exact:true })).toBeVisible();
+  await expect(page.getByRole('tab', { name:'Decision Gate', exact:true })).toBeVisible();
 
   await openPrimary(page, 'Activity');
-  await expect(page.getByRole('tab', { name: 'Insights', exact: true })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Plan', exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: 'Insights', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Household Insights', exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: 'Plan', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Guided Household Plan', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Recurring-cost follow-up', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Scenario discussion', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Close trend conversation', exact: true })).toBeVisible();
+  await expect(page.getByRole('tab', { name:'Insights', exact:true })).toBeVisible();
+  await expect(page.getByRole('tab', { name:'Plan', exact:true })).toBeVisible();
+  await page.getByRole('tab', { name:'Insights', exact:true }).click();
+  await expect(page.getByRole('heading', { name:'Household Insights', exact:true })).toBeVisible();
+  await page.getByRole('tab', { name:'Plan', exact:true }).click();
+  await expect(page.getByRole('heading', { name:'Guided Household Plan', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Recurring-cost follow-up', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Scenario discussion', exact:true })).toBeVisible();
+  await expect(page.getByRole('heading', { name:'Close trend conversation', exact:true })).toBeVisible();
 
   const state = await page.evaluate(() => ({
-    lifecycle: window.GringottsV126.coordinator.snapshot(),
-    ux: window.GringottsV127.snapshot(),
-    foundation: window.GringottsV128.snapshot(),
-    evidence: window.GringottsV129.snapshot(),
-    hardening: window.GringottsV130.snapshot()
+    lifecycle:window.GringottsV126.coordinator.snapshot(),
+    ux:window.GringottsV127.snapshot(),
+    foundation:window.GringottsV128.snapshot(),
+    evidence:window.GringottsV129.snapshot(),
+    hardening:window.GringottsV130.snapshot(),
+    gate:window.GringottsV131.snapshot()
   }));
   expect(state.lifecycle.observerCount).toBe(1);
   expect(state.lifecycle.status).toBe('ready');
@@ -64,8 +66,17 @@ test('boots without module errors and exposes the simplified consolidated naviga
   expect(state.evidence.persistentStoreAdded).toBe(false);
   expect(state.evidence.dispatcherOwned).toBe(true);
   expect(state.hardening.release).toBe('v130');
+  expect(state.hardening.hostRelease).toBe('v131');
   expect(state.hardening.memoryOnlyHistory).toBe(true);
   expect(state.hardening.persistentStoreAdded).toBe(false);
+  expect(state.gate).toMatchObject({
+    release:'v131',
+    featureFreeze:true,
+    automaticApproval:false,
+    persistentStoreAdded:false,
+    primaryDestinations:6,
+    toolsSections:6
+  });
   const unsafe = methods.filter(({ method, url }) => method !== 'GET' && !url.startsWith('blob:'));
   expect(unsafe, 'The local-first app should not make write network requests').toEqual([]);
 });
@@ -75,21 +86,25 @@ test('keeps the page inside the viewport at each configured device size', async 
   for (const [name] of destinations) {
     await openPrimary(page, name);
     const overflow = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth
+      scrollWidth:document.documentElement.scrollWidth,
+      clientWidth:document.documentElement.clientWidth
     }));
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 2);
   }
   await openPrimary(page, 'Money');
-  await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
+  await page.getByRole('tab', { name:'Close & Forecast', exact:true }).click();
   let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(2);
   await openPrimary(page, 'Activity');
-  for (const section of ['Insights', 'Plan']) {
-    await page.getByRole('tab', { name: section, exact: true }).click();
+  for (const section of ['Insights','Plan']) {
+    await page.getByRole('tab', { name:section, exact:true }).click();
     overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(2);
   }
+  await openPrimary(page, 'Tools');
+  await page.getByRole('tab', { name:'Decision Gate', exact:true }).click();
+  overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(2);
 });
 
 test('does not register a service worker', async ({ app }) => {
