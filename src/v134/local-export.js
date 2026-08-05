@@ -57,3 +57,10 @@ export function executeLocalExport({
     throw new Error(`Local export failed for ${contract.label}: ${message}`);
   }
 }
+
+if (typeof window !== 'undefined') {
+  Object.assign(window.GringottsV134 || (window.GringottsV134 = {}), {
+    catalogLoaded:true,
+    executorLoaded:true
+  });
+}
