@@ -45,6 +45,16 @@ async function openDecisionGate(page) {
   await openPrimary(page, 'Tools');
   await page.getByRole('tab', { name:'Decision Gate', exact:true }).click();
   await expect(page.getByRole('heading', { name:'Observed Needs Decision Gate', exact:true })).toBeVisible();
+  await expect.poll(
+    () => page.evaluate(() => {
+      const gate = window.GringottsV131?.snapshot?.();
+      const actions = window.GringottsV126?.dispatcher?.snapshot?.();
+      return gate?.integrationLoaded === true
+        && gate?.uiLoaded === true
+        && actions?.handlers?.change?.some((handler) => handler.name === 'v131-decision-gate-fields') === true;
+    }),
+    { timeout:10000, message:'Decision Gate file handling should be registered before evidence is selected' }
+  ).toBe(true);
 }
 
 async function importReview(page, bundle = completedReviewBundle()) {
