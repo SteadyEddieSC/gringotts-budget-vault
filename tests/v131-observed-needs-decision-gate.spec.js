@@ -13,31 +13,56 @@ const workflowIds = [
   'recurring-decisions',
   'month-close',
   'forecast-debt-scenarios',
+  'calendar-cash-flow',
+  'transaction-review',
+  'insights-guided-plan',
   'reports-exports',
-  'import-receipt-review',
-  'profile-management',
-  'recovery-restore',
-  'mobile-keyboard-use'
+  'import-restore-diagnostics'
 ];
 
-function completedReviewBundle() {
-  const observations = Object.fromEntries(workflowIds.map((workflowId, index) => [workflowId, {
+function completeReviewBundle() {
+  const observations = workflowIds.map((workflowId, index) => ({
     workflowId,
-    usage:index % 3 === 0 ? 'regular' : 'occasional',
-    outcome:index === 2 ? 'unclear' : 'completed',
-    friction:index === 1 ? 'avoidable' : index === 3 ? 'repeated' : 'none',
-    consolidation:index === 4 ? 'overlap' : 'keep',
-    unmetNeed:index === 5 ? 'yes' : 'no',
-    note:'Synthetic workflow observation only.'
-  }]));
+    usage:index === 0 ? 'essential' : 'regular',
+    friction:index === 1 ? 'high' : 'low',
+    outcome:index === 2 ? 'unclear' : 'successful',
+    signal:index === 2 ? 'unmet-need' : 'works-well',
+    disposition:index === 1 ? 'simplify' : 'keep',
+    ...(index === 1 ? { note:'The weekly sequence repeats guidance and should be simplified.' } : {})
+  }));
   return {
-    kind:'gringotts-household-workflow-review',
+    kind:'gringotts-workflow-evidence-review',
     version:1,
-    inventoryVersion:'v129-household-workflows-1',
-    createdAt:'2026-01-01T00:00:00.000Z',
-    privacy:{ financialDataIncluded:false, localOnly:true, automaticTelemetry:false },
-    summary:{ inventoryCount:10, reviewedCount:10, completeCount:10 },
-    observations
+    release:'v129',
+    inventoryVersion:1,
+    createdAt:'2026-08-05T02:00:00.000Z',
+    privacy:{
+      manualReviewOnly:true,
+      automaticTelemetry:false,
+      financialDataIncluded:false,
+      persistentStoreUsed:false,
+      remoteTransmission:false
+    },
+    observations,
+    summary:{
+      inventoryCount:10,
+      reviewedCount:10,
+      completeCount:10,
+      highFrictionWorkflowIds:['bills-paydays'],
+      consolidationCandidateIds:[],
+      unmetNeedWorkflowIds:['recurring-decisions'],
+      keepCandidateIds:[
+        'dashboard-review',
+        'month-close',
+        'forecast-debt-scenarios',
+        'calendar-cash-flow',
+        'transaction-review',
+        'insights-guided-plan',
+        'reports-exports',
+        'import-restore-diagnostics'
+      ],
+      recommendedNextAction:'Prioritize the recorded high-friction workflows in v130 performance and maintenance hardening.'
+    }
   };
 }
 
@@ -57,9 +82,9 @@ async function openDecisionGate(page) {
   ).toBe(true);
 }
 
-async function importReview(page, bundle = completedReviewBundle()) {
+async function importReview(page, bundle = completeReviewBundle()) {
   await page.locator('#v131ReviewFile').setInputFiles({
-    name:'synthetic-workflow-review.json',
+    name:'Gringotts_Workflow_Review_complete.json',
     mimeType:'application/json',
     buffer:Buffer.from(JSON.stringify(bundle))
   });
