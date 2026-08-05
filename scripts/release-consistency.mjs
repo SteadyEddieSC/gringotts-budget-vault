@@ -25,6 +25,10 @@ function requireAbsent(file, source, pattern, field = 'content') {
   if (match) mismatch(file, field, 'absent', match[0]);
 }
 
+function withoutBlockComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').trim();
+}
+
 validateCurrentReleaseManifest();
 
 const packageJson = JSON.parse(read('package.json'));
@@ -55,7 +59,10 @@ requireAbsent(bootFile, boot, /^import .*boot-v131\.js/gm, 'historical current-b
 
 const compatibilityBoot = read('src/boot-v132.js');
 requireContains('src/boot-v132.js', compatibilityBoot, "export * from './release-manifest.js'", 'compatibility manifest re-export');
-requireAbsent('src/boot-v132.js', compatibilityBoot, /registerRelease|MutationObserver|localStorage/, 'duplicate runtime implementation');
+const compatibilityExecutable = withoutBlockComments(compatibilityBoot);
+if (compatibilityExecutable !== "export * from './release-manifest.js';") {
+  mismatch('src/boot-v132.js', 'executable compatibility boot', "export * from './release-manifest.js';", compatibilityExecutable);
+}
 
 const helper = read('tests/helpers/release.js');
 requireContains('tests/helpers/release.js', helper, "from '../../src/release-manifest.js'", 'manifest import');
