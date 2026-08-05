@@ -1,4 +1,5 @@
 import { test, expect, openPrimary } from './helpers/app.js';
+import { currentVersion } from './helpers/release.js';
 
 async function seedCloseHistory(page) {
   await page.evaluate(() => {
@@ -29,7 +30,7 @@ test('explains a closed month with transfer-neutral aggregate drivers', async ({
   const { page } = app;
   await seedCloseHistory(page);
   await page.reload();
-  await expect(page.locator('.version-text')).toContainText(/^v131/);
+  await expect(page.locator('.version-text')).toHaveText(currentVersion);
   await openPrimary(page, 'Money');
   await page.getByRole('tab', { name: 'Close & Forecast', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Close history & trend explainability', exact: true })).toBeVisible();
