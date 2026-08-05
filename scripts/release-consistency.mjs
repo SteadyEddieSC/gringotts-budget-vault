@@ -25,10 +25,6 @@ function requireAbsent(file, source, pattern, field = 'content') {
   if (match) mismatch(file, field, 'absent', match[0]);
 }
 
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 validateCurrentReleaseManifest();
 
 const packageJson = JSON.parse(read('package.json'));
@@ -73,11 +69,7 @@ const roadmapSource = read('src/v127/roadmap-horizon.js');
 requireContains('src/v127/roadmap-horizon.js', roadmapSource, `version: '${CURRENT_RELEASE.version}'`, 'current roadmap entry');
 requireContains('src/v127/roadmap-horizon.js', roadmapSource, `title: '${CURRENT_RELEASE.name}'`, 'current roadmap title');
 
-const currentLiteral = escapeRegExp(CURRENT_RELEASE.version);
-const forbiddenCurrentAssertion = new RegExp(
-  `(?:toHaveText|toContainText|toHaveTitle|toBe)\\([^\\n]*['\"]${currentLiteral}['\"]`,
-  'i'
-);
+const assertionMarkers = ['toHaveText(', 'toContainText(', 'toHaveTitle(', 'toBe('];
 const testDirectories = ['tests', 'quality-tests'];
 const allowed = new Set([
   'tests/helpers/release.js',
@@ -86,15 +78,21 @@ const allowed = new Set([
   'quality-tests/v132-accessibility.spec.js'
 ]);
 
+function scatteredCurrentAssertion(source) {
+  return source
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.includes(CURRENT_RELEASE.version) && assertionMarkers.some((marker) => line.includes(marker))) || null;
+}
+
 function walk(directory) {
   const absolute = path.join(root, directory);
   for (const entry of fs.readdirSync(absolute, { withFileTypes:true })) {
     const relative = path.posix.join(directory, entry.name);
     if (entry.isDirectory()) walk(relative);
     else if (/\.(?:js|mjs)$/.test(entry.name) && !allowed.has(relative)) {
-      const source = read(relative);
-      const match = source.match(forbiddenCurrentAssertion);
-      if (match) mismatch(relative, 'scattered current-release assertion', 'use tests/helpers/release.js', match[0]);
+      const match = scatteredCurrentAssertion(read(relative));
+      if (match) mismatch(relative, 'scattered current-release assertion', 'use tests/helpers/release.js', match);
     }
   }
 }
