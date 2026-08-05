@@ -1,7 +1,18 @@
 import { test, expect } from './helpers/app.js';
-import { currentReleaseName, currentVersion } from './helpers/release.js';
+import { currentVersion } from './helpers/release.js';
 
-test('keeps the v133 drill engine outside startup and loads it only on explicit synthetic validation', async ({ app }) => {
+const retainedRegistry = {
+  release: currentVersion,
+  featureRelease: 'v133',
+  name: 'Local Data Longevity Drills',
+  hostRelease: currentVersion,
+  lazy: true,
+  syntheticOnly: true,
+  authoritativeVaultRead: false,
+  authoritativeVaultWrite: false
+};
+
+test('keeps the retained v133 drill engine outside startup and loads it only on explicit synthetic validation', async ({ app }) => {
   const { page } = app;
   const before = await page.evaluate(() => ({
     storage: Object.fromEntries(Object.entries(localStorage)),
@@ -10,15 +21,10 @@ test('keeps the v133 drill engine outside startup and loads it only on explicit 
   }));
 
   expect(before.registry).toEqual({
-    release: currentVersion,
-    name: currentReleaseName,
-    lazy: true,
+    ...retainedRegistry,
     loaded: false,
     lastScenario: null,
-    lastDisposition: null,
-    syntheticOnly: true,
-    authoritativeVaultRead: false,
-    authoritativeVaultWrite: false
+    lastDisposition: null
   });
   expect(before.resources.some((name) => /\/src\/v133\/longevity-drills\.js/.test(name))).toBe(false);
 
@@ -69,17 +75,12 @@ test('keeps the v133 drill engine outside startup and loads it only on explicit 
     lifecycle: window.GringottsV126.coordinator.snapshot()
   }));
   expect(after.storage).toEqual(before.storage);
-  expect(after.resources.some((name) => /\/src\/v133\/longevity-drills\.js\?v=133longevity1$/.test(name))).toBe(true);
+  expect(after.resources.some((name) => /\/src\/v133\/longevity-drills\.js\?v=134longevity1$/.test(name))).toBe(true);
   expect(after.registry).toEqual({
-    release: currentVersion,
-    name: currentReleaseName,
-    lazy: true,
+    ...retainedRegistry,
     loaded: true,
     lastScenario: 'capacity',
-    lastDisposition: 'pass',
-    syntheticOnly: true,
-    authoritativeVaultRead: false,
-    authoritativeVaultWrite: false
+    lastDisposition: 'pass'
   });
   expect(after.lifecycle.observerCount).toBe(1);
 });
