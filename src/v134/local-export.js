@@ -2,7 +2,7 @@ import {
   assertExportPayloadSafe,
   buildExportFilename,
   getExportContract
-} from './export-contracts.js';
+} from './export-contracts.js?v=134contracts1';
 
 function bodyFor(format, payload, blobRef) {
   if (format === 'json' && !(payload instanceof blobRef)) return `${JSON.stringify(payload, null, 2)}\n`;
