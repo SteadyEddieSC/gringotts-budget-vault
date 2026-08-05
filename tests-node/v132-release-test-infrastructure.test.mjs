@@ -24,6 +24,7 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const withoutBlockComments = (source) => source.replace(/\/\*[\s\S]*?\*\//g, '').trim();
 
 test('validates one authoritative v132 current release manifest', () => {
   assert.equal(validateCurrentReleaseManifest(), true);
@@ -85,7 +86,7 @@ test('keeps the manifest as the only v132 runtime implementation', () => {
   assert.match(manifest, /release:'v131'/);
   assert.match(manifest, /window\.GringottsV132/);
   assert.match(compatibilityBoot, /export \* from '\.\/release-manifest\.js'/);
-  assert.doesNotMatch(compatibilityBoot, /registerRelease|MutationObserver|localStorage/);
+  assert.equal(withoutBlockComments(compatibilityBoot), "export * from './release-manifest.js';");
   assert.doesNotMatch(manifest, /^import .*boot-v131\.js/gm);
   assert.doesNotMatch(manifest, /^import .*boot-v130\.js/gm);
   assert.doesNotMatch(manifest, /^import .*boot-v129\.js/gm);
