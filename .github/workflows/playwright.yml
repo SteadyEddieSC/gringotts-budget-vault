@@ -114,6 +114,11 @@ jobs:
           node --check src/boot-v131.js
           node --check src/release-manifest.js
           node --check src/boot-v132.js
+          node --check src/v133/longevity-drills.js
+          node --check src/boot-v133.js
+          node --check src/v134/export-contracts.js
+          node --check src/v134/local-export.js
+          node --check src/boot-v134.js
           node --check scripts/release-consistency.mjs
           node --check tests/helpers/release.js
           node --check src/v111/views.js
