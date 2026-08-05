@@ -25,6 +25,10 @@ function requireAbsent(file, source, pattern, field = 'content') {
   if (match) mismatch(file, field, 'absent', match[0]);
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 validateCurrentReleaseManifest();
 
 const packageJson = JSON.parse(read('package.json'));
@@ -35,7 +39,7 @@ if (packageLock.packages?.['']?.version !== CURRENT_RELEASE.packageVersion) mism
 
 for (const file of ['index.html', 'app.html']) {
   const shell = read(file);
-  requireContains(file, shell, `<title>Gringotts Budget Vault</title>`, 'versionless title');
+  requireContains(file, shell, '<title>Gringotts Budget Vault</title>', 'versionless title');
   requireContains(file, shell, `src="${CURRENT_RELEASE.bootSpecifier}"`, 'active boot');
   requireAbsent(file, shell, /<title>[^<]*v\d+[^<]*<\/title>/i, 'hard-coded release title');
   requireAbsent(file, shell, /Loading[^<]*\bv\d+\b/i, 'hard-coded loading copy');
@@ -69,7 +73,11 @@ const roadmapSource = read('src/v127/roadmap-horizon.js');
 requireContains('src/v127/roadmap-horizon.js', roadmapSource, `version: '${CURRENT_RELEASE.version}'`, 'current roadmap entry');
 requireContains('src/v127/roadmap-horizon.js', roadmapSource, `title: '${CURRENT_RELEASE.name}'`, 'current roadmap title');
 
-const forbiddenCurrentAssertion = new RegExp(`(?:toHaveText|toContainText|toHaveTitle|\.version\)\.toBe|build\.version[^\\n]*toBe)\\([^\\n]*['\"]${CURRENT_RELEASE.version}['\"]`, 'i');
+const currentLiteral = escapeRegExp(CURRENT_RELEASE.version);
+const forbiddenCurrentAssertion = new RegExp(
+  `(?:toHaveText|toContainText|toHaveTitle|toBe)\\([^\\n]*['\"]${currentLiteral}['\"]`,
+  'i'
+);
 const testDirectories = ['tests', 'quality-tests'];
 const allowed = new Set([
   'tests/helpers/release.js',
