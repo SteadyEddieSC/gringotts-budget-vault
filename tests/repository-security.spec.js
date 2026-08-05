@@ -108,7 +108,7 @@ test('parser preflight runs exact release consistency and strict contracts befor
     'release-consistency.log',
     'npm ci --ignore-scripts'
   ]);
-  expect(read('package-lock.json')).toContain('https://registry.npmjs.org/@playwright/test/-/playwright-1.61.1.tgz');
+  expect(read('package-lock.json')).toContain('https://registry.npmjs.org/@playwright/test/-/test-1.61.1.tgz');
   expect(workflow.indexOf('Run exact release consistency diagnostics')).toBeLessThan(workflow.indexOf('Install Chromium and system dependencies'));
   expect(workflow.indexOf('Run strict TypeScript and browser-free parser tests')).toBeLessThan(workflow.indexOf('Install Chromium and system dependencies'));
   expect(workflow.indexOf('Run Chromium desktop preflight')).toBeLessThan(workflow.indexOf('Install Firefox and WebKit after Chromium passes'));
