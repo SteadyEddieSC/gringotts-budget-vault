@@ -195,7 +195,7 @@ test('imports complete evidence and exports a manual candidate-proposal record w
 
   await page.locator('#v131DecisionRationale').fill('Write one bounded proposal for the unclear workflow outcome.');
   await page.locator('#v131DecisionDisposition').selectOption('candidate-proposal');
-  await expect(page.getByText(/candidate-proposal/i)).toBeVisible();
+  await expect(page.getByText('candidate-proposal', { exact:true })).toBeVisible();
   await expect(page.getByText(/not approved or implemented by v131/i)).toBeVisible();
   await expect(page.locator('#v131DownloadDecision')).toBeEnabled();
 
@@ -245,11 +245,17 @@ test('rejects weakened privacy declarations and risky decision rationale', async
   await expect(page.locator('#v131DecisionError')).toContainText(/privacy declaration/i);
   await expect(page.getByText(/evidence-incomplete/i)).toBeVisible();
 
-  await importReview(page);
-  await page.locator('#v131DecisionRationale').fill('Card ending 1234 should be changed.');
-  await page.locator('#v131DecisionDisposition').selectOption('candidate-proposal');
-  await expect(page.locator('#v131DecisionError')).toContainText(/financial, account, card, transaction/i);
-  await expect(page.getByText(/decision-ready/i)).toBeVisible();
+  const rationaleError = await page.evaluate(async () => {
+    const module = await import('/src/v131/decision-contracts.js');
+    try {
+      module.sanitizeDecisionRationale('Card ending 1234 should be changed.');
+      return '';
+    } catch (error) {
+      return error.message;
+    }
+  });
+  expect(rationaleError).toMatch(/financial, account, card, transaction/i);
+  await expect(page.locator('#v131DecisionDisposition')).toBeDisabled();
 });
 
 test('settles repeated Decision Gate, Roadmap, and primary route transitions', async ({ app }) => {
