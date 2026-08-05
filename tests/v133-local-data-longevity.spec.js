@@ -9,7 +9,7 @@ test('keeps the v133 drill engine outside startup and loads it only on explicit 
     registry: window.GringottsV133.snapshot()
   }));
 
-  expect(before.registry).toMatchObject({
+  expect(before.registry).toEqual({
     release: currentVersion,
     name: currentReleaseName,
     lazy: true,
@@ -18,18 +18,7 @@ test('keeps the v133 drill engine outside startup and loads it only on explicit 
     lastDisposition: null,
     syntheticOnly: true,
     authoritativeVaultRead: false,
-    authoritativeVaultWrite: false,
-    persistentStoreAdded: false,
-    networkImplementationAdded: false,
-    automaticMigration: false,
-    automaticRepair: false,
-    automaticCleanup: false,
-    automaticRollback: false,
-    observerAdded: false,
-    serviceWorkerAdded: false,
-    primaryDestinations: 6,
-    toolsSections: 6,
-    workbookSheets: 43
+    authoritativeVaultWrite: false
   });
   expect(before.resources.some((name) => /\/src\/v133\/longevity-drills\.js/.test(name))).toBe(false);
 
@@ -57,7 +46,10 @@ test('keeps the v133 drill engine outside startup and loads it only on explicit 
       authoritativeVaultKey: 'gringottsBudgetVault.latest',
       authoritativeVaultRead: false,
       authoritativeVaultWrite: false,
+      automaticMigration: false,
+      automaticRepair: false,
       automaticCleanup: false,
+      automaticRollback: false,
       destructiveActionPerformed: false,
       networkRequired: false,
       persistentStoreAdded: false
@@ -78,11 +70,14 @@ test('keeps the v133 drill engine outside startup and loads it only on explicit 
   }));
   expect(after.storage).toEqual(before.storage);
   expect(after.resources.some((name) => /\/src\/v133\/longevity-drills\.js\?v=133longevity1$/.test(name))).toBe(true);
-  expect(after.registry).toMatchObject({
+  expect(after.registry).toEqual({
     release: currentVersion,
+    name: currentReleaseName,
+    lazy: true,
     loaded: true,
     lastScenario: 'capacity',
     lastDisposition: 'pass',
+    syntheticOnly: true,
     authoritativeVaultRead: false,
     authoritativeVaultWrite: false
   });
