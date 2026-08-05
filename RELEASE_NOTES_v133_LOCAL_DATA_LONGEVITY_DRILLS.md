@@ -29,20 +29,18 @@ The pure drill engine supports exactly six scenarios:
 
 No real bank export, portable vault, report, close record, import profile, receipt, planning metadata, or household screenshot is committed.
 
-## Runtime loading
+## Runtime loading and evidence
 
-The production shells continue loading only `src/release-manifest.js`. v133 publishes a small registry at `window.GringottsV133`, but the drill implementation itself stays outside startup. `src/v133/longevity-drills.js` loads only when `runSyntheticDrill(...)` is explicitly called.
+The production shells continue loading only `src/release-manifest.js`. v133 publishes a compact registry at `window.GringottsV133`, but the drill implementation itself stays outside startup. `src/v133/longevity-drills.js` loads only when `runSyntheticDrill(...)` is explicitly called.
 
-The runtime snapshot declares:
+To preserve the unchanged 500,000-byte startup ceiling, evidence is intentionally split:
 
-- synthetic-only operation;
-- no authoritative-vault read or write;
-- no persistence or network implementation;
-- no automatic migration, repair, cleanup, or rollback;
-- no observer or service worker;
-- unchanged primary-destination, Tools-section, and workbook counts.
+- the compact registry snapshot reports current release identity, lazy-load state, last scenario and disposition, synthetic-only status, and no authoritative-vault read or write;
+- every returned drill report declares no automatic migration, repair, cleanup, or rollback, no destructive action, no network requirement, and no new persistent store in addition to the authority flags;
+- browser-free source contracts prove the engine contains no browser-storage, network, service-worker, observer, or destructive storage implementation;
+- browser tests prove the module is absent from startup, loads only after explicit synthetic invocation, leaves browser storage unchanged, and adds no observer.
 
-`window.GringottsV132` remains the retained release-infrastructure alias used to report current manifest identity and loading state. v126 remains the only route coordinator, dispatcher, and live `MutationObserver` owner.
+`window.GringottsV132` remains the compact release-infrastructure alias used to report current manifest identity and loading state. v126 remains the only route coordinator, dispatcher, and live `MutationObserver` owner.
 
 ## Preserved data and recovery boundaries
 
