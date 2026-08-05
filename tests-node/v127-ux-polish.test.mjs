@@ -25,13 +25,17 @@ test('v127 preserves the feature freeze and existing household boundaries', () =
   assert.equal(V127_RELEASE.workbookSheets, 43);
 });
 
-test('v127 publishes a validated ten-release horizon through v136', () => {
+test('v127 publishes the maintained ten-release reliability horizon through v136', () => {
   assert.equal(validateRoadmapHorizon(), true);
   assert.equal(ROADMAP_HORIZON.length, 10);
   assert.equal(ROADMAP_HORIZON[0].version, 'v127');
-  assert.equal(ROADMAP_HORIZON[0].status, 'current');
-  assert.equal(ROADMAP_HORIZON[1].version, 'v128');
-  assert.equal(ROADMAP_HORIZON[1].status, 'planned');
+  assert.equal(ROADMAP_HORIZON[0].status, 'shipped');
+  assert.equal(ROADMAP_HORIZON[5].version, 'v132');
+  assert.equal(ROADMAP_HORIZON[5].status, 'shipped');
+  assert.equal(ROADMAP_HORIZON[6].version, 'v133');
+  assert.equal(ROADMAP_HORIZON[6].status, 'current');
+  assert.equal(ROADMAP_HORIZON[7].version, 'v134');
+  assert.equal(ROADMAP_HORIZON[7].status, 'directional');
   assert.equal(ROADMAP_HORIZON.at(-1).version, 'v136');
   assert.ok(ROADMAP_HORIZON.every((entry) => entry.safeguards.length > 0));
 });
