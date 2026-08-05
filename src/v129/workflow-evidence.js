@@ -1,3 +1,5 @@
+import { buildExportFilename } from '../v134/export-contracts.js?v=134contracts1';
+
 export const WORKFLOW_REVIEW_KIND = 'gringotts-workflow-evidence-review';
 export const WORKFLOW_REVIEW_VERSION = 1;
 export const WORKFLOW_INVENTORY_VERSION = 1;
@@ -142,5 +144,5 @@ export function workflowReviewSummaryText(bundle) {
 }
 
 export function workflowReviewFilename(createdAt = new Date().toISOString()) {
-  return `Gringotts_Workflow_Review_${exactIso(createdAt).replace(/[:.]/g, '-')}.json`;
+  return buildExportFilename('workflow-review', { createdAt:exactIso(createdAt) });
 }
