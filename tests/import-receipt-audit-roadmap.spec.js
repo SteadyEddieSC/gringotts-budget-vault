@@ -1,5 +1,11 @@
 import fs from 'node:fs/promises';
 import { test, expect, openPrimary } from './helpers/app.js';
+import {
+  currentReleaseName,
+  currentVersion,
+  directionalRoadmapCount,
+  shippedRoadmapCount
+} from './helpers/release.js';
 
 async function seedReceipts(page) {
   await page.evaluate(() => {
@@ -59,16 +65,17 @@ test('shows the detailed v127 through v136 reliability-first roadmap horizon', a
   await expect(page.getByRole('heading', { name: /v129 — Household Workflow Evidence Review/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v130 — Performance & Maintenance Hardening/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v131 — Observed Needs Decision Gate/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name:`${currentVersion} — ${currentReleaseName}`, exact:true })).toBeVisible();
   await expect(page.getByRole('heading', { name: /v136 — Architecture Baseline & Next-Horizon Decision/i })).toBeVisible();
-  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(4);
+  await expect(page.getByText('Shipped', { exact: true })).toHaveCount(shippedRoadmapCount);
   await expect(page.getByText('Current release', { exact: true })).toHaveCount(1);
   await expect(page.getByText('Next planned', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Directional', { exact: true })).toHaveCount(5);
+  await expect(page.getByText('Directional', { exact: true })).toHaveCount(directionalRoadmapCount);
   await expect(page.getByText('Scope, dependencies, and safeguards', { exact: true })).toHaveCount(10);
-  await expect(page.locator('[data-roadmap-version="v128"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-  await expect(page.locator('[data-roadmap-version="v129"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-  await expect(page.locator('[data-roadmap-version="v130"]')).toHaveAttribute('data-roadmap-status', 'shipped');
-  await expect(page.locator('[data-roadmap-version="v131"]')).toHaveAttribute('data-roadmap-status', 'current');
+  for (const version of ['v128', 'v129', 'v130', 'v131']) {
+    await expect(page.locator(`[data-roadmap-version="${version}"]`)).toHaveAttribute('data-roadmap-status', 'shipped');
+  }
+  await expect(page.locator(`[data-roadmap-version="${currentVersion}"]`)).toHaveAttribute('data-roadmap-status', 'current');
 });
 
 test('keeps timeline and roadmap notes inside a phone viewport', async ({ app }) => {
