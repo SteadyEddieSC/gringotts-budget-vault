@@ -1,5 +1,11 @@
 import fs from 'node:fs';
 import { test, expect, openPrimary } from './helpers/app.js';
+import {
+  currentBootResourcePattern,
+  currentRelease,
+  currentReleaseName,
+  currentVersion
+} from './helpers/release.js';
 
 const workflowIds = [
   'dashboard-review',
@@ -93,7 +99,7 @@ async function expectCoordinatorSettled(page) {
   });
 }
 
-test('publishes v131 with the Decision Gate integration outside startup', async ({ app }) => {
+test('retains the v131 Decision Gate integration outside startup under the current release', async ({ app }) => {
   const { page } = app;
   const state = await page.evaluate(() => ({
     build:window.GringottsCleanRuntime.BUILD,
@@ -101,22 +107,27 @@ test('publishes v131 with the Decision Gate integration outside startup', async 
     actions:window.GringottsV126.dispatcher.snapshot(),
     hardening:window.GringottsV130.snapshot(),
     gate:window.GringottsV131.snapshot(),
-    bootResource:performance.getEntriesByType('resource')
-      .map((entry) => entry.name)
-      .find((name) => /\/src\/boot-v131\.js\?v=131decision2$/.test(name)),
+    infrastructure:window.GringottsV132.snapshot(),
+    resources:performance.getEntriesByType('resource').map((entry) => entry.name),
     decisionResources:performance.getEntriesByType('resource')
       .map((entry) => entry.name)
       .filter((name) => /\/src\/v131\//.test(name)),
     primaryDestinations:document.querySelectorAll('[data-tab]').length
   }));
 
-  expect(state.build).toMatchObject({ version:'v131', name:'Observed Needs Decision Gate' });
-  expect(state.bootResource).toMatch(/\/src\/boot-v131\.js\?v=131decision2$/);
+  expect(state.build).toMatchObject({
+    version:currentVersion,
+    name:currentReleaseName,
+    runtime:currentRelease.runtimeLabel,
+    cacheBust:currentRelease.cacheBust
+  });
+  expect(state.resources.some((name) => currentBootResourcePattern.test(name))).toBe(true);
   expect(state.lifecycle.observerCount).toBe(1);
-  expect(state.lifecycle.releases.map((release) => release.id)).toEqual(['v126','v131']);
+  expect(state.lifecycle.releases.map((release) => release.id)).toEqual(['v126', currentVersion]);
   expect(state.actions.handlers.click.map((handler) => handler.name)).not.toContain('v131-decision-gate-route');
   expect(state.gate).toMatchObject({
     release:'v131',
+    hostRelease:currentVersion,
     featureFreeze:true,
     integrationLoaded:false,
     uiLoaded:false,
@@ -127,21 +138,26 @@ test('publishes v131 with the Decision Gate integration outside startup', async 
     networkImplementationAdded:false,
     observerAdded:false,
     serviceWorkerAdded:false,
-    activeBootImportsV130:false,
-    activeBootImportsV129:false,
-    startupLight:true,
+    integrationLazy:true,
+    uiLazy:true,
     primaryDestinations:6,
     toolsSections:6,
     workbookSheets:43
   });
   expect(state.hardening).toMatchObject({
     release:'v130',
-    hostRelease:'v131',
+    hostRelease:currentVersion,
     memoryOnlyHistory:true,
     persistentStoreAdded:false,
     networkImplementationAdded:false,
     observerAdded:false,
     serviceWorkerAdded:false
+  });
+  expect(state.infrastructure).toMatchObject({
+    release:currentVersion,
+    activeBootImportsV131:false,
+    decisionIntegrationLoaded:false,
+    startupLight:true
   });
   expect(state.hardening.startupResources.networkRequests).toBeLessThanOrEqual(45);
   expect(state.hardening.startupResources.scriptBytes).toBeLessThanOrEqual(500000);
@@ -162,6 +178,7 @@ test('keeps the gate closed without a complete imported workflow review', async 
 
   const snapshot = await page.evaluate(() => ({
     gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot(),
     storage:Object.fromEntries(Object.entries(localStorage)),
     actions:window.GringottsV126.dispatcher.snapshot()
   }));
@@ -175,6 +192,7 @@ test('keeps the gate closed without a complete imported workflow review', async 
     memoryOnly:true,
     automaticApproval:false
   });
+  expect(snapshot.infrastructure.decisionIntegrationLoaded).toBe(true);
   expect(snapshot.actions.handlers.click.map((handler) => handler.name)).toContain('v131-decision-gate-route');
   expect(snapshot.actions.handlers.change.map((handler) => handler.name)).toContain('v131-decision-gate-fields');
   expect(snapshot.actions.handlers.click.map((handler) => handler.name)).toContain('v131-decision-gate-actions');
@@ -263,7 +281,8 @@ test('settles repeated Decision Gate, Roadmap, and primary route transitions', a
   for (let index = 0; index < 3; index += 1) {
     await openDecisionGate(page);
     await page.getByRole('tab', { name:'Roadmap', exact:true }).click();
-    await expect(page.getByRole('heading', { name:'v131 — Observed Needs Decision Gate', exact:true })).toBeVisible();
+    await expect(page.getByRole('heading', { name:`${currentVersion} — ${currentReleaseName}`, exact:true })).toBeVisible();
+    await expect(page.locator('[data-roadmap-version="v131"]')).toHaveAttribute('data-roadmap-status', 'shipped');
     await openPrimary(page, 'Dashboard');
   }
   await openDecisionGate(page);
@@ -271,7 +290,8 @@ test('settles repeated Decision Gate, Roadmap, and primary route transitions', a
   const snapshot = await page.evaluate(() => ({
     lifecycle:window.GringottsV126.coordinator.snapshot(),
     actions:window.GringottsV126.dispatcher.snapshot(),
-    gate:window.GringottsV131.snapshot()
+    gate:window.GringottsV131.snapshot(),
+    infrastructure:window.GringottsV132.snapshot()
   }));
   expect(snapshot.lifecycle.status).toBe('ready');
   expect(snapshot.lifecycle.observerCount).toBe(1);
@@ -279,6 +299,7 @@ test('settles repeated Decision Gate, Roadmap, and primary route transitions', a
   expect(snapshot.lifecycle.observerCallbacks).toBeLessThanOrEqual(12);
   expect(snapshot.actions.registered).toBeLessThanOrEqual(40);
   expect(snapshot.gate.integrationLoaded).toBe(true);
+  expect(snapshot.infrastructure.decisionIntegrationLoaded).toBe(true);
 });
 
 test('keeps the Decision Gate within a phone viewport', async ({ app }) => {
