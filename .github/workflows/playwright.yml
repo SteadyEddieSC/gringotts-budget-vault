@@ -119,6 +119,8 @@ jobs:
           node --check src/v134/export-contracts.js
           node --check src/v134/local-export.js
           node --check src/boot-v134.js
+          node --check src/v135/resilience-contracts.js
+          node --check src/boot-v135.js
           node --check scripts/release-consistency.mjs
           node --check tests/helpers/release.js
           node --check src/v111/views.js
