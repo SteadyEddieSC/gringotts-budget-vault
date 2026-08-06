@@ -16,34 +16,32 @@ const primaryHeadings = {
   Activity:/Ledger/i
 };
 
-async function waitForRouteReady(page,name) {
+async function expectCoordinatorSettled(page,name) {
   const expectedRoute = name.toLowerCase();
-  await expect.poll(
-    () => page.evaluate((route) => {
-      const snapshot = window.GringottsV126?.coordinator?.snapshot?.();
-      return snapshot?.status === 'ready' && snapshot?.route === route;
-    },expectedRoute),
-    { timeout:15000,message:`${name} should settle through the v126 coordinator after keyboard or touch activation` }
-  ).toBe(true);
+  await expect.poll(async () => {
+    const first = await page.evaluate(() => window.GringottsV126?.coordinator?.snapshot?.());
+    await page.waitForTimeout(120);
+    const second = await page.evaluate(() => window.GringottsV126?.coordinator?.snapshot?.());
+    return {
+      ready:first?.status === 'ready' && second?.status === 'ready',
+      route:first?.route === expectedRoute && second?.route === expectedRoute,
+      sameCycle:first?.cycle === second?.cycle,
+      samePasses:first?.enhancementPasses === second?.enhancementPasses,
+      sameCallbacks:first?.observerCallbacks === second?.observerCallbacks
+    };
+  },{ timeout:15000,message:`${name} should stop producing v126 route or observer work before the next input` }).toEqual({
+    ready:true,route:true,sameCycle:true,samePasses:true,sameCallbacks:true
+  });
 }
 
 async function keyboardPrimary(page,name) {
-  let lastError;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const control = page.getByRole('button',{ name, exact:true });
-    try {
-      await control.focus();
-      await expect(control).toBeFocused();
-      await page.keyboard.press('Enter');
-      if (name === 'Tools') await expect(page.getByRole('tablist',{ name:'Tools sections', exact:true })).toBeVisible({ timeout:12000 });
-      else await expect(page.getByRole('heading',{ name:primaryHeadings[name] }).first()).toBeVisible({ timeout:12000 });
-      await waitForRouteReady(page,name);
-      return;
-    } catch (error) {
-      lastError = error;
-    }
-  }
-  throw lastError;
+  const control = page.getByRole('button',{ name, exact:true });
+  await control.focus();
+  await expect(control).toBeFocused();
+  await page.keyboard.press('Enter');
+  if (name === 'Tools') await expect(page.getByRole('tablist',{ name:'Tools sections', exact:true })).toBeVisible({ timeout:12000 });
+  else await expect(page.getByRole('heading',{ name:primaryHeadings[name] }).first()).toBeVisible({ timeout:12000 });
+  await expectCoordinatorSettled(page,name);
 }
 
 async function touchPrimary(page,name) {
@@ -57,7 +55,7 @@ async function touchPrimary(page,name) {
   await button.tap();
   if (name === 'Tools') await expect(page.getByRole('tablist',{ name:'Tools sections', exact:true })).toBeVisible();
   else await expect(page.getByRole('heading',{ name:primaryHeadings[name] }).first()).toBeVisible();
-  await waitForRouteReady(page,name);
+  await expectCoordinatorSettled(page,name);
   return height;
 }
 
