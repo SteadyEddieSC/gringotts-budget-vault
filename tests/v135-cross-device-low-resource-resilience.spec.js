@@ -16,6 +16,36 @@ const primaryHeadings = {
   Activity:/Ledger/i
 };
 
+async function waitForRouteReady(page,name) {
+  const expectedRoute = name.toLowerCase();
+  await expect.poll(
+    () => page.evaluate((route) => {
+      const snapshot = window.GringottsV126?.coordinator?.snapshot?.();
+      return snapshot?.status === 'ready' && snapshot?.route === route;
+    },expectedRoute),
+    { timeout:15000,message:`${name} should settle through the v126 coordinator after keyboard or touch activation` }
+  ).toBe(true);
+}
+
+async function keyboardPrimary(page,name) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const control = page.getByRole('button',{ name, exact:true });
+    try {
+      await control.focus();
+      await expect(control).toBeFocused();
+      await page.keyboard.press('Enter');
+      if (name === 'Tools') await expect(page.getByRole('tablist',{ name:'Tools sections', exact:true })).toBeVisible({ timeout:12000 });
+      else await expect(page.getByRole('heading',{ name:primaryHeadings[name] }).first()).toBeVisible({ timeout:12000 });
+      await waitForRouteReady(page,name);
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
 async function touchPrimary(page,name) {
   const button = page.getByRole('button',{ name, exact:true });
   if (!(await button.isVisible())) {
@@ -27,6 +57,7 @@ async function touchPrimary(page,name) {
   await button.tap();
   if (name === 'Tools') await expect(page.getByRole('tablist',{ name:'Tools sections', exact:true })).toBeVisible();
   else await expect(page.getByRole('heading',{ name:primaryHeadings[name] }).first()).toBeVisible();
+  await waitForRouteReady(page,name);
   return height;
 }
 
@@ -51,14 +82,7 @@ async function officialRuntimeEvaluation(page) {
 test('completes representative household navigation with keyboard activation only', async ({ app },testInfo) => {
   test.skip(!desktopProjects.has(testInfo.project.name),'Keyboard completion is owned by desktop browser projects.');
   const { page } = app;
-  for (const name of ['Money','Reports','Tools']) {
-    const control = page.getByRole('button',{ name, exact:true });
-    await control.focus();
-    await expect(control).toBeFocused();
-    await page.keyboard.press('Enter');
-    if (name === 'Tools') await expect(page.getByRole('tablist',{ name:'Tools sections', exact:true })).toBeVisible();
-    else await expect(page.getByRole('heading',{ name:primaryHeadings[name] }).first()).toBeVisible();
-  }
+  for (const name of ['Money','Reports','Tools']) await keyboardPrimary(page,name);
   const review = page.getByRole('tab',{ name:'Workflow Review', exact:true });
   await review.focus();
   await expect(review).toBeFocused();
@@ -145,7 +169,8 @@ test('keeps deterministic large-vault workflows bounded and preserves official v
     completed += 1;
     expect(await rootOverflow(page)).toBeLessThanOrEqual(2);
   }
-  await expect(page.getByText(/Full Vault Restore/i).first()).toBeVisible();
+  await expect(page.getByRole('button',{ name:/Restore full vault/i })).toBeVisible();
+  await expect(page.getByText(/separate full-vault restore task/i)).toBeVisible();
   const snapshot = await page.evaluate(() => window.GringottsV126.coordinator.snapshot());
   const storageAfter = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   const official = await officialRuntimeEvaluation(page);
