@@ -97,7 +97,7 @@ test('reports every unsafe or incomplete resilience condition explicitly', () =>
     syntheticTransactionCount:1
   });
   assert.equal(result.ok,false);
-  assert.equal(result.failures.length,14);
+  assert.equal(result.failures.length,15);
   assert.ok(result.failures.some((failure) => failure.includes('retained v130 ceiling')));
   assert.ok(result.failures.some((failure) => failure.includes('reduced-motion')));
   assert.ok(result.failures.some((failure) => failure.includes('device-specific')));
