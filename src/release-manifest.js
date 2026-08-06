@@ -38,5 +38,5 @@ Object.assign(window.GringottsV130||(window.GringottsV130={}),{release:'v130',ho
 window.GringottsV132={release:R.version,name:R.name,snapshot:I};
 window.GringottsV133={release:R.version,featureRelease:'v133',hostRelease:R.version,name:R.name,runSyntheticDrill:runLongevity,snapshot:L};
 window.GringottsV134={release:R.version,catalogLoaded:false,executorLoaded:false,snapshot:X};
-window.GringottsV135={release:R.version,profileCount:6,largeVaultTransactionCount:1200,contractsLoaded:false};
+window.GringottsV135={release:R.version,profileCount:6,largeVaultTransactionCount:1200,contractsLazy:true,contractsLoaded:false};
 metadata();record(runtime.coordinator.snapshot());runtime.coordinator.queue('v135-install')}
