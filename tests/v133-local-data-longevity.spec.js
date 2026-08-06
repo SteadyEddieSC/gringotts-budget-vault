@@ -75,7 +75,7 @@ test('keeps the retained v133 drill engine outside startup and loads it only on 
     lifecycle: window.GringottsV126.coordinator.snapshot()
   }));
   expect(after.storage).toEqual(before.storage);
-  expect(after.resources.some((name) => /\/src\/v133\/longevity-drills\.js\?v=134longevity1$/.test(name))).toBe(true);
+  expect(after.resources.some((name) => /\/src\/v133\/longevity-drills\.js\?v=135longevity1$/.test(name))).toBe(true);
   expect(after.registry).toEqual({
     ...retainedRegistry,
     loaded: true,
