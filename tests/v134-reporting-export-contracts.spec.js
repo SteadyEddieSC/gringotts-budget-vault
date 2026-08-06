@@ -24,6 +24,18 @@ function completeReviewBundle() {
   })), fixedCreatedAt);
 }
 
+async function expectSharedExecutorState(page, storageBefore) {
+  const state = await page.evaluate(() => ({
+    storage:Object.fromEntries(Object.entries(localStorage)),
+    observerCount:window.GringottsV126.coordinator.snapshot().observerCount,
+    resources:performance.getEntriesByType('resource').map((entry) => entry.name)
+  }));
+  expect(state.storage).toEqual(storageBefore);
+  expect(state.observerCount).toBe(1);
+  expect(state.resources.filter((name) => /\/src\/v134\/local-export\.js/.test(name))).toHaveLength(1);
+  expect(state.resources.filter((name) => /\/src\/v134\/export-contracts\.js/.test(name))).toHaveLength(1);
+}
+
 test('keeps v134 export code outside startup and dispatches the established Workflow Review JSON', async ({ app }) => {
   const { page } = app;
   const before = await page.evaluate(() => ({
@@ -62,7 +74,7 @@ test('keeps v134 export code outside startup and dispatches the established Work
   expect(after.resources.some((name) => /\/src\/v134\/export-contracts\.js/.test(name))).toBe(true);
 });
 
-test('dispatches the established Decision Gate record through the same executor without storage writes', async ({ app }) => {
+test('preserves Decision Gate authority and dispatches its record when runtime evidence passes', async ({ app }, testInfo) => {
   const { page } = app;
   const storageBefore = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
   await openPrimary(page, 'Tools');
@@ -77,10 +89,25 @@ test('dispatches the established Decision Gate record through the same executor 
   });
   await expect.poll(() => page.evaluate(() => window.GringottsV131.snapshot())).toMatchObject({
     reviewLoaded:true,
-    completeCount:WORKFLOW_INVENTORY.length,
-    state:'decision-ready'
+    completeCount:WORKFLOW_INVENTORY.length
   });
+  const gate = await page.evaluate(() => window.GringottsV131.snapshot());
 
+  if (gate.state === 'runtime-blocked') {
+    expect(['tablet','mobile-webkit']).toContain(testInfo.project.name);
+    const evaluation = await page.evaluate(async () => {
+      const runtime = window.GringottsV130.snapshot();
+      return window.GringottsV130.evaluate(runtime.current.input);
+    });
+    expect(evaluation.ok).toBe(false);
+    expect(evaluation.failures.length).toBeGreaterThan(0);
+    await expect(page.locator('#v131DecisionDisposition')).toBeDisabled();
+    await expect(page.locator('#v131DownloadDecision')).toBeDisabled();
+    await expectSharedExecutorState(page, storageBefore);
+    return;
+  }
+
+  expect(gate.state).toBe('decision-ready');
   await page.locator('#v131DecisionDisposition').selectOption('hold');
   await expect.poll(() => page.evaluate(() => window.GringottsV131.snapshot().state)).toBe('hold');
   await expect(page.locator('#v131DownloadDecision')).toBeEnabled();
@@ -97,14 +124,5 @@ test('dispatches the established Decision Gate record through the same executor 
     privacy:{ financialDataIncluded:false, persistentStoreUsed:false, remoteTransmission:false, automaticApproval:false }
   });
   expect(record.evidence.completedWorkflows).toBe(WORKFLOW_INVENTORY.length);
-
-  const state = await page.evaluate(() => ({
-    storage:Object.fromEntries(Object.entries(localStorage)),
-    observerCount:window.GringottsV126.coordinator.snapshot().observerCount,
-    resources:performance.getEntriesByType('resource').map((entry) => entry.name)
-  }));
-  expect(state.storage).toEqual(storageBefore);
-  expect(state.observerCount).toBe(1);
-  expect(state.resources.filter((name) => /\/src\/v134\/local-export\.js/.test(name))).toHaveLength(1);
-  expect(state.resources.filter((name) => /\/src\/v134\/export-contracts\.js/.test(name))).toHaveLength(1);
+  await expectSharedExecutorState(page, storageBefore);
 });
