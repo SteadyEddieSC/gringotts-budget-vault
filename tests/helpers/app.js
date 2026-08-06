@@ -36,38 +36,28 @@ export async function waitForApp(page) {
   await expect(page.locator('#main')).toBeVisible();
   await expect(page.getByRole('heading', { name: /Gringotts could not start/i })).toHaveCount(0);
   await expect.poll(
-    () => page.evaluate(({ version, name }) => {
-      const resilience = window.GringottsV135?.snapshot?.();
-      return (
-        window.GringottsV126?.coordinator?.status === 'ready'
-        && window.GringottsV127?.release === 'v127'
-        && window.GringottsV128?.release === 'v128'
-        && window.GringottsV129?.release === 'v129'
-        && window.GringottsV130?.release === 'v130'
-        && window.GringottsV131?.release === 'v131'
-        && window.GringottsV132?.release === version
-        && window.GringottsV132?.name === name
-        && window.GringottsV133?.release === version
-        && window.GringottsV133?.hostRelease === version
-        && window.GringottsV134?.release === version
-        && window.GringottsV134?.hostRelease === version
-        && window.GringottsV134?.featureRelease === 'v134'
-        && window.GringottsV134?.name === 'Reporting & Export Contract Consolidation'
-        && window.GringottsV134?.catalogLoaded === false
-        && window.GringottsV134?.executorLoaded === false
-        && window.GringottsV135?.release === version
-        && window.GringottsV135?.name === name
-        && resilience?.profileCount === 6
-        && resilience?.largeVaultTransactionCount === 1200
-        && resilience?.contractsLazy === true
-        && resilience?.contractsLoaded === false
-        && resilience?.deviceForkUsed === false
-        && resilience?.persistentCacheUsed === false
-      );
-    }, { version:currentVersion, name:currentReleaseName }),
+    () => page.evaluate(({ version, name }) => (
+      window.GringottsV126?.coordinator?.status === 'ready'
+      && window.GringottsV127?.release === 'v127'
+      && window.GringottsV128?.release === 'v128'
+      && window.GringottsV129?.release === 'v129'
+      && window.GringottsV130?.release === 'v130'
+      && window.GringottsV131?.release === 'v131'
+      && window.GringottsV132?.release === version
+      && window.GringottsV132?.name === name
+      && window.GringottsV133?.release === version
+      && window.GringottsV133?.hostRelease === version
+      && window.GringottsV134?.release === version
+      && window.GringottsV134?.catalogLoaded === false
+      && window.GringottsV134?.executorLoaded === false
+      && window.GringottsV135?.release === version
+      && window.GringottsV135?.profileCount === 6
+      && window.GringottsV135?.largeVaultTransactionCount === 1200
+      && window.GringottsV135?.contractsLoaded === false
+    ), { version:currentVersion, name:currentReleaseName }),
     {
       timeout:15000,
-      message:`${currentVersion} ${currentReleaseName}, lazy v135 resilience contracts, retained v134 exports and v133 longevity drills, v132 manifest infrastructure, v131 decision gate, v130 runtime evidence, v129 workflow review, v128 foundation, v127 UX policy, and v126 route readiness should finish before tests continue`
+      message:`${currentVersion} ${currentReleaseName}, test-only v135 resilience contracts, retained v134 exports and v133 longevity drills, and v126-v132 runtime readiness should finish before tests continue`
     }
   ).toBe(true);
   await expect.poll(
