@@ -8,60 +8,61 @@
 
 A public, local-first household budgeting application deployed as a static Cloudflare Pages site. Cloudflare serves application assets only. Household financial data remains on the current device unless the user explicitly creates a local export or backup.
 
-Current release: **v134 — Reporting & Export Contract Consolidation**
+Current release: **v135 — Cross-Device & Low-Resource Resilience**
 
 ## Live application
 
 https://gringotts-budget-vault.pages.dev/
 
-## v134 reporting and export contracts
+## v135 resilience baseline
 
-v134 is a maintenance-only release. It centralizes the retained local-export catalog, filename construction, privacy modes, workbook ownership, and the duplicated browser download executor used by the already-lazy Workflow Review and Decision Gate surfaces.
+v135 is a maintenance-and-validation release. It proves representative household workflows across supported desktop, phone, and tablet profiles without adding household-finance functionality or a device-specific product mode.
 
 The release provides:
 
-- one strict TypeScript and browser-compatible catalog for sixteen retained outputs;
-- stable IDs, labels, owners, formats, extensions, MIME types, filename policies, privacy modes, success labels, failure behavior, cancellation behavior, and no-retry declarations;
-- one exact workbook ownership map totaling **43 sheets**;
-- deterministic filename construction that preserves recognizable prefixes and historical release ownership;
-- recursive privacy validation for aggregate-only, metadata-only, configuration-only, diagnostics-only, and workflow-only outputs;
-- one injected local download executor with explicit `cancelled` and `dispatched` outcomes;
-- object-URL cleanup, no automatic retry, and no silent output substitution;
-- migration of only the already-lazy v129 Workflow Review and v131 Decision Gate downloads;
-- real browser download validation for their established JSON kinds and privacy declarations;
-- unchanged legacy workbook, backup, restore, import, close-history, account-cleanup, and close-trend builders.
+- six governed validation profiles covering Chromium, Firefox, desktop WebKit, Android Chromium, iPad WebKit, and iPhone WebKit;
+- keyboard-only completion evidence across the three desktop engines;
+- touch completion evidence across Android, iPad, and iPhone projects;
+- reduced-motion checks across all six supported projects;
+- responsive-overflow and minimum 44-pixel target checks;
+- a deterministic fictional 1,200-transaction large-vault generator with a hard 2,000-transaction test cap;
+- large-vault Activity, Reports, Tools, and guarded Full Vault Restore evidence;
+- explicit pass/fail contracts for timing, focus, safety messaging, storage, network, observers, duplicate dispatch, persistent caches, and device forks;
+- exact inheritance of the v130 750 ms route-ready and 300 ms enhancement ceilings;
+- bounded v126 route-replay hardening: one normal attempt and at most one recovery attempt before the existing fail-closed recovery shell.
 
 ## Preserved architecture
 
 - v126 remains the only route coordinator, specialist action dispatcher, and live `MutationObserver` owner.
-- v127 remains the retained UX and accessibility policy.
+- v127 remains the retained interaction, focus, responsive, touch-target, and reduced-motion policy.
 - v128 remains the strict typed portable-vault foundation.
 - v129 remains the manual, session-only Workflow Review.
-- v130 remains the bounded runtime and maintenance evidence contract.
+- v130 remains the authoritative bounded runtime and maintenance evidence contract.
 - v131 remains the closed-by-default Observed Needs Decision Gate.
 - v132 remains the authoritative manifest and release-consistency infrastructure.
 - v133 remains the lazy synthetic-only longevity-drill capability.
-- v134 catalog and executor code stays outside normal startup and loads only with an already-lazy export surface.
-- The application retains six primary destinations, six Tools sections, and the Vault Workbook remains capped at **43 sheets**.
+- v134 remains the lazy retained export-contract and local-download capability.
+- v135 resilience contracts stay outside normal startup and are loaded only by protected tests.
+- The application retains six primary destinations, six Tools sections, and a **43-sheet** Vault Workbook cap.
 
 ## Privacy and safety boundaries
 
 - `gringottsBudgetVault.latest` remains the only domain that may contain authoritative transaction copies.
-- v134 does not read that key or add a storage adapter.
-- v134 adds no new report destination, workbook sheet, transaction schema, financial capability, automatic export, scheduler, retry loop, service worker, telemetry, analytics, remote endpoint, cloud adapter, backend, or persistent store.
-- Workflow Review and Decision Gate payload schemas remain unchanged.
-- Aggregate-only and workflow-only contracts reject forbidden household-detail fields before dispatch.
-- Success is announced only after the browser download action is dispatched.
-- Cancellation before dispatch creates no download and no success result.
-- Failures throw without retry, fallback format, partial output, or silent substitution.
+- The v135 contract module has no browser-storage, network, service-worker, cache, telemetry, analytics, or device-detection implementation.
+- Test profiles are validation declarations, not production branches.
+- No alternate phone, tablet, reduced-motion, or low-resource application mode is introduced.
 - Full Vault Restore remains separate and blocks empty transaction arrays.
 - Broad transaction writes remain backup-first, rollback-capable, and read-back verified.
 - Immutable month-close snapshots are not recomputed or silently rewritten.
+- Workflow Review and Decision Gate remain manual, local, privacy-filtered, and non-authorizing.
+- v134 export privacy modes, cancellation, cleanup, and no-retry behavior remain unchanged.
 - Stable `rescue-v105.html` remains available if the current shell cannot initialize.
+- Startup remains capped at **45 requests** and **500,000 script bytes**; no budget waiver is permitted.
+- Legitimate v130 runtime failure remains blocking evidence on every device profile.
 
 ## Strategic direction
 
-The next directional release is **v135 — Cross-Device & Low-Resource Resilience**. It should verify complete workflows across constrained devices and input modes without a device-specific fork, persistent cache, weaker safety messaging, or expanded product scope. See `ROADMAP.md`.
+The next directional release is **v136 — Architecture Baseline & Next-Horizon Decision**. It should document the maintained architecture and explicitly decide whether to consolidate further, hold steady, or approve one narrowly evidenced capability. v135 does not authorize new product scope. See `ROADMAP.md`.
 
 ## Local validation
 
@@ -77,4 +78,4 @@ npm run test:preflight
 npm run test:quality
 ```
 
-See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v134_REPORTING_EXPORT_CONTRACT_CONSOLIDATION.md`, `V134_SECURITY_REVIEW.md`, and `V134_IMPLEMENTATION_SCOPE.md`.
+See `TESTING.md`, `QUALITY_GATES.md`, `UI_GOVERNANCE.md`, `BANK_IMPORT_ROADMAP.md`, `RELEASE_NOTES_v135_CROSS_DEVICE_LOW_RESOURCE_RESILIENCE.md`, `V135_SECURITY_REVIEW.md`, and `V135_IMPLEMENTATION_SCOPE.md`.

@@ -48,13 +48,16 @@ export async function waitForApp(page) {
       && window.GringottsV133?.release === version
       && window.GringottsV133?.hostRelease === version
       && window.GringottsV134?.release === version
-      && window.GringottsV134?.name === name
       && window.GringottsV134?.catalogLoaded === false
       && window.GringottsV134?.executorLoaded === false
+      && window.GringottsV135?.release === version
+      && window.GringottsV135?.profileCount === 6
+      && window.GringottsV135?.largeVaultTransactionCount === 1200
+      && window.GringottsV135?.contractsLoaded === false
     ), { version:currentVersion, name:currentReleaseName }),
     {
       timeout:15000,
-      message:`${currentVersion} ${currentReleaseName}, lazy export contracts, retained v133 longevity drills, v132 manifest infrastructure, v131 decision gate, v130 runtime evidence, v129 workflow review, v128 foundation, v127 UX policy, and v126 route readiness should finish before tests continue`
+      message:`${currentVersion} ${currentReleaseName}, test-only v135 resilience contracts, retained v134 exports and v133 longevity drills, and v126-v132 runtime readiness should finish before tests continue`
     }
   ).toBe(true);
   await expect.poll(

@@ -15,16 +15,12 @@ function renderFailure(error) {
   const message = error?.stack || error?.message || String(error || 'Unknown module-loading error');
   if (!boot) return;
   if (!boot.isConnected) document.body.replaceChildren(boot);
-  boot.innerHTML = `
-    <section class="boot-card" role="alert">
-      <h1>Gringotts could not start</h1>
-      <p>The v126 reliability shell stopped without clearing or overwriting the browser-local vault, close history, goals, planning metadata, profiles, receipts, account cleanup plan, recurring decisions, scenarios, or report settings.</p>
-      <div class="boot-actions">
-        <button id="bootRetry" type="button">Retry v126</button>
-        <a href="rescue-v105.html?release=rescue1051">Open stable v105 rescue</a>
-      </div>
-      <details open><summary>Technical detail</summary><pre>${escapeHtml(message)}</pre></details>
-    </section>`;
+  boot.innerHTML = `<section class="boot-card" role="alert">
+    <h1>Gringotts could not start</h1>
+    <p>The reliability shell stopped without clearing or overwriting browser-local data.</p>
+    <div class="boot-actions"><button id="bootRetry" type="button">Retry v126</button><a href="rescue-v105.html?release=rescue1051">Open stable v105 rescue</a></div>
+    <details open><summary>Technical detail</summary><pre>${escapeHtml(message)}</pre></details>
+  </section>`;
   document.getElementById('bootRetry')?.addEventListener('click', () => location.reload());
 }
 
@@ -32,6 +28,7 @@ window.addEventListener('error', (event) => { if (event?.error) renderFailure(ev
 window.addEventListener('unhandledrejection', (event) => renderFailure(event?.reason));
 
 const lazyRoutes = new Set(['money', 'reports', 'activity', 'tools']);
+const MAX_BASE_ROUTE_REPLAYS = 2;
 let dispatcher = null;
 let coordinator = null;
 let installLegacyLayer = null;
@@ -74,30 +71,23 @@ function registerRouteFeatures({ accountCleanup, cleanupExport, recurring, scena
   const cleanupPromise = Promise.resolve(accountCleanup);
   const recurringPromise = Promise.resolve(recurring);
   const scenarioPromise = Promise.resolve(scenario);
-
   Object.assign(window.GringottsV122 || (window.GringottsV122 = {}), {
-    release: 'v122',
-    loadAccountCleanupFeatures: () => cleanupPromise
+    release: 'v122', loadAccountCleanupFeatures: () => cleanupPromise
   });
-
   const recurringRegistry = window.GringottsV123 || (window.GringottsV123 = {});
   Object.assign(recurringRegistry, {
-    release: 'v123',
-    loadFeatures: () => recurringPromise,
+    release: 'v123', loadFeatures: () => recurringPromise,
     enhanceRecurringDecisionPage: recurring.enhanceRecurringDecisionPage,
     enhanceGuidedPlanPage: recurring.enhanceGuidedPlanPage,
     enhanceRecurringReportPages: recurring.enhanceRecurringReportPages
   });
   installRecurringObserverGuard(recurringRegistry);
-
   Object.assign(window.GringottsV124 || (window.GringottsV124 = {}), {
-    release: 'v124',
-    loadScenarioFeatures: () => scenarioPromise,
+    release: 'v124', loadScenarioFeatures: () => scenarioPromise,
     enhanceScenarioPage: scenario.enhanceScenarioPage,
     enhanceScenarioReportPages: scenario.enhanceScenarioReportPages,
     enhanceScenarioGuidedPlan: scenario.enhanceScenarioGuidedPlan
   });
-
   cleanupExport.installAccountCleanupExportController();
   accountCleanup.installAccountCleanupFeatures();
   recurring.installRecurringDecisionFeatures();
@@ -113,20 +103,15 @@ function registerLegacyEnhancer(id, title, order) {
 function installV119GateAdapters(loadProfileFeatures) {
   if (v119GateAdaptersInstalled || typeof loadProfileFeatures !== 'function') return;
   v119GateAdaptersInstalled = true;
-
   dispatcher.register('change', 'v126-v119-bundle-memory', (event) => {
     const target = event.target;
     if (!(target instanceof Element) || target.id !== 'profileBundleFile') return false;
-    loadProfileFeatures()
-      .then((module) => module.rememberBundleFile(target.files?.[0] || null))
-      .catch((error) => renderFailure(error));
+    loadProfileFeatures().then((module) => module.rememberBundleFile(target.files?.[0] || null)).catch(renderFailure);
     return false;
   }, 70);
-
   dispatcher.register('click', 'v126-v119-revision-gates', (event) => {
     const button = event.target.closest?.('button');
     if (!button) return false;
-
     if (button.id === 'saveBankImportProfile') {
       const profileId = document.getElementById('bankImportProfileSelect')?.value || '';
       if (!profileId) return false;
@@ -135,24 +120,18 @@ function installV119GateAdapters(loadProfileFeatures) {
       const liveAccountLabel = document.querySelector('[data-bank-option="accountLabel"]')?.value;
       if (liveAccountLabel !== undefined) window.GringottsV115?.updateBankOption?.('accountLabel', liveAccountLabel);
       const name = document.getElementById('bankImportProfileName')?.value || '';
-      loadProfileFeatures()
-        .then((module) => module.interceptProfileUpdate({ profileId, name }))
-        .catch((error) => renderFailure(error));
+      loadProfileFeatures().then((module) => module.interceptProfileUpdate({ profileId, name })).catch(renderFailure);
       return true;
     }
-
     if (button.id === 'commitProfileBundle') {
       const replacementSelected = [...document.querySelectorAll('[data-profile-bundle-action]')]
         .some((select) => select.value === 'replace');
       if (!replacementSelected) return false;
       event.preventDefault();
       event.stopImmediatePropagation();
-      loadProfileFeatures()
-        .then((module) => module.interceptBundleReplace(document))
-        .catch((error) => renderFailure(error));
+      loadProfileFeatures().then((module) => module.interceptBundleReplace(document)).catch(renderFailure);
       return true;
     }
-
     return false;
   }, 70);
 }
@@ -160,10 +139,8 @@ function installV119GateAdapters(loadProfileFeatures) {
 async function installLayer(name, priority, install) {
   const result = await installLegacyLayer({ name, dispatcher, priority, install });
   legacyAdapters.push({
-    name: result.name,
-    capturedActions: result.capturedActions,
-    delegatedListeners: result.delegatedListeners,
-    observerSuppressed: result.observerSuppressed
+    name: result.name, capturedActions: result.capturedActions,
+    delegatedListeners: result.delegatedListeners, observerSuppressed: result.observerSuppressed
   });
   return result.result;
 }
@@ -218,15 +195,12 @@ async function activateRouteLayers(layers) {
 function loadRouteLayers() {
   if (!routeLayersPromise) {
     routeLayersPromise = Promise.all([
-      import('./v118/release.js?v=126runtime1'),
-      import('./v119/release.js?v=126runtime1'),
-      import('./v120/release.js?v=126runtime1'),
-      import('./v121/release.js?v=126runtime1'),
+      import('./v118/release.js?v=126runtime1'), import('./v119/release.js?v=126runtime1'),
+      import('./v120/release.js?v=126runtime1'), import('./v121/release.js?v=126runtime1'),
       import('./v122/account-cleanup.js?v=126runtime1'),
       import('./v122/account-cleanup-export-controller.js?v=126runtime1'),
       import('./v123/recurring-decisions.js?v=126runtime1'),
-      import('./v124/scenario-comparison.js?v=126runtime1'),
-      import('./v125/release.js?v=126runtime1')
+      import('./v124/scenario-comparison.js?v=126runtime1'), import('./v125/release.js?v=126runtime1')
     ]).then(([v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, scenario, v125]) =>
       prepareRouteLayers({ v118, v119, v120, v121, accountCleanup, cleanupExport, recurring, scenario, v125 })
     ).catch((error) => {
@@ -243,35 +217,34 @@ function nextFrame() {
 }
 
 async function replayRoute(route) {
-  const button = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
-  if (!button) throw new Error(`The prepared route button is unavailable: ${route}`);
-
-  dispatcher.suspend();
-  try {
-    button.click();
-  } finally {
-    dispatcher.resume();
+  for (let attempt = 1; attempt <= MAX_BASE_ROUTE_REPLAYS; attempt += 1) {
+    const button = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
+    if (!button) throw new Error(`Prepared route unavailable: ${route}`);
+    dispatcher.suspend();
+    try { button.click(); } finally { dispatcher.resume(); }
+    await nextFrame();
+    await nextFrame();
+    if (document.querySelector('[data-tab].active')?.dataset.tab === route) {
+      const registry = window.GringottsV126;
+      registry.lastRouteReplayAttempts = attempt;
+      registry.routeReplayRecoveries += attempt > 1 ? 1 : 0;
+      return;
+    }
   }
-
-  await nextFrame();
-  await nextFrame();
-  const renderedRoute = document.querySelector('[data-tab].active')?.dataset.tab;
-  if (renderedRoute !== route) throw new Error(`The base route renderer did not activate ${route}.`);
+  window.GringottsV126.lastRouteReplayAttempts = MAX_BASE_ROUTE_REPLAYS;
+  throw new Error(`Base route ${route} did not activate after bounded attempts.`);
 }
 
 async function navigatePrimaryRoute(route) {
   const needsV115 = route === 'reports' || route === 'tools';
   const needsLayers = lazyRoutes.has(route);
   coordinator.beginRoute(route, needsLayers && !routeLayersReady ? 'lazy-navigation' : 'navigation');
-
   if (needsV115 && typeof prepareV115Route === 'function' && !window.GringottsV115?.featuresReady) {
     await prepareV115Route();
   }
-
   let layers = null;
   if (needsLayers && !routeLayersReady) layers = await loadRouteLayers();
   else if (routeLayersReady) layers = await routeLayersPromise;
-
   await replayRoute(route);
   if (layers && !routeLayersActivated) await activateRouteLayers(layers);
   await coordinator.enhance(routeLayersActivated ? 'primary-navigation' : 'base-navigation');
@@ -282,23 +255,18 @@ function handleRouteAction(event) {
   const button = event.target.closest?.('[data-tab]');
   const route = button?.dataset.tab;
   if (!button || !route) return false;
-
   event.preventDefault();
   event.stopImmediatePropagation();
   pendingRoute = route;
   if (routeReplayInProgress) return true;
-
   routeReplayInProgress = true;
-  Promise.resolve()
-    .then(async () => {
-      while (pendingRoute) {
-        const requestedRoute = pendingRoute;
-        pendingRoute = '';
-        await navigatePrimaryRoute(requestedRoute);
-      }
-    })
-    .catch(renderFailure)
-    .finally(() => { routeReplayInProgress = false; });
+  Promise.resolve().then(async () => {
+    while (pendingRoute) {
+      const requestedRoute = pendingRoute;
+      pendingRoute = '';
+      await navigatePrimaryRoute(requestedRoute);
+    }
+  }).catch(renderFailure).finally(() => { routeReplayInProgress = false; });
   return true;
 }
 
@@ -317,7 +285,7 @@ function handleRouteFailure(event) {
   card.className = 'card error-box v126-route-failure';
   card.setAttribute('role', 'alert');
   card.innerHTML = `<h3>Route enhancements could not finish</h3>
-    <p>The base route remains available and browser-local data was not cleared. Retry the enhancement pass or open the stable rescue shell.</p>
+    <p>The base route remains available; local data was not cleared. Retry or open stable rescue.</p>
     <p class="muted-note">${escapeHtml(detail.errors?.[0]?.message || 'Unknown enhancement error')}</p>
     <div class="button-row"><button type="button" class="btn secondary" id="retryV126Enhancements">Retry Route Enhancements</button><a class="btn secondary" href="rescue-v105.html?release=rescue1051">Open Stable v105 Rescue</a></div>`;
   main.prepend(card);
@@ -331,10 +299,8 @@ document.addEventListener('gringotts:v126-route-ready', () => {
 document.addEventListener('gringotts:v126-route-failed', handleRouteFailure);
 
 Promise.all([
-  import('./runtime-v111-reporting.js?v=126runtime1'),
-  import('./v126/runtime.js?v=126runtime1'),
-  import('./v126/release.js?v=126runtime1'),
-  import('./v115/release.js?v=126runtime1'),
+  import('./runtime-v111-reporting.js?v=126runtime1'), import('./v126/runtime.js?v=126runtime1'),
+  import('./v126/release.js?v=126runtime1'), import('./v115/release.js?v=126runtime1'),
   import('./v112/accessibility.js?v=126runtime1')
 ]).then(async ([, runtimeModule, releaseModule, v115, accessibility]) => {
   const build = v115.activateV115();
@@ -343,16 +309,12 @@ Promise.all([
   coordinator = runtimeModule.createRuntimeCoordinator({ documentRef: document }).install();
   installLegacyLayer = runtimeModule.installLegacyLayer;
   installV126Runtime = releaseModule.installV126Runtime;
-
   dispatcher.register('click', 'v126-route-lifecycle', handleRouteAction, 1000);
   dispatcher.register('input', 'v115-account-label', handleAccountLabelInput, 60);
   installV126Runtime({ coordinator, dispatcher, legacyAdapters });
-
   Object.assign(build, {
-    version: 'v126',
-    name: 'Runtime Consolidation & Reliability',
-    runtime: 'src/runtime-v111-reporting.js + one v126 route coordinator + one v126 action dispatcher + lazy v115-v125 capabilities',
-    cacheBust: '126runtime1'
+    version: 'v126', name: 'Runtime Consolidation & Reliability',
+    runtime: 'v111 reports + v126 coordinator/dispatcher + lazy v115-v125', cacheBust: '126runtime1'
   });
   if (window.GringottsCleanRuntime?.BUILD) Object.assign(window.GringottsCleanRuntime.BUILD, build);
   accessibility.installAccessibilityEnhancements();
@@ -360,9 +322,8 @@ Promise.all([
   const version = document.querySelector('.version-text');
   if (version) version.textContent = build.version;
   Object.assign(window.GringottsV126 || (window.GringottsV126 = {}), {
-    release: 'v126',
-    loadRouteLayers,
-    routeEnhancementsReady: false
+    release: 'v126', loadRouteLayers, routeEnhancementsReady: false,
+    maxBaseRouteReplays: MAX_BASE_ROUTE_REPLAYS, lastRouteReplayAttempts: 0, routeReplayRecoveries: 0
   });
   await coordinator.enhanceExistingRoute();
   if (boot?.isConnected) boot.remove();

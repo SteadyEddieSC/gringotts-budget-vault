@@ -1,36 +1,35 @@
 # Gringotts Budget Vault Roadmap
 
-The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 remains the explicit observed-needs gate for product scope. v132 simplified release identity and test ownership. v133 exercises long-lived synthetic local data without authorizing mutation of real household data. v134 consolidates export contracts and the newer lazy JSON download implementation without changing report content or the legacy startup-path workbook and backup controller.
+The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 remains the explicit observed-needs gate for product scope. v132 simplified release identity and test ownership. v133 exercises long-lived synthetic local data without authorizing mutation of real household data. v134 consolidated retained export contracts without changing report content. v135 establishes explicit cross-device and low-resource evidence while preserving one shared application path.
 
 ## Current release
 
-### v134 — Reporting & Export Contract Consolidation — Current
+### v135 — Cross-Device & Low-Resource Resilience — Current
 
 **Purpose**
 
-Make retained local exports easier to audit and maintain by centralizing stable metadata, filename construction, workbook ownership, privacy modes, and the duplicated local-download executor while preserving every established payload and output.
+Prove that representative household workflows remain usable, safe, responsive, and predictable across supported desktop, phone, and tablet profiles; keyboard and touch input; reduced-motion settings; and deterministic large-vault conditions without introducing a device-specific product fork.
 
 **Delivered**
 
-- one strict TypeScript and browser-compatible catalog for sixteen retained local outputs;
-- stable export IDs, labels, owners, formats, extensions, MIME types, filename policies, privacy modes, success labels, failure behavior, cancellation behavior, and no-retry declarations;
-- one exact workbook ownership map totaling 43 sheets across the retained base workbook and v115/v121–v125 extensions;
-- deterministic filename builders that preserve recognizable prefixes, historical release ownership, and extensions;
-- aggregate-only, metadata-only, configuration-only, diagnostics-only, and workflow-only forbidden-field validation;
-- one injected local browser executor with explicit `cancelled` and `dispatched` outcomes, object-URL cleanup, no automatic retry, and no silent substitution;
-- migration of only the already-lazy Workflow Review and Decision Gate JSON downloads to the shared executor;
-- retained public filename helpers in v129 and v131 as compatibility wrappers over the v134 catalog;
-- real browser download tests that validate established v129 and v131 payload kinds and prove no browser-storage or observer change;
-- unchanged legacy workbook, meeting pack, guided plan, full backup, rules, calendar, diagnostics, profile, import-audit, account-cleanup, and close-trend payload builders.
+- one strict TypeScript and browser-compatible catalog of six governed resilience profiles covering Chromium, Firefox, desktop WebKit, Android Chromium, iPad WebKit, and iPhone WebKit;
+- explicit keyboard, touch, reduced-motion, and large-vault evidence contracts with minimum 44-pixel targets and no more than two pixels of root overflow;
+- exact inheritance of the v130 750 ms route-ready and 300 ms enhancement ceilings rather than a weaker device-specific budget;
+- a deterministic bounded 1,200-row synthetic vault generator with fictional accounts, owners, merchants, identifiers, dates, amounts, and categories;
+- browser-free validation for complete workflow evidence, finite measurements, zero storage/network/observer expansion, no duplicate dispatch, visible safety messaging, visible focus, and no persistent cache or device fork;
+- keyboard-only primary navigation and Workflow Review completion across all three desktop engines;
+- touch completion and responsive overflow checks across Android, iPad, and iPhone projects;
+- reduced-motion verification across all six supported browser/device projects;
+- large-vault Activity, Reports, Tools, and guarded Full Vault Restore evidence on the governed low-resource profiles;
+- bounded v126 base-route replay hardening: one initial attempt, at most one recovery attempt, observable counters, and the existing recovery shell after two misses.
 
 **Safety**
 
-- no new report destination, Tools section, primary destination, workbook sheet, persistent store, service worker, telemetry, analytics, endpoint, cloud adapter, backend, financial schema, or automatic export;
-- the v134 catalog and executor remain absent from normal startup and load only with an already-lazy export surface;
-- no report-content redesign and no transaction, backup, restore, import, close-history, Workflow Review, or Decision Gate schema change;
-- success is announced only after the local download action is dispatched;
-- cancellation occurs before dispatch and creates no download or success outcome;
-- failures throw without retry, partial output, or fallback substitution;
+- no new primary destination, Tools section, report destination, workbook sheet, persistent store, service worker, cache layer, telemetry, analytics, endpoint, cloud adapter, backend, financial schema, automatic action, or reduced-function device mode;
+- no user-agent sniffing and no device-specific application fork;
+- v135 resilience contracts remain absent from normal startup and are loaded only by protected tests;
+- legitimate v130 runtime failures remain authoritative and cannot be bypassed by a resilience profile;
+- the route replay hardening performs no storage, network, observer, service-worker, or data operation and still fails closed after two bounded attempts;
 - `gringottsBudgetVault.latest` remains the sole authoritative transaction-copy domain;
 - stable v105 rescue, guarded import, separate Full Vault Restore, empty-vault protection, backup-first broad writes, immutable close history, six primary destinations, one v126-owned observer, six Tools sections, the 43-sheet workbook cap, 45-request ceiling, and 500,000-script-byte ceiling remain unchanged.
 
@@ -64,13 +63,13 @@ Centralized current-release identity and test expectations, detected release dri
 
 Exercises synthetic long-lived data through upgrade, corruption, rollback, orphan, stale-schema, and capacity scenarios while prohibiting automatic destructive cleanup or real-data mutation.
 
-### v134 — Reporting & Export Contract Consolidation — Current
+### v134 — Reporting & Export Contract Consolidation — Shipped
 
-Centralizes the retained output catalog, deterministic filenames, 43-sheet ownership map, privacy validation, and the duplicated lazy JSON download executor while preserving every established report and payload.
+Centralized the retained output catalog, deterministic filenames, 43-sheet ownership map, privacy validation, and duplicated lazy JSON download executor while preserving every established report and payload.
 
-### v135 — Cross-Device & Low-Resource Resilience — Directional
+### v135 — Cross-Device & Low-Resource Resilience — Current
 
-Verify complete workflows on small screens, slower CPUs, reduced-memory devices, touch, keyboard-only input, reduced-motion settings, and large synthetic vaults without a device-specific fork or persistent cache.
+Establishes governed keyboard, touch, reduced-motion, responsive-overflow, and deterministic large-vault evidence across all six supported browser/device projects without a device fork, persistent cache, or weaker safety gate.
 
 ### v136 — Architecture Baseline & Next-Horizon Decision — Directional
 
@@ -78,7 +77,7 @@ Document the maintained architecture, ownership map, retirement candidates, priv
 
 ## Recommended next action
 
-Use the existing report and export actions normally. The v134 contract layer does not add another export surface or change payload content. Continue using **Tools → Workflow Review** and **Tools → Decision Gate** for explicit household evidence and decisions. Any future report, workbook sheet, cloud adapter, encrypted package flow, or automatic action requires a separately scoped design, threat review, ownership entry, privacy contract, recovery behavior, and full protected validation.
+Use the same application normally across supported devices. v135 does not add a device mode, persistent cache, background worker, or alternate workflow. Continue using **Tools → Workflow Review** and **Tools → Decision Gate** for explicit household evidence and decisions. Any future report, workbook sheet, cloud adapter, encrypted package flow, or automatic action requires a separately scoped design, threat review, ownership entry, privacy contract, recovery behavior, and full protected validation.
 
 ## Future portability sequence
 

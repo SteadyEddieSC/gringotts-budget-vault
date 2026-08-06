@@ -56,7 +56,7 @@ export const ROADMAP_HORIZON = Object.freeze([
     outcome: 'Long-lived local data remains understandable and recoverable across future releases.'
   },
   {
-    version: 'v134', status: 'current', title: 'Reporting & Export Contract Consolidation',
+    version: 'v134', status: 'shipped', title: 'Reporting & Export Contract Consolidation',
     purpose: 'Reduce duplicated report assembly and filename logic while preserving every tested household output and the 43-sheet workbook cap.',
     scope: ['Shared export metadata', 'Consistent filenames and labels', 'Aggregate-only privacy checks', 'Workbook ownership map', 'Failure and cancellation behavior'],
     dependencies: ['v130 performance evidence', 'v133 data-longevity fixtures'],
@@ -64,7 +64,7 @@ export const ROADMAP_HORIZON = Object.freeze([
     outcome: 'Reports and exports become more consistent and less expensive to maintain.'
   },
   {
-    version: 'v135', status: 'directional', title: 'Cross-Device & Low-Resource Resilience',
+    version: 'v135', status: 'current', title: 'Cross-Device & Low-Resource Resilience',
     purpose: 'Verify complete household workflows on small screens, reduced-memory devices, slower CPUs, keyboard-only input, touch, and reduced-motion settings.',
     scope: ['Low-resource test profiles', 'Touch and keyboard completion', 'Responsive overflow review', 'Reduced-motion verification', 'Large-vault interaction budgets'],
     dependencies: ['v127 UX contracts', 'v130 performance budgets', 'v134 export consolidation'],
@@ -93,8 +93,8 @@ export function validateRoadmapHorizon() {
     }
   });
   const current = ROADMAP_HORIZON.filter((entry) => entry.status === 'current');
-  if (current.length !== 1 || current[0]?.version !== 'v134') throw new Error('v134 must be the only current roadmap release.');
-  if (ROADMAP_HORIZON.slice(0, 7).some((entry) => entry.status !== 'shipped')) throw new Error('v127 through v133 must remain shipped.');
-  if (ROADMAP_HORIZON.slice(8).some((entry) => entry.status !== 'directional')) throw new Error('v135 through v136 must remain directional.');
+  if (current.length !== 1 || current[0]?.version !== 'v135') throw new Error('v135 must be the only current roadmap release.');
+  if (ROADMAP_HORIZON.slice(0, 8).some((entry) => entry.status !== 'shipped')) throw new Error('v127 through v134 must remain shipped.');
+  if (ROADMAP_HORIZON.slice(9).some((entry) => entry.status !== 'directional')) throw new Error('v136 must remain directional.');
   return true;
 }

@@ -40,7 +40,8 @@ const packageLock = JSON.parse(read('package-lock.json'));
 if (packageJson.version !== CURRENT_RELEASE.packageVersion) mismatch('package.json', 'version', CURRENT_RELEASE.packageVersion, packageJson.version);
 if (packageLock.version !== CURRENT_RELEASE.packageVersion) mismatch('package-lock.json', 'version', CURRENT_RELEASE.packageVersion, packageLock.version);
 if (packageLock.packages?.['']?.version !== CURRENT_RELEASE.packageVersion) mismatch('package-lock.json', 'packages[""].version', CURRENT_RELEASE.packageVersion, packageLock.packages?.['']?.version);
-requireContains('package.json', JSON.stringify(packageJson), 'tests/v134-reporting-export-contracts.spec.js', 'v134 browser test discovery');
+requireContains('package.json', JSON.stringify(packageJson), 'tests/v134-reporting-export-contracts.spec.js', 'retained v134 browser test discovery');
+requireContains('package.json', JSON.stringify(packageJson), 'tests/v135-cross-device-low-resource-resilience.spec.js', 'v135 browser test discovery');
 
 const compatibilityBootFile = `src/boot-v${CURRENT_RELEASE.number}.js`;
 for (const file of ['index.html', 'app.html']) {
@@ -55,6 +56,8 @@ for (const file of ['index.html', 'app.html']) {
 const bootFile = CURRENT_RELEASE.bootPath;
 const boot = read(bootFile);
 requireContains(bootFile, boot, 'export const CURRENT_RELEASE=', 'authoritative manifest export');
+requireContains(bootFile, boot, "version:'v135'", 'v135 manifest version');
+requireContains(bootFile, boot, "previousRelease:'v134'", 'v134 retained predecessor');
 requireContains(bootFile, boot, "if(typeof window!=='undefined'&&typeof document!=='undefined')", 'Node-safe browser guard');
 requireContains(bootFile, boot, 'runtime.coordinator.registerRelease({id:R.version', 'manifest-owned release registration');
 requireContains(bootFile, boot, 'runtime:R.runtimeLabel', 'manifest-owned runtime label');
@@ -63,11 +66,17 @@ requireContains(bootFile, boot, 'document.title!==CURRENT_RELEASE_TITLE', 'manif
 requireContains(bootFile, boot, "await import(`./boot-v128.js?v=${A.bootBase}`)", 'retained base boot import');
 requireContains(bootFile, boot, "import(`./v133/longevity-drills.js?v=${A.longevity}`)", 'lazy retained v133 drill import');
 requireContains(bootFile, boot, 'window.GringottsV133', 'retained v133 runtime registry');
-requireContains(bootFile, boot, 'window.GringottsV134', 'v134 runtime registry');
+requireContains(bootFile, boot, 'window.GringottsV134', 'retained v134 runtime registry');
+requireContains(bootFile, boot, 'window.GringottsV135', 'current v135 runtime registry');
 requireContains(bootFile, boot, 'retainedOutputCount:16', 'v134 retained output count');
-requireContains(bootFile, boot, 'workbookSheets:R.workbookSheets', 'v134 workbook cap registry');
+requireContains(bootFile, boot, 'profileCount:6', 'v135 profile count');
+requireContains(bootFile, boot, 'largeVaultTransactionCount:1200', 'v135 large-vault contract');
+requireContains(bootFile, boot, 'contractsLazy:true', 'v135 lazy contract declaration');
+requireContains(bootFile, boot, 'contractsLoaded:false', 'v135 startup contract absence');
+requireContains(bootFile, boot, 'workbookSheets:R.workbookSheets', 'retained workbook cap registry');
 requireAbsent(bootFile, boot, /^import .*v133\/longevity-drills\.js/gm, 'eager v133 drill import');
 requireAbsent(bootFile, boot, /^import .*v134\/(?:export-contracts|local-export)\.js/gm, 'eager v134 export import');
+requireAbsent(bootFile, boot, /^import .*v135\/resilience-contracts\.js/gm, 'eager v135 resilience import');
 requireAbsent(bootFile, boot, /^import .*boot-v131\.js/gm, 'historical current-boot import');
 
 const compatibilityBoot = read(compatibilityBootFile);
@@ -109,6 +118,28 @@ requireContains('src/v134/local-export.js', exportExecutor, 'executeLocalExport'
 requireContains('src/v134/local-export.js', exportExecutor, "status:'cancelled'", 'explicit cancellation result');
 requireContains('src/v134/local-export.js', exportExecutor, "status:'dispatched'", 'explicit dispatch result');
 
+const resilienceFiles = ['src/v135/resilience-contracts.js','src/v135/resilience-contracts.ts'];
+for (const file of resilienceFiles) {
+  const source = read(file);
+  requireContains(file, source, "RESILIENCE_RELEASE = 'v135'", 'v135 contract release');
+  requireContains(file, source, 'LARGE_VAULT_TRANSACTION_COUNT', 'large-vault fixture contract');
+  requireContains(file, source, 'RESILIENCE_PROFILES', 'resilience profile catalog');
+  requireContains(file, source, 'evaluateResilienceEvidence', 'resilience evidence evaluator');
+  requireContains(file, source, 'deviceForkAllowed:false', 'device-fork prohibition');
+  requireContains(file, source, 'persistentCacheAllowed:false', 'persistent-cache prohibition');
+  requireAbsent(file, source, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, 'network implementation');
+  requireAbsent(file, source, /localStorage|sessionStorage|indexedDB|document\.cookie/, 'browser persistence');
+  requireAbsent(file, source, /new MutationObserver|serviceWorker|CacheStorage|caches\./, 'runtime or cache expansion');
+  requireAbsent(file, source, /navigator\.userAgent|userAgentData/, 'device detection');
+}
+
+const routeBoot = read('src/boot-v126.js');
+requireContains('src/boot-v126.js', routeBoot, 'const MAX_BASE_ROUTE_REPLAYS = 2;', 'bounded base-route replay cap');
+requireContains('src/boot-v126.js', routeBoot, 'routeReplayRecoveries', 'observable replay recovery count');
+requireContains('src/boot-v126.js', routeBoot, 'lastRouteReplayAttempts', 'observable replay attempt count');
+requireContains('src/boot-v126.js', routeBoot, 'bounded attempts', 'fail-closed replay error');
+requireAbsent('src/boot-v126.js', routeBoot, /while\s*\(true\)|setInterval\s*\(/, 'unbounded route replay');
+
 const workflowReview = read('src/v129/workflow-review.js');
 const decisionGate = read('src/v131/decision-gate-ui.js');
 requireContains('src/v129/workflow-review.js', workflowReview, "from '../v134/local-export.js?v=134export1'", 'shared Workflow Review executor');
@@ -126,8 +157,11 @@ requireContains('tests/helpers/app.js', appHelper, "from './release.js'", 'share
 requireContains('tests/helpers/app.js', appHelper, 'currentVersion', 'shared current version use');
 requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV132', 'retained release infrastructure readiness');
 requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV133', 'retained longevity registry readiness');
-requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV134', 'current export registry readiness');
-requireAbsent('tests/helpers/app.js', appHelper, /\^v133|toHaveText\(['"]v133|build\.version[^\n]*v133/, 'stale current-release assertion');
+requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV134', 'retained export registry readiness');
+requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV135', 'current resilience registry readiness');
+requireContains('tests/helpers/app.js', appHelper, 'largeVaultTransactionCount === 1200', 'v135 fixture readiness');
+requireContains('tests/helpers/app.js', appHelper, 'contractsLoaded === false', 'v135 startup contract absence');
+requireAbsent('tests/helpers/app.js', appHelper, /\^v134|toHaveText\(['"]v134|build\.version[^\n]*v134/, 'stale current-release assertion');
 
 const roadmap = read('ROADMAP.md');
 requireContains('ROADMAP.md', roadmap, `### ${CURRENT_RELEASE.version} — ${CURRENT_RELEASE.name}`, 'current roadmap heading');
@@ -145,6 +179,7 @@ const allowed = new Set([
   'tests/v132-release-test-infrastructure.spec.js',
   'tests/v133-local-data-longevity.spec.js',
   'tests/v134-reporting-export-contracts.spec.js',
+  'tests/v135-cross-device-low-resource-resilience.spec.js',
   'tests/repository-security.spec.js',
   'quality-tests/v132-accessibility.spec.js'
 ]);
