@@ -32,6 +32,7 @@ window.addEventListener('error', (event) => { if (event?.error) renderFailure(ev
 window.addEventListener('unhandledrejection', (event) => renderFailure(event?.reason));
 
 const lazyRoutes = new Set(['money', 'reports', 'activity', 'tools']);
+const MAX_BASE_ROUTE_REPLAYS = 2;
 let dispatcher = null;
 let coordinator = null;
 let installLegacyLayer = null;
@@ -44,6 +45,8 @@ let routeLayersReady = false;
 let routeLayersPrepared = false;
 let routeLayersActivated = false;
 let routeReplayInProgress = false;
+let routeReplayRecoveries = 0;
+let lastRouteReplayAttempts = 0;
 let v119GateAdaptersInstalled = false;
 let pendingRoute = '';
 const legacyAdapters = [];
@@ -242,21 +245,37 @@ function nextFrame() {
   return new Promise((resolve) => requestAnimationFrame(resolve));
 }
 
+function publishRouteReplay(attempts) {
+  lastRouteReplayAttempts = attempts;
+  if (attempts > 1) routeReplayRecoveries += 1;
+  Object.assign(window.GringottsV126 || (window.GringottsV126 = {}), {
+    maxBaseRouteReplays: MAX_BASE_ROUTE_REPLAYS,
+    lastRouteReplayAttempts,
+    routeReplayRecoveries
+  });
+}
+
 async function replayRoute(route) {
-  const button = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
-  if (!button) throw new Error(`The prepared route button is unavailable: ${route}`);
+  for (let attempt = 1; attempt <= MAX_BASE_ROUTE_REPLAYS; attempt += 1) {
+    const button = document.querySelector(`[data-tab="${CSS.escape(route)}"]`);
+    if (!button) throw new Error(`The prepared route button is unavailable: ${route}`);
 
-  dispatcher.suspend();
-  try {
-    button.click();
-  } finally {
-    dispatcher.resume();
+    dispatcher.suspend();
+    try {
+      button.click();
+    } finally {
+      dispatcher.resume();
+    }
+
+    await nextFrame();
+    await nextFrame();
+    if (document.querySelector('[data-tab].active')?.dataset.tab === route) {
+      publishRouteReplay(attempt);
+      return;
+    }
   }
-
-  await nextFrame();
-  await nextFrame();
-  const renderedRoute = document.querySelector('[data-tab].active')?.dataset.tab;
-  if (renderedRoute !== route) throw new Error(`The base route renderer did not activate ${route}.`);
+  publishRouteReplay(MAX_BASE_ROUTE_REPLAYS);
+  throw new Error(`The base route renderer did not activate ${route} after ${MAX_BASE_ROUTE_REPLAYS} bounded attempts.`);
 }
 
 async function navigatePrimaryRoute(route) {
@@ -362,7 +381,10 @@ Promise.all([
   Object.assign(window.GringottsV126 || (window.GringottsV126 = {}), {
     release: 'v126',
     loadRouteLayers,
-    routeEnhancementsReady: false
+    routeEnhancementsReady: false,
+    maxBaseRouteReplays: MAX_BASE_ROUTE_REPLAYS,
+    lastRouteReplayAttempts,
+    routeReplayRecoveries
   });
   await coordinator.enhanceExistingRoute();
   if (boot?.isConnected) boot.remove();
