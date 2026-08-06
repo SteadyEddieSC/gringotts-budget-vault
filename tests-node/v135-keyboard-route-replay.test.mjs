@@ -7,15 +7,15 @@ const source = fs.readFileSync(new URL('../src/boot-v126.js',import.meta.url),'u
 test('keeps base route replay bounded, observable, and fail-closed', () => {
   assert.match(source,/const MAX_BASE_ROUTE_REPLAYS = 2;/);
   assert.match(source,/for \(let attempt = 1; attempt <= MAX_BASE_ROUTE_REPLAYS; attempt \+= 1\)/);
-  assert.match(source,/routeReplayRecoveries \+= 1/);
-  assert.match(source,/lastRouteReplayAttempts/);
+  assert.match(source,/registry\.routeReplayRecoveries \+= attempt > 1 \? 1 : 0/);
+  assert.match(source,/registry\.lastRouteReplayAttempts = attempt/);
   assert.match(source,/maxBaseRouteReplays: MAX_BASE_ROUTE_REPLAYS/);
-  assert.match(source,/after \$\{MAX_BASE_ROUTE_REPLAYS\} bounded attempts/);
+  assert.match(source,/did not activate after bounded attempts/);
   assert.doesNotMatch(source,/while\s*\(true\)|setInterval\s*\(|location\.reload\s*\(\).*replayRoute/);
 });
 
 test('route replay hardening adds no data, network, observer, or service-worker authority', () => {
-  const replay = source.slice(source.indexOf('function publishRouteReplay'),source.indexOf('async function navigatePrimaryRoute'));
+  const replay = source.slice(source.indexOf('async function replayRoute'),source.indexOf('async function navigatePrimaryRoute'));
   assert.doesNotMatch(replay,/localStorage|sessionStorage|indexedDB|document\.cookie/);
   assert.doesNotMatch(replay,/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
   assert.doesNotMatch(replay,/new MutationObserver|serviceWorker|CacheStorage|caches\./);
