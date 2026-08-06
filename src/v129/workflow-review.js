@@ -1,4 +1,5 @@
 import * as model from './workflow-evidence.js?v=129evidence2';
+import { executeLocalExport } from '../v134/local-export.js?v=134export1';
 
 const WORKFLOW_SECTION = 'workflow-review';
 const CSS = String.raw`
@@ -123,21 +124,18 @@ function handleChange(event) {
   return false;
 }
 
-function downloadReview() {
+async function downloadReview() {
   const values = observations();
   const summary = model.summarizeWorkflowReview(values);
   if (!summary.reviewedCount) throw new Error('Review at least one workflow before downloading the local evidence bundle.');
   const createdAt = new Date().toISOString();
   const bundle = model.buildWorkflowReviewBundle(values,createdAt);
-  const url = URL.createObjectURL(new Blob([`${JSON.stringify(bundle,null,2)}\n`],{type:'application/json'}));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = model.workflowReviewFilename(createdAt);
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url),0);
-  services.announce('Local workflow review downloaded');
+  const result = executeLocalExport({
+    id:'workflow-review',
+    payload:bundle,
+    filenameContext:{ createdAt }
+  });
+  if (result.status === 'dispatched') services.announce('Local workflow review downloaded');
 }
 
 async function copySummary() {
@@ -152,7 +150,7 @@ async function copySummary() {
 async function runAction(action) {
   setActionError('');
   try {
-    if (action.id === 'downloadWorkflowReview') downloadReview();
+    if (action.id === 'downloadWorkflowReview') await downloadReview();
     else if (action.id === 'copyWorkflowReviewSummary') await copySummary();
     else if (window.confirm('Clear the current in-session workflow review?')) {
       reviewState.clear();

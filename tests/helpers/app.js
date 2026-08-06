@@ -46,11 +46,15 @@ export async function waitForApp(page) {
       && window.GringottsV132?.release === version
       && window.GringottsV132?.name === name
       && window.GringottsV133?.release === version
-      && window.GringottsV133?.name === name
+      && window.GringottsV133?.hostRelease === version
+      && window.GringottsV134?.release === version
+      && window.GringottsV134?.name === name
+      && window.GringottsV134?.catalogLoaded === false
+      && window.GringottsV134?.executorLoaded === false
     ), { version:currentVersion, name:currentReleaseName }),
     {
       timeout:15000,
-      message:`${currentVersion} ${currentReleaseName}, lazy longevity drills, retained v132 manifest infrastructure, v131 decision gate, v130 runtime evidence, v129 workflow review, v128 foundation, v127 UX policy, and v126 route readiness should finish before tests continue`
+      message:`${currentVersion} ${currentReleaseName}, lazy export contracts, retained v133 longevity drills, v132 manifest infrastructure, v131 decision gate, v130 runtime evidence, v129 workflow review, v128 foundation, v127 UX policy, and v126 route readiness should finish before tests continue`
     }
   ).toBe(true);
   await expect.poll(

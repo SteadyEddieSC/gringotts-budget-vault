@@ -7,6 +7,7 @@ import {
   validateWorkflowObservation,
   summarizeWorkflowReview
 } from '../v129/workflow-evidence.js?v=131review1';
+import { buildExportFilename } from '../v134/export-contracts.js?v=134contracts1';
 
 export const DECISION_GATE_KIND = 'gringotts-observed-needs-decision';
 export const DECISION_GATE_VERSION = 1;
@@ -224,5 +225,5 @@ export function decisionRecordSummaryText(record) {
 }
 
 export function decisionRecordFilename(createdAt = new Date().toISOString()) {
-  return `Gringotts_Decision_Gate_${exactIso(createdAt).replace(/[:.]/g, '-')}.json`;
+  return buildExportFilename('decision-record', { createdAt:exactIso(createdAt) });
 }

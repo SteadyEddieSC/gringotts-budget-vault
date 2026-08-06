@@ -4,6 +4,7 @@ import {
   ACTION_INTENTS, V127_RELEASE, actionDescriptor, classifyAction, normalizeActionLabel, validateActionPolicy
 } from '../src/v127/ux-policy.js';
 import { ROADMAP_HORIZON, validateRoadmapHorizon } from '../src/v127/roadmap-horizon.js';
+import { CURRENT_RELEASE } from '../src/release-manifest.js';
 
 test('v127 interaction policy classifies household actions consistently', () => {
   assert.equal(validateActionPolicy(), true);
@@ -33,9 +34,10 @@ test('v127 publishes the maintained ten-release reliability horizon through v136
   assert.equal(ROADMAP_HORIZON[5].version, 'v132');
   assert.equal(ROADMAP_HORIZON[5].status, 'shipped');
   assert.equal(ROADMAP_HORIZON[6].version, 'v133');
-  assert.equal(ROADMAP_HORIZON[6].status, 'current');
-  assert.equal(ROADMAP_HORIZON[7].version, 'v134');
-  assert.equal(ROADMAP_HORIZON[7].status, 'directional');
+  assert.equal(ROADMAP_HORIZON[6].status, 'shipped');
+  const current = ROADMAP_HORIZON.find((entry) => entry.status === 'current');
+  assert.equal(current?.version, CURRENT_RELEASE.version);
+  assert.equal(current?.title, CURRENT_RELEASE.name);
   assert.equal(ROADMAP_HORIZON.at(-1).version, 'v136');
   assert.ok(ROADMAP_HORIZON.every((entry) => entry.safeguards.length > 0));
 });

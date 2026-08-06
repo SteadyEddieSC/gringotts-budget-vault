@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": false
   },
-  "include": ["src/v128/**/*.ts", "src/v129/**/*.ts", "src/v130/**/*.ts", "src/v131/**/*.ts", "src/v133/**/*.ts"]
+  "include": ["src/v128/**/*.ts", "src/v129/**/*.ts", "src/v130/**/*.ts", "src/v131/**/*.ts", "src/v133/**/*.ts", "src/v134/**/*.ts"]
 }

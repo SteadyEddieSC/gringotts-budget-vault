@@ -1,3 +1,5 @@
+import { buildExportFilename } from '../v134/export-contracts.js';
+
 export const DECISION_GATE_KIND = 'gringotts-observed-needs-decision' as const;
 export const DECISION_GATE_VERSION = 1 as const;
 export const DECISION_GATE_RELEASE = 'v131' as const;
@@ -74,6 +76,12 @@ function fail(message: string): never {
 
 function normalizeText(value: unknown): string {
   return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function exactIso(value: string): string {
+  const parsed = new Date(value);
+  if (!value || Number.isNaN(parsed.valueOf()) || parsed.toISOString() !== value) fail('createdAt must be an exact ISO timestamp');
+  return value;
 }
 
 export function sanitizeDecisionRationale(value: unknown): string {
@@ -160,4 +168,8 @@ export function evaluateDecisionState(
     disposition: effectiveDisposition,
     rationale: effectiveRationale
   };
+}
+
+export function decisionRecordFilename(createdAt = new Date().toISOString()): string {
+  return buildExportFilename('decision-record', { createdAt:exactIso(createdAt) });
 }

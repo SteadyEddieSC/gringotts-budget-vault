@@ -1,34 +1,38 @@
 # Gringotts Budget Vault Roadmap
 
-The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 remains the explicit observed-needs gate for product scope. v132 simplified release identity and test ownership. v133 now exercises long-lived synthetic local data without authorizing migration, cleanup, rollback, or repair of real household data.
+The roadmap prioritizes reliability, simplicity, privacy, portability, and maintenance over feature count. v131 remains the explicit observed-needs gate for product scope. v132 simplified release identity and test ownership. v133 exercises long-lived synthetic local data without authorizing mutation of real household data. v134 consolidates export contracts and the newer lazy JSON download implementation without changing report content or the legacy startup-path workbook and backup controller.
 
 ## Current release
 
-### v133 — Local Data Longevity Drills
+### v134 — Reporting & Export Contract Consolidation — Current
 
 **Purpose**
 
-Exercise upgrade, corruption, rollback, orphan, stale-schema, and capacity scenarios against deterministic synthetic long-lived data while preserving the authoritative browser-local vault and requiring explicit human review for any real corrective action.
+Make retained local exports easier to audit and maintain by centralizing stable metadata, filename construction, workbook ownership, privacy modes, and the duplicated local-download executor while preserving every established payload and output.
 
 **Delivered**
 
-- strict TypeScript and JavaScript longevity-drill contracts;
-- exactly six explicit scenarios: supported upgrade rehearsal, corrupted portable package, rollback verification, orphan metadata detection, unsupported schema, and bounded capacity;
-- deterministic synthetic vault generation with no committed real household data;
-- privacy-safe reports that record disposition, evidence, safeguards, and required human action;
-- closed-default `manual-review` results for unsupported schemas, orphan metadata, and capacity-bound exceedance;
-- exact rollback comparison against an explicit synthetic backup without mutating the backup or discarding the failed candidate;
-- a lazy `window.GringottsV133.runSyntheticDrill(...)` hook used only after explicit test invocation;
-- unchanged startup, browser, accessibility, privacy, security, supply-chain, deployment, observer, destination, and workbook gates.
+- one strict TypeScript and browser-compatible catalog for sixteen retained local outputs;
+- stable export IDs, labels, owners, formats, extensions, MIME types, filename policies, privacy modes, success labels, failure behavior, cancellation behavior, and no-retry declarations;
+- one exact workbook ownership map totaling 43 sheets across the retained base workbook and v115/v121–v125 extensions;
+- deterministic filename builders that preserve recognizable prefixes, historical release ownership, and extensions;
+- aggregate-only, metadata-only, configuration-only, diagnostics-only, and workflow-only forbidden-field validation;
+- one injected local browser executor with explicit `cancelled` and `dispatched` outcomes, object-URL cleanup, no automatic retry, and no silent substitution;
+- migration of only the already-lazy Workflow Review and Decision Gate JSON downloads to the shared executor;
+- retained public filename helpers in v129 and v131 as compatibility wrappers over the v134 catalog;
+- real browser download tests that validate established v129 and v131 payload kinds and prove no browser-storage or observer change;
+- unchanged legacy workbook, meeting pack, guided plan, full backup, rules, calendar, diagnostics, profile, import-audit, account-cleanup, and close-trend payload builders.
 
 **Safety**
 
-- the drill engine never reads or writes `gringottsBudgetVault.latest`;
-- no automatic migration, repair, cleanup, compaction, rollback, overwrite, reset, or authoritative-vault replacement;
-- no localStorage, sessionStorage, IndexedDB, cookie, service worker, telemetry, analytics, remote endpoint, cloud adapter, backend, financial schema, report sheet, automatic export, or financial action;
-- drill limits bound synthetic test inputs only and do not declare a production data limit or authorize deletion;
-- v129 Workflow Review, v130 runtime evidence, v131 Decision Gate, and v132 release-manifest infrastructure remain behaviorally unchanged and lazy where previously lazy;
-- stable v105 rescue, guarded import, separate Full Vault Restore, empty-vault protection, backup-first broad writes, immutable close history, six primary destinations, one v126-owned observer, six Tools sections, and the 43-sheet workbook cap remain unchanged.
+- no new report destination, Tools section, primary destination, workbook sheet, persistent store, service worker, telemetry, analytics, endpoint, cloud adapter, backend, financial schema, or automatic export;
+- the v134 catalog and executor remain absent from normal startup and load only with an already-lazy export surface;
+- no report-content redesign and no transaction, backup, restore, import, close-history, Workflow Review, or Decision Gate schema change;
+- success is announced only after the local download action is dispatched;
+- cancellation occurs before dispatch and creates no download or success outcome;
+- failures throw without retry, partial output, or fallback substitution;
+- `gringottsBudgetVault.latest` remains the sole authoritative transaction-copy domain;
+- stable v105 rescue, guarded import, separate Full Vault Restore, empty-vault protection, backup-first broad writes, immutable close history, six primary destinations, one v126-owned observer, six Tools sections, the 43-sheet workbook cap, 45-request ceiling, and 500,000-script-byte ceiling remain unchanged.
 
 ## Reliability horizon
 
@@ -56,13 +60,13 @@ Combines an explicitly imported completed workflow review with the current v130 
 
 Centralized current-release identity and test expectations, detected release drift before browser installation, and improved failure diagnostics while preserving every exact-head promotion gate.
 
-### v133 — Local Data Longevity Drills — Current
+### v133 — Local Data Longevity Drills — Shipped
 
 Exercises synthetic long-lived data through upgrade, corruption, rollback, orphan, stale-schema, and capacity scenarios while prohibiting automatic destructive cleanup or real-data mutation.
 
-### v134 — Reporting & Export Contract Consolidation — Directional
+### v134 — Reporting & Export Contract Consolidation — Current
 
-Reduce duplicated report assembly, labels, filenames, and export ownership while preserving every tested output, aggregate-only privacy boundary, cancellation behavior, and the 43-sheet workbook cap.
+Centralizes the retained output catalog, deterministic filenames, 43-sheet ownership map, privacy validation, and the duplicated lazy JSON download executor while preserving every established report and payload.
 
 ### v135 — Cross-Device & Low-Resource Resilience — Directional
 
@@ -74,7 +78,7 @@ Document the maintained architecture, ownership map, retirement candidates, priv
 
 ## Recommended next action
 
-Continue using **Tools → Workflow Review** and **Tools → Decision Gate** for real household evidence. Use the v133 drill engine only with synthetic inputs. A drill result never authorizes a real migration, repair, cleanup, rollback, overwrite, or reset. Any such action requires a separately scoped design, threat review, explicit backup and comparison workflow, and full protected validation.
+Use the existing report and export actions normally. The v134 contract layer does not add another export surface or change payload content. Continue using **Tools → Workflow Review** and **Tools → Decision Gate** for explicit household evidence and decisions. Any future report, workbook sheet, cloud adapter, encrypted package flow, or automatic action requires a separately scoped design, threat review, ownership entry, privacy contract, recovery behavior, and full protected validation.
 
 ## Future portability sequence
 

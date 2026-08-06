@@ -40,6 +40,7 @@ const packageLock = JSON.parse(read('package-lock.json'));
 if (packageJson.version !== CURRENT_RELEASE.packageVersion) mismatch('package.json', 'version', CURRENT_RELEASE.packageVersion, packageJson.version);
 if (packageLock.version !== CURRENT_RELEASE.packageVersion) mismatch('package-lock.json', 'version', CURRENT_RELEASE.packageVersion, packageLock.version);
 if (packageLock.packages?.['']?.version !== CURRENT_RELEASE.packageVersion) mismatch('package-lock.json', 'packages[""].version', CURRENT_RELEASE.packageVersion, packageLock.packages?.['']?.version);
+requireContains('package.json', JSON.stringify(packageJson), 'tests/v134-reporting-export-contracts.spec.js', 'v134 browser test discovery');
 
 const compatibilityBootFile = `src/boot-v${CURRENT_RELEASE.number}.js`;
 for (const file of ['index.html', 'app.html']) {
@@ -60,9 +61,13 @@ requireContains(bootFile, boot, 'runtime:R.runtimeLabel', 'manifest-owned runtim
 requireContains(bootFile, boot, 'cacheBust:R.cacheBust', 'manifest-owned cache bust');
 requireContains(bootFile, boot, 'document.title!==CURRENT_RELEASE_TITLE', 'manifest-owned document title');
 requireContains(bootFile, boot, "await import(`./boot-v128.js?v=${A.bootBase}`)", 'retained base boot import');
-requireContains(bootFile, boot, "import(`./v133/longevity-drills.js?v=${A.longevity}`)", 'lazy v133 drill import');
-requireContains(bootFile, boot, 'window.GringottsV133', 'v133 runtime registry');
+requireContains(bootFile, boot, "import(`./v133/longevity-drills.js?v=${A.longevity}`)", 'lazy retained v133 drill import');
+requireContains(bootFile, boot, 'window.GringottsV133', 'retained v133 runtime registry');
+requireContains(bootFile, boot, 'window.GringottsV134', 'v134 runtime registry');
+requireContains(bootFile, boot, 'retainedOutputCount:16', 'v134 retained output count');
+requireContains(bootFile, boot, 'workbookSheets:R.workbookSheets', 'v134 workbook cap registry');
 requireAbsent(bootFile, boot, /^import .*v133\/longevity-drills\.js/gm, 'eager v133 drill import');
+requireAbsent(bootFile, boot, /^import .*v134\/(?:export-contracts|local-export)\.js/gm, 'eager v134 export import');
 requireAbsent(bootFile, boot, /^import .*boot-v131\.js/gm, 'historical current-boot import');
 
 const compatibilityBoot = read(compatibilityBootFile);
@@ -83,6 +88,34 @@ for (const [file, source] of [['src/v133/longevity-drills.js', longevityJs], ['s
   requireAbsent(file, source, /new MutationObserver|serviceWorker\.register/, 'runtime expansion');
 }
 
+for (const file of [
+  'src/v134/export-contracts.js', 'src/v134/export-contracts.ts',
+  'src/v134/local-export.js', 'src/v134/local-export.ts'
+]) {
+  const source = read(file);
+  requireAbsent(file, source, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, 'network implementation');
+  requireAbsent(file, source, /localStorage|sessionStorage|indexedDB|document\.cookie/, 'browser persistence');
+  requireAbsent(file, source, /new MutationObserver|serviceWorker\.register/, 'runtime expansion');
+  requireAbsent(file, source, /setInterval\s*\(|\bretry\s*\(/, 'automatic retry');
+}
+const exportContracts = read('src/v134/export-contracts.js');
+const exportExecutor = read('src/v134/local-export.js');
+requireContains('src/v134/export-contracts.js', exportContracts, "EXPORT_CONTRACT_RELEASE = 'v134'", 'v134 contract release');
+requireContains('src/v134/export-contracts.js', exportContracts, 'WORKBOOK_SHEET_CAP = 43', '43-sheet cap');
+requireContains('src/v134/export-contracts.js', exportContracts, "id:'workflow-review'", 'Workflow Review export contract');
+requireContains('src/v134/export-contracts.js', exportContracts, "id:'decision-record'", 'Decision Gate export contract');
+requireContains('src/v134/export-contracts.js', exportContracts, 'validateWorkbookOwnership', 'workbook ownership validation');
+requireContains('src/v134/local-export.js', exportExecutor, 'executeLocalExport', 'shared local executor');
+requireContains('src/v134/local-export.js', exportExecutor, "status:'cancelled'", 'explicit cancellation result');
+requireContains('src/v134/local-export.js', exportExecutor, "status:'dispatched'", 'explicit dispatch result');
+
+const workflowReview = read('src/v129/workflow-review.js');
+const decisionGate = read('src/v131/decision-gate-ui.js');
+requireContains('src/v129/workflow-review.js', workflowReview, "from '../v134/local-export.js?v=134export1'", 'shared Workflow Review executor');
+requireContains('src/v129/workflow-review.js', workflowReview, "id:'workflow-review'", 'Workflow Review contract id');
+requireContains('src/v131/decision-gate-ui.js', decisionGate, "from '../v134/local-export.js?v=134export1'", 'shared Decision Gate executor');
+requireContains('src/v131/decision-gate-ui.js', decisionGate, "id:'decision-record'", 'Decision Gate contract id');
+
 const helper = read('tests/helpers/release.js');
 requireContains('tests/helpers/release.js', helper, "from '../../src/release-manifest.js'", 'manifest import');
 requireContains('tests/helpers/release.js', helper, 'export const currentVersion = CURRENT_RELEASE.version', 'shared current version');
@@ -92,8 +125,9 @@ const appHelper = read('tests/helpers/app.js');
 requireContains('tests/helpers/app.js', appHelper, "from './release.js'", 'shared release helper import');
 requireContains('tests/helpers/app.js', appHelper, 'currentVersion', 'shared current version use');
 requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV132', 'retained release infrastructure readiness');
-requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV133', 'current longevity registry readiness');
-requireAbsent('tests/helpers/app.js', appHelper, /\^v132|toHaveText\(['"]v132|build\.version[^\n]*v132/, 'stale current-release assertion');
+requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV133', 'retained longevity registry readiness');
+requireContains('tests/helpers/app.js', appHelper, 'window.GringottsV134', 'current export registry readiness');
+requireAbsent('tests/helpers/app.js', appHelper, /\^v133|toHaveText\(['"]v133|build\.version[^\n]*v133/, 'stale current-release assertion');
 
 const roadmap = read('ROADMAP.md');
 requireContains('ROADMAP.md', roadmap, `### ${CURRENT_RELEASE.version} — ${CURRENT_RELEASE.name}`, 'current roadmap heading');
@@ -110,6 +144,7 @@ const allowed = new Set([
   'tests/helpers/release.js',
   'tests/v132-release-test-infrastructure.spec.js',
   'tests/v133-local-data-longevity.spec.js',
+  'tests/v134-reporting-export-contracts.spec.js',
   'tests/repository-security.spec.js',
   'quality-tests/v132-accessibility.spec.js'
 ]);
