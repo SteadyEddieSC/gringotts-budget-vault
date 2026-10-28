@@ -31,7 +31,7 @@ The default output directory is `tests/fixtures/benchmark-001/generated/`. The g
 
 The product-specific CSVs are generated from the same canonical in-memory transactions. Do not hand-edit one product's data to make a benchmark result look better.
 
-Actual's CSV importer supports field mapping and account-scoped imports. During the benchmark, map Date, Payee, Notes, Category, Amount, and Imported ID as applicable and record every import/configuration step in the scorecard. Gringotts should use its normal bank-import path without special benchmark-only runtime behavior.
+Actual's current official import documentation is the execution reference: <https://actualbudget.org/docs/transactions/importing/>. Its CSV flow supports field mapping, date-format selection, amount flipping/splitting, and account-scoped import. During the benchmark, map Date, Payee, Notes, Category, Amount, and Imported ID as applicable and record every import/configuration step in the scorecard. Gringotts should use its normal bank-import path without special benchmark-only runtime behavior.
 
 ## Integrity contract
 
