@@ -24,7 +24,7 @@
     "privacy:history": "node scripts/privacy-history-scan.mjs"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.12.1",
+    "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.61.1",
     "typescript": "5.9.2"
   }
