@@ -28,13 +28,13 @@ jobs:
       - name: Run synthetic local-only Actual proof
         shell: bash
         run: |
-          cat > /tmp/actual-benchmark-proof.mjs <<'EOF'
+          cat > .tmp-actual-benchmark-proof.mjs <<'EOF'
           import assert from 'node:assert/strict';
           import { mkdtemp, writeFile } from 'node:fs/promises';
           import os from 'node:os';
           import path from 'node:path';
           import * as api from '@actual-app/api';
-          import { buildBenchmark001 } from '${{ github.workspace }}/scripts/benchmark-001-generate.mjs';
+          import { buildBenchmark001 } from './scripts/benchmark-001-generate.mjs';
 
           const scenario = buildBenchmark001();
           assert.equal(scenario.syntheticOnly, true);
@@ -149,7 +149,8 @@ jobs:
           console.log(JSON.stringify(evidence, null, 2));
           await writeFile('/tmp/actual-benchmark-proof.json', `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
           EOF
-          node /tmp/actual-benchmark-proof.mjs
+          node .tmp-actual-benchmark-proof.mjs
+          rm -f .tmp-actual-benchmark-proof.mjs
       - name: Publish synthetic proof summary
         if: always()
         run: |
