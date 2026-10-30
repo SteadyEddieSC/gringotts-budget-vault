@@ -1,0 +1,160 @@
+name: TEMP Actual 26.10 API benchmark proof
+
+on:
+  push:
+    branches:
+      - benchmark/actual-26-10-api-proof
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    name: Synthetic Actual API import/recovery proof
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Verify fixture integrity
+        run: node --test tests-node/benchmark-001-fixture.test.mjs
+      - name: Install pinned official Actual API in runner only
+        run: npm install --no-save --package-lock=false @actual-app/api@26.10.0
+      - name: Run synthetic local-only Actual proof
+        shell: bash
+        run: |
+          cat > /tmp/actual-benchmark-proof.mjs <<'EOF'
+          import assert from 'node:assert/strict';
+          import { mkdtemp, writeFile } from 'node:fs/promises';
+          import os from 'node:os';
+          import path from 'node:path';
+          import * as api from '@actual-app/api';
+          import { buildBenchmark001 } from '${{ github.workspace }}/scripts/benchmark-001-generate.mjs';
+
+          const scenario = buildBenchmark001();
+          assert.equal(scenario.syntheticOnly, true);
+          assert.equal(scenario.transactions.length, 177);
+          assert.equal(scenario.accounts.length, 6);
+
+          const dataDir = await mkdtemp(path.join(os.tmpdir(), 'actual-benchmark-'));
+          const restoreDir = await mkdtemp(path.join(os.tmpdir(), 'actual-restore-'));
+          const accountIds = new Map();
+          const categoryIds = new Map();
+
+          await api.init({ dataDir, verbose: false });
+          await api.runImport('SYNTHETIC BENCHMARK-001', async () => {
+            const expenseGroup = await api.createCategoryGroup({ name: 'SYNTHETIC Benchmark Expenses' });
+            const incomeGroup = await api.createCategoryGroup({ name: 'SYNTHETIC Benchmark Income', is_income: true });
+            const categories = [...new Set(scenario.transactions.map((tx) => tx.category).filter((name) => name !== 'Transfer'))];
+            for (const name of categories) {
+              const id = await api.createCategory({
+                name: `SYNTHETIC ${name}`,
+                group_id: name === 'Income' ? incomeGroup : expenseGroup,
+                is_income: name === 'Income',
+              });
+              categoryIds.set(name, id);
+            }
+
+            for (const account of scenario.accounts) {
+              const id = await api.createAccount(
+                { name: account.name, offbudget: account.kind === 'loan' },
+                api.utils.amountToInteger(account.openingBalance),
+              );
+              accountIds.set(account.name, id);
+            }
+
+            for (const account of scenario.accounts) {
+              const accountId = accountIds.get(account.name);
+              const transactions = scenario.transactions
+                .filter((tx) => tx.account === account.name)
+                .map((tx) => ({
+                  account: accountId,
+                  date: tx.date,
+                  amount: api.utils.amountToInteger(tx.amount),
+                  payee_name: tx.payee,
+                  imported_payee: tx.payee,
+                  category: tx.category === 'Transfer' ? undefined : categoryIds.get(tx.category),
+                  notes: tx.notes,
+                  imported_id: tx.id,
+                  cleared: true,
+                }));
+              await api.addTransactions(accountId, transactions);
+            }
+          });
+
+          const accounts = await api.getAccounts();
+          assert.equal(accounts.length, 6);
+          assert.deepEqual(
+            accounts.map((account) => account.name).sort(),
+            scenario.accounts.map((account) => account.name).sort(),
+          );
+
+          let transactionCount = 0;
+          for (const account of accounts) {
+            transactionCount += (await api.getTransactions(account.id, '2026-05-01', '2026-10-31')).length;
+          }
+          assert.equal(transactionCount, 177);
+
+          const checkingId = accountIds.get('SYNTHETIC Checking');
+          const duplicateSource = scenario.transactions.find((tx) => tx.account === 'SYNTHETIC Checking');
+          const duplicateResult = await api.importTransactions(checkingId, [{
+            account: checkingId,
+            date: duplicateSource.date,
+            amount: api.utils.amountToInteger(duplicateSource.amount),
+            payee_name: duplicateSource.payee,
+            imported_payee: duplicateSource.payee,
+            category: duplicateSource.category === 'Transfer' ? undefined : categoryIds.get(duplicateSource.category),
+            notes: duplicateSource.notes,
+            imported_id: duplicateSource.id,
+            cleared: true,
+          }], { reimportDeleted: false, payeeNameNormalization: 'original' });
+          assert.equal(duplicateResult.errors?.length ?? 0, 0);
+          assert.equal(duplicateResult.added?.length ?? 0, 0);
+
+          const exported = await api.exportBudget();
+          assert.ok(exported.byteLength > 0);
+          await api.shutdown();
+
+          await api.init({ dataDir: restoreDir, verbose: false });
+          const restored = await api.importBudget(exported, { filename: 'synthetic-benchmark-001.zip' });
+          assert.ok(restored.id);
+          const restoredAccounts = await api.getAccounts();
+          assert.equal(restoredAccounts.length, 6);
+          let restoredTransactionCount = 0;
+          for (const account of restoredAccounts) {
+            restoredTransactionCount += (await api.getTransactions(account.id, '2026-05-01', '2026-10-31')).length;
+          }
+          assert.equal(restoredTransactionCount, 177);
+          await api.shutdown();
+
+          const evidence = {
+            benchmark: 'BENCHMARK-001',
+            actualApiVersion: '26.10.0',
+            localOnly: true,
+            serverConfigured: false,
+            syntheticOnly: true,
+            accounts: accounts.length,
+            transactions: transactionCount,
+            duplicateImportedIdAdded: duplicateResult.added?.length ?? 0,
+            duplicateImportedIdErrors: duplicateResult.errors?.length ?? 0,
+            exportBytes: exported.byteLength,
+            restoredAccounts: restoredAccounts.length,
+            restoredTransactions: restoredTransactionCount,
+          };
+          console.log(JSON.stringify(evidence, null, 2));
+          await writeFile('/tmp/actual-benchmark-proof.json', `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+          EOF
+          node /tmp/actual-benchmark-proof.mjs
+      - name: Publish synthetic proof summary
+        if: always()
+        run: |
+          if [ -f /tmp/actual-benchmark-proof.json ]; then
+            cat /tmp/actual-benchmark-proof.json >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Actual proof did not emit evidence JSON.' >> "$GITHUB_STEP_SUMMARY"
+          fi
