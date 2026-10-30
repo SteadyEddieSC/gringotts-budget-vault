@@ -50,43 +50,45 @@ jobs:
           const categoryIds = new Map();
 
           await api.init({ dataDir, verbose: false });
-          const expenseGroup = await api.createCategoryGroup({ name: 'SYNTHETIC Benchmark Expenses' });
-          const incomeGroup = await api.createCategoryGroup({ name: 'SYNTHETIC Benchmark Income', is_income: true });
-          const categories = [...new Set(scenario.transactions.map((tx) => tx.category).filter((name) => name !== 'Transfer'))];
-          for (const name of categories) {
-            const id = await api.createCategory({
-              name: `SYNTHETIC ${name}`,
-              group_id: name === 'Income' ? incomeGroup : expenseGroup,
-              is_income: name === 'Income',
-            });
-            categoryIds.set(name, id);
-          }
+          await api.runImport('SYNTHETIC BENCHMARK-001', async () => {
+            const expenseGroup = await api.createCategoryGroup({ name: 'SYNTHETIC Benchmark Expenses' });
+            const incomeGroup = await api.createCategoryGroup({ name: 'SYNTHETIC Benchmark Income', is_income: true });
+            const categories = [...new Set(scenario.transactions.map((tx) => tx.category).filter((name) => name !== 'Transfer'))];
+            for (const name of categories) {
+              const id = await api.createCategory({
+                name: `SYNTHETIC ${name}`,
+                group_id: name === 'Income' ? incomeGroup : expenseGroup,
+                is_income: name === 'Income',
+              });
+              categoryIds.set(name, id);
+            }
 
-          for (const account of scenario.accounts) {
-            const id = await api.createAccount(
-              { name: account.name, offbudget: account.kind === 'loan' },
-              api.utils.amountToInteger(account.openingBalance),
-            );
-            accountIds.set(account.name, id);
-          }
+            for (const account of scenario.accounts) {
+              const id = await api.createAccount(
+                { name: account.name, offbudget: account.kind === 'loan' },
+                api.utils.amountToInteger(account.openingBalance),
+              );
+              accountIds.set(account.name, id);
+            }
 
-          for (const account of scenario.accounts) {
-            const accountId = accountIds.get(account.name);
-            const transactions = scenario.transactions
-              .filter((tx) => tx.account === account.name)
-              .map((tx) => ({
-                account: accountId,
-                date: tx.date,
-                amount: api.utils.amountToInteger(tx.amount),
-                payee_name: tx.payee,
-                imported_payee: tx.payee,
-                category: tx.category === 'Transfer' ? undefined : categoryIds.get(tx.category),
-                notes: tx.notes,
-                imported_id: tx.id,
-                cleared: true,
-              }));
-            await api.addTransactions(accountId, transactions);
-          }
+            for (const account of scenario.accounts) {
+              const accountId = accountIds.get(account.name);
+              const transactions = scenario.transactions
+                .filter((tx) => tx.account === account.name)
+                .map((tx) => ({
+                  account: accountId,
+                  date: tx.date,
+                  amount: api.utils.amountToInteger(tx.amount),
+                  payee_name: tx.payee,
+                  imported_payee: tx.payee,
+                  category: tx.category === 'Transfer' ? undefined : categoryIds.get(tx.category),
+                  notes: tx.notes,
+                  imported_id: tx.id,
+                  cleared: true,
+                }));
+              await api.addTransactions(accountId, transactions);
+            }
+          });
 
           const accounts = await api.getAccounts();
           assert.equal(accounts.length, 6);
