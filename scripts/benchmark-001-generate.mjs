@@ -163,7 +163,7 @@ export function buildBenchmark001() {
       amount: -(75 + index * 1.5)
     });
     add({
-      date: `${month}-21`, account: 'SYNTHETIC Books and Learning',
+      date: `${month}-21`, account: 'SYNTHETIC Card Beta',
       payee: 'SYNTHETIC Books and Learning', category: 'Education',
       amount: -(60 + index)
     });
