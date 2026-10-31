@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,10 +9,15 @@ import {
   ACCOUNTS,
   MONTHS,
   buildBenchmark001,
+  buildExpectedOutcomes,
   toActualCsv,
   toGringottsCsv,
   writeBenchmark001
 } from '../scripts/benchmark-001-generate.mjs';
+
+function sha256(content) {
+  return createHash('sha256').update(content, 'utf8').digest('hex');
+}
 
 test('BENCHMARK-001 fixture is deterministic, synthetic, and complete', () => {
   const first = buildBenchmark001();
@@ -36,6 +42,12 @@ test('BENCHMARK-001 fixture is deterministic, synthetic, and complete', () => {
     assert.equal(Number.isFinite(transaction.amount), true);
   }
 
+  const books = first.transactions.filter(({ payee }) => (
+    payee === 'SYNTHETIC Books and Learning'
+  ));
+  assert.equal(books.length, 6);
+  assert.ok(books.every(({ account }) => account === 'SYNTHETIC Card Beta'));
+
   assert.equal(first.household.adults.length, 2);
   assert.equal(first.goals.length, 3);
   assert.equal(first.hypotheticalScenarios.length, 2);
@@ -58,6 +70,44 @@ test('BENCHMARK-001 contains the intended price drift and irregular-expense evid
   assert.deepEqual(
     irregular.map(({ amount }) => amount),
     [-320, -1100, -650]
+  );
+});
+
+test('expected outcomes are deterministic and derived from canonical fixture semantics', () => {
+  const scenario = buildBenchmark001();
+  const expected = buildExpectedOutcomes(scenario);
+
+  assert.equal(expected.benchmarkId, 'BENCHMARK-001');
+  assert.equal(expected.syntheticOnly, true);
+  assert.equal(expected.asOfDate, '2026-10-31');
+  assert.deepEqual(expected.counts, {
+    transactions: 177,
+    accounts: 6,
+    adults: 2,
+    months: 6
+  });
+  assert.deepEqual(expected.recurringPriceDrift, {
+    payee: 'SYNTHETIC StreamBox',
+    from: 17.99,
+    to: 21.99,
+    firstChangedMonth: '2026-08'
+  });
+  assert.deepEqual(expected.irregularExpenses, {
+    count: 3,
+    totalOutflow: 2070
+  });
+  assert.deepEqual(expected.reserve, {
+    target: 12000,
+    savingsClosingBalance: 11000,
+    gap: 1000
+  });
+  assert.equal(expected.scenarios.incomeReduction.baselineMonthlyIncome, 6400);
+  assert.equal(expected.scenarios.incomeReduction.monthlyIncomeLoss, 1600);
+  assert.equal(expected.scenarios.incomeReduction.totalIncomeLoss, 3200);
+  assert.equal(expected.scenarios.largePurchase.canonicalAmount, -4800);
+  assert.equal(
+    expected.scenarios.largePurchase.liquidFundsAfter,
+    expected.scenarios.largePurchase.liquidFundsBefore - 4800
   );
 });
 
@@ -96,19 +146,29 @@ test('Actual and Gringotts CSVs derive from the same canonical transaction meani
   assert.match(gringotts, /SYNTHETIC Harbor Mortgage[^]*?1850\.00/);
 });
 
-test('CLI writer emits account-scoped Actual files and an all-account Gringotts file', async () => {
-  const outputDir = await mkdtemp(path.join(os.tmpdir(), 'gringotts-benchmark-001-'));
-  const result = await writeBenchmark001(outputDir);
+test('CLI writer emits a deterministic, hash-bound benchmark evidence pack', async () => {
+  const firstDir = await mkdtemp(path.join(os.tmpdir(), 'gringotts-benchmark-001-a-'));
+  const secondDir = await mkdtemp(path.join(os.tmpdir(), 'gringotts-benchmark-001-b-'));
+  const firstResult = await writeBenchmark001(firstDir);
+  const secondResult = await writeBenchmark001(secondDir);
 
-  assert.equal(result.transactionCount, 177);
-  assert.equal(result.accountCount, 6);
+  assert.equal(firstResult.transactionCount, 177);
+  assert.equal(firstResult.accountCount, 6);
+  assert.equal(firstResult.artifactCount, 9);
+  assert.equal(firstResult.manifestSha256, secondResult.manifestSha256);
 
-  const scenario = JSON.parse(await readFile(path.join(outputDir, 'scenario.json'), 'utf8'));
+  const scenario = JSON.parse(await readFile(path.join(firstDir, 'scenario.json'), 'utf8'));
   assert.equal(scenario.id, 'BENCHMARK-001');
   assert.equal(scenario.transactions.length, 177);
 
+  const expected = JSON.parse(await readFile(
+    path.join(firstDir, 'expected-outcomes.json'),
+    'utf8'
+  ));
+  assert.deepEqual(expected, buildExpectedOutcomes(buildBenchmark001()));
+
   const gringotts = await readFile(
-    path.join(outputDir, 'gringotts-all-accounts.csv'),
+    path.join(firstDir, 'gringotts-all-accounts.csv'),
     'utf8'
   );
   assert.equal(gringotts, toGringottsCsv(buildBenchmark001()));
@@ -120,9 +180,29 @@ test('CLI writer emits account-scoped Actual files and an all-account Gringotts 
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
     const actual = await readFile(
-      path.join(outputDir, `actual-${slug}.csv`),
+      path.join(firstDir, `actual-${slug}.csv`),
       'utf8'
     );
     assert.equal(actual, toActualCsv(buildBenchmark001(), account.name));
+  }
+
+  const firstManifestText = await readFile(path.join(firstDir, 'manifest.json'), 'utf8');
+  const secondManifestText = await readFile(path.join(secondDir, 'manifest.json'), 'utf8');
+  assert.equal(firstManifestText, secondManifestText);
+  assert.equal(firstResult.manifestSha256, sha256(firstManifestText));
+
+  const manifest = JSON.parse(firstManifestText);
+  assert.equal(manifest.benchmarkId, 'BENCHMARK-001');
+  assert.equal(manifest.syntheticOnly, true);
+  assert.equal(manifest.artifactCount, 9);
+  assert.deepEqual(
+    manifest.artifacts.map(({ path: artifactPath }) => artifactPath),
+    [...manifest.artifacts.map(({ path: artifactPath }) => artifactPath)].sort()
+  );
+
+  for (const artifact of manifest.artifacts) {
+    const content = await readFile(path.join(firstDir, artifact.path), 'utf8');
+    assert.equal(Buffer.byteLength(content, 'utf8'), artifact.bytes);
+    assert.equal(sha256(content), artifact.sha256);
   }
 });
