@@ -11,6 +11,7 @@
     "test": "playwright test",
     "typecheck": "tsc -p tsconfig.json",
     "release:check": "node scripts/release-consistency.mjs",
+    "benchmark:fixture": "node scripts/benchmark-001-generate.mjs",
     "test:parser": "npm run typecheck && npm run release:check && node --test tests-node/*.test.mjs",
     "test:local": "playwright test --grep-invert @live",
     "test:preflight": "npm run test:parser && playwright test tests/boot-navigation.spec.js tests/bank-export-import.spec.js tests/import-profiles.spec.js tests/profile-portability.spec.js tests/profile-versioning-diagnostics.spec.js tests/import-receipt-audit-roadmap.spec.js tests/receipt-integrity-batch.spec.js tests/account-cleanup-planning.spec.js tests/recurring-cost-decisions.spec.js tests/scenario-comparison.spec.js tests/close-history-explainability.spec.js tests/runtime-consolidation.spec.js tests/ux-polish-simplification.spec.js tests/v128-portable-vault-foundation.spec.js tests/v129-workflow-evidence-review.spec.js tests/v130-performance-maintenance.spec.js tests/v131-observed-needs-decision-gate.spec.js tests/v132-release-test-infrastructure.spec.js tests/v133-local-data-longevity.spec.js tests/v134-reporting-export-contracts.spec.js tests/v116-ui-architecture.spec.js tests/repository-security.spec.js --project=chromium",
