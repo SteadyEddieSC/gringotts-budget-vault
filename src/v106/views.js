@@ -34,7 +34,7 @@ function eventLines(day) {
   day.paydays.forEach((event) => lines.push(`<span class="calendar-event payday-event">Payday ${money(event.amount)}</span>`));
   day.bills.forEach((event) => lines.push(`<span class="calendar-event bill-event">Bill ${money(event.amount)}</span>`));
   if (day.transactions.length) lines.push(`<span class="calendar-event transaction-event">${day.transactions.length} transaction${day.transactions.length === 1 ? '' : 's'}</span>`);
-  return lines.join('');
+  return lines.join(' ');
 }
 
 export function calendarView(selectedDate = '') {
@@ -58,7 +58,10 @@ export function calendarView(selectedDate = '') {
         <div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div>
         <div class="calendar-grid">${model.days.map((day) => day.empty
           ? '<div class="calendar-day empty" aria-hidden="true"></div>'
-          : `<button class="calendar-day ${day.date === date ? 'selected' : ''}" data-calendar-day="${day.date}" aria-label="${esc(calendarAccessibleLabel(day))}"><strong>${day.day}</strong>${eventLines(day)}${day.spending ? `<small>${money(day.spending)} spent</small>` : ''}</button>`).join('')}</div>
+          : (() => {
+              const events = eventLines(day);
+              return `<button class="calendar-day ${day.date === date ? 'selected' : ''}" data-calendar-day="${day.date}" aria-label="${esc(calendarAccessibleLabel(day))}"><strong>${day.day}</strong>${events ? ` ${events}` : ''}${day.spending ? ` <small>${money(day.spending)} spent</small>` : ''}</button>`;
+            })()).join('')}</div>
       </article>
       <aside class="card day-detail">
         <div class="section-title-row"><div><h3>${esc(new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }))}</h3><p>Selected-day detail</p></div></div>

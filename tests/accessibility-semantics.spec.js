@@ -67,3 +67,23 @@ test('labels table wrappers as keyboard-accessible scroll regions', async ({ app
   await region.focus();
   await expect(region).toBeFocused();
 });
+
+test('preserves each calendar day rendered text in its accessible name', async ({ app }) => {
+  const { page } = app;
+  await openPrimary(page, 'Calendar');
+
+  const days = page.locator('button.calendar-day[data-calendar-day]');
+  await expect(days.first()).toBeVisible();
+  const labels = await days.evaluateAll((elements) => elements.map((element) => ({
+    rendered: String(element.textContent || '').replace(/\s+/g, ' ').trim(),
+    visible: String(element.innerText || '').replace(/\s+/g, ' ').trim(),
+    accessible: String(element.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim()
+  })));
+
+  expect(labels.length).toBeGreaterThan(0);
+  expect(labels.some(({ rendered }) => rendered.split(' ').length > 1)).toBe(true);
+  labels.forEach(({ rendered, visible, accessible }) => {
+    expect(accessible.startsWith(rendered)).toBe(true);
+    expect(accessible.startsWith(visible)).toBe(true);
+  });
+});
