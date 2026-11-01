@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,6 +42,22 @@ function csvCell(value) {
 
 function csv(rows) {
   return `${rows.map((row) => row.map(csvCell).join(',')).join('\n')}\n`;
+}
+
+function json(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function sha256(content) {
+  return createHash('sha256').update(content, 'utf8').digest('hex');
+}
+
+function accountSlug(name) {
+  return name
+    .replace(/^SYNTHETIC\s+/i, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 export function buildBenchmark001() {
@@ -205,6 +222,77 @@ export function buildBenchmark001() {
   };
 }
 
+export function buildExpectedOutcomes(scenario = buildBenchmark001()) {
+  const closingBalances = Object.fromEntries(scenario.accounts.map((account) => {
+    const movement = scenario.transactions
+      .filter((transaction) => transaction.account === account.name)
+      .reduce((sum, transaction) => sum + transaction.amount, 0);
+    return [account.name, money(account.openingBalance + movement)];
+  }));
+
+  const irregular = scenario.transactions.filter(({ category }) => (
+    category === 'Annual / Irregular'
+  ));
+  const income = scenario.transactions.filter(({ kind }) => kind === 'Income');
+  const baselineMonthlyIncome = money(
+    income.reduce((sum, transaction) => sum + transaction.amount, 0) / MONTHS.length
+  );
+  const reserveGoal = scenario.goals.find(({ id }) => id === 'reserve');
+  const savingsClosingBalance = closingBalances['SYNTHETIC Savings'];
+  const largePurchase = scenario.hypotheticalScenarios.find(({ id }) => (
+    id === 'large-purchase'
+  ));
+  const incomeReduction = scenario.hypotheticalScenarios.find(({ id }) => (
+    id === 'income-reduction'
+  ));
+  const liquidFundsBefore = money([
+    'SYNTHETIC Checking', 'SYNTHETIC Savings', 'SYNTHETIC Cash'
+  ].reduce((sum, accountName) => sum + closingBalances[accountName], 0));
+  const monthlyIncomeLoss = money(
+    baselineMonthlyIncome * incomeReduction.percent / 100
+  );
+
+  return {
+    benchmarkId: scenario.id,
+    fixtureVersion: scenario.version,
+    syntheticOnly: true,
+    asOfDate: scenario.period.end,
+    counts: {
+      transactions: scenario.transactions.length,
+      accounts: scenario.accounts.length,
+      adults: scenario.household.adults.length,
+      months: scenario.period.months.length
+    },
+    accountClosingBalances: closingBalances,
+    recurringPriceDrift: scenario.expectedSignals.recurringPriceDrift,
+    irregularExpenses: {
+      count: irregular.length,
+      totalOutflow: money(-irregular.reduce((sum, transaction) => (
+        sum + transaction.amount
+      ), 0))
+    },
+    reserve: {
+      target: reserveGoal.target,
+      savingsClosingBalance,
+      gap: money(Math.max(0, reserveGoal.target - savingsClosingBalance))
+    },
+    scenarios: {
+      largePurchase: {
+        canonicalAmount: largePurchase.amount,
+        liquidFundsBefore,
+        liquidFundsAfter: money(liquidFundsBefore + largePurchase.amount)
+      },
+      incomeReduction: {
+        percent: incomeReduction.percent,
+        durationMonths: incomeReduction.durationMonths,
+        baselineMonthlyIncome,
+        monthlyIncomeLoss,
+        totalIncomeLoss: money(monthlyIncomeLoss * incomeReduction.durationMonths)
+      }
+    }
+  };
+}
+
 export function toActualCsv(scenario, accountName) {
   const rows = [['Date', 'Payee', 'Notes', 'Category', 'Amount', 'Imported ID']];
   scenario.transactions
@@ -238,37 +326,61 @@ export function toGringottsCsv(scenario) {
   return csv(rows);
 }
 
+export function buildArtifactContents(scenario = buildBenchmark001()) {
+  const artifacts = {
+    'scenario.json': json(scenario),
+    'expected-outcomes.json': json(buildExpectedOutcomes(scenario)),
+    'gringotts-all-accounts.csv': toGringottsCsv(scenario)
+  };
+
+  for (const account of scenario.accounts) {
+    artifacts[`actual-${accountSlug(account.name)}.csv`] = toActualCsv(
+      scenario,
+      account.name
+    );
+  }
+
+  return artifacts;
+}
+
+export function buildManifest(artifactContents, scenario = buildBenchmark001()) {
+  const artifacts = Object.keys(artifactContents)
+    .sort()
+    .map((artifactPath) => ({
+      path: artifactPath,
+      bytes: Buffer.byteLength(artifactContents[artifactPath], 'utf8'),
+      sha256: sha256(artifactContents[artifactPath])
+    }));
+
+  return {
+    benchmarkId: scenario.id,
+    fixtureVersion: scenario.version,
+    syntheticOnly: true,
+    artifactCount: artifacts.length,
+    artifacts
+  };
+}
+
 export async function writeBenchmark001(outputDir = path.resolve(
   'tests', 'fixtures', 'benchmark-001', 'generated'
 )) {
   const scenario = buildBenchmark001();
+  const artifactContents = buildArtifactContents(scenario);
+  const manifest = buildManifest(artifactContents, scenario);
+  const manifestContent = json(manifest);
+
   await mkdir(outputDir, { recursive: true });
-  await writeFile(
-    path.join(outputDir, 'scenario.json'),
-    `${JSON.stringify(scenario, null, 2)}\n`,
-    'utf8'
-  );
-  await writeFile(
-    path.join(outputDir, 'gringotts-all-accounts.csv'),
-    toGringottsCsv(scenario),
-    'utf8'
-  );
-  for (const account of scenario.accounts) {
-    const slug = account.name
-      .replace(/^SYNTHETIC\s+/i, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    await writeFile(
-      path.join(outputDir, `actual-${slug}.csv`),
-      toActualCsv(scenario, account.name),
-      'utf8'
-    );
+  for (const [artifactPath, content] of Object.entries(artifactContents)) {
+    await writeFile(path.join(outputDir, artifactPath), content, 'utf8');
   }
+  await writeFile(path.join(outputDir, 'manifest.json'), manifestContent, 'utf8');
+
   return {
     outputDir,
     transactionCount: scenario.transactions.length,
-    accountCount: scenario.accounts.length
+    accountCount: scenario.accounts.length,
+    artifactCount: manifest.artifactCount,
+    manifestSha256: sha256(manifestContent)
   };
 }
 

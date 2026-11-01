@@ -20,16 +20,22 @@ No names, account numbers, credentials, tokens, bank exports, or household finan
 From the repository root:
 
 ```bash
-node scripts/benchmark-001-generate.mjs
+npm run benchmark:fixture
 ```
 
-The default output directory is `tests/fixtures/benchmark-001/generated/`. The generator writes:
+The default output directory is `tests/fixtures/benchmark-001/generated/`. You may also invoke `node scripts/benchmark-001-generate.mjs <output-directory>` when a separate disposable evidence directory is useful.
+
+The generator writes:
 
 - `scenario.json` — canonical scenario metadata plus all transactions;
+- `expected-outcomes.json` — deterministic facts derived from the canonical scenario for cross-product verification;
 - `gringotts-all-accounts.csv` — one all-account file using Gringotts' retained signed-amount convention;
-- six `actual-*.csv` files — one file per account using Actual's positive-inflow / negative-outflow convention.
+- six `actual-*.csv` files — one file per account using Actual's positive-inflow / negative-outflow convention;
+- `manifest.json` — sorted artifact inventory with UTF-8 byte lengths and SHA-256 hashes for the nine benchmark input/evidence artifacts above.
 
-The product-specific CSVs are generated from the same canonical in-memory transactions. Do not hand-edit one product's data to make a benchmark result look better.
+`manifest.json` intentionally does not hash itself. The CLI result prints a separate SHA-256 for the manifest so a benchmark run can record one compact identity for the complete generated pack.
+
+The product-specific CSVs and expected outcomes are generated from the same canonical in-memory scenario. Do not hand-edit one product's data or expected facts to make a benchmark result look better. If the fixture semantics need to change, change the generator, rerun the integrity tests, and treat the new fixture as a new exact benchmark candidate.
 
 Actual's current official import documentation is the execution reference: <https://actualbudget.org/docs/transactions/importing/>. Its CSV flow supports field mapping, date-format selection, amount flipping/splitting, and account-scoped import. During the benchmark, map Date, Payee, Notes, Category, Amount, and Imported ID as applicable and record every import/configuration step in the scorecard. Gringotts should use its normal bank-import path without special benchmark-only runtime behavior.
 
@@ -40,8 +46,11 @@ Actual's current official import documentation is the execution reference: <http
 - deterministic repeat generation;
 - exactly 177 transactions across six months and all six accounts;
 - explicit `SYNTHETIC` markers on accounts/payees and benchmark notes on every transaction;
+- stable account ownership for the synthetic education/card transactions;
 - expected subscription price drift and irregular-expense evidence;
+- deterministic expected outcomes for counts, reserve gap, irregular expenses, large-purchase impact, and temporary income loss;
 - consistent sign conversion between Actual and Gringotts exports;
-- deterministic emitted files.
+- deterministic emitted files and manifest identity across independent runs;
+- every manifest byte length and SHA-256 against the corresponding generated artifact.
 
-The generator is test-only benchmark infrastructure. It must not be imported by the production boot/runtime, mutate `gringottsBudgetVault.latest`, add telemetry/network access, or weaken any v134 quality/security gate.
+The generator is test-only benchmark infrastructure. It must not be imported by the production boot/runtime, mutate `gringottsBudgetVault.latest`, add telemetry/network access, connect a bank/provider, import real financial data, or weaken any v134 quality/security gate.
