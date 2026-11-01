@@ -100,10 +100,10 @@ export function calendarSummary(selectedMonth = getMonth()) {
 
 export function calendarAccessibleLabel(day) {
   if (day.empty) return '';
-  const parts = [`${day.date}`];
-  if (day.bills.length) parts.push(`${day.bills.length} bill${day.bills.length === 1 ? '' : 's'}`);
-  if (day.paydays.length) parts.push(`${day.paydays.length} payday${day.paydays.length === 1 ? '' : 's'}`);
-  if (day.transactions.length) parts.push(`${day.transactions.length} transaction${day.transactions.length === 1 ? '' : 's'}`);
-  if (day.spending) parts.push(`${money(day.spending)} spending`);
-  return parts.join(', ');
+  const visibleParts = [`${day.day}`];
+  day.paydays.forEach((event) => visibleParts.push(`Payday ${money(event.amount)}`));
+  day.bills.forEach((event) => visibleParts.push(`Bill ${money(event.amount)}`));
+  if (day.transactions.length) visibleParts.push(`${day.transactions.length} transaction${day.transactions.length === 1 ? '' : 's'}`);
+  if (day.spending) visibleParts.push(`${money(day.spending)} spent`);
+  return `${visibleParts.join(' ')}, ${day.date}`;
 }
