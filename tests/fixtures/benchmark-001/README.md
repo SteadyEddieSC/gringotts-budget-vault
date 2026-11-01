@@ -30,6 +30,7 @@ The generator writes:
 - `scenario.json` — canonical scenario metadata plus all transactions;
 - `expected-outcomes.json` — deterministic facts derived from the canonical scenario for cross-product verification;
 - `gringotts-all-accounts.csv` — one all-account file using Gringotts' retained signed-amount convention;
+- `gringotts-vault-restore.json` — the same workload in the supported local backup/restore shape, including six explicit synthetic opening-balance rows for first-run setup;
 - six `actual-*.csv` files — one file per account using Actual's positive-inflow / negative-outflow convention;
 - `manifest.json` — sorted artifact inventory with UTF-8 byte lengths and SHA-256 hashes for the nine benchmark input/evidence artifacts above.
 

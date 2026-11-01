@@ -84,7 +84,7 @@ function parseWithDelimiter(text, delimiter) {
   let row = [];
   let field = '';
   let quoted = false;
-  const source = String(text ?? '').replace(/^\uFEFF/, '');
+  const source = String(text ?? '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
   for (let index = 0; index < source.length; index += 1) {
     const char = source[index];
     if (quoted) {
