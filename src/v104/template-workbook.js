@@ -1,11 +1,13 @@
 import {
   account, category, dte, download, flow, getMonth, isPending,
-  monthLabel, owner, reportAmount, txName, txs
+  owner, reportAmount, txName
 } from '../v103/core.js';
+import {
+  clearSelectedTemplate, getSelectedTemplate, setSelectedTemplate, templateRows
+} from './template-workbook-state.js';
+export { trackerTemplateSnapshot } from './template-workbook-state.js';
 
 const REQUIRED_SHEETS = ['Setup', 'Transactions', 'Annual Overview', 'Month Overview'];
-const TEMPLATE_ROW_LIMIT = 10000;
-let selectedTemplate = null;
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -187,13 +189,6 @@ function excelSerial(dateText) {
 
 function cleanText(value) { return String(value ?? '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, ' ').trim(); }
 
-function templateRows() {
-  const rows = txs()
-    .filter((transaction) => /^\d{4}-\d{2}-\d{2}$/.test(dte(transaction)))
-    .sort((a, b) => dte(a).localeCompare(dte(b)) || txName(a).localeCompare(txName(b)));
-  return rows.length > TEMPLATE_ROW_LIMIT ? rows.slice(rows.length - TEMPLATE_ROW_LIMIT) : rows;
-}
-
 function templateType(transaction) { return flow(transaction) === 'Income' ? 'Income' : 'Expense'; }
 
 function templateCategory(transaction) {
@@ -275,38 +270,25 @@ function sanitizePeople(files) {
   }
 }
 
-export function trackerTemplateSnapshot() {
-  const rows = templateRows();
-  return {
-    valid: Boolean(selectedTemplate),
-    fileName: selectedTemplate?.fileName || '',
-    sheets: selectedTemplate?.sheets || [],
-    transactions: rows.length,
-    totalTransactions: txs().length,
-    truncated: txs().filter((transaction) => /^\d{4}-\d{2}-\d{2}$/.test(dte(transaction))).length > TEMPLATE_ROW_LIMIT,
-    selectedMonth: getMonth(),
-    selectedMonthLabel: monthLabel(getMonth())
-  };
-}
-
 export async function selectTrackerTemplate(file, notify = () => {}, rerender = () => {}) {
-  selectedTemplate = null;
+  clearSelectedTemplate();
   if (!file) { rerender(); return; }
   try {
     const files = await unzip(await file.arrayBuffer());
     const sheets = sheetNames(files);
     const missing = REQUIRED_SHEETS.filter((sheet) => !sheets.includes(sheet));
     if (missing.length) throw new Error(`This is not the expected annual tracker template. Missing sheet${missing.length === 1 ? '' : 's'}: ${missing.join(', ')}.`);
-    selectedTemplate = { fileName: file.name, files, sheets };
+    setSelectedTemplate({ fileName: file.name, files, sheets });
     notify('Annual tracker template is ready to fill locally');
   } catch (error) {
-    selectedTemplate = null;
+    clearSelectedTemplate();
     notify(error?.message || 'The annual tracker template could not be read.');
   }
   rerender();
 }
 
 export async function exportFilledAnnualTracker(notify = () => {}) {
+  const selectedTemplate = getSelectedTemplate();
   if (!selectedTemplate) { notify('Choose the annual tracker template first'); return; }
   try {
     const files = new Map([...selectedTemplate.files.entries()].map(([name, data]) => [name, data.slice()]));

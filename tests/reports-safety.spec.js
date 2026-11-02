@@ -10,6 +10,20 @@ test('downloads the v126 43-sheet Vault Workbook and exposes the annual tracker 
   expect(download.suggestedFilename()).toMatch(/Gringotts_Budget_Vault_v126_2026-07-01_to_2026-07-31_.*\.xlsx/i);
 });
 
+test('loads the annual tracker engine only after a template interaction', async ({ app }) => {
+  const { page } = app;
+  await openPrimary(page, 'Reports');
+  const loadedBefore = await page.evaluate(() => performance.getEntriesByType('resource').some((entry) => entry.name.includes('/src/v104/template-workbook.js')));
+  expect(loadedBefore).toBe(false);
+  await page.locator('#annualTrackerFile').setInputFiles({
+    name: 'synthetic-invalid-template.xlsx',
+    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    buffer: Buffer.from('SYNTHETIC INVALID XLSX')
+  });
+  await expect(page.locator('#toast')).toContainText(/readable XLSX|could not be read/i);
+  await expect.poll(() => page.evaluate(() => performance.getEntriesByType('resource').some((entry) => entry.name.includes('/src/v104/template-workbook.js')))).toBe(true);
+});
+
 test('blocks an empty restore and preserves the populated vault', async ({ app }) => {
   const { page } = app;
   await openPrimary(page, 'Tools');

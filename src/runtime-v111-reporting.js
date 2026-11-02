@@ -5,7 +5,7 @@ import {
 } from './v103/core.js';
 import { exportFamilyXlsx, workbookSheets, xlsxBlob } from './v103/reports.js';
 import { previewVaultObject, restore, selectFile, setAcknowledged, snapshot as restoreSnapshot } from './v103/restore.js';
-import { exportFilledAnnualTracker, selectTrackerTemplate, trackerTemplateSnapshot } from './v104/template-workbook.js';
+import { trackerTemplateSnapshot } from './v104/template-workbook-state.js';
 import { removeBudget, saveBudget, setRecurringStatus } from './v105/intelligence.js';
 import {
   activityView, calendarView, dashboardView, diagnosticsView, moneyView,
@@ -54,6 +54,12 @@ let renderFrame = 0;
 let renderToken = 0;
 let searchTimer = 0;
 let lastRenderMs = 0;
+let templateWorkbookPromise = null;
+
+function loadTemplateWorkbook() {
+  if (!templateWorkbookPromise) templateWorkbookPromise = import('./v104/template-workbook.js');
+  return templateWorkbookPromise;
+}
 
 function toast(message) {
   let node = $('toast');
@@ -492,8 +498,14 @@ function bindReportActions() {
       toast(error?.message || 'Report range could not be saved');
     }
   });
-  $('annualTrackerFile')?.addEventListener('change', (event) => selectTrackerTemplate(event.target.files?.[0], toast, scheduleRender));
-  $('filledAnnualTracker')?.addEventListener('click', () => exportFilledAnnualTracker(toast));
+  $('annualTrackerFile')?.addEventListener('change', async (event) => {
+    const module = await loadTemplateWorkbook();
+    await module.selectTrackerTemplate(event.target.files?.[0], toast, scheduleRender);
+  });
+  $('filledAnnualTracker')?.addEventListener('click', async () => {
+    const module = await loadTemplateWorkbook();
+    await module.exportFilledAnnualTracker(toast);
+  });
   $('familyXlsx')?.addEventListener('click', () => exportFamilyXlsx(toast));
   $('familyCsv')?.addEventListener('click', () => {
     const model = householdReportModel();

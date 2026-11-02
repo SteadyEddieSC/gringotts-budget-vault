@@ -4,7 +4,7 @@ import {
   months, reportAmount, reportWarnings, rowsForMonth, txName, txs
 } from '../v103/core.js';
 import { workbookSheets } from '../v103/reports.js';
-import { trackerTemplateSnapshot } from './template-workbook.js';
+import { trackerTemplateSnapshot } from './template-workbook-state.js';
 
 export function monthNavigator() {
   const month = getMonth();
