@@ -109,11 +109,11 @@ These observations feed #56 and must remain separate from the 22-job ledger/prod
 
 | Proof | Result | Evidence / notes |
 | --- | --- | --- |
-| Client A creates/imports synthetic household and syncs |  |  |
-| Client B starts empty and receives same state |  |  |
-| A changes one record; B receives it |  |  |
-| B edits a different record offline and converges after reconnect |  |  |
-| A and B edit same stale record; conflict is visible/deterministic |  |  |
+| Client A creates/imports synthetic household and syncs | Not rerun on v26.11.0; server already held a prepared copy of the synthetic fixture | Current-release sync recheck did not exercise a client-side import |
+| Client B starts empty and receives same state | Observed, limited: fresh Chrome profile showed the server file as available for download; opening it produced the same six accounts and balances | Does not test an independently created household or separate household identity |
+| A changes one record; B receives it | Observed after reload: Food `$600` → `$601` on A; B showed `$601` and To Budget `$43,349` after reload. Restoring `$600` also converged after reload | Live update without reload was not observed; see `SYNC_ARCH_001_ACTUAL_CLIENT_CHECKPOINT.md` |
+| B edits a different record offline and converges after reconnect | Observed: while server was down, B changed General `$0` → `$7`; after restart/reload, A showed `$7`. Both restored to General `$0` and original baseline | Supports a single synthetic offline-save/reconnect sequence; no replay or interruption guarantee |
+| A and B edit same stale record; conflict is visible/deterministic | No visible conflict prompt: both edited stale Food `$600` offline (A `$610`, B `$620`); A reconnected first, B second, and B `$620` prevailed | One observed later-write overwrite; not sufficient to establish universal or deterministic conflict behavior |
 | Duplicate mutation/replay is idempotent |  |  |
 | Interrupted sync resumes safely |  |  |
 | Independent backup restores to a fresh client |  |  |

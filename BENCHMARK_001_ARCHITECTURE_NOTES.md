@@ -24,6 +24,13 @@ Status: interim evidence for issue #54. This is not the completed 22-job scoreca
 - Actual Reports readback and Gringotts dashboard figures differ (Actual YTD income `$59,970.00`; Gringotts YTD income `$49,050.00`). The datasets were not normalized into an equivalent category/account interpretation during this session, so do not compare these totals as product accuracy evidence.
 - No score was assigned. Jobs not directly exercised and the remaining workflow/sync matrix stay open.
 
+### Current-release sync probes — 2026-11-02
+
+- Two separate browser clients connected to the isolated Actual v26.11.0 server and displayed the same six synthetic accounts. The online Food target change from `$600.00` to `$601.00` appeared on Client B after a page reload; restoring it to `$600.00` also appeared after reload. Immediate live update was not observed.
+- With the isolated server stopped, Client B showed `Server offline`, retained its synthetic budget, and saved General `$7.00` from an offline baseline of `$0.00`. After restart/reload, Client A showed the same `$7.00`; both clients were then returned to Food `$600.00`, General `$0.00`, and matching `To Budget` `$43,350.00`.
+- A stale same-record exercise used Food `$610.00` on A and `$620.00` on B while both were offline at the same `$600.00` baseline. A reconnected first; B reconnected later and its `$620.00` value prevailed without a visible conflict prompt. This one run indicates an overwrite path in the tested order; no general conflict-resolution rule is inferred. The original `$600.00` value was restored and confirmed on both clients.
+- The server outage/restart applied only to the side-by-side v26.11.0 loopback service on port 5008; the older v26.10.0 service was not touched. These sync probes are separate from the incomplete 22-job scorecard. Replay idempotency, interrupted-sync recovery, independent server-backed restore to a fresh client, PWA/narrow-screen use, and second-adult acceptance remain untested.
+
 ### Earlier release and cross-client recheck — 2026-11-01 (v26.10.0)
 
 - At that recheck, the official Actual repository reported v26.11.0 as the latest release (published 2026-11-02 01:54 UTC / 2026-11-01 21:54 America/New_York) under the project's MIT license. The browser notification also offered v26.11.0. The desktop app, server, and browser session used for the evidence below still reported v26.10.0; those results were interim and did not meet #54's current-release execution requirement. The isolated refresh above now verifies the v26.11.0 app/server versions, but hands-on scoring remains pending owner sign-in.
