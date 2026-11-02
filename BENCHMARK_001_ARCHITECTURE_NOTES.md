@@ -58,3 +58,33 @@ Status: interim evidence for issue #54. This is not the completed 22-job scoreca
 ## Decision limits
 
 This evidence supports treating Actual's server-backed client as the serious cloud/offline baseline for #56, subject to a real second-client test. It does not establish household usability, conflict handling, replay behavior, interrupted-sync recovery, or spreadsheet exit quality. The interactive import requires category pre-creation for full category fidelity, so category setup effort must be included in the matched score. It does not justify building Gringotts sync. Final architecture/product scoring remains dependent on completing #54's matched 22-job execution.
+
+
+## Overnight freeze-safe benchmark evidence — 2026-11-02
+
+### Gringotts spreadsheet-exit proof
+
+- v134 remains feature-frozen. A proposed one-click rollback UI was deliberately **not** retained after checking the live release contract; the proof uses only the existing guarded import + full-vault restore path.
+- Added synthetic-only `tests/fixtures/benchmark-001/spreadsheet-exit/transactions.csv`: one stable-ID duplicate plus two new rows. The companion README defines exported CSV as the low-dependency workbook exit boundary and explicitly refuses to flatten formulas/macros/goals/plans into fake ledger rows.
+- Fresh Playwright evidence proves: explicit mapping, exact duplicate suppression, mandatory populated pre-import backup, missing-only write/readback, exact replay as a verified no-change import, explicit rollback by restoring the downloaded pre-import backup through the existing full-vault restore flow, no network writes, and 390×844 containment.
+- Fresh adjacent regression: 14/14 import/restore tests passed before the freeze-safe adjustment; the final spreadsheet slice itself passes 3/3. Fresh product-workflow evidence also passed 29/29 across category correction, recurring decisions, forecast/bills/paydays, debt, scenarios, month close/reopen, close drivers, reports/exports and phone containment, plus 2/2 benchmark monthly-budget tests and 1/1 benchmark first-restore.
+- `npm run test:parser` passed typecheck + release consistency + 157 Node tests before docs-only edits. Final validation is rerun before commit.
+
+### Actual v26.11 import replay proof
+
+- Installed official `@actual-app/api@26.11.0` only under the existing untracked local `tools/` benchmark area; it is not a repository dependency and will not be committed.
+- Ran a credential-free offline proof in a fresh local data directory. A synthetic transaction with fixed `imported_id` `BENCHMARK-001-replay-001` was passed to `importTransactions` twice with `reimportDeleted:false`. First call: one transaction added, no errors. Second call: zero added, zero updated, existing match reported ignored. Count remained exactly 1.
+- Because no `serverURL`/password/session was supplied, Actual's finish-import upload attempt was unauthorized. This is expected and is evidence only for current-version **offline import replay/idempotency**, not network-sync mutation replay.
+- This aligns with current official API documentation that `importTransactions` performs reconciliation and fixed `imported_id` prevents duplicate insertion, while raw `addTransactions` does not provide the same duplicate protection.
+
+### Decision impact
+
+- Do not score current API replay evidence as a completed #56 network-replay proof.
+- Do not add a new Gringotts rollback feature during v134 feature freeze; existing backup + explicit restore already provides the bounded migration rollback required for the spreadsheet-exit proof.
+- The remaining product decision stays open until matched Actual workflow rows, current-release PWA/second-adult use, and interrupted-sync recovery are completed.
+
+### Validation caveat — pre-existing startup ceiling drift
+
+- Exact recovered benchmark checks pass: `npm run test:parser` completed typecheck, release consistency, and 157/157 Node tests; the five new benchmark Playwright tests pass on an isolated v134 server at `127.0.0.1:8765`.
+- A broader Chromium sweep produced 158 passes, 1 intentional live-smoke skip, and 5 failures that all trace to the retained v130 startup-script ceiling: the draft branch measures 500,830 bytes against a 500,000-byte ceiling, causing the dependent Decision Gate tests to fail closed.
+- A detached worktree of accepted base/main `f2862baf069d3f26cdaed490ad386ad9ac882192` independently fails the same retained ceiling at 500,809 bytes. PR #64 therefore adds only 21 measured startup-script bytes; the hard-ceiling failure predates this benchmark branch and must be handled as separate maintenance rather than hidden or waived here.

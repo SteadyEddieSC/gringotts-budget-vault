@@ -60,4 +60,18 @@ The online different-record state transfer is observed in both Client B and the 
 - Evidence is the user's 2026-11-02 screenshots of the Files list (original `My Finances` plus imported `New budget`) and the selected restored November budget/account view. No actual household data or provider connection was used; the ZIP stayed local.
 - This proves restoring the backup to a separate file/profile on the same isolated local server. It does not prove recovery onto a separately provisioned server or household identity. Duplicate mutation/replay idempotency, interrupted-sync recovery, narrow/PWA usability, and second-adult acceptance remain open.
 
+
+## Offline current-release import replay checkpoint — 2026-11-02
+
+- A separate credential-free `@actual-app/api@26.11.0` proof used a fresh local data directory with **no serverURL, password, session token, or real data**.
+- One synthetic transaction with fixed `imported_id` `BENCHMARK-001-replay-001` was imported twice through `importTransactions(..., { dryRun:false, reimportDeleted:false })`. The first call added one row with no errors. The exact replay added zero rows and zero updates; the final account transaction count stayed exactly one and the existing match was reported ignored.
+- The API's finish-import cloud upload was unauthorized because no server credentials were configured. That did not affect the local reconciliation result and was not bypassed.
+- Scope: this proves offline/current-version **transaction-import idempotency for fixed imported IDs**. It does **not** prove network-sync mutation replay, interrupted-sync recovery, or multi-client conflict semantics. Those remain separate #56 gates.
+
+### Adjacent spreadsheet-exit checkpoint
+
+- Gringotts now has a freeze-safe synthetic spreadsheet-exit regression using the existing CSV mapping/import and full-vault restore flows only; no v134 product feature was added.
+- The proof covers mapping, exact duplicate suppression, populated pre-import backup, missing-only write/readback, exact replay as no-change, explicit rollback by restoring the downloaded pre-import backup, no network writes, and 390×844 containment.
+- Direct `.xlsx` parsing remains intentionally deferred unless it preserves household meaning that exported CSV cannot carry. VBA/macros are retired rather than executed.
+
 All test edits remain in the synthetic `My Finances` budget. No secrets are recorded.
