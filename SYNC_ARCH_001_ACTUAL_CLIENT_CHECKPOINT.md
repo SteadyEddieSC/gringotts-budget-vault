@@ -51,6 +51,13 @@ The online different-record state transfer is observed in both Client B and the 
 ## Current-release backup export checkpoint — 2026-11-02
 
 - Client B used Actual Settings → General → Data → Export data on the restored synthetic budget. The browser downloaded `C:\Users\eddie\Downloads\2026-11-02-My Finances.zip` locally (174,867 bytes); archive inspection found `db.sqlite` and `metadata.json`. SHA-256: `9a771cc1541c33ca3efe128f11ef2da4526389a045bb19f90ac905253ef658ac`.
-- The archive was not uploaded. It has not yet been imported into a genuinely fresh v26.11.0 client; server-backed backup restoration into a fresh client remains open. The existing A/B browser copies were not used as the fresh restore target.
+- The archive was not uploaded. It remained local for the import below.
+
+## Current-release backup restore checkpoint — 2026-11-02
+
+- Client C used a separate Chrome Incognito profile, signed into the isolated v26.11.0 loopback server at `127.0.0.1:5008`, and imported the local `2026-11-02-My Finances.zip` archive through Actual's **Import file → Actual** flow. Actual created a separate file named `New budget`; the original `My Finances` remained in the Files list. No overwrite prompt was recalled, and both files remained present afterward.
+- The selected restored `New budget` displayed `App: v26.11.0 | Server: v26.11.0`, `Server online`, six `SYNTHETIC` accounts, all-account total `$3,291.75`, on-budget total `$19,241.75`, November Food `$600.00`, General `$0.00`, and November `To Budget` `$43,350.00`. This is a successful Actual archive import/restore into a separate file from a fresh Incognito browser profile, with expected synthetic state visible.
+- Evidence is the user's 2026-11-02 screenshots of the Files list (original `My Finances` plus imported `New budget`) and the selected restored November budget/account view. No actual household data or provider connection was used; the ZIP stayed local.
+- This proves restoring the backup to a separate file/profile on the same isolated local server. It does not prove recovery onto a separately provisioned server or household identity. Duplicate mutation/replay idempotency, interrupted-sync recovery, narrow/PWA usability, and second-adult acceptance remain open.
 
 All test edits remain in the synthetic `My Finances` budget. No secrets are recorded.

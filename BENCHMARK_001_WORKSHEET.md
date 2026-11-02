@@ -84,7 +84,7 @@ Complete each row independently for both products using the same synthetic fixtu
 | 20 | Export/backup full dataset | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
 | 20 | Export/backup full dataset | Actual |  |  |  |  |  |  |  |  |  |  |  |
 | 21 | Restore/recover into fresh state | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 21 | Restore/recover into fresh state | Actual |  |  |  |  |  |  |  |  |  |  |  |
+| 21 | Restore/recover into fresh state | Actual | Native import to separate file | Import local ZIP in separate Incognito profile; select Actual format; inspect restored November budget/accounts | Low; one import flow | Restored `New budget` visible with expected state | High for separate-file import on same local server | Original `My Finances` remained listed | Original retained; separate imported copy | Not assessed | Current-release server-backed browser import | TBD | Client C on v26.11.0: six synthetic accounts; all-account `$3,291.75`; on-budget `$19,241.75`; Food `$600`, General `$0`, To Budget `$43,350`; online. Does not prove independent-server recovery. See sync checkpoint 2026-11-02. |
 | 22 | Use at phone-size / narrow viewport | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
 | 22 | Use at phone-size / narrow viewport | Actual |  |  |  |  |  |  |  |  |  |  |  |
 
@@ -116,7 +116,7 @@ These observations feed #56 and must remain separate from the 22-job ledger/prod
 | A and B edit same stale record; conflict is visible/deterministic | No visible conflict prompt: both edited stale Food `$600` offline (A `$610`, B `$620`); A reconnected first, B second, and B `$620` prevailed | One observed later-write overwrite; not sufficient to establish universal or deterministic conflict behavior |
 | Duplicate mutation/replay is idempotent |  |  |
 | Interrupted sync resumes safely |  |  |
-| Independent backup restores to a fresh client |  |  |
+| Independent backup restores to a fresh client | Observed, bounded: Client C imported the local Actual ZIP into separate `New budget` from a fresh Incognito profile on v26.11.0; original `My Finances` remained | Expected six synthetic accounts and November Food `$600`, General `$0`, To Budget `$43,350`; Server online. Same local server, not an independently provisioned server. See `SYNC_ARCH_001_ACTUAL_CLIENT_CHECKPOINT.md` |
 | Narrow/PWA workflow remains usable |  |  |
 | Optional desktop client sees same authority without file shuttling |  |  |
 
