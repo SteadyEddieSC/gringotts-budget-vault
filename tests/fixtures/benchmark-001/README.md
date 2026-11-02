@@ -32,7 +32,7 @@ The generator writes:
 - `gringotts-all-accounts.csv` — one all-account file using Gringotts' retained signed-amount convention;
 - `gringotts-vault-restore.json` — the same workload in the supported local backup/restore shape, including six explicit synthetic opening-balance rows for first-run setup;
 - six `actual-*.csv` files — one file per account using Actual's positive-inflow / negative-outflow convention;
-- `manifest.json` — sorted artifact inventory with UTF-8 byte lengths and SHA-256 hashes for the nine benchmark input/evidence artifacts above.
+- `manifest.json` — sorted artifact inventory with UTF-8 byte lengths and SHA-256 hashes for the ten benchmark input/evidence artifacts above.
 
 `manifest.json` intentionally does not hash itself. The CLI result prints a separate SHA-256 for the manifest so a benchmark run can record one compact identity for the complete generated pack.
 
