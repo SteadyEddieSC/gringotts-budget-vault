@@ -6,7 +6,7 @@ Status: execution worksheet for #54. This file is a structure for **synthetic-on
 
 - Gringotts baseline at worksheet creation: `126561b333f094b6275c207baedda59fc9a0cc74`.
 - Synthetic fixture generator: `scripts/benchmark-001-generate.mjs`.
-- Official Actual baseline prepared for execution: `v26.10.0` (reconfirm current official release and license immediately before the hands-on run; record any change below).
+- Official Actual baseline originally prepared: `v26.10.0`. The official latest release was rechecked before current-version execution and is `v26.11.0` under the MIT license.
 - No real household transaction, balance, account, income, debt, goal, screenshot, export, credential, or provider connection may be used.
 - Incremental spend: `$0`.
 
@@ -14,13 +14,13 @@ Status: execution worksheet for #54. This file is a structure for **synthetic-on
 
 | Field | Gringotts | Actual |
 | --- | --- | --- |
-| Exact version / commit | `126561b333f094b6275c207baedda59fc9a0cc74` | `TBD at execution` |
-| Source / distribution | This repository | Official Actual release only |
-| License rechecked | N/A | `TBD` |
-| Host / browser / app version | `TBD` | `TBD` |
-| Fixture generator commit | `TBD` | Same fixture commit |
-| Fixture manifest/hash | `TBD` | Same fixture manifest/hash |
-| Start state | Fresh synthetic benchmark state | Fresh synthetic benchmark state |
+| Exact version / commit | `v134.0.0`; app source `126561b333f094b6275c207baedda59fc9a0cc74` | Official Actual `v26.11.0`; server and app UI both report `v26.11.0` |
+| Source / distribution | This repository | Official Actual release / `@actual-app/sync-server@26.11.0` |
+| License rechecked | N/A | MIT, official release |
+| Host / browser / app version | Windows; Chromium-based isolated browser profile; Gringotts UI `v134` | Windows; Chromium-based in-app browser (exact build not recorded); Actual app/server `v26.11.0` at loopback `127.0.0.1:5008` |
+| Fixture generator commit | `4926dd106598b46a7ce101f032ce7fb8370e8d08` | Same fixture commit |
+| Fixture manifest/hash | `bea0cbd3fb410a1b9c067f7f4e2e4f597f35a54523fca1fe099bfde5c9f2d536` | Same fixture manifest/hash |
+| Start state | Empty Gringotts vault restored from the synthetic 183-row JSON fixture; verified destination key `gringottsBudgetVault.latest` | Prepared copy of prior synthetic server dataset: 183 ledger rows, 159 uncategorized, inherited November Food target `$600`; not fresh-from-empty |
 
 ## Scoring rubric
 
