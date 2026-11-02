@@ -32,4 +32,11 @@ The online different-record state transfer is observed in both Client B and the 
 - The isolated copied dataset is behind the configured server password. No password was entered or stored, and no data was changed. Owner sign-in is the immediate prerequisite to repeat the UI convergence probe and continue #56.
 - No new #56 behavioral proof is claimed from this setup. Offline edits, same-record conflict behavior, replay idempotency, interrupted sync, backup/restore, narrow/PWA, and second-adult acceptance remain open.
 
+## Recheck after owner sign-in — 2026-11-02
+
+- Client A in the isolated in-app browser is now authenticated to the copied synthetic dataset on `127.0.0.1:5008`; UI reports App and Server `v26.11.0` and Server online. The owner entered the existing password directly in the browser. The password is not recorded.
+- This is a prepared-copy refresh, not a fresh-from-empty import. It contains six synthetic accounts, 183 ledger rows (177 fixture transactions plus six opening-balance rows), 159 uncategorized rows, and the inherited November Food budget target of `$600.00`. No value was changed during this recheck.
+- A separate Chrome profile can reach the same server but shows the sign-in form. Client B has not authenticated, so current-release convergence has not yet been rechecked. Owner action required: open `http://127.0.0.1:5008/login` in the Chrome Actual sync probe tab, enter the existing server password in the local form, and select **Sign in**. Stop if prompted to create/change credentials. Do not send the password in chat.
+- No current-release two-client mutation was attempted. Offline edit, same-record conflict, replay idempotency, interrupted sync, independent server-backed backup/restore, narrow/PWA, and second-adult acceptance remain unproven.
+
 All test edits remain in the synthetic `My Finances` budget. No secrets are recorded.
