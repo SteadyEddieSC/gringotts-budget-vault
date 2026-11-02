@@ -4,9 +4,17 @@ Status: interim evidence for issue #54. This is not the completed 22-job scoreca
 
 ## Actual Budget evidence checked on 2026-11-01
 
-### Release and cross-client recheck — 2026-11-01
+### Current-release isolated refresh — 2026-11-01
 
-- The official Actual repository reports v26.11.0 as the latest release (published 2026-11-02 01:54 UTC / 2026-11-01 21:54 America/New_York) under the project's MIT license. The browser notification also offered v26.11.0. The installed desktop app, server, and browser session used for the evidence below still report v26.10.0. Therefore the existing v26.10.0 results are interim and do not meet #54's current-release execution requirement; refresh the benchmark on v26.11.0 before scoring or recommending.
+- Official `@actual-app/sync-server@26.11.0` was installed in a new side-by-side directory and verified by its CLI as `v26.11.0`. It serves only on `127.0.0.1:5008`; the existing v26.10.0 server on port 5007 and its data were left running and untouched.
+- The new server uses a copy of the existing synthetic Actual server files. Its migration completed successfully. The v26.11.0 browser UI reports `App: v26.11.0 | Server: v26.11.0`.
+- The isolated UI reached the server sign-in page. It requires the already-configured Actual server password before the budget can be opened. No password was entered or recorded, and no data was changed. The copied synthetic data and current-version runtime are ready, but current-version workflow scoring and #56 two-client tests have not yet been rerun.
+- **Current stop:** owner sign-in is required at `http://127.0.0.1:5008/login`. The owner should enter the existing server password in that local page and select **Sign in**; stop and report if the page asks to create or change a password. Do not send the password in chat. Once authenticated, resume the synthetic-only benchmark and sync probes against this port-5008 copy.
+- The 22-job scorecard remains incomplete. This setup/version check is not a score or a recommendation.
+
+### Earlier release and cross-client recheck — 2026-11-01 (v26.10.0)
+
+- At that recheck, the official Actual repository reported v26.11.0 as the latest release (published 2026-11-02 01:54 UTC / 2026-11-01 21:54 America/New_York) under the project's MIT license. The browser notification also offered v26.11.0. The desktop app, server, and browser session used for the evidence below still reported v26.10.0; those results were interim and did not meet #54's current-release execution requirement. The isolated refresh above now verifies the v26.11.0 app/server versions, but hands-on scoring remains pending owner sign-in.
 - A newly opened isolated in-app browser client at `http://127.0.0.1:5007/budget` showed the same six `SYNTHETIC` accounts, November Food budget of `$600.00`, November `To Budget` of `$43,350.00`, and `Server online`. This is another readback of the existing online-convergence state, not a new offline/conflict test. No additional value was saved during this recheck.
 
 - The installed desktop client reported **v26.10.0**. The local browser server and browser client report **v26.10.0**. The owner completed the server's first-run password step in the browser; the secret is not recorded here. The server now reports online.

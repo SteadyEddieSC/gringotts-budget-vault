@@ -25,4 +25,11 @@ The online different-record state transfer is observed in both Client B and the 
 - The separate desktop Actual window currently shows `No server` and a different local budget state. Do not count it as Client B or as part of this shared-budget test.
 - Same-record stale edits, offline edits, replay, interrupted sync, independent server-backed backup/restore, narrow/PWA, and second-adult workflow remain unproven. Next: refresh the local pair to v26.11.0, repeat online convergence, then run the offline and stale same-record probes against the synthetic budget.
 
+## Isolated current-release refresh — 2026-11-01
+
+- Installed the official `@actual-app/sync-server@26.11.0` into a new side-by-side directory. CLI reported `v26.11.0`; its migration completed and it listens only on `127.0.0.1:5008`.
+- The v26.11.0 UI reports both App and Server at `v26.11.0`. It is pointed at a copy of the existing synthetic server dataset; the existing v26.10.0 service and files at port 5007 were left running and untouched.
+- The isolated copied dataset is behind the configured server password. No password was entered or stored, and no data was changed. Owner sign-in is the immediate prerequisite to repeat the UI convergence probe and continue #56.
+- No new #56 behavioral proof is claimed from this setup. Offline edits, same-record conflict behavior, replay idempotency, interrupted sync, backup/restore, narrow/PWA, and second-adult acceptance remain open.
+
 All test edits remain in the synthetic `My Finances` budget. No secrets are recorded.
