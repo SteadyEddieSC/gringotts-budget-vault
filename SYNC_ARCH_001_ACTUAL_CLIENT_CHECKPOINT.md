@@ -18,4 +18,11 @@ Status: partial synthetic-only execution evidence for issue #56. No real househo
 
 The online different-record state transfer is observed in both Client B and the agent's follow-up UI inspection after reopening. Different-record offline edits, same-record stale edits, replay idempotency, interrupted sync, independent server-backed backup/restore, narrow/PWA review, and spouse workflow remain open. The earlier issue #54 evidence for local API export/restore and local browser/mobile layout does not substitute for these server-backed multi-client proofs.
 
+## Recheck — 2026-11-01
+
+- A separate in-app browser context opened the existing server-backed budget at `http://127.0.0.1:5007/budget` and displayed the same six synthetic accounts, Food `$600.00` for November, `To Budget` `$43,350.00`, and `Server online`. No additional mutation was saved. This corroborates online readback only.
+- Actual v26.11.0 became the latest official release at 2026-11-01 21:54 America/New_York. The app/server pair used in this checkpoint remains v26.10.0; this checkpoint must be rerun on v26.11.0 before being treated as current-release evidence.
+- The separate desktop Actual window currently shows `No server` and a different local budget state. Do not count it as Client B or as part of this shared-budget test.
+- Same-record stale edits, offline edits, replay, interrupted sync, independent server-backed backup/restore, narrow/PWA, and second-adult workflow remain unproven. Next: refresh the local pair to v26.11.0, repeat online convergence, then run the offline and stale same-record probes against the synthetic budget.
+
 All test edits remain in the synthetic `My Finances` budget. No secrets are recorded.
