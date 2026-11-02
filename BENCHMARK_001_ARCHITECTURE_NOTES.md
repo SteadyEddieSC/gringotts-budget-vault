@@ -18,7 +18,7 @@ Status: interim evidence for issue #54. This is not the completed 22-job scoreca
 
 ## Gringotts evidence available so far
 
-- The live local v134 app reports a local vault and a blank current dataset. Its restore preview accepted the 183-row synthetic fixture, but the first-run UI could not produce a current populated backup; its required acknowledgment and disabled confirmation prevent using the supported restore path from an empty destination.
+- The live local v134 app reports a blank local dataset. In a clean browser profile, the supported CSV-import page displayed `No populated readable destination vault is available. Use guarded restore for the first populated vault.` after the synthetic import selection. The full-restore flow requires a populated destination backup and explicit confirmation; the blank profile cannot produce that backup. The earlier restore preview accepted the 183-row fixture, but its acknowledgment and confirmation remained disabled. No transaction rows were written to Gringotts. This leaves the matched Gringotts workflow execution blocked at a missing first-vault bootstrap path under the current UI/backup contract.
 - The v134 release contract describes local exports and explicitly records no network or persistent-store addition in the export executor. The app's current local-data model therefore does not itself provide cross-device sync.
 - The deterministic fixture has 177 canonical transactions across six accounts, six Actual CSVs, Gringotts CSV and restore representations, expected outcomes, and a hash manifest. Manifest SHA-256: `bea0cbd3fb410a1b9c067f7f4e2e4f597f35a54523fca1fe099bfde5c9f2d536`.
 
