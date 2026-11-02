@@ -48,4 +48,9 @@ The online different-record state transfer is observed in both Client B and the 
 - These probes require a page reload for the other client to display the latest state; immediate live convergence was not observed. The values were synthetic budget targets, not transactions or account balances.
 - Remaining #56 proof: duplicate mutation/replay idempotency, interrupted-sync recovery, independent server-backed backup restore into a fresh client, narrow/PWA usability, and second-adult acceptance remain open. The test used two browser contexts under the same server owner and does not establish separate household identities or spouse workflow.
 
+## Current-release backup export checkpoint — 2026-11-02
+
+- Client B used Actual Settings → General → Data → Export data on the restored synthetic budget. The browser downloaded `C:\Users\eddie\Downloads\2026-11-02-My Finances.zip` locally (174,867 bytes); archive inspection found `db.sqlite` and `metadata.json`. SHA-256: `9a771cc1541c33ca3efe128f11ef2da4526389a045bb19f90ac905253ef658ac`.
+- The archive was not uploaded. It has not yet been imported into a genuinely fresh v26.11.0 client; server-backed backup restoration into a fresh client remains open. The existing A/B browser copies were not used as the fresh restore target.
+
 All test edits remain in the synthetic `My Finances` budget. No secrets are recorded.
