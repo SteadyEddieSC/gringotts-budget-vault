@@ -97,3 +97,13 @@ All test edits remain in the synthetic `My Finances` budget. No secrets are reco
 - A separate API-only `downloadBudget(syncId)` check was inconclusive (`not found`) despite those server-side file/blob/group records. The already-proven fresh-browser second-client download on the independent port-5010 server remains the cross-client recovery evidence; this checkpoint claims protocol interruption recovery/server message integrity, not fresh-client API discovery behavior.
 - Scope: this closes required sync test #7 for one current-release initial full-sync commit-before-ack failure mode. It does **not** convert the earlier same-record `$610`/`$620` observation into a universal conflict rule, and it does not prove duplicate replay for every mutation type. The fixed-`imported_id` transaction-import replay proof remains the narrower idempotency evidence for test #6.
 - Incremental spend: `$0`. Data: synthetic only. No real financial data, bank/provider connection, owner credential, or repository secret was used.
+
+
+## Deterministic duplicate full-sync replay checkpoint — 2026-11-02
+
+- Reused only the disposable synthetic v26.11 server created for the interrupted-sync proof; the standing port-5008 benchmark server remained untouched. A new one-shot loopback proxy relayed a fresh client's initial 124-byte `/sync/sync` handshake normally.
+- On the next full-sync call, the proxy forwarded the **exact same** `275,528`-byte request body and original in-memory request headers upstream twice in sequence. The request represented the same `2,043` sync messages both times; neither request body nor authentication header was persisted or logged.
+- First upstream replay result: HTTP `200`, `1,061` response bytes. Second upstream replay result: HTTP `200`, `276,465` response bytes. The client completed sync normally and a following sync reported zero outbound messages.
+- Server-side inspection of the resulting group database found exactly `2,043` rows in `messages_binary`, exactly `2,043` distinct timestamps, and one Merkle row. The exact duplicate replay therefore did not create a second copy of the 2,043-message batch.
+- Scope: this closes required sync test #6 for exact network replay of the tested current-release full-sync batch. It complements the fixed-`imported_id` transaction-import replay proof. It does **not** establish idempotency for every possible mutation envelope or replace the separately bounded same-record conflict observation.
+- Incremental spend: `$0`. Data: synthetic only. Proxy logs contain only sizes/statuses and no session token, password, request body, or financial row content.
