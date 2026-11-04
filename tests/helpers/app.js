@@ -79,12 +79,15 @@ export async function openPrimary(page, name) {
   let lastError;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const button = page.getByRole('button', { name, exact:true });
-    if (!(await button.isVisible())) {
-      const menu = page.getByRole('button', { name:/Menu/i });
-      if (await menu.isVisible()) await menu.click();
-      await expect(button).toBeVisible({ timeout:2500 });
-    }
     try {
+      if (!(await button.isVisible())) {
+        const menu = page.getByRole('button', { name:/Menu/i });
+        await expect.poll(async () => (
+          (await button.isVisible()) || (await menu.isVisible())
+        ), { timeout:2500, message:`wait for the ${name} destination or mobile Menu after reload` }).toBe(true);
+        if (!(await button.isVisible())) await menu.click({ timeout:2500 });
+        await expect(button).toBeVisible({ timeout:2500 });
+      }
       await button.click({ timeout:3000 });
       if (name === 'Tools') {
         await expect(page.getByRole('tablist', { name:'Tools sections', exact:true })).toBeVisible({ timeout:12000 });
