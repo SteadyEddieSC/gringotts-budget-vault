@@ -34,13 +34,6 @@ const ROADMAP = Object.freeze([
   ['v136', 'directional', 'Architecture Baseline & Next-Horizon Decision', 'Document the maintained architecture after the reliability horizon and decide whether to continue consolidation, hold steady, or approve a narrowly evidenced capability.', ['Architecture ownership map', 'Retirement candidates', 'Maintenance-cost review', 'Privacy and threat-boundary review', 'Next-horizon decision record'], ['v127–v135 evidence', 'Observed household needs', 'Protected release history'], ['One live runtime', 'Local-first data boundary', 'Stable rescue retained', 'No feature approval without a full safety and recovery contract'], 'The following roadmap begins from evidence and an explicit maintained baseline rather than accumulated release layers.']
 ].map(([version, status, title, purpose, scope, dependencies, safeguards, outcome]) => Object.freeze({ version, status, title, purpose, scope, dependencies, safeguards, outcome })));
 
-const V127_CSS = String.raw`
-/* Retained v113 household-insight styles are consolidated here to keep the network budget flat. */
-.household-insights-page{display:grid;gap:1rem}.insight-kpis{margin-top:0}.insight-period-card .summary-box{min-height:100%}.insight-signal-list{display:grid;gap:1rem}.insight-card{border-inline-start:4px solid color-mix(in srgb,var(--accent,#d7b45b) 62%,transparent)}.insight-card.high{border-inline-start-color:#ef8d7b}.insight-card.review{border-inline-start-color:#e6bd65}.insight-card.watch{border-inline-start-color:#7eb8d8}.insight-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.65rem;margin:.85rem 0}.insight-facts span{display:grid;gap:.15rem;min-width:0;padding:.7rem;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:.75rem;background:color-mix(in srgb,var(--panel,#111827) 88%,transparent)}.insight-facts strong{font-size:1.05rem;overflow-wrap:anywhere}.insight-evidence{margin-top:.8rem}.insight-evidence summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700}.insight-prompts{display:grid;gap:.75rem;padding-left:1.4rem}.insight-prompts li{padding-left:.25rem}.insight-prompts span{display:block;margin-top:.25rem;color:var(--muted,#a9b4c5)}.methodology-card ul,.household-insights-report ul,.household-insights-report ol{display:grid;gap:.5rem}.recurring-insights-table td:last-child{min-width:18rem}.household-insights-report .card{break-inside:avoid}.insight-report-grid small{color:var(--muted,#a9b4c5)}
-.v127-status-region{position:fixed;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[data-action-intent]{min-height:2.75rem;touch-action:manipulation}.v127-action-primary{font-weight:700}.v127-action-preview,.v127-action-export,.v127-action-recovery{font-weight:650}.v127-action-destructive{border-style:solid;border-width:1px}.v127-action-cancel{opacity:.92}[data-action-intent]:focus-visible,[data-v127-table-region]:focus-visible,.v127-disclosure>summary:focus-visible{outline:3px solid currentColor;outline-offset:3px}[data-v127-table-region]{max-width:100%;overflow:auto;scroll-padding:1rem}[data-v127-dialog]{max-width:min(44rem,calc(100vw - 2rem));max-height:min(48rem,calc(100dvh - 2rem));overflow:auto;overscroll-behavior:contain}.v127-disclosure>summary{cursor:pointer;min-height:2.75rem;display:flex;align-items:center}.v127-roadmap-page .roadmap-horizon{display:grid;gap:1rem;grid-template-columns:repeat(2,minmax(0,1fr))}.v127-roadmap-page .roadmap-horizon-card,.v127-roadmap-page .roadmap-card-header,.v127-roadmap-page .roadmap-card-section{min-width:0}.v127-roadmap-page .roadmap-horizon-card{display:grid;align-content:start;gap:.85rem}.v127-roadmap-page .roadmap-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}.v127-roadmap-page .roadmap-card-header h3,.v127-roadmap-page .roadmap-card-section h4,.v127-roadmap-page .roadmap-horizon-card p{margin:0}.v127-roadmap-page .v127-roadmap-details{margin:0}.v127-roadmap-page .roadmap-card-section+.roadmap-card-section{margin-top:.75rem}
-@media(max-width:900px){.insight-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.v127-roadmap-page .roadmap-horizon{grid-template-columns:1fr}.v127-roadmap-page .roadmap-card-header{display:grid}.button-row,.modal-actions,[data-v127-dialog] .button-row{gap:.65rem}.button-row>[data-action-intent],.modal-actions>[data-action-intent],[data-v127-dialog] .button-row>[data-action-intent]{width:100%}}@media(max-width:600px){.insight-facts{grid-template-columns:1fr}.household-insights-page .section-title-row{align-items:flex-start}.recurring-insights-table td:last-child{min-width:14rem}}@media(prefers-reduced-motion:reduce){[data-action-intent],[data-v127-dialog],.v127-disclosure{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}@media print{.household-insights-report{break-before:page}.household-insights-report .card{box-shadow:none}.v127-status-region,[data-v127-disclosure="advanced"]{display:none!important}.v127-roadmap-page .roadmap-horizon{display:block}.v127-roadmap-page .roadmap-horizon-card{break-inside:avoid;margin-bottom:1rem}}
-`;
-
 const ACTION_SELECTOR = 'button, a.btn, [role="button"], input[type="button"], input[type="submit"]';
 const dialogOpeners = new WeakMap();
 let installed = false;
@@ -71,14 +64,6 @@ function classify(control) {
 
 function verb(intent) {
   return ({ primary: 'Commit', preview: 'Review', export: 'Export', recovery: 'Recover', destructive: 'Destructive', cancel: 'Cancel', secondary: 'Secondary' })[intent] || 'Secondary';
-}
-
-function installStyles() {
-  if (document.querySelector('style[data-v127-styles]')) return;
-  const style = document.createElement('style');
-  style.dataset.v127Styles = 'true';
-  style.textContent = V127_CSS;
-  document.head.append(style);
 }
 
 function ensureStatusRegion() {
@@ -278,7 +263,6 @@ function actionFeedback(event) {
 function install() {
   if (installed) return window.GringottsV128;
   installed = true;
-  installStyles();
   ensureStatusRegion();
   window.addEventListener('click', rememberRouteFocus, true);
   window.addEventListener('click', rememberDialogOpener, true);
