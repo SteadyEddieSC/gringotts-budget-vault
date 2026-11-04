@@ -99,6 +99,10 @@ function simulateHistoricalReadFailure(kind) {
     if (args[0] === 'log' && args.includes('--name-only')) return fixture + '\n';
     if (args[0] === 'log') return commit + '\n';
     if (args[0] === 'ls-tree') {
+      if (kind === 'directory') {
+        return `100644 blob ${objectId}\t${fixture}/a.txt\n100644 blob ${'c'.repeat(40)}\t${fixture}/z.txt\n`;
+      }
+      if (kind === 'subpath') return `100644 blob ${objectId}\t${fixture}/a.txt\n`;
       const objectType = kind === 'gitlink' ? 'commit' : 'blob';
       return `100644 ${objectType} ${objectId}\t${fixture}\n`;
     }
@@ -139,4 +143,25 @@ test('oversized or unreadable historical content fails closed even with an exemp
 
 test('a historical fixture gitlink is not silently exempted as a CSV blob', () => {
   simulateHistoricalReadFailure('gitlink');
+});
+
+test('directory at the exempt CSV path cannot conceal unenumerated historical descendants', () => {
+  simulateHistoricalReadFailure('directory');
+});
+
+test('a single descendant of the exempt CSV filename is not treated as the exact file', () => {
+  simulateHistoricalReadFailure('subpath');
+});
+
+test('real Git history rejects a directory masquerading as the exact synthetic CSV', () => {
+  inSyntheticRepo((root) => {
+    write(root, fixture + '/a.txt', syntheticOnly);
+    write(root, fixture + '/z.txt', patternOnly);
+    write(root, preapproved, patternOnly);
+    commit(root, 'synthetic directory and content alias');
+    const result = scan(root);
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /Privacy history scan incomplete/);
+    assert.match(result.stderr, /ambiguous historical fixture path/);
+  });
 });

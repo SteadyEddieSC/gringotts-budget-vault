@@ -96,11 +96,20 @@ for (const filePath of pathOnlyAllowed) {
     .split(/\r?\n/)
     .filter(Boolean);
   for (const commit of new Set(commits)) {
-    const entry = git(['ls-tree', '-r', commit, '--', filePath]).trim();
-    if (!entry) continue; // The file was removed in this commit.
-    const details = entry.split(String.fromCharCode(9))[0].split(' ');
+    const listing = git(['ls-tree', '-r', commit, '--', filePath]).trim();
+    if (!listing) continue; // The file was removed in this commit.
+    const entries = listing.split(/\r?\n/);
+    if (entries.length !== 1) {
+      throw new Error(`Privacy history scan incomplete: ambiguous historical fixture path ${filePath}.`);
+    }
+    const entry = entries[0];
+    const tab = entry.indexOf(String.fromCharCode(9));
+    if (tab < 0 || entry.slice(tab + 1) !== filePath) {
+      throw new Error(`Privacy history scan incomplete: expected exact historical fixture file ${filePath}.`);
+    }
+    const details = entry.slice(0, tab).split(' ');
     const objectId = details[2];
-    if (details[1] !== 'blob' || !/^[0-9a-f]{40,64}$/.test(objectId)) {
+    if (details.length !== 3 || details[1] !== 'blob' || !/^[0-9a-f]{40,64}$/.test(objectId)) {
       throw new Error(`Privacy history scan incomplete: unexpected historical fixture object for ${filePath}.`);
     }
     pathOnlyHistory.push(`${objectId} ${filePath}`);
