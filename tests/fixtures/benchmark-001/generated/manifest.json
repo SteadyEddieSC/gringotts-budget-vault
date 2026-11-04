@@ -1,0 +1,58 @@
+{
+  "benchmarkId": "BENCHMARK-001",
+  "fixtureVersion": 1,
+  "syntheticOnly": true,
+  "artifactCount": 10,
+  "artifacts": [
+    {
+      "path": "actual-auto-loan.csv",
+      "bytes": 597,
+      "sha256": "889cd471a129946108be414d58068f8628f4ffb3c1df62796deea3c0ba4d16c2"
+    },
+    {
+      "path": "actual-card-alpha.csv",
+      "bytes": 4515,
+      "sha256": "8f940df4ab94aca3ad5626ada8bf51c725ac167b2146f4c170efd3159c8db901"
+    },
+    {
+      "path": "actual-card-beta.csv",
+      "bytes": 2157,
+      "sha256": "c754502e8b22f7b27afca859a4af289e03ad37332900028bcc95151fe2126933"
+    },
+    {
+      "path": "actual-cash.csv",
+      "bytes": 1059,
+      "sha256": "3cebfd01f8f504c5f8d3ec58b0fcf6825ee12d81b76debf18769ddeab81bd479"
+    },
+    {
+      "path": "actual-checking.csv",
+      "bytes": 6547,
+      "sha256": "5bb31bc8948c2e5c8b4ce9ad1c770fd2145fe6e754d1795e166c64e31f8c3bea"
+    },
+    {
+      "path": "actual-savings.csv",
+      "bytes": 603,
+      "sha256": "7dc8cb54076f514c0678d86e9c8b7f770556f3bc75407d4e922f8e358be5fdc0"
+    },
+    {
+      "path": "expected-outcomes.json",
+      "bytes": 1082,
+      "sha256": "1f54635840f6b212e270860ad1ff54b38b5cbfa697ad3c5b17576ee5e70a6d64"
+    },
+    {
+      "path": "gringotts-all-accounts.csv",
+      "bytes": 20086,
+      "sha256": "d473988beac72ebbc6ac3b9f5b1f83abf256db90d904a6ef9ebed7b1ec2746e6"
+    },
+    {
+      "path": "gringotts-vault-restore.json",
+      "bytes": 65032,
+      "sha256": "2bfbdfa576539e8fecd129844d6f1c935b40a09b7ea5a45d3cc91ad6fa8e2f18"
+    },
+    {
+      "path": "scenario.json",
+      "bytes": 49255,
+      "sha256": "a3dd9c0beaf99ea17535890089a0a1876e4b9f85d81bba43ac2fff38a2ae76b4"
+    }
+  ]
+}
