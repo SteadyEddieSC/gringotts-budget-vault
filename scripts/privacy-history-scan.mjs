@@ -29,6 +29,11 @@ const forbiddenPathRules = [
   }
 ];
 
+// This is an exception to the filename rule only, never to blob-content scanning.
+const pathOnlyAllowed = new Set([
+  'tests/fixtures/benchmark-001/spreadsheet-exit/transactions.csv'
+]);
+
 const allowedPaths = new Set([
   'tests/fixtures/synthetic-vault.json',
   'tests/fixtures/bank-import/synthetic-signed.csv',
@@ -48,7 +53,7 @@ const uniquePaths = [...new Set(pathLines)];
 const forbiddenPathHits = [];
 
 for (const filePath of uniquePaths) {
-  if (allowedPaths.has(filePath)) continue;
+  if (allowedPaths.has(filePath) || pathOnlyAllowed.has(filePath)) continue;
   for (const rule of forbiddenPathRules) {
     if (rule.pattern.test(filePath)) {
       forbiddenPathHits.push({ filePath, label: rule.label });
@@ -81,8 +86,29 @@ const sensitiveContentRules = [
   }
 ];
 
-const objectLines = git(['rev-list', '--objects', '--all'])
-  .split(/\r?\n/)
+// Git's rev-list names each blob only once: an identical blob can be labelled
+// with an older content-exempt path instead of this path-only-exempt fixture.
+// Enumerate every historical version of the exact fixture explicitly so its
+// content is still inspected even if the object has another Git path alias.
+const pathOnlyHistory = [];
+for (const filePath of pathOnlyAllowed) {
+  const commits = git(['log', '--all', '--full-history', '--format=%H', '--', filePath])
+    .split(/\r?\n/)
+    .filter(Boolean);
+  for (const commit of new Set(commits)) {
+    const entry = git(['ls-tree', '-r', commit, '--', filePath]).trim();
+    const details = entry.split(String.fromCharCode(9))[0].split(' ');
+    const objectId = details[2];
+    if (details[1] === 'blob' && /^[0-9a-f]{40,64}$/.test(objectId)) {
+      pathOnlyHistory.push(`${objectId} ${filePath}`);
+    }
+  }
+}
+
+const objectLines = [
+  ...git(['rev-list', '--objects', '--all']).split(/\r?\n/),
+  ...pathOnlyHistory
+]
   .map((line) => line.trim())
   .filter(Boolean);
 
