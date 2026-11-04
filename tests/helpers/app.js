@@ -80,7 +80,8 @@ export async function openPrimary(page, name) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const button = page.getByRole('button', { name, exact:true });
     if (!(await button.isVisible())) {
-      await page.getByRole('button', { name:/Menu/i }).click();
+      const menu = page.getByRole('button', { name:/Menu/i });
+      if (await menu.isVisible()) await menu.click();
       await expect(button).toBeVisible({ timeout:2500 });
     }
     try {
