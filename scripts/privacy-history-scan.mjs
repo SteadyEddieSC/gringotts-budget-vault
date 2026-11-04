@@ -97,11 +97,13 @@ for (const filePath of pathOnlyAllowed) {
     .filter(Boolean);
   for (const commit of new Set(commits)) {
     const entry = git(['ls-tree', '-r', commit, '--', filePath]).trim();
+    if (!entry) continue; // The file was removed in this commit.
     const details = entry.split(String.fromCharCode(9))[0].split(' ');
     const objectId = details[2];
-    if (details[1] === 'blob' && /^[0-9a-f]{40,64}$/.test(objectId)) {
-      pathOnlyHistory.push(`${objectId} ${filePath}`);
+    if (details[1] !== 'blob' || !/^[0-9a-f]{40,64}$/.test(objectId)) {
+      throw new Error(`Privacy history scan incomplete: unexpected historical fixture object for ${filePath}.`);
     }
+    pathOnlyHistory.push(`${objectId} ${filePath}`);
   }
 }
 
@@ -130,17 +132,22 @@ for (const line of objectLines) {
   try {
     objectType = git(['cat-file', '-t', objectId]).trim();
   } catch {
+    throw new Error(`Privacy history scan incomplete: could not inspect object type for ${filePath}.`);
+  }
+  if (objectType !== 'blob') {
+    if (pathOnlyAllowed.has(filePath)) {
+      throw new Error(`Privacy history scan incomplete: the exempt fixture is not a blob: ${filePath}.`);
+    }
     continue;
   }
-  if (objectType !== 'blob') continue;
 
-  inspectedBlobs.add(objectId);
   let content;
   try {
     content = git(['cat-file', '-p', objectId]);
   } catch {
-    continue;
+    throw new Error(`Privacy history scan incomplete: could not read historical blob for ${filePath}.`);
   }
+  inspectedBlobs.add(objectId);
 
   for (const rule of sensitiveContentRules) {
     rule.pattern.lastIndex = 0;

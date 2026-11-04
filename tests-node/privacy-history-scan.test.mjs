@@ -1,7 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { runInNewContext } from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -86,4 +87,56 @@ test('other transaction or ledger filenames continue to fail closed', () => {
     assert.match(result.stderr, /transaction or ledger CSV export/);
     assert.match(result.stderr, /other-transactions\.csv/);
   });
+});
+
+function simulateHistoricalReadFailure(kind) {
+  const source = readFileSync(scanner, 'utf8').replace(/^import[^\n]*\n/, '');
+  const objectId = 'a'.repeat(40);
+  const commit = 'b'.repeat(40);
+  const outputs = [];
+  const gitStub = (exe, args) => {
+    assert.equal(exe, 'git');
+    if (args[0] === 'log' && args.includes('--name-only')) return fixture + '\n';
+    if (args[0] === 'log') return commit + '\n';
+    if (args[0] === 'ls-tree') {
+      const objectType = kind === 'gitlink' ? 'commit' : 'blob';
+      return `100644 ${objectType} ${objectId}\t${fixture}\n`;
+    }
+    if (args[0] === 'rev-list') return `${objectId} ${preapproved}\n`;
+    if (args[0] === 'cat-file' && args[1] === '-t') {
+      if (kind === 'type') throw new Error('Synthetic missing object');
+      return 'blob\n';
+    }
+    if (args[0] === 'cat-file' && args[1] === '-p') {
+      if (kind === 'content') {
+        const error = new Error('Synthetic 64MiB output limit');
+        error.code = 'ENOBUFS';
+        throw error;
+      }
+      return syntheticOnly;
+    }
+    throw new Error('Unexpected simulated Git invocation: ' + args.join(' '));
+  };
+  assert.throws(
+    () => runInNewContext(source, {
+      execFileSync: gitStub,
+      process: { cwd: () => '.', exit: () => { throw new Error('false PASS'); } },
+      console: { log: (message) => outputs.push(message), error: (message) => outputs.push(message) }
+    }),
+    /Privacy history scan incomplete/,
+    'Uninspectable historical fixture must never produce a successful scan'
+  );
+  assert.equal(outputs.some((message) => /scan passed/.test(message)), false);
+}
+
+test('missing historical object type fails closed under the path-only exemption', () => {
+  simulateHistoricalReadFailure('type');
+});
+
+test('oversized or unreadable historical content fails closed even with an exempt blob alias', () => {
+  simulateHistoricalReadFailure('content');
+});
+
+test('a historical fixture gitlink is not silently exempted as a CSV blob', () => {
+  simulateHistoricalReadFailure('gitlink');
 });
