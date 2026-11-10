@@ -29,6 +29,11 @@ const forbiddenPathRules = [
   }
 ];
 
+// This is an exception to the filename rule only, never to blob-content scanning.
+const pathOnlyAllowed = new Set([
+  'tests/fixtures/benchmark-001/spreadsheet-exit/transactions.csv'
+]);
+
 const allowedPaths = new Set([
   'tests/fixtures/synthetic-vault.json',
   'tests/fixtures/bank-import/synthetic-signed.csv',
@@ -48,7 +53,7 @@ const uniquePaths = [...new Set(pathLines)];
 const forbiddenPathHits = [];
 
 for (const filePath of uniquePaths) {
-  if (allowedPaths.has(filePath)) continue;
+  if (allowedPaths.has(filePath) || pathOnlyAllowed.has(filePath)) continue;
   for (const rule of forbiddenPathRules) {
     if (rule.pattern.test(filePath)) {
       forbiddenPathHits.push({ filePath, label: rule.label });
@@ -81,8 +86,40 @@ const sensitiveContentRules = [
   }
 ];
 
-const objectLines = git(['rev-list', '--objects', '--all'])
-  .split(/\r?\n/)
+// Git's rev-list names each blob only once: an identical blob can be labelled
+// with an older content-exempt path instead of this path-only-exempt fixture.
+// Enumerate every historical version of the exact fixture explicitly so its
+// content is still inspected even if the object has another Git path alias.
+const pathOnlyHistory = [];
+for (const filePath of pathOnlyAllowed) {
+  const commits = git(['log', '--all', '--full-history', '--format=%H', '--', filePath])
+    .split(/\r?\n/)
+    .filter(Boolean);
+  for (const commit of new Set(commits)) {
+    const listing = git(['ls-tree', '-r', commit, '--', filePath]).trim();
+    if (!listing) continue; // The file was removed in this commit.
+    const entries = listing.split(/\r?\n/);
+    if (entries.length !== 1) {
+      throw new Error(`Privacy history scan incomplete: ambiguous historical fixture path ${filePath}.`);
+    }
+    const entry = entries[0];
+    const tab = entry.indexOf(String.fromCharCode(9));
+    if (tab < 0 || entry.slice(tab + 1) !== filePath) {
+      throw new Error(`Privacy history scan incomplete: expected exact historical fixture file ${filePath}.`);
+    }
+    const details = entry.slice(0, tab).split(' ');
+    const objectId = details[2];
+    if (details.length !== 3 || details[1] !== 'blob' || !/^[0-9a-f]{40,64}$/.test(objectId)) {
+      throw new Error(`Privacy history scan incomplete: unexpected historical fixture object for ${filePath}.`);
+    }
+    pathOnlyHistory.push(`${objectId} ${filePath}`);
+  }
+}
+
+const objectLines = [
+  ...git(['rev-list', '--objects', '--all']).split(/\r?\n/),
+  ...pathOnlyHistory
+]
   .map((line) => line.trim())
   .filter(Boolean);
 
@@ -104,17 +141,22 @@ for (const line of objectLines) {
   try {
     objectType = git(['cat-file', '-t', objectId]).trim();
   } catch {
+    throw new Error(`Privacy history scan incomplete: could not inspect object type for ${filePath}.`);
+  }
+  if (objectType !== 'blob') {
+    if (pathOnlyAllowed.has(filePath)) {
+      throw new Error(`Privacy history scan incomplete: the exempt fixture is not a blob: ${filePath}.`);
+    }
     continue;
   }
-  if (objectType !== 'blob') continue;
 
-  inspectedBlobs.add(objectId);
   let content;
   try {
     content = git(['cat-file', '-p', objectId]);
   } catch {
-    continue;
+    throw new Error(`Privacy history scan incomplete: could not read historical blob for ${filePath}.`);
   }
+  inspectedBlobs.add(objectId);
 
   for (const rule of sensitiveContentRules) {
     rule.pattern.lastIndex = 0;
