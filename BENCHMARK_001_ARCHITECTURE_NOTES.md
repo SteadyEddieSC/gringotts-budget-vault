@@ -83,11 +83,11 @@ This evidence supports treating Actual's server-backed client as the serious clo
 - Do not add a new Gringotts rollback feature during v134 feature freeze; existing backup + explicit restore already provides the bounded migration rollback required for the spreadsheet-exit proof.
 - The remaining product decision stays open until matched Actual workflow rows, current-release PWA/second-adult use, and interrupted-sync recovery are completed.
 
-### Validation caveat — pre-existing startup ceiling drift
+### Historical Windows CRLF-only startup measurement — corrected by #65
 
 - Exact recovered benchmark checks pass: `npm run test:parser` completed typecheck, release consistency, and 157/157 Node tests; the five new benchmark Playwright tests pass on an isolated v134 server at `127.0.0.1:8765`.
-- A broader Chromium sweep produced 158 passes, 1 intentional live-smoke skip, and 5 failures that all trace to the retained v130 startup-script ceiling: the draft branch measures 500,830 bytes against a 500,000-byte ceiling, causing the dependent Decision Gate tests to fail closed.
-- A detached worktree of accepted base/main `f2862baf069d3f26cdaed490ad386ad9ac882192` independently fails the same retained ceiling at 500,809 bytes. PR #64 therefore adds only 21 measured startup-script bytes; the hard-ceiling failure predates this benchmark branch and must be handled as separate maintenance rather than hidden or waived here.
+- A historical **Windows CRLF-converted checkout** broad Chromium sweep produced 158 passes, one intentional live-smoke skip and five real failures under the retained v130 500,000-byte startup-script ceiling; the Windows-converted draft measured 500,830 bytes. This is a valid environment-specific red test run, **not** evidence that hosted Linux/production `main` exceeded the budget.
+- The Windows CRLF-converted accepted-base worktree measured 500,809 bytes, 21 fewer than the draft on that Windows checkout. Later independent LF/Linux Chromium verification in [PERF-MAINT-001 issue #65](https://github.com/SteadyEddieSC/gringotts-budget-vault/issues/65) measured accepted main **493,130 bytes** (below 500,000); [performance PR #68](https://github.com/SteadyEddieSC/gringotts-budget-vault/pull/68) measured **488,577 bytes** and is **MERGED**, with #65 closed. This supersedes the old claim of a universally broken production/main gate. Keep the hard 500,000-byte limit; future drafts must revalidate a normalized checkout/current head without waiving it for CRLF-only observations.
 
 ## Matched current-release UI completion — 2026-11-02
 
