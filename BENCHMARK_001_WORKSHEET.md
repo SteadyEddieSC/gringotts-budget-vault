@@ -6,7 +6,7 @@ Status: execution worksheet for #54. This file is a structure for **synthetic-on
 
 - Gringotts baseline at worksheet creation: `126561b333f094b6275c207baedda59fc9a0cc74`.
 - Synthetic fixture generator: `scripts/benchmark-001-generate.mjs`.
-- Official Actual baseline prepared for execution: `v26.10.0` (reconfirm current official release and license immediately before the hands-on run; record any change below).
+- Official Actual baseline originally prepared: `v26.10.0`. The official latest release was rechecked before current-version execution and is `v26.11.0` under the MIT license.
 - No real household transaction, balance, account, income, debt, goal, screenshot, export, credential, or provider connection may be used.
 - Incremental spend: `$0`.
 
@@ -14,13 +14,13 @@ Status: execution worksheet for #54. This file is a structure for **synthetic-on
 
 | Field | Gringotts | Actual |
 | --- | --- | --- |
-| Exact version / commit | `126561b333f094b6275c207baedda59fc9a0cc74` | `TBD at execution` |
-| Source / distribution | This repository | Official Actual release only |
-| License rechecked | N/A | `TBD` |
-| Host / browser / app version | `TBD` | `TBD` |
-| Fixture generator commit | `TBD` | Same fixture commit |
-| Fixture manifest/hash | `TBD` | Same fixture manifest/hash |
-| Start state | Fresh synthetic benchmark state | Fresh synthetic benchmark state |
+| Exact version / commit | `v134.0.0`; app source `126561b333f094b6275c207baedda59fc9a0cc74` | Official Actual `v26.11.0`; server and app UI both report `v26.11.0` |
+| Source / distribution | This repository | Official Actual release / `@actual-app/sync-server@26.11.0` |
+| License rechecked | N/A | MIT, official release |
+| Host / browser / app version | Windows; Chromium-based isolated browser profile; Gringotts UI `v134` | Windows; Chromium-based in-app browser (exact build not recorded); Actual app/server `v26.11.0` at loopback `127.0.0.1:5008` |
+| Fixture generator commit | `4926dd106598b46a7ce101f032ce7fb8370e8d08` | Same fixture commit |
+| Fixture manifest/hash | `bea0cbd3fb410a1b9c067f7f4e2e4f597f35a54523fca1fe099bfde5c9f2d536` | Same fixture manifest/hash |
+| Start state | Empty Gringotts vault restored from the synthetic 183-row JSON fixture; verified destination key `gringottsBudgetVault.latest` | Prepared copy of prior synthetic server dataset: 183 ledger rows, 159 uncategorized, inherited November Food target `$600`; not fresh-from-empty |
 
 ## Scoring rubric
 
@@ -36,6 +36,11 @@ For every workflow, preserve the observations first and assign a 1–5 summary s
 - **Narrow/mobile:** `good`, `usable`, `poor`, or `not supported`.
 - **Layer classification:** `commodity ledger`, `household command layer`, `both`, or `neither`.
 - **Summary score:** 1–5 only after the qualitative fields are complete.
+  - `5`: clear native path with low friction, strong state clarity/confidence, and no material matched-workflow caveat.
+  - `4`: strong native path or unusually clear workaround with a bounded caveat.
+  - `3`: workable path with a material workaround, missing synthesis, or evidence/UX caveat.
+  - `2`: possible but high-friction/indirect enough to be a weak household workflow.
+  - `1`: unavailable for the matched job.
 
 ## Workflow evidence matrix
 
@@ -43,50 +48,56 @@ Complete each row independently for both products using the same synthetic fixtu
 
 | # | Job | Product | Completion | Steps | Cognitive load | State clarity | Confidence | Duplicate entry | Recovery / reversibility | Narrow/mobile | Layer | Score | Evidence / notes |
 | ---: | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- | ---: | --- |
-| 1 | Create/open household budget | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 1 | Create/open household budget | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 2 | Create accounts | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 2 | Create accounts | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 3 | Import synthetic transactions | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 3 | Import synthetic transactions | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 4 | Resolve duplicate/import issues | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 4 | Resolve duplicate/import issues | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 5 | Categorize/review transactions | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 5 | Categorize/review transactions | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 6 | Create/review recurring bills or schedules | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 6 | Create/review recurring bills or schedules | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 7 | Correct mistaken categorization and inspect impact | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 7 | Correct mistaken categorization and inspect impact | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 8 | Create monthly budget/plan | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 8 | Create monthly budget/plan | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 9 | Represent annual/irregular expenses or sinking funds | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 9 | Represent annual/irregular expenses or sinking funds | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 10 | Inspect next-payday / next-30-day obligations | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 10 | Inspect next-payday / next-30-day obligations | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 11 | Determine whether available cash is committed | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 11 | Determine whether available cash is committed | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 12 | Handle recurring subscription price increase | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 12 | Handle recurring subscription price increase | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 13 | Evaluate hypothetical large purchase | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 13 | Evaluate hypothetical large purchase | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 14 | Model temporary income reduction | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 14 | Model temporary income reduction | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 15 | Evaluate extra debt payoff vs reserve/goal | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 15 | Evaluate extra debt payoff vs reserve/goal | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 16 | Compare baseline vs scenario without ledger mutation | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 16 | Compare baseline vs scenario without ledger mutation | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 17 | Month-end review/close | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 17 | Month-end review/close | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 18 | Explain material month-over-month changes | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 18 | Explain material month-over-month changes | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 19 | Review net-worth direction | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 19 | Review net-worth direction | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 20 | Export/backup full dataset | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 20 | Export/backup full dataset | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 21 | Restore/recover into fresh state | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 21 | Restore/recover into fresh state | Actual |  |  |  |  |  |  |  |  |  |  |  |
-| 22 | Use at phone-size / narrow viewport | Gringotts |  |  |  |  |  |  |  |  |  |  |  |
-| 22 | Use at phone-size / narrow viewport | Actual |  |  |  |  |  |  |  |  |  |  |  |
+| 1 | Create/open household budget | Gringotts | native | 1–2 | Low | Browser-local vault state is explicit | High for local state | none | Full-vault backup/restore path; no server dependency | good | both | 5 | Current app opens a local vault directly; fresh-profile benchmark restore is separately proven. |
+| 1 | Create/open household budget | Actual | native | 1–2 | Low | Files list and selected budget are explicit | High | none | Export/import can create a separate budget copy | not assessed | commodity ledger | 5 | v26.11 Files list showed the server-backed `My Finances` budget and imported `New budget` copy. |
+| 2 | Create accounts | Gringotts | workaround | 2 via import mapping | Medium | Accounts are transaction labels rather than first-class setup objects | High for labels | some mapping entry | Pre-import backup and restore protect writes | good | commodity ledger | 3 | Import supports a destination account label or mapped/masked account value; no separate first-class account-create flow was located. |
+| 2 | Create accounts | Actual | native | 2–3 per account | Medium for six-account fixture | First-class account list/balances | High | none | Native account lifecycle; benchmark state retained balances | not assessed | commodity ledger | 4 | Six synthetic accounts were created for the matched import and their balances were verified. |
+| 3 | Import synthetic transactions | Gringotts | native | ~6 guarded steps | Medium | Preview, mapping, duplicate review, backup, acknowledgement, and verified result are explicit | High | none after review | Mandatory pre-import backup; full-vault restore; failed writes auto-restore prior value | good | commodity ledger | 4 | Guarded CSV/JSON/OFX-family import is covered by current Playwright; BENCHMARK-001 spreadsheet fixture inserted 2 missing rows and skipped 1 exact duplicate with no network writes. |
+| 3 | Import synthetic transactions | Actual | native | repeated account-scoped import | Medium | Account balances and imported rows are visible; category setup is separate | High for ledger import | not assessed in UI re-import | Local/server export and import restore are available | not assessed | commodity ledger | 4 | Current fixture has 177 synthetic imported transactions plus six opening-balance rows across six accounts; 159 rows remained uncategorized in the prepared dataset. |
+| 4 | Resolve duplicate/import issues | Gringotts | native | 3–5 | Medium | Exact/fuzzy/new buckets and selected disposition are explicit | High | none in replay proof | Backup-first; explicit full-vault restore; no-change receipt | good | commodity ledger | 4 | Spreadsheet fixture replay changed from 2 inserted/1 skipped to 0 inserted/3 skipped with final row count unchanged; existing tests also cover fuzzy review. |
+| 4 | Resolve duplicate/import issues | Actual | native | 2 API calls in bounded proof | Low for API; household UI effort not measured | `added`/`updated` result and final count are explicit | High for fixed `imported_id` replay | none for tested replay | Replay produced no second row | not applicable to API proof | commodity ledger | 3 | Offline `@actual-app/api@26.11.0` proof: first `importTransactions` added 1; exact replay added 0; final count stayed 1. No server credentials were supplied, so this is not network-sync replay evidence. |
+| 5 | Categorize/review transactions | Gringotts | native | 3–4 | Low | Review Queue exposes current row/category and result | High | none | Backup-first verified edit | good | commodity ledger | 4 | Fresh `review-goals.spec.js` run proved native category correction through Review Queue with verified backup-first write. |
+| 5 | Categorize/review transactions | Actual | native | 2–3 | Low | Dedicated uncategorized queue exposes account, payee, notes, category, and amount before assignment | High | none observed | Category remains editable from the account ledger | good | commodity ledger | 5 | Current v26.11 no-server web client opened the 159-row uncategorized queue, assigned the 10/22 synthetic Cash Market `$43.50` row to Food, reduced the queue to 158, and persisted Food on reload in the Cash account ledger. Exact synthetic backup only; no server/auth involved. |
+| 6 | Create/review recurring bills or schedules | Gringotts | native | 3–5 | Low | Bills/paydays planning metadata is separate from ledger evidence | High | none | Editable local planning state; does not mutate transactions | good | household command layer | 4 | Fresh month-close/forecast tests created monthly bill and biweekly payday entries and projected them without network writes. |
+| 6 | Create/review recurring bills or schedules | Actual | native | 2–4 | Low | First-class schedule shows payee, account, next date, status, amount, cadence, and upcoming dates | High | none | Native edit/save path; automatic posting is optional | good | commodity ledger | 5 | Current v26.11 schedule editor opened the synthetic Streambox monthly schedule at `$21.99`, showed 11/11, 12/11, and 01/11 upcoming dates, monthly recurrence, configurable upcoming length, optional automatic transaction creation, linked transactions, and rule editing. |
+| 7 | Correct mistaken categorization and inspect impact | Gringotts | native | 3–4 | Low | Before/after row and category are visible | High | none | Backup-first verified edit; downloaded backup available | good | commodity ledger | 4 | Fresh Review Queue regression changed a synthetic row to Groceries and verified the persisted transaction. |
+| 7 | Correct mistaken categorization and inspect impact | Actual | native | 2–3 | Low | Ledger row exposes current category and the budget summary responds to the edit | High | none | Same category cell can be changed again; exact backup remains available | good | commodity ledger | 5 | The same 10/22 `$43.50` synthetic Cash Market row was changed from Food to General in the v26.11 Cash ledger. Reload persisted General, the uncategorized queue remained 158, and the visible budget `To Budget` state moved by exactly `$43.50`, proving downstream budget impact rather than a display-only edit. |
+| 8 | Create monthly budget/plan | Gringotts | native | 3 | Low | Saved category targets are visibly separate planning state | High | none | Budget target can be edited/removed without vault mutation | good | household command layer | 5 | BENCHMARK-001 regression saved a `$625` Groceries monthly target, verified `gringottsBudgets.v1`, preserved the vault byte-for-byte, and produced no network writes. |
+| 8 | Create monthly budget/plan | Actual | native | 2–3 | Low | Month/category target and To Budget change are visible | High | none | Target can be overwritten; backup export available | not assessed | commodity ledger | 5 | Current v26.11 two-client proof repeatedly used November Food `$600` as a controlled budget target and observed To Budget `$43,350`. |
+| 9 | Represent annual/irregular expenses or sinking funds | Gringotts | native | 3–5 | Low | Goal target/current/contribution state is explicit | High | none | Goal/contribution metadata is separate from ledger | usable | household command layer | 5 | Fresh `review-goals.spec.js` run created a synthetic goal, recorded a contribution, and saved an explicit health snapshot. |
+| 9 | Represent annual/irregular expenses or sinking funds | Actual | native | 2–4 | Low | Positive category balances roll forward and can remain dedicated to a savings/irregular-expense category | High | none | Funds can be transferred back to To Budget or another category; budget automation is optional | good | commodity ledger | 4 | Envelope categories natively retain positive balances across months, so a dedicated Savings/annual-expense category acts as a sinking fund. Current docs also provide optional save-by-date budget automation for irregular targets; unlike Gringotts, this is category funding rather than a separate goal/contribution health object. |
+| 10 | Inspect next-payday / next-30-day obligations | Gringotts | native | 2 after planning setup | Low | Forecast shows dated bills/paydays, ending cash, buffer pressure, and lowest point | High | none | Planning settings are editable and separate from ledger | good | household command layer | 5 | Fresh forecast test created monthly bill + biweekly payday and stored a 60-day horizon; UI also supports 30-day horizon. |
+| 10 | Inspect next-payday / next-30-day obligations | Actual | native | 1–2 after schedules exist | Low | Schedules show dated upcoming income/expense obligations and can expose a one-month upcoming window | High | none | Display horizon is reversible; schedules remain editable | good | commodity ledger | 4 | Current v26.11 schedule view showed the synthetic Streambox next date plus future occurrences; the supported upcoming-length control can be set to one month and applies to schedule/account views. Income schedules such as paychecks are supported by the same mechanism. |
+| 11 | Determine whether available cash is committed | Gringotts | workaround | 2 after planning setup | Medium | Forecast exposes starting cash, obligations, minimum buffer, ending cash, and pressure days, but not one canonical `available to commit` value | Medium-high | none | Planning metadata only; reversible | good | household command layer | 3 | Current forecast can answer the question by inspection, but the explicit simplified `available to commit` product outcome remains unproven. |
+| 11 | Determine whether available cash is committed | Actual | native | 1–2 | Low | Envelope `To Budget` explicitly shows current on-budget money not yet assigned; category balances show assigned funds | High for current-cash commitment | none | Money can be transferred among categories or back to To Budget | good | commodity ledger | 5 | Current v26.11 budget visibly showed November `To Budget` `$43,350`; Actual envelope budgeting defines this as available money not yet allocated. This answers present cash commitment directly, but it does not by itself reserve every future schedule or expose Gringotts-style buffer-pressure days. |
+| 12 | Handle recurring subscription price increase | Gringotts | native | 2–4 | Low | Prior/latest amount and delta are explicit; manual decision state is separate | High | none | Decision metadata never changes ledger | good | household command layer | 5 | Fresh recurring-cost tests detected synthetic 12→14 and 100→118 changes, excluded pending/one-time noise, and saved decision metadata without changing the vault. |
+| 12 | Handle recurring subscription price increase | Actual | workaround | 2–4 | Medium | Schedule amount/current linked transactions are explicit, but no matched prior-vs-latest drift/decision queue was located | Medium-high | none | Edit schedule amount/rule or leave it approximate; changes are reversible | good | commodity ledger | 3 | v26.11 exposes the synthetic Streambox schedule amount (`~$21.99`), linked-transaction matching, rules, and an editable amount/cadence. That supports reacting to a known increase, but the matched UI did not expose Gringotts-style automatic prior/latest delta plus explicit keep/cancel/review decision metadata. |
+| 13 | Evaluate hypothetical large purchase | Gringotts | native | 3–5 | Low | Baseline/scenario table is side-by-side and explicitly hypothetical | High | none | Preview is in-memory; saved assumptions do not mutate financial stores | good | household command layer | 5 | Fresh scenario test applied a synthetic one-time expense to the preview and confirmed there is no Apply Scenario action. |
+| 13 | Evaluate hypothetical large purchase | Actual | workaround | 3–6 | Medium | A future one-time schedule or temporary budget assumption can model the expense, and experimental Balance Forecast can project it | Medium | some temporary planning entry | Delete/revert temporary schedule or budget assumption | usable | commodity ledger | 3 | Actual can model a hypothetical purchase indirectly by adding a future one-time schedule or changing planned budget inputs, then inspecting forecast/budget effects. The current default UI did not expose a named side-by-side hypothetical purchase workspace with an explicit non-apply preview like Gringotts. |
+| 14 | Model temporary income reduction | Gringotts | native | 3–5 | Low | Monthly income delta is an explicit scenario assumption | High | none | Scenario metadata is separate from vault/forecast/debt/goals | good | household command layer | 5 | Scenario model/test covers bounded monthly income delta and confirms financial stores remain unchanged. |
+| 14 | Model temporary income reduction | Actual | workaround | 3–6 | Medium | Income schedules/tracking-budget assumptions can represent lower future income; forecast reflects the changed plan | Medium | some temporary planning entry | Revert the temporary schedule/budget assumption | usable | commodity ledger | 3 | Actual schedules support income/paychecks and the experimental Balance Forecast can project planned income/expenses, so a temporary reduction can be modeled by editing/adding planning inputs. No matched general scenario layer preserved a baseline beside the reduced-income case. |
+| 15 | Evaluate extra debt payoff vs reserve/goal | Gringotts | native | 4–6 | Medium | Debt balance, extra payment, goal target/current/contribution, and scenario deltas are explicit | High | none | Debt/goal/scenario stores are separate from transaction vault | good | household command layer | 4 | Fresh debt and scenario tests cover extra debt payment plus extra goal contribution without applying ledger transactions. |
+| 15 | Evaluate extra debt payoff vs reserve/goal | Actual | workaround | 4–7 | Medium-high | Debt/off-budget balances, savings categories, budget transfers, and reports are visible, but tradeoff synthesis is manual | Medium | some manual comparison | Budget/category changes are reversible; backup/export available | usable | both | 3 | Actual can track the off-budget synthetic Auto Loan, savings/category balances, net worth, and budget reallocations, but no matched v26.11 surface was found that directly compares an extra debt payment against reserve/goal timing in one decision view. The user must model and compare the alternatives manually. |
+| 16 | Compare baseline vs scenario without ledger mutation | Gringotts | native | 2–5 | Low | Side-by-side baseline/scenario rows and no-apply warning are explicit | High | none | In-memory preview; optional bounded assumptions store only | good | household command layer | 5 | Fresh scenario tests verified vault, forecast, debt, goals, and recurring stores are unchanged by saved scenario metadata. |
+| 16 | Compare baseline vs scenario without ledger mutation | Actual | workaround | 4–7 | Medium-high | Forecast/reports can inspect planned-state effects, but there is no matched general baseline-vs-scenario pair in the default workflow | Medium | some temporary planning state | Revert temporary schedule/budget inputs or use a separate budget copy | usable | commodity ledger | 2 | Experimental Balance Forecast simulates schedules/tracking-budget plans without posting those future occurrences as ledger transactions, but arbitrary scenario assumptions still require changing planning inputs and there is no matched named side-by-side baseline/scenario workspace. A separate budget copy is another reversible but heavier workaround. |
+| 17 | Month-end review/close | Gringotts | native | reconcile accounts + explicit close | Medium | Pending/unreviewed blockers, reconciliation state, close revision, and reopen state are explicit | High | none | Reopen records a new event; transaction vault remains unchanged | good | household command layer | 5 | Fresh month-close regression reconciled, closed, and reopened July with vault count unchanged and no network writes. |
+| 17 | Month-end review/close | Actual | workaround | reconcile accounts + review budget + create next month | Medium | Reconciliation can clear/lock account transactions and budget workflow rolls balances forward, but there is no matched explicit household month-close/reopen event | High for reconciled ledgers; medium for close state | none | Reconciled transactions can be unlocked; budget remains editable | usable | commodity ledger | 3 | Actual has a native account reconciliation tool that can lock cleared transactions and later unlock them, while its budget workflow carries category balances/overspending into the next month. This supports month-end operations, but the matched product lacks Gringotts-style explicit close revision/reopen history for the household month as a whole. |
+| 18 | Explain material month-over-month changes | Gringotts | native | 1–2 after close history exists | Low | Close trend and driver surfaces identify aggregate changes | High | none | Read-only aggregate history; review-month changes do not mutate vault | good | household command layer | 5 | Fresh close-history tests explain transfer-neutral aggregate drivers, exclude pending noise, and keep phone layout contained. |
+| 18 | Explain material month-over-month changes | Actual | native | 1–3 | Low-medium | Reports compare periods and expose spending/cash-flow/net-worth trends; custom reports can split by category/payee/account/month | High for report values | none | Read-only analytical views; saved custom reports can be reverted/edited | good | commodity ledger | 4 | Current v26.11 default Reports dashboard visibly showed `This Month — Compare Nov 2026 to Oct 2026`, Cash Flow, Net Worth, Budget Overview, and 3-Month Average. Spending Analysis is designed to compare periods and highlight trends/fluctuations; this is strong analytical evidence, though it is not the same automatic close-driver narrative Gringotts provides. |
+| 19 | Review net-worth direction | Gringotts | unavailable | — | — | No explicit net-worth direction surface located in current v134 runtime/tests | — | — | — | — | neither | 1 | Current reporting covers goals, forecast, debt, scenarios, spending, and close trends; repository search found no explicit net-worth surface. |
+| 19 | Review net-worth direction | Actual | native | 1–2 | Low | Net worth and movement are first-class report values | High | none | Read-only report | not assessed | commodity ledger | 5 | Current benchmark observed net worth `$3,291.75` with `+$505.90` movement on the synthetic dataset. |
+| 20 | Export/backup full dataset | Gringotts | workaround | 1 for authoritative vault; additional exports for planning stores | Medium | Transaction-vault backup is explicit, but product state spans multiple stores | High for vault backup | none | JSON restore is proven; auxiliary stores need separate preservation contract | good | both | 3 | v128 portable/full-vault path protects the authoritative transaction vault. #56 storage inventory shows goals, forecast, debt, scenarios, recurring decisions, close history, and other metadata are separate domains. |
+| 20 | Export/backup full dataset | Actual | native | 2 | Low | Local ZIP is explicit and self-contained for the budget file | High | none | Import creates a separate restored budget copy | not assessed | commodity ledger | 5 | v26.11 Settings → Export data produced a 174,867-byte ZIP containing `db.sqlite` and `metadata.json`, SHA-256 `9a771cc1…58ac`. |
+| 21 | Restore/recover into fresh state | Gringotts | native | preview + acknowledge + confirm | Low | Transaction count, date range, source, and destination are previewed before write | High for authoritative vault | none | Explicit restore with verification; backup-first guidance | good | both | 5 | Fresh benchmark regression restored the generated 183-row vault into an empty isolated browser profile. Spreadsheet-exit test also restores its 12-row pre-import backup after a guarded import. |
+| 21 | Restore/recover into fresh state | Actual | native | Import exact local ZIP into fresh isolated v26.11 server; fresh second client downloads restored file | Low | Restored file and expected budget/accounts are explicit on a newly provisioned server | High | none observed | Exact archive remains independently reusable; fresh client can download restored server file | good | commodity ledger | 5 | Exact v26.11 export (`174,867` bytes; SHA-256 `9a771cc1541c33ca3efe128f11ef2da4526389a045bb19f90ac905253ef658ac`) restored onto a new empty v26.11 server at `127.0.0.1:5010`. A fresh second 390×844 client then downloaded `My Finances` and matched six synthetic accounts, all-account `$3,291.75`, on-budget `$19,241.75`, Food `$600`, General `$0`, and To Budget `$43,350`. |
+| 22 | Use at phone-size / narrow viewport | Gringotts | native | same workflow | Low | Controls remain visible without horizontal document overflow | High | none | Same local state/recovery paths | good | both | 5 | Fresh 390×844 checks cover spreadsheet mapping, monthly budgets, scenarios, recurring decisions, close trends, and reporting surfaces. |
+| 22 | Use at phone-size / narrow viewport | Actual | native | same core workflow | Low | Bottom navigation, budget state, account state, and online/offline status remain explicit at 390px | High | none | Downloaded local PWA copy survives a forced offline reload | good | commodity ledger | 5 | Fresh v26.11 second client at 390×844 rendered budget and all six accounts with `scrollWidth === clientWidth === 390`; `/site.webmanifest` and a service worker were present. After forcing the browser offline and reloading, the same November budget remained usable with no reload error or console error. |
+
+### Unweighted score checkpoint
+
+- Gringotts: **94 / 110** (`4.27 / 5` average).
+- Actual: **90 / 110** (`4.09 / 5` average).
+- This four-point spread is **not** a product-direction verdict. The matrix intentionally gives equal weight to commodity ledger jobs and household command-layer jobs; the decision gate below still controls the recommendation.
 
 ## Gringotts differentiator checks
 
@@ -94,14 +105,14 @@ Do not mark these as differentiators until the benchmark proves that Actual does
 
 | Candidate differentiator | Gringotts evidence | Actual closest path | Meaningfully unique? | Keep / delegate / remove rationale |
 | --- | --- | --- | --- | --- |
-| Explainable available-to-commit after obligations/reserve |  |  |  |  |
-| Material attention / decision queue |  |  |  |  |
-| Non-mutating household scenario comparison |  |  |  |  |
-| Recurring-cost drift / decision tracking |  |  |  |  |
-| Guided Household Plan |  |  |  |  |
-| Close history / driver explainability |  |  |  |  |
-| Deterministic full-vault backup/restore |  |  |  |  |
-| Household goals/debt context |  |  |  |  |
+| Explainable available-to-commit after obligations/reserve | Forecast exposes starting cash, bills/paydays, minimum buffer, pressure days, low point, and ending cash; no single canonical value yet | Actual `To Budget` is clearer for current unassigned cash; Schedules and experimental Balance Forecast cover future obligations separately | Partial | Do not compete with Actual on basic available/unassigned cash. Keep only the forward-looking obligations/reserve/buffer-pressure interpretation if Gringotts can make that combined household answer materially simpler. |
+| Material attention / decision queue | Review Queue, Guided Plan, recurring decisions, forecast pressure, and close blockers are deterministic/manual-decision surfaces | Actual has a strong uncategorized queue, schedules, budget status, and reports, but these remain separate surfaces | Yes, at household-command level | Preserve the unified manual-attention layer; delegate transaction categorization and raw schedule mechanics to Actual if it becomes authoritative. |
+| Non-mutating household scenario comparison | Fresh tests prove side-by-side hypothetical cash/debt/goal scenarios with no Apply action and no financial-store mutation | Actual can model assumptions indirectly with schedules/budgets and experimental Balance Forecast, but no matched general named side-by-side scenario workspace was found | Yes | Strong Gringotts command-layer differentiator. Preserve while avoiding duplication of Actual ledger/schedule/forecast primitives underneath it. |
+| Recurring-cost drift / decision tracking | Fresh tests prove amount-drift detection plus manual decision metadata with no vault mutation | Actual schedules expose current/approximate amounts, linked transactions, rules, and editing, but no matched prior/latest delta plus explicit household decision state | Yes | Preserve drift detection and decision tracking as command-layer logic; delegate schedule storage/posting/matching if Actual becomes authoritative. |
+| Guided Household Plan | Fresh tests feed recurring decisions and saved scenarios into one manual discussion/follow-up surface | Actual budget, schedules, reconciliation, goals/categories, forecasts, and reports are capable but remain separate workflows | Yes | Strong command-layer candidate: keep the cross-surface discussion/follow-up synthesis and avoid rebuilding Actual commodity features. |
+| Close history / driver explainability | Fresh tests prove immutable aggregate close/reopen events, trends, and material drivers | Actual has native reconciliation plus strong month-over-month/spending reports, but no matched household close/reopen revision history or automatic close-driver narrative | Partial to yes | Keep the explicit household close event/history and concise driver explanation; do not duplicate Actual reconciliation or general reporting. |
+| Deterministic full-vault backup/restore | Authoritative transaction vault backup/restore is proven; auxiliary domains are not bundled into one full-product package | Actual exact ZIP export now restores onto a separately provisioned v26.11 server and downloads to a fresh second client | No | Delegate/avoid differentiation claim. Actual has the cleaner single-budget recovery package and stronger demonstrated multi-client restore path. |
+| Household goals/debt context | Fresh tests prove goal contributions/health plus debt-plan and scenario context without ledger mutation | Actual natively supports sinking-fund categories, budget automation, off-budget debt/net-worth tracking, and manual reallocations, but the debt-vs-reserve/goal tradeoff remains manual | Partial | Do not claim raw goals/debt tracking as unique. Preserve only the integrated goal-health/debt tradeoff and decision-support layer where it reduces manual synthesis. |
 
 ## Sync / two-adult follow-up evidence
 
@@ -109,15 +120,15 @@ These observations feed #56 and must remain separate from the 22-job ledger/prod
 
 | Proof | Result | Evidence / notes |
 | --- | --- | --- |
-| Client A creates/imports synthetic household and syncs |  |  |
-| Client B starts empty and receives same state |  |  |
-| A changes one record; B receives it |  |  |
-| B edits a different record offline and converges after reconnect |  |  |
-| A and B edit same stale record; conflict is visible/deterministic |  |  |
-| Duplicate mutation/replay is idempotent |  |  |
-| Interrupted sync resumes safely |  |  |
-| Independent backup restores to a fresh client |  |  |
-| Narrow/PWA workflow remains usable |  |  |
+| Client A creates/imports synthetic household and syncs | Observed on a newly provisioned v26.11 server: a fresh client imported the exact synthetic v26.11 backup and the server then exposed `My Finances` to a subsequent fresh client | This is a backup-import bootstrap rather than rebuilding the fixture from raw CSV, but it proves the imported household becomes server-downloadable without using the prior server dataset. |
+| Client B starts empty and receives same state | Observed on the newly provisioned v26.11 server: a fresh second 390×844 browser context saw `My Finances` as available for download, downloaded it, and matched the expected six synthetic accounts and November budget values | Uses the same temporary synthetic server owner, so it proves a second-client household workflow but not separate named household identities. |
+| A changes one record; B receives it | Observed after reload: Food `$600` → `$601` on A; B showed `$601` and To Budget `$43,349` after reload. Restoring `$600` also converged after reload | Live update without reload was not observed; see `SYNC_ARCH_001_ACTUAL_CLIENT_CHECKPOINT.md` |
+| B edits a different record offline and converges after reconnect | Observed: while server was down, B changed General `$0` → `$7`; after restart/reload, A showed `$7`. Both restored to General `$0` and original baseline | Supports a single synthetic offline-save/reconnect sequence; no replay or interruption guarantee |
+| A and B edit same stale record; conflict is visible/deterministic | No visible conflict prompt: both edited stale Food `$600` offline (A `$610`, B `$620`); A reconnected first, B second, and B `$620` prevailed | One observed later-write overwrite; not sufficient to establish universal or deterministic conflict behavior |
+| Duplicate mutation/replay is idempotent | Observed at both import and network-sync layers: Gringotts spreadsheet fixture replay inserted 0 on second pass; Actual fixed-`imported_id` API replay added 1 then 0; a disposable v26.11 proxy then forwarded the exact same 275,528-byte / 2,043-message full-sync request upstream twice | Both duplicate full-sync forwards returned HTTP 200 while the server group database remained exactly 2,043 rows / 2,043 distinct timestamps rather than 4,086. This proves exact-batch network replay suppression for the tested current-release full-sync path; it does not establish every possible mutation shape. |
+| Interrupted sync resumes safely | Observed on disposable v26.11 server/proxy: the initial 124-byte sync handshake completed, then a 275,528-byte full-sync request carrying 2,043 messages completed upstream with HTTP 200 before the proxy deliberately dropped the downstream response; the client reported network failure and the immediate explicit retry succeeded | Server-side group storage contained exactly 2,043 messages with 2,043 distinct timestamps, matching two non-faulted baseline imports. This proves one current-release full-sync commit-before-ack interruption recovers without duplicate server message rows; it does not prove every mutation type or universal same-record conflict semantics. |
+| Independent backup restores to a fresh client | Observed on an independently started empty v26.11 server at `127.0.0.1:5010`: the exact `9a771cc1…58ac` export restored successfully, then a fresh second client downloaded the restored server file | Expected six synthetic accounts, all-account `$3,291.75`, on-budget `$19,241.75`, Food `$600`, General `$0`, and To Budget `$43,350` were visible. This supersedes the earlier same-server Client C limitation. See `SYNC_ARCH_001_ACTUAL_CLIENT_CHECKPOINT.md`. |
+| Narrow/PWA workflow remains usable | Observed on current v26.11: 390×844 budget and accounts views had no horizontal document overflow; the app exposed `/site.webmanifest` plus a registered service worker; after the downloaded budget was forced offline and the page reloaded, the same November budget remained usable | No reload error or console error was observed. This proves current-release narrow PWA/offline behavior for the synthetic household, not human spouse acceptance. |
 | Optional desktop client sees same authority without file shuttling |  |  |
 
 ## Migration / integration feasibility
@@ -125,21 +136,21 @@ These observations feed #56 and must remain separate from the 22-job ledger/prod
 ### If Actual becomes authoritative
 
 Record:
-- Gringotts data that exports cleanly: `TBD`.
-- Gringotts-only state needing preservation: `TBD`.
-- Mapping gaps / unsupported fields: `TBD`.
-- Tested rollback path: `TBD`.
-- Spreadsheet-exit quality: `TBD`.
+- Gringotts data that exports cleanly: authoritative transaction vault JSON, transaction-oriented CSV/delimited output, and the current 43-sheet local workbook/report exports are proven. The guarded importer also accepts CSV/delimited/OFX-family/Gringotts JSON inputs.
+- Gringotts-only state needing preservation: category budgets, goals, forecast settings, debt plan, scenario comparisons, Guided Plan metadata, recurring decisions, close history, import/profile/audit metadata, and other classified stores from the #56 storage inventory. These are not all contained in the authoritative transaction-vault JSON.
+- Mapping gaps / unsupported fields: a transaction-sheet CSV cannot preserve workbook formulas/macros, monthly-plan semantics, goals, recurring schedules/decisions, forecast/debt/scenario state, close history, or other non-ledger stores. Macro/VBA behavior is intentionally retired rather than executed or migrated.
+- Tested rollback path: spreadsheet-exit import requires a populated pre-import JSON backup; a fresh regression then restored that exact backup through the existing full-vault preview/acknowledge/confirm flow and returned the authoritative vault from 14 rows to the original 12. Failed writes also auto-restore the pre-write value. No new runtime feature was added because v134 remains feature-frozen.
+- Spreadsheet-exit quality: bounded CSV-sheet path proven with explicit mapping, one exact duplicate + two new rows, mandatory pre-import backup, missing-only write/readback, replay as verified no-change, explicit full-vault rollback, no network writes, and 390px containment. Direct `.xlsx` ingestion is deferred because no spreadsheet-parser dependency is present and CSV preserves the tested transaction semantics; add XLSX only if it materially preserves otherwise-lost household meaning.
 
 ### If Gringotts becomes an Actual companion
 
 Record:
-- exact supported `@actual-app/api` version/path: `TBD`.
-- API vs export/import boundary preference: `TBD`.
-- server/runtime requirement: `TBD`.
-- update/version coupling: `TBD`.
-- backup complexity: `TBD`.
-- additional security/privacy boundary: `TBD`.
+- exact supported `@actual-app/api` version/path: official `@actual-app/api@26.11.0` was installed only under untracked local benchmark tooling; a credential-free offline replay proof used `importTransactions` with a fixed synthetic `imported_id`.
+- API vs export/import boundary preference: keep explicit export/import as the lowest-coupling baseline. A Node API companion is technically supported but should be justified only if #54 proves it is simpler than standalone Gringotts; the browser API remains experimental.
+- server/runtime requirement: Node API embeds Actual's engine locally and may connect to a sync server; the browser API uses Worker + SQLite/WASM + IndexedDB and cross-origin isolation. A synchronized household still needs an Actual server reachable by both devices.
+- update/version coupling: pin and revalidate the Actual API/client/server release together. The benchmark already had to refresh v26.10.0 evidence to v26.11.0 before scoring, demonstrating real version-coupling cost.
+- backup complexity: an Actual-companion design creates at least two state/recovery concerns—Actual's authoritative budget and Gringotts-only decision metadata—unless Gringotts becomes read-only/derived. Actual's own ZIP export/restore is simpler than duplicating the ledger.
+- additional security/privacy boundary: server authentication/session handling and any companion credential boundary must remain outside repository/browser-local decision metadata. No password/token was read, stored, or committed during the benchmark; offline API proof deliberately omitted server credentials.
 
 ## Decision gate
 
@@ -154,16 +165,16 @@ Final recommendation must be exactly one of:
 
 ### Recommendation
 
-`TBD — benchmark not yet executed`
+`TBD — matched 22-job scoring and the deterministic interrupted-sync proof are complete. Final #54/#56 direction now awaits an independent exact-head decision review before selection.`
 
 ### Evidence-backed rationale
 
-`TBD`
+The matched matrix is complete and the unweighted scores are close: Gringotts `94/110` versus Actual `90/110`. That spread is not a verdict because the jobs intentionally mix commodity-ledger and household-command concerns at equal weight. Actual v26.11 is stronger or equal on first-class accounts, envelope allocation, schedules, reconciliation, general reports, sync, backup and recovery. Gringotts' evidence-backed edge is concentrated in the household command layer: unified attention/guided planning, recurring-cost drift decisions, explicit non-mutating scenario comparison, integrated goal/debt tradeoff support, and explicit close/reopen history with driver explanation. The deterministic full-sync interruption proof now closes the remaining technical recovery gate without establishing a universal same-record conflict rule. This makes custom Gringotts cloud sync even harder to justify: any retained Gringotts direction should avoid rebuilding Actual's commodity capabilities. Named/human second-adult acceptance and optional desktop authority remain secondary usability checks rather than blockers to the architecture decision.
 
 ### Rejected alternatives
 
-`TBD`
+None rejected yet. `MIGRATE_TO_ACTUAL`, `ACTUAL_COMPANION`, and `GRINGOTTS_STANDALONE` remain live #54 outcomes; #56 continues to treat `ACTUAL_SYNCED_HOUSEHOLD` as the architecture-to-beat rather than an accepted final decision.
 
 ### Next bounded issue
 
-`TBD`
+Run an independent exact-head decision review across the completed #54 matrix and #56 sync evidence, then select the final #54 recommendation and #56 architecture disposition. Keep named/human second-adult acceptance and optional desktop authority as secondary usability checks unless they expose a material contradiction. Do not start custom Gringotts sync from this worksheet.

@@ -1,0 +1,49 @@
+{
+  "benchmarkId": "BENCHMARK-001",
+  "fixtureVersion": 1,
+  "syntheticOnly": true,
+  "asOfDate": "2026-10-31",
+  "counts": {
+    "transactions": 177,
+    "accounts": 6,
+    "adults": 2,
+    "months": 6
+  },
+  "accountClosingBalances": {
+    "SYNTHETIC Checking": 11330.11,
+    "SYNTHETIC Savings": 11000,
+    "SYNTHETIC Card Alpha": 75.14,
+    "SYNTHETIC Card Beta": -3787.5,
+    "SYNTHETIC Auto Loan": -15950,
+    "SYNTHETIC Cash": 624
+  },
+  "recurringPriceDrift": {
+    "payee": "SYNTHETIC StreamBox",
+    "from": 17.99,
+    "to": 21.99,
+    "firstChangedMonth": "2026-08"
+  },
+  "irregularExpenses": {
+    "count": 3,
+    "totalOutflow": 2070
+  },
+  "reserve": {
+    "target": 12000,
+    "savingsClosingBalance": 11000,
+    "gap": 1000
+  },
+  "scenarios": {
+    "largePurchase": {
+      "canonicalAmount": -4800,
+      "liquidFundsBefore": 22954.11,
+      "liquidFundsAfter": 18154.11
+    },
+    "incomeReduction": {
+      "percent": 25,
+      "durationMonths": 2,
+      "baselineMonthlyIncome": 6400,
+      "monthlyIncomeLoss": 1600,
+      "totalIncomeLoss": 3200
+    }
+  }
+}

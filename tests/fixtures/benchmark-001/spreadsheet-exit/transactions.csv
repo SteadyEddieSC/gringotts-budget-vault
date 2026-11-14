@@ -1,0 +1,4 @@
+Date,Description,Amount,Category,Account,Memo,Transaction ID,Type
+2026-07-05,Electric Utility,145.00,Utilities,Test Checking,SYNTHETIC spreadsheet exit duplicate,jul-utility-1,Expense
+2026-11-01,SYNTHETIC Spreadsheet Groceries,123.45,Groceries,Test Checking,SYNTHETIC spreadsheet exit new row,sheet-exit-new-1,Expense
+2026-11-02,SYNTHETIC Spreadsheet Refund,-25.00,Income,Test Checking,SYNTHETIC spreadsheet exit new row,sheet-exit-new-2,Income
