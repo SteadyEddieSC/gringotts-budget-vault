@@ -15,7 +15,10 @@ test('restores the synthetic benchmark vault into an empty isolated browser prof
   await page.locator('#restoreFile').setInputFiles(restoreFixture);
   await expect(page.getByText(/Transactions: 183/i)).toBeVisible();
   await expect(page.getByText(/Current best vault: none/i)).toBeVisible();
-  await expect(page.getByText(/understand it will replace the destination vault/i)).toBeVisible();
+  // BENCHMARK-001 must preserve the accepted v134 restore backup attestation.
+  await expect(page.getByText(/I downloaded a current backup and reviewed the restore preview/i)).toBeVisible();
+  await expect(page.locator('#restoreAck')).not.toBeChecked();
+  await expect(page.locator('#restoreVault')).toBeDisabled();
   await expect(page.locator('#restoreAck')).toBeEnabled();
   await page.locator('#restoreAck').check();
   await expect(page.locator('#restoreVault')).toBeEnabled();
