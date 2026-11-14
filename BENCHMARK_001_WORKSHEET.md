@@ -1,6 +1,6 @@
 # BENCHMARK-001 Evidence Worksheet
 
-Status: execution worksheet for #54. This file is a structure for **synthetic-only** evidence collection; it is not a completed benchmark and does not select a product direction.
+Status: **completed 22-job synthetic evidence worksheet**, with an author-excluded independent decision review (`ACCEPT_DECISION_REVIEW H0/M0/L0` on prior HEAD `d1df0343bcbd26e7ad4997aa5b262236cb6a7ec7`) and a **conditional recommendation**, not a final household owner decision, real-data migration, provider activation, or merge permission. Early dated preparation checkpoints are historical; the scored matrix and decision gate below carry current evidence.
 
 ## Frozen benchmark inputs
 
@@ -165,7 +165,7 @@ Final recommendation must be exactly one of:
 
 ### Recommendation
 
-`TBD — matched 22-job scoring and the deterministic interrupted-sync proof are complete. Final #54/#56 direction now awaits an independent exact-head decision review before selection.`
+`ACTUAL_COMPANION` for #54 and `HYBRID` for #56 — **CONDITIONAL RECOMMENDATION ONLY**, based on independently accepted synthetic evidence ([review receipt on draft PR #64](https://github.com/SteadyEddieSC/gringotts-budget-vault/pull/64#issuecomment-6885330429)). Actual would be the sole synchronized ledger/budget authority; Gringotts would retain local, non-mutating household planning and decision support. Two-adult human usability, conflict expectations, owner go/no-go, and any hosting/migration authorization remain pending. This worksheet does not authorize real household data changes or custom Gringotts cloud sync.
 
 ### Evidence-backed rationale
 
@@ -173,8 +173,8 @@ The matched matrix is complete and the unweighted scores are close: Gringotts `9
 
 ### Rejected alternatives
 
-None rejected yet. `MIGRATE_TO_ACTUAL`, `ACTUAL_COMPANION`, and `GRINGOTTS_STANDALONE` remain live #54 outcomes; #56 continues to treat `ACTUAL_SYNCED_HOUSEHOLD` as the architecture-to-beat rather than an accepted final decision.
+`GRINGOTTS_STANDALONE` cannot alone meet cloud-first multi-device use without custom sync and identity operations. A wholesale `MIGRATE_TO_ACTUAL` discards Gringotts planning/scenario/close-history state unless independently preserved. `GRINGOTTS_CLOUDFLARE_SYNC` is not currently justified against Actual's tested sync baseline. These are independent review-level architectural dispositions only, not a final owner adoption.
 
 ### Next bounded issue
 
-Run an independent exact-head decision review across the completed #54 matrix and #56 sync evidence, then select the final #54 recommendation and #56 architecture disposition. Keep named/human second-adult acceptance and optional desktop authority as secondary usability checks unless they expose a material contradiction. Do not start custom Gringotts sync from this worksheet.
+The independent exact-head decision review on the prior frozen candidate is complete. Next: run a two-adult synthetic usability trial of Actual on ordinary laptop/phone budgeting, including overlapping-edit expectations, and obtain the owner's explicit acceptance or rejection of the `ACTUAL_COMPANION` / `HYBRID` recommendation. Any eventual merge candidate must reconcile this draft with accepted current main, address the pre-existing startup-size gate without waiver, and rerun exact-head CI plus independent source review. Do not start custom Gringotts sync or real-data migration from this worksheet.

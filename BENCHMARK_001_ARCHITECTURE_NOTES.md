@@ -1,6 +1,6 @@
-# BENCHMARK-001 architecture notes (interim)
+# BENCHMARK-001 architecture notes — completed synthetic evidence / conditional decision
 
-Status: current synthetic-only evidence for issue #54. The matched 22-job qualitative matrix and summary scoring are now complete, but this is **not** a final product recommendation: #56 interrupted-sync recovery remains an explicit decision gate. All hands-on data is synthetic; no password is recorded, no bank is connected, and no paid service was used.
+Status: **synthetic evidence complete; owner decision pending** for #54/#56. The matched 22-job matrix, independent-server backup restore/PWA, and bounded interrupted full-sync/network replay proofs are recorded below. Older dated "remaining" sections are historical checkpoints, not current open technical gates. An author-excluded independent decision review on PR #64 HEAD `d1df0343bcbd26e7ad4997aa5b262236cb6a7ec7` returned `ACCEPT_DECISION_REVIEW H0/M0/L0`, conditionally recommending `ACTUAL_COMPANION` / `HYBRID`. This does **not** authorize migration, a shared-budget go-live, or merging this draft; named two-adult usability and same-record conflict expectations remain unresolved. All testing was synthetic-only; no real household records, bank connection, password, or paid service was used.
 
 ## Actual Budget evidence checked on 2026-11-01
 

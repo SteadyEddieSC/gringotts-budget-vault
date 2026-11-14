@@ -1,6 +1,6 @@
 # SYNC-ARCH-001 Actual client checkpoint
 
-Status: partial synthetic-only execution evidence for issue #56. No real household data, bank connection, password, or paid service was used.
+Status: **scoped current-release synthetic technical proof complete for tested paths**, including eventual two-client sync, one sampled silent same-record overwrite, fixed-ID import replay, identical-batch network replay, interrupted full-sync recovery, independent-server restore and 390px offline PWA. Earlier dated "remaining" sections are historical progress notes, not the current gate list. This does **not** establish universal conflict safety, named two-adult human usability, owner approval, or real-data migration readiness. Independent decision review conditionally recommended `HYBRID` on PR #64; no real household data, bank connection, password, or paid service was used.
 
 ## Observed clients
 
