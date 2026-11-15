@@ -326,11 +326,53 @@ export function toGringottsCsv(scenario) {
   return csv(rows);
 }
 
+export function buildGringottsRestoreFixture(scenario = buildBenchmark001()) {
+  const openingBalances = scenario.accounts.map((account, index) => ({
+    id: `syn-opening-${String(index + 1).padStart(2, '0')}`,
+    date: '2026-04-30',
+    name: 'SYNTHETIC Opening balance',
+    merchant: 'SYNTHETIC Opening balance',
+    amount: -account.openingBalance,
+    type: account.openingBalance >= 0 ? 'Income' : 'Expense',
+    category: 'Starting Balances',
+    account: account.name,
+    owner: index % 2 === 0 ? 'SYNTHETIC Adult A' : 'SYNTHETIC Adult B',
+    reviewed: true,
+    pending: false
+  }));
+  const transactions = scenario.transactions.map((transaction, index) => ({
+    id: transaction.id,
+    date: transaction.date,
+    name: transaction.payee,
+    merchant: transaction.payee,
+    amount: -transaction.amount,
+    type: transaction.kind,
+    category: transaction.category,
+    account: transaction.account,
+    owner: index % 2 === 0 ? 'SYNTHETIC Adult A' : 'SYNTHETIC Adult B',
+    reviewed: true,
+    pending: false
+  }));
+
+  return {
+    version: 'BENCHMARK-001',
+    appVersion: 'v134',
+    syntheticOnly: true,
+    source: {
+      fileName: 'benchmark-001-gringotts-vault.json',
+      institution: 'SYNTHETIC BENCHMARK-001'
+    },
+    lastSavedAt: '2026-10-31T23:59:59.000Z',
+    transactions: [...openingBalances, ...transactions]
+  };
+}
+
 export function buildArtifactContents(scenario = buildBenchmark001()) {
   const artifacts = {
     'scenario.json': json(scenario),
     'expected-outcomes.json': json(buildExpectedOutcomes(scenario)),
-    'gringotts-all-accounts.csv': toGringottsCsv(scenario)
+    'gringotts-all-accounts.csv': toGringottsCsv(scenario),
+    'gringotts-vault-restore.json': json(buildGringottsRestoreFixture(scenario))
   };
 
   for (const account of scenario.accounts) {

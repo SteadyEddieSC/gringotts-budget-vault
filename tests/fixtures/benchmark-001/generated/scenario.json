@@ -1,0 +1,1875 @@
+{
+  "id": "BENCHMARK-001",
+  "version": 1,
+  "syntheticOnly": true,
+  "currency": "USD",
+  "period": {
+    "start": "2026-05-01",
+    "end": "2026-10-31",
+    "months": [
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+      "2026-09",
+      "2026-10"
+    ]
+  },
+  "household": {
+    "adults": [
+      {
+        "id": "adult-a",
+        "label": "SYNTHETIC Adult A"
+      },
+      {
+        "id": "adult-b",
+        "label": "SYNTHETIC Adult B"
+      }
+    ]
+  },
+  "accounts": [
+    {
+      "name": "SYNTHETIC Checking",
+      "kind": "checking",
+      "openingBalance": 2500
+    },
+    {
+      "name": "SYNTHETIC Savings",
+      "kind": "savings",
+      "openingBalance": 8000
+    },
+    {
+      "name": "SYNTHETIC Card Alpha",
+      "kind": "credit",
+      "openingBalance": -900
+    },
+    {
+      "name": "SYNTHETIC Card Beta",
+      "kind": "credit",
+      "openingBalance": -4200
+    },
+    {
+      "name": "SYNTHETIC Auto Loan",
+      "kind": "loan",
+      "openingBalance": -18500
+    },
+    {
+      "name": "SYNTHETIC Cash",
+      "kind": "cash",
+      "openingBalance": 150
+    }
+  ],
+  "goals": [
+    {
+      "id": "reserve",
+      "label": "SYNTHETIC Emergency Reserve",
+      "target": 12000
+    },
+    {
+      "id": "sinking-fund",
+      "label": "SYNTHETIC Annual Expense Sinking Fund",
+      "target": 2400
+    },
+    {
+      "id": "debt-payoff",
+      "label": "SYNTHETIC Card Beta Payoff",
+      "targetBalance": 0,
+      "startingBalance": -4200
+    }
+  ],
+  "hypotheticalScenarios": [
+    {
+      "id": "large-purchase",
+      "label": "SYNTHETIC Large Purchase",
+      "amount": -4800
+    },
+    {
+      "id": "income-reduction",
+      "label": "SYNTHETIC Temporary Income Reduction",
+      "percent": 25,
+      "durationMonths": 2
+    }
+  ],
+  "expectedSignals": {
+    "recurringPriceDrift": {
+      "payee": "SYNTHETIC StreamBox",
+      "from": 17.99,
+      "to": 21.99,
+      "firstChangedMonth": "2026-08"
+    },
+    "irregularExpenseCount": 3,
+    "accountCount": 6
+  },
+  "transactions": [
+    {
+      "id": "syn-0001",
+      "date": "2026-05-01",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll A",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0002",
+      "date": "2026-05-15",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll B",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0003",
+      "date": "2026-05-03",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Harbor Mortgage",
+      "category": "Housing",
+      "amount": -1850,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0004",
+      "date": "2026-05-06",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Electric Utility",
+      "category": "Utilities",
+      "amount": -145.22,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0005",
+      "date": "2026-05-08",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Water Utility",
+      "category": "Utilities",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0006",
+      "date": "2026-05-10",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Fiber Internet",
+      "category": "Utilities",
+      "amount": -79.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0007",
+      "date": "2026-05-12",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Insurance",
+      "category": "Insurance",
+      "amount": -186,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0008",
+      "date": "2026-05-14",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Transfer to Savings",
+      "category": "Transfer",
+      "amount": -500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0009",
+      "date": "2026-05-18",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Loan Payment",
+      "category": "Debt",
+      "amount": -425,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0010",
+      "date": "2026-05-20",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC ATM Withdrawal",
+      "category": "Transfer",
+      "amount": -120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0011",
+      "date": "2026-05-24",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Alpha Payment",
+      "category": "Transfer",
+      "amount": -900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0012",
+      "date": "2026-05-26",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Beta Payment",
+      "category": "Transfer",
+      "amount": -300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0013",
+      "date": "2026-05-14",
+      "account": "SYNTHETIC Savings",
+      "payee": "SYNTHETIC Transfer from Checking",
+      "category": "Transfer",
+      "amount": 500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0014",
+      "date": "2026-05-20",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC ATM Transfer In",
+      "category": "Transfer",
+      "amount": 120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0015",
+      "date": "2026-05-22",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC Cash Market",
+      "category": "Groceries",
+      "amount": -38.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0016",
+      "date": "2026-05-18",
+      "account": "SYNTHETIC Auto Loan",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 425,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0017",
+      "date": "2026-05-04",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 1",
+      "category": "Groceries",
+      "amount": -132.45,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0018",
+      "date": "2026-05-09",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 2",
+      "category": "Groceries",
+      "amount": -148.12,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0019",
+      "date": "2026-05-14",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 3",
+      "category": "Groceries",
+      "amount": -126.33,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0020",
+      "date": "2026-05-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 4",
+      "category": "Groceries",
+      "amount": -155.2,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0021",
+      "date": "2026-05-07",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 1",
+      "category": "Fuel",
+      "amount": -58.14,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0022",
+      "date": "2026-05-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 2",
+      "category": "Fuel",
+      "amount": -61.22,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0023",
+      "date": "2026-05-11",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC StreamBox",
+      "category": "Subscriptions",
+      "amount": -17.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0024",
+      "date": "2026-05-13",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Cloud Storage",
+      "category": "Subscriptions",
+      "amount": -9.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0025",
+      "date": "2026-05-24",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0026",
+      "date": "2026-05-05",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Family Dining",
+      "category": "Dining",
+      "amount": -85,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0027",
+      "date": "2026-05-16",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Household Supply",
+      "category": "Household",
+      "amount": -75,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0028",
+      "date": "2026-05-21",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Books and Learning",
+      "category": "Education",
+      "amount": -60,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0029",
+      "date": "2026-05-26",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0030",
+      "date": "2026-06-01",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll A",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0031",
+      "date": "2026-06-15",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll B",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0032",
+      "date": "2026-06-03",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Harbor Mortgage",
+      "category": "Housing",
+      "amount": -1850,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0033",
+      "date": "2026-06-06",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Electric Utility",
+      "category": "Utilities",
+      "amount": -158.4,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0034",
+      "date": "2026-06-08",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Water Utility",
+      "category": "Utilities",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0035",
+      "date": "2026-06-10",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Fiber Internet",
+      "category": "Utilities",
+      "amount": -79.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0036",
+      "date": "2026-06-12",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Insurance",
+      "category": "Insurance",
+      "amount": -186,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0037",
+      "date": "2026-06-14",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Transfer to Savings",
+      "category": "Transfer",
+      "amount": -500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0038",
+      "date": "2026-06-18",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Loan Payment",
+      "category": "Debt",
+      "amount": -425,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0039",
+      "date": "2026-06-20",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC ATM Withdrawal",
+      "category": "Transfer",
+      "amount": -120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0040",
+      "date": "2026-06-24",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Alpha Payment",
+      "category": "Transfer",
+      "amount": -900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0041",
+      "date": "2026-06-26",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Beta Payment",
+      "category": "Transfer",
+      "amount": -300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0042",
+      "date": "2026-06-14",
+      "account": "SYNTHETIC Savings",
+      "payee": "SYNTHETIC Transfer from Checking",
+      "category": "Transfer",
+      "amount": 500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0043",
+      "date": "2026-06-20",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC ATM Transfer In",
+      "category": "Transfer",
+      "amount": 120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0044",
+      "date": "2026-06-22",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC Cash Market",
+      "category": "Groceries",
+      "amount": -39.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0045",
+      "date": "2026-06-18",
+      "account": "SYNTHETIC Auto Loan",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 425,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0046",
+      "date": "2026-06-04",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 1",
+      "category": "Groceries",
+      "amount": -139.18,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0047",
+      "date": "2026-06-09",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 2",
+      "category": "Groceries",
+      "amount": -152.04,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0048",
+      "date": "2026-06-14",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 3",
+      "category": "Groceries",
+      "amount": -129.8,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0049",
+      "date": "2026-06-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 4",
+      "category": "Groceries",
+      "amount": -160.25,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0050",
+      "date": "2026-06-07",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 1",
+      "category": "Fuel",
+      "amount": -59.07,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0051",
+      "date": "2026-06-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 2",
+      "category": "Fuel",
+      "amount": -60.88,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0052",
+      "date": "2026-06-11",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC StreamBox",
+      "category": "Subscriptions",
+      "amount": -17.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0053",
+      "date": "2026-06-13",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Cloud Storage",
+      "category": "Subscriptions",
+      "amount": -9.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0054",
+      "date": "2026-06-24",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0055",
+      "date": "2026-06-05",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Family Dining",
+      "category": "Dining",
+      "amount": -87,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0056",
+      "date": "2026-06-16",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Household Supply",
+      "category": "Household",
+      "amount": -76.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0057",
+      "date": "2026-06-21",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Books and Learning",
+      "category": "Education",
+      "amount": -61,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0058",
+      "date": "2026-06-26",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0059",
+      "date": "2026-07-01",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll A",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0060",
+      "date": "2026-07-15",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll B",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0061",
+      "date": "2026-07-03",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Harbor Mortgage",
+      "category": "Housing",
+      "amount": -1850,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0062",
+      "date": "2026-07-06",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Electric Utility",
+      "category": "Utilities",
+      "amount": -151.73,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0063",
+      "date": "2026-07-08",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Water Utility",
+      "category": "Utilities",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0064",
+      "date": "2026-07-10",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Fiber Internet",
+      "category": "Utilities",
+      "amount": -79.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0065",
+      "date": "2026-07-12",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Insurance",
+      "category": "Insurance",
+      "amount": -186,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0066",
+      "date": "2026-07-14",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Transfer to Savings",
+      "category": "Transfer",
+      "amount": -500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0067",
+      "date": "2026-07-18",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Loan Payment",
+      "category": "Debt",
+      "amount": -425,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0068",
+      "date": "2026-07-20",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC ATM Withdrawal",
+      "category": "Transfer",
+      "amount": -120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0069",
+      "date": "2026-07-24",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Alpha Payment",
+      "category": "Transfer",
+      "amount": -900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0070",
+      "date": "2026-07-26",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Beta Payment",
+      "category": "Transfer",
+      "amount": -300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0071",
+      "date": "2026-07-14",
+      "account": "SYNTHETIC Savings",
+      "payee": "SYNTHETIC Transfer from Checking",
+      "category": "Transfer",
+      "amount": 500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0072",
+      "date": "2026-07-20",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC ATM Transfer In",
+      "category": "Transfer",
+      "amount": 120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0073",
+      "date": "2026-07-22",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC Cash Market",
+      "category": "Groceries",
+      "amount": -40.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0074",
+      "date": "2026-07-18",
+      "account": "SYNTHETIC Auto Loan",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 425,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0075",
+      "date": "2026-07-04",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 1",
+      "category": "Groceries",
+      "amount": -143.77,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0076",
+      "date": "2026-07-09",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 2",
+      "category": "Groceries",
+      "amount": -149.51,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0077",
+      "date": "2026-07-14",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 3",
+      "category": "Groceries",
+      "amount": -135.16,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0078",
+      "date": "2026-07-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 4",
+      "category": "Groceries",
+      "amount": -158.44,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0079",
+      "date": "2026-07-07",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 1",
+      "category": "Fuel",
+      "amount": -61.15,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0080",
+      "date": "2026-07-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 2",
+      "category": "Fuel",
+      "amount": -63.02,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0081",
+      "date": "2026-07-11",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC StreamBox",
+      "category": "Subscriptions",
+      "amount": -17.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0082",
+      "date": "2026-07-13",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Cloud Storage",
+      "category": "Subscriptions",
+      "amount": -9.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0083",
+      "date": "2026-07-24",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0084",
+      "date": "2026-07-05",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Family Dining",
+      "category": "Dining",
+      "amount": -89,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0085",
+      "date": "2026-07-16",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Household Supply",
+      "category": "Household",
+      "amount": -78,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0086",
+      "date": "2026-07-21",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Books and Learning",
+      "category": "Education",
+      "amount": -62,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0087",
+      "date": "2026-07-26",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0088",
+      "date": "2026-08-01",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll A",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0089",
+      "date": "2026-08-15",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll B",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0090",
+      "date": "2026-08-03",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Harbor Mortgage",
+      "category": "Housing",
+      "amount": -1850,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0091",
+      "date": "2026-08-06",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Electric Utility",
+      "category": "Utilities",
+      "amount": -172.11,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0092",
+      "date": "2026-08-08",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Water Utility",
+      "category": "Utilities",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0093",
+      "date": "2026-08-10",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Fiber Internet",
+      "category": "Utilities",
+      "amount": -79.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0094",
+      "date": "2026-08-12",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Insurance",
+      "category": "Insurance",
+      "amount": -186,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0095",
+      "date": "2026-08-14",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Transfer to Savings",
+      "category": "Transfer",
+      "amount": -500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0096",
+      "date": "2026-08-18",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Loan Payment",
+      "category": "Debt",
+      "amount": -425,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0097",
+      "date": "2026-08-20",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC ATM Withdrawal",
+      "category": "Transfer",
+      "amount": -120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0098",
+      "date": "2026-08-24",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Alpha Payment",
+      "category": "Transfer",
+      "amount": -900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0099",
+      "date": "2026-08-26",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Beta Payment",
+      "category": "Transfer",
+      "amount": -300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0100",
+      "date": "2026-08-14",
+      "account": "SYNTHETIC Savings",
+      "payee": "SYNTHETIC Transfer from Checking",
+      "category": "Transfer",
+      "amount": 500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0101",
+      "date": "2026-08-20",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC ATM Transfer In",
+      "category": "Transfer",
+      "amount": 120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0102",
+      "date": "2026-08-22",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC Cash Market",
+      "category": "Groceries",
+      "amount": -41.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0103",
+      "date": "2026-08-18",
+      "account": "SYNTHETIC Auto Loan",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 425,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0104",
+      "date": "2026-08-04",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 1",
+      "category": "Groceries",
+      "amount": -146.23,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0105",
+      "date": "2026-08-09",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 2",
+      "category": "Groceries",
+      "amount": -155.62,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0106",
+      "date": "2026-08-14",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 3",
+      "category": "Groceries",
+      "amount": -138.05,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0107",
+      "date": "2026-08-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 4",
+      "category": "Groceries",
+      "amount": -162.91,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0108",
+      "date": "2026-08-07",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 1",
+      "category": "Fuel",
+      "amount": -60.44,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0109",
+      "date": "2026-08-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 2",
+      "category": "Fuel",
+      "amount": -62.57,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0110",
+      "date": "2026-08-11",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC StreamBox",
+      "category": "Subscriptions",
+      "amount": -21.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0111",
+      "date": "2026-08-13",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Cloud Storage",
+      "category": "Subscriptions",
+      "amount": -9.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0112",
+      "date": "2026-08-24",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0113",
+      "date": "2026-08-05",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Family Dining",
+      "category": "Dining",
+      "amount": -91,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0114",
+      "date": "2026-08-16",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Household Supply",
+      "category": "Household",
+      "amount": -79.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0115",
+      "date": "2026-08-21",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Books and Learning",
+      "category": "Education",
+      "amount": -63,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0116",
+      "date": "2026-08-26",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0117",
+      "date": "2026-09-01",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll A",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0118",
+      "date": "2026-09-15",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll B",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0119",
+      "date": "2026-09-03",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Harbor Mortgage",
+      "category": "Housing",
+      "amount": -1850,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0120",
+      "date": "2026-09-06",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Electric Utility",
+      "category": "Utilities",
+      "amount": -166.85,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0121",
+      "date": "2026-09-08",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Water Utility",
+      "category": "Utilities",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0122",
+      "date": "2026-09-10",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Fiber Internet",
+      "category": "Utilities",
+      "amount": -79.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0123",
+      "date": "2026-09-12",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Insurance",
+      "category": "Insurance",
+      "amount": -186,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0124",
+      "date": "2026-09-14",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Transfer to Savings",
+      "category": "Transfer",
+      "amount": -500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0125",
+      "date": "2026-09-18",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Loan Payment",
+      "category": "Debt",
+      "amount": -425,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0126",
+      "date": "2026-09-20",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC ATM Withdrawal",
+      "category": "Transfer",
+      "amount": -120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0127",
+      "date": "2026-09-24",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Alpha Payment",
+      "category": "Transfer",
+      "amount": -900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0128",
+      "date": "2026-09-26",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Beta Payment",
+      "category": "Transfer",
+      "amount": -300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0129",
+      "date": "2026-09-14",
+      "account": "SYNTHETIC Savings",
+      "payee": "SYNTHETIC Transfer from Checking",
+      "category": "Transfer",
+      "amount": 500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0130",
+      "date": "2026-09-20",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC ATM Transfer In",
+      "category": "Transfer",
+      "amount": 120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0131",
+      "date": "2026-09-22",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC Cash Market",
+      "category": "Groceries",
+      "amount": -42.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0132",
+      "date": "2026-09-18",
+      "account": "SYNTHETIC Auto Loan",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 425,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0133",
+      "date": "2026-09-04",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 1",
+      "category": "Groceries",
+      "amount": -141.88,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0134",
+      "date": "2026-09-09",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 2",
+      "category": "Groceries",
+      "amount": -151.29,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0135",
+      "date": "2026-09-14",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 3",
+      "category": "Groceries",
+      "amount": -133.67,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0136",
+      "date": "2026-09-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 4",
+      "category": "Groceries",
+      "amount": -159.72,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0137",
+      "date": "2026-09-07",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 1",
+      "category": "Fuel",
+      "amount": -59.91,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0138",
+      "date": "2026-09-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 2",
+      "category": "Fuel",
+      "amount": -61.48,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0139",
+      "date": "2026-09-11",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC StreamBox",
+      "category": "Subscriptions",
+      "amount": -21.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0140",
+      "date": "2026-09-13",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Cloud Storage",
+      "category": "Subscriptions",
+      "amount": -9.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0141",
+      "date": "2026-09-24",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0142",
+      "date": "2026-09-05",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Family Dining",
+      "category": "Dining",
+      "amount": -93,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0143",
+      "date": "2026-09-16",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Household Supply",
+      "category": "Household",
+      "amount": -81,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0144",
+      "date": "2026-09-21",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Books and Learning",
+      "category": "Education",
+      "amount": -64,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0145",
+      "date": "2026-09-26",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0146",
+      "date": "2026-10-01",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll A",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0147",
+      "date": "2026-10-15",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Payroll B",
+      "category": "Income",
+      "amount": 3200,
+      "kind": "Income",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0148",
+      "date": "2026-10-03",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Harbor Mortgage",
+      "category": "Housing",
+      "amount": -1850,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0149",
+      "date": "2026-10-06",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Electric Utility",
+      "category": "Utilities",
+      "amount": -149.64,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0150",
+      "date": "2026-10-08",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Water Utility",
+      "category": "Utilities",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0151",
+      "date": "2026-10-10",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Fiber Internet",
+      "category": "Utilities",
+      "amount": -79.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0152",
+      "date": "2026-10-12",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Insurance",
+      "category": "Insurance",
+      "amount": -186,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0153",
+      "date": "2026-10-14",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Transfer to Savings",
+      "category": "Transfer",
+      "amount": -500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0154",
+      "date": "2026-10-18",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Auto Loan Payment",
+      "category": "Debt",
+      "amount": -425,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0155",
+      "date": "2026-10-20",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC ATM Withdrawal",
+      "category": "Transfer",
+      "amount": -120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0156",
+      "date": "2026-10-24",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Alpha Payment",
+      "category": "Transfer",
+      "amount": -900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0157",
+      "date": "2026-10-26",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Card Beta Payment",
+      "category": "Transfer",
+      "amount": -300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0158",
+      "date": "2026-10-14",
+      "account": "SYNTHETIC Savings",
+      "payee": "SYNTHETIC Transfer from Checking",
+      "category": "Transfer",
+      "amount": 500,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0159",
+      "date": "2026-10-20",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC ATM Transfer In",
+      "category": "Transfer",
+      "amount": 120,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0160",
+      "date": "2026-10-22",
+      "account": "SYNTHETIC Cash",
+      "payee": "SYNTHETIC Cash Market",
+      "category": "Groceries",
+      "amount": -43.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0161",
+      "date": "2026-10-18",
+      "account": "SYNTHETIC Auto Loan",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 425,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0162",
+      "date": "2026-10-04",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 1",
+      "category": "Groceries",
+      "amount": -145.31,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0163",
+      "date": "2026-10-09",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 2",
+      "category": "Groceries",
+      "amount": -154.08,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0164",
+      "date": "2026-10-14",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 3",
+      "category": "Groceries",
+      "amount": -137.42,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0165",
+      "date": "2026-10-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Market 4",
+      "category": "Groceries",
+      "amount": -161.55,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0166",
+      "date": "2026-10-07",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 1",
+      "category": "Fuel",
+      "amount": -58.77,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0167",
+      "date": "2026-10-19",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Fuel Stop 2",
+      "category": "Fuel",
+      "amount": -60.35,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0168",
+      "date": "2026-10-11",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC StreamBox",
+      "category": "Subscriptions",
+      "amount": -21.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0169",
+      "date": "2026-10-13",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Cloud Storage",
+      "category": "Subscriptions",
+      "amount": -9.99,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0170",
+      "date": "2026-10-24",
+      "account": "SYNTHETIC Card Alpha",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 900,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0171",
+      "date": "2026-10-05",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Family Dining",
+      "category": "Dining",
+      "amount": -95,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0172",
+      "date": "2026-10-16",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Household Supply",
+      "category": "Household",
+      "amount": -82.5,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0173",
+      "date": "2026-10-21",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Books and Learning",
+      "category": "Education",
+      "amount": -65,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0174",
+      "date": "2026-10-26",
+      "account": "SYNTHETIC Card Beta",
+      "payee": "SYNTHETIC Payment from Checking",
+      "category": "Transfer",
+      "amount": 300,
+      "kind": "Transfer",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0175",
+      "date": "2026-05-09",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Vehicle Registration",
+      "category": "Annual / Irregular",
+      "amount": -320,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0176",
+      "date": "2026-07-17",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Home Annual Premium",
+      "category": "Annual / Irregular",
+      "amount": -1100,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    },
+    {
+      "id": "syn-0177",
+      "date": "2026-09-23",
+      "account": "SYNTHETIC Checking",
+      "payee": "SYNTHETIC Medical Deductible",
+      "category": "Annual / Irregular",
+      "amount": -650,
+      "kind": "Expense",
+      "notes": "SYNTHETIC BENCHMARK-001"
+    }
+  ]
+}

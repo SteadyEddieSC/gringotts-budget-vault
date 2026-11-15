@@ -8,6 +8,7 @@ import test from 'node:test';
 import {
   ACCOUNTS,
   MONTHS,
+  buildGringottsRestoreFixture,
   buildBenchmark001,
   buildExpectedOutcomes,
   toActualCsv,
@@ -146,6 +147,35 @@ test('Actual and Gringotts CSVs derive from the same canonical transaction meani
   assert.match(gringotts, /SYNTHETIC Harbor Mortgage[^]*?1850\.00/);
 });
 
+test('Gringotts restore fixture preserves synthetic accounts, signs, and opening balances', () => {
+  const scenario = buildBenchmark001();
+  const vault = buildGringottsRestoreFixture(scenario);
+
+  assert.equal(vault.syntheticOnly, true);
+  assert.equal(vault.transactions.length, 183);
+  assert.deepEqual(
+    new Set(vault.transactions.map(({ account }) => account)),
+    new Set(ACCOUNTS.map(({ name }) => name))
+  );
+  assert.equal(
+    vault.transactions.filter(({ category }) => category === 'Starting Balances').length,
+    6
+  );
+  for (const transaction of vault.transactions) {
+    assert.match(transaction.name, /^SYNTHETIC /);
+    assert.match(transaction.account, /^SYNTHETIC /);
+    assert.equal(transaction.reviewed, true);
+    assert.equal(transaction.pending, false);
+  }
+
+  const payroll = vault.transactions.find(({ id }) => id === 'syn-0001');
+  const mortgage = vault.transactions.find(({ id }) => id === 'syn-0003');
+  assert.equal(payroll.amount, -3200);
+  assert.equal(mortgage.amount, 1850);
+  assert.equal(vault.transactions.find(({ id }) => id === 'syn-opening-01').amount, -2500);
+  assert.equal(vault.transactions.find(({ id }) => id === 'syn-opening-05').amount, 18500);
+});
+
 test('CLI writer emits a deterministic, hash-bound benchmark evidence pack', async () => {
   const firstDir = await mkdtemp(path.join(os.tmpdir(), 'gringotts-benchmark-001-a-'));
   const secondDir = await mkdtemp(path.join(os.tmpdir(), 'gringotts-benchmark-001-b-'));
@@ -154,7 +184,7 @@ test('CLI writer emits a deterministic, hash-bound benchmark evidence pack', asy
 
   assert.equal(firstResult.transactionCount, 177);
   assert.equal(firstResult.accountCount, 6);
-  assert.equal(firstResult.artifactCount, 9);
+  assert.equal(firstResult.artifactCount, 10);
   assert.equal(firstResult.manifestSha256, secondResult.manifestSha256);
 
   const scenario = JSON.parse(await readFile(path.join(firstDir, 'scenario.json'), 'utf8'));
@@ -194,7 +224,7 @@ test('CLI writer emits a deterministic, hash-bound benchmark evidence pack', asy
   const manifest = JSON.parse(firstManifestText);
   assert.equal(manifest.benchmarkId, 'BENCHMARK-001');
   assert.equal(manifest.syntheticOnly, true);
-  assert.equal(manifest.artifactCount, 9);
+  assert.equal(manifest.artifactCount, 10);
   assert.deepEqual(
     manifest.artifacts.map(({ path: artifactPath }) => artifactPath),
     [...manifest.artifacts.map(({ path: artifactPath }) => artifactPath)].sort()
