@@ -1,1 +1,2 @@
 tests/fixtures/benchmark-001/generated/** text eol=lf
+tests/fixtures/bank-import/synthetic-signed.csv text eol=lf
